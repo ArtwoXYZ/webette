@@ -1,0 +1,1 @@
+- 🔳 Créer fichier de config pour l'outil webette

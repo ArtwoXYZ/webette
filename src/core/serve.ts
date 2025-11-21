@@ -1,0 +1,119 @@
+import * as path from "node:path";
+import { stat } from "node:fs/promises";
+import { watch } from "node:fs";
+
+import { build } from "./build";
+import type { BuildOptions } from "./build";
+import type { Logger } from "../logging/logger";
+
+export interface ServeOptions extends BuildOptions {}
+
+function keepProcessAlive() {
+  return new Promise<void>(() => {});
+}
+
+export async function serve(
+  rootDir: string,
+  options: ServeOptions,
+  logger: Logger
+): Promise<void> {
+  const scoped = logger.child("serve");
+  const port = 4173;
+  let buildVersion = Date.now().toString();
+  const outputDir = path.join(rootDir, "_public");
+
+  // 1. Initial build with liveReload = true, in quiet mode
+  scoped.info("serve.initialBuild", { rootDir });
+
+  await build(
+    rootDir,
+    { ...options, liveReload: true, quiet: true },
+    logger
+  );
+
+  buildVersion = Date.now().toString();
+  scoped.debug("serve.initialBuildDone", { version: buildVersion });
+
+  // 2. HTTP Server
+  Bun.serve({
+    port,
+    async fetch(req) {
+      const url = new URL(req.url);
+
+      if (url.pathname === "/__webette-version") {
+        return new Response(buildVersion, {
+          headers: { "Cache-Control": "no-store" },
+        });
+      }
+
+      const requestedPath =
+        url.pathname === "/" ? "/index.html" : url.pathname;
+
+      const filePath = path.join(outputDir, requestedPath);
+
+      try {
+        const fileStat = await stat(filePath);
+        if (fileStat.isDirectory()) {
+          const indexPath = path.join(filePath, "index.html");
+          return new Response(Bun.file(indexPath));
+        }
+        return new Response(Bun.file(filePath));
+      } catch {
+        return new Response("Not found", { status: 404 });
+      }
+    },
+  });
+
+  // 🔹 This stays at info level, it's important:
+  scoped.info("serve.listening", {
+    url: `http://localhost:${port}`,
+    port,
+    rootDir,
+  });
+
+  const watchLogger = scoped.child("watch");
+
+  // 3. File watcher
+  watch(
+    rootDir,
+    { recursive: true },
+    (eventType, filename) => {
+      const name = filename?.toString() ?? "";
+
+      if (name.includes("_public")) return;
+
+      // File details → debug (visible only with -v)
+      watchLogger.debug("serve.watchEvent", {
+        eventType,
+        filename: name,
+      });
+
+      build(
+        rootDir,
+        { ...options, liveReload: true, quiet: true },
+        logger
+      )
+        .then(() => {
+          buildVersion = Date.now().toString();
+
+          // 🔹 Rebuild: info = a single clear line
+          watchLogger.info("serve.rebuildSuccess", {
+            version: buildVersion,
+          });
+        })
+        .catch((err) => {
+          watchLogger.error("serve.rebuildError", {
+            error: String(err),
+          });
+        });
+    }
+  );
+
+  // “watch ready” message → not critical, use debug
+  watchLogger.debug("serve.watchReady", { rootDir });
+
+  // Final “Ctrl+C hint” → info
+  scoped.info("serve.stopHint");
+
+  await keepProcessAlive();
+}

@@ -1,0 +1,16 @@
+{
+  "build.start": "Démarrage du build dans {rootDir}…",
+  "build.siteLoaded": "Configuration du site chargée (titre : {title}).",
+  "build.mkdirFailed": "Impossible de créer le dossier de sortie {outputDir} : {error}",
+  "build.outputDirExists": "Le dossier de sortie {outputDir} existe déjà, on continue.",
+  "build.fileGenerated": "Fichier généré : {path}",
+  "build.success": "✅ Build terminé : {path}",
+  "serve.initialBuild": "Build initial en cours dans {rootDir}…",
+  "serve.initialBuildDone": "Build initial terminé (version : {version}).",
+  "serve.listening": "Serveur lancé sur {url}",
+  "serve.watchEvent": "Changement détecté ({eventType}) : {filename}",
+  "serve.rebuildSuccess": "Rebuild terminé (nouvelle version : {version}).",
+  "serve.rebuildError": "Erreur lors du rebuild : {error}",
+  "serve.watchReady": "Watch initialisé sur {rootDir}.",
+  "serve.stopHint": "Appuie sur Ctrl+C pour arrêter le serveur."
+}
