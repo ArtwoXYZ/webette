@@ -43,7 +43,8 @@ Honestly? Not much.
 - It has a structured logging system with i18n (English/French)
 - Logs are stored in `.webette/logs.jsonl`
 - There's the beginning of a site config (`webette.config.json`)
-- And… that’s about it
+- There's a tiny docs starter: [docs/](https://tangled.org/artwo.xyz/webette/tree/main/docs)
+- And… that's about it
 
 There is **no** real content management,
 **no** templates,
