@@ -1,7 +1,8 @@
-import * as path from "node:path";
+﻿import * as path from "node:path";
 import { stat } from "node:fs/promises";
 import { watch } from "node:fs";
 
+import { getEnv } from "../config/env";
 import { build } from "./build";
 import type { BuildOptions } from "./build";
 import type { Logger } from "../logging/logger";
@@ -18,9 +19,10 @@ export async function serve(
   logger: Logger
 ): Promise<void> {
   const scoped = logger.child("serve");
-  const port = 4173;
+  const toolEnv = await getEnv();
+  const port = toolEnv.serve.port;
   let buildVersion = Date.now().toString();
-  const outputDir = path.join(rootDir, "_public");
+  const outputDir = path.join(rootDir, toolEnv.build.outputDirName);
 
   // 1. Initial build with liveReload = true, in quiet mode
   scoped.info("serve.initialBuild", { rootDir });
@@ -64,7 +66,7 @@ export async function serve(
     },
   });
 
-  // 🔹 This stays at info level, it's important:
+  // Info level: server is ready
   scoped.info("serve.listening", {
     url: `http://localhost:${port}`,
     port,
@@ -73,21 +75,23 @@ export async function serve(
 
   const watchLogger = scoped.child("watch");
 
-  // 3. File watcher
-  watch(
-    rootDir,
-    { recursive: true },
-    (eventType, filename) => {
-      const name = filename?.toString() ?? "";
+  const ignoreNames = new Set<string>([
+    ...toolEnv.build.ignoreNames,
+    toolEnv.build.outputDirName,
+    toolEnv.logging.dirName,
+  ]);
 
-      if (name.includes("_public")) return;
+  const shouldIgnore = (name: string) => {
+    const parts = name.split(/[\\/]/).filter(Boolean);
+    return parts.some((part) => ignoreNames.has(part));
+  };
 
-      // File details → debug (visible only with -v)
-      watchLogger.debug("serve.watchEvent", {
-        eventType,
-        filename: name,
-      });
+  let rebuildTimer: ReturnType<typeof setTimeout> | null = null;
 
+  const scheduleRebuild = () => {
+    if (rebuildTimer) clearTimeout(rebuildTimer);
+
+    rebuildTimer = setTimeout(() => {
       build(
         rootDir,
         { ...options, liveReload: true, quiet: true },
@@ -96,7 +100,6 @@ export async function serve(
         .then(() => {
           buildVersion = Date.now().toString();
 
-          // 🔹 Rebuild: info = a single clear line
           watchLogger.info("serve.rebuildSuccess", {
             version: buildVersion,
           });
@@ -106,13 +109,31 @@ export async function serve(
             error: String(err),
           });
         });
+    }, toolEnv.serve.watcherDebounceMs);
+  };
+
+  // 3. File watcher
+  watch(
+    rootDir,
+    { recursive: true },
+    (eventType, filename) => {
+      const name = filename?.toString() ?? "";
+
+      if (!name || shouldIgnore(name)) return;
+
+      watchLogger.debug("serve.watchEvent", {
+        eventType,
+        filename: name,
+      });
+
+      scheduleRebuild();
     }
   );
 
-  // “watch ready” message → not critical, use debug
+  // "watch ready" message -> debug
   watchLogger.debug("serve.watchReady", { rootDir });
 
-  // Final “Ctrl+C hint” → info
+  // Final "Ctrl+C" hint -> info
   scoped.info("serve.stopHint");
 
   await keepProcessAlive();

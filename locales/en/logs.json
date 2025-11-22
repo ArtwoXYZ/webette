@@ -12,5 +12,7 @@
   "serve.rebuildSuccess": "Rebuild completed (new version: {version}).",
   "serve.rebuildError": "Error during rebuild: {error}",
   "serve.watchReady": "File watcher initialized on {rootDir}.",
-  "serve.stopHint": "Press Ctrl+C to stop the server."
+  "serve.stopHint": "Press Ctrl+C to stop the server.",
+  "build.overwriteDenied": "Output directory {outputDir} exists and overwrite policy is \"none\". Aborting build.",
+  "build.outputNotDirectory": "Output path exists and is not a directory: {outputDir}"
 }

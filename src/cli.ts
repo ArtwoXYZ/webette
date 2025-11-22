@@ -44,7 +44,7 @@ async function main() {
   const rootDir = sitePath ?? process.cwd();
 
   // 🔹 NEW: create a logger for this project + this command
-  const logger = createProjectLogger(
+  const logger = await createProjectLogger(
     rootDir,
     `webette.cli.${command}`,
     options.verbose

@@ -1,5 +1,6 @@
-import * as fs from "node:fs";
+﻿import * as fs from "node:fs";
 import * as path from "node:path";
+import { getEnv, resolveLocale } from "../config/env";
 import { t, normalizeLocale, type Locale } from "./i18n";
 
 export type LogLevel = "debug" | "info" | "warn" | "error";
@@ -126,18 +127,17 @@ export class Logger {
  * - scope = "webette.cli.build" / "webette.cli.serve" etc.
  * - verbose = options.verbose
  */
-export function createProjectLogger(
+export async function createProjectLogger(
   rootDir: string,
   scope: string,
   verbose: boolean
-): Logger {
-  // 1) Locale: resolved only via environment variables
-  const locale = normalizeLocale(
-    process.env.WEBETTE_LANG ?? process.env.LANG ?? "en"
-  );
+): Promise<Logger> {
+  const env = await getEnv();
+  // 1) Locale: env default overridden by environment variables
+  const locale = resolveLocale(env);
 
-  // 2) Log file: .webette/logs.jsonl under the project root
-  const logsDir = path.join(rootDir, ".webette");
+  // 2) Log file: <dirName>/logs.jsonl under the project root
+  const logsDir = path.join(rootDir, env.logging.dirName);
   ensureDirExists(logsDir);
   const logFilePath = path.join(logsDir, "logs.jsonl");
 
@@ -145,6 +145,6 @@ export function createProjectLogger(
     scope,
     locale,
     logFilePath,
-    minLevel: verbose ? "debug" : "info",
+    minLevel: verbose ? "debug" : env.logging.level,
   });
 }

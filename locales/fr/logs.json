@@ -4,7 +4,7 @@
   "build.mkdirFailed": "Impossible de créer le dossier de sortie {outputDir} : {error}",
   "build.outputDirExists": "Le dossier de sortie {outputDir} existe déjà, on continue.",
   "build.fileGenerated": "Fichier généré : {path}",
-  "build.success": "✅ Build terminé : {path}",
+  "build.success": "Build terminé : {path}",
   "serve.initialBuild": "Build initial en cours dans {rootDir}…",
   "serve.initialBuildDone": "Build initial terminé (version : {version}).",
   "serve.listening": "Serveur lancé sur {url}",
@@ -12,5 +12,7 @@
   "serve.rebuildSuccess": "Rebuild terminé (nouvelle version : {version}).",
   "serve.rebuildError": "Erreur lors du rebuild : {error}",
   "serve.watchReady": "Watch initialisé sur {rootDir}.",
-  "serve.stopHint": "Appuie sur Ctrl+C pour arrêter le serveur."
+  "serve.stopHint": "Appuie sur Ctrl+C pour arrêter le serveur.",
+  "build.overwriteDenied": "Le dossier de sortie {outputDir} existe et la politique est \"none\". Build annulé.",
+  "build.outputNotDirectory": "Le chemin de sortie existe mais n'est pas un dossier : {outputDir}"
 }
