@@ -23,6 +23,9 @@ export async function serve(
   const port = toolEnv.serve.port;
   let buildVersion = Date.now().toString();
   const outputDir = path.join(rootDir, toolEnv.build.outputDirName);
+  const templatesRoot = path.isAbsolute(toolEnv.templates.root)
+    ? toolEnv.templates.root
+    : path.join(process.cwd(), toolEnv.templates.root);
 
   // 1. Initial build with liveReload = true, in quiet mode
   scoped.info("serve.initialBuild", { rootDir });
@@ -112,26 +115,34 @@ export async function serve(
     }, toolEnv.serve.watcherDebounceMs);
   };
 
-  // 3. File watcher
-  watch(
-    rootDir,
-    { recursive: true },
-    (eventType, filename) => {
-      const name = filename?.toString() ?? "";
+  const watchPaths = new Set<string>([rootDir]);
+  if (path.normalize(templatesRoot) !== path.normalize(rootDir)) {
+    watchPaths.add(templatesRoot);
+  }
 
-      if (!name || shouldIgnore(name)) return;
+  // 3. File watchers (site root + fallback templates)
+  for (const watchPath of watchPaths) {
+    watch(
+      watchPath,
+      { recursive: true },
+      (eventType, filename) => {
+        const name = filename?.toString() ?? "";
 
-      watchLogger.debug("serve.watchEvent", {
-        eventType,
-        filename: name,
-      });
+        if (!name || shouldIgnore(name)) return;
 
-      scheduleRebuild();
-    }
-  );
+        watchLogger.debug("serve.watchEvent", {
+          eventType,
+          filename: name,
+          base: watchPath,
+        });
+
+        scheduleRebuild();
+      }
+    );
+  }
 
   // "watch ready" message -> debug
-  watchLogger.debug("serve.watchReady", { rootDir });
+  watchLogger.debug("serve.watchReady", { rootDir, templatesRoot });
 
   // Final "Ctrl+C" hint -> info
   scoped.info("serve.stopHint");

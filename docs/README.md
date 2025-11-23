@@ -9,3 +9,4 @@ Lightweight notes about Webette’s direction and internals.
 - [logging.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/logging.md) – structured logging, locales, and persistence.
 - [site-config.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/site-config.md) – how `webette.config.ts` is loaded and which fields are consumed.
 - [templates.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/templates.md) – fallback wrapper, template lookup, and the minimal template engine.
+- [commit-scopes](https://tangled.org/artwo.xyz/webette/blob/main/docs/commit-scopes) – commit Scopes for Webette.
