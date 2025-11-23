@@ -22,6 +22,11 @@ export interface WebetteEnv {
     ignoreNames: string[];
     outputDirName: string;
     overwrite: OverwritePolicy;
+    exportModel: {
+      enabled: boolean;
+      path: string;
+      only: boolean;
+    };
   };
   templates: {
     root: string;
@@ -35,7 +40,10 @@ type WebetteEnvOverrides = Partial<{
     Pick<WebetteEnv["serve"], "port" | "liveReloadIntervalMs" | "watcherDebounceMs">
   >;
   build: Partial<
-    Pick<WebetteEnv["build"], "ignoreNames" | "outputDirName" | "overwrite">
+    Pick<
+      WebetteEnv["build"],
+      "ignoreNames" | "outputDirName" | "overwrite" | "exportModel"
+    >
   >;
   templates: Partial<Pick<WebetteEnv["templates"], "root" | "default">>;
 }>;
@@ -55,6 +63,11 @@ const defaultEnv: WebetteEnv = {
     ignoreNames: ["_public", ".webette"],
     outputDirName: "_public",
     overwrite: "replace-files",
+    exportModel: {
+      enabled: false,
+      path: "__webette-model.json",
+      only: false,
+    },
   },
   templates: {
     root: "templates",
@@ -110,6 +123,24 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
       : {}),
     ...(isOverwritePolicy(overrides.build?.overwrite)
       ? { overwrite: overrides.build.overwrite }
+      : {}),
+    ...(overrides.build?.exportModel &&
+    typeof overrides.build.exportModel === "object"
+      ? {
+          exportModel: {
+            ...defaults.build.exportModel,
+            ...(typeof overrides.build.exportModel.enabled === "boolean"
+              ? { enabled: overrides.build.exportModel.enabled }
+              : {}),
+            ...(typeof overrides.build.exportModel.path === "string" &&
+            overrides.build.exportModel.path
+              ? { path: overrides.build.exportModel.path }
+              : {}),
+            ...(typeof overrides.build.exportModel.only === "boolean"
+              ? { only: overrides.build.exportModel.only }
+              : {}),
+          },
+        }
       : {}),
   };
 

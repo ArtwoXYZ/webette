@@ -3,10 +3,7 @@ import { readFile } from "node:fs/promises";
 import type { Site } from "./model";
 
 interface WebetteConfigFile {
-  site?: {
-    title?: string;
-    lang?: string;
-  };
+  site?: Record<string, unknown>;
 }
 
 // Build the in-memory Site object based on the project folder and config file
@@ -29,14 +26,9 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
     }
 
     const site =
-      raw.site && typeof raw.site === "object"
-        ? {
-            title: typeof raw.site.title === "string" ? raw.site.title : undefined,
-            lang: typeof raw.site.lang === "string" ? raw.site.lang : undefined,
-          }
-        : undefined;
+      raw.site && typeof raw.site === "object" ? { ...raw.site } : undefined;
 
-    return { site };
+    return { site: site as Record<string, unknown> | undefined };
   } catch {
     // no file or invalid module -> empty config
     return {};
@@ -47,10 +39,20 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
 export async function createSite(rootDir: string): Promise<Site> {
   const config = await loadConfigFile(rootDir);
 
+  const siteSection: Record<string, unknown> =
+    config.site && typeof config.site === "object" ? { ...config.site } : {};
+
+  // Apply minimal defaults for expected fields if absent
+  if (typeof siteSection.title !== "string") {
+    siteSection.title = "My Webette site";
+  }
+  if (typeof siteSection.lang !== "string") {
+    siteSection.lang = "en";
+  }
+
   const site: Site = {
     rootDir,
-    title: config.site?.title ?? "My Webette site",
-    lang: config.site?.lang ?? "en",
+    site: siteSection,
   };
 
   return site;

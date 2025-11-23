@@ -14,5 +14,9 @@
   "serve.watchReady": "Watch initialisé sur {rootDir}.",
   "serve.stopHint": "Appuie sur Ctrl+C pour arrêter le serveur.",
   "build.overwriteDenied": "Le dossier de sortie {outputDir} existe et la politique est \"none\". Build annulé.",
-  "build.outputNotDirectory": "Le chemin de sortie existe mais n'est pas un dossier : {outputDir}"
+  "build.outputNotDirectory": "Le chemin de sortie existe mais n'est pas un dossier : {outputDir}",
+  "build.exportModel.start": "Export du modèle en mémoire vers {path}…",
+  "build.exportModel.success": "Modèle exporté vers {path}.",
+  "build.exportModel.error": "Échec de l'export du modèle vers {path} : {error}",
+  "build.exportOnly.success": "Export seul terminé (modèle : {path})."
 }

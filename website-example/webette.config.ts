@@ -1,6 +1,6 @@
 export default {
   site: {
-    title: "Website example 06",
+    title: "Website example 12",
     lang: "en",
     author: "Artwo",
   },

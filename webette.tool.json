@@ -12,7 +12,12 @@
   "build": {
     "ignoreNames": ["_public", ".webette"],
     "outputDirName": "_public",
-    "overwrite": "replace-files"
+    "overwrite": "replace-files",
+    "exportModel": {
+      "enabled": true,
+      "path": "__webette-model.json",
+      "only": false
+    }
   },
   "templates": {
     "root": "templates",

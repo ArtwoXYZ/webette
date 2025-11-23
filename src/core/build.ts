@@ -11,6 +11,11 @@ export interface BuildOptions {
   verbose: boolean;
   liveReload?: boolean; // enabled only in "serve" mode
   quiet?: boolean;      // new: fewer logs when true
+  exportModel?: {
+    enabled?: boolean;
+    path?: string;
+    only?: boolean;
+  };
 }
 
 export async function build(
@@ -25,11 +30,18 @@ export async function build(
   scoped.debug("build.start", { rootDir });
 
   const site = await createSite(rootDir);
-  scoped.debug("build.siteLoaded", { title: site.title });
+  scoped.debug("build.siteLoaded", { title: site.site.title });
 
   const scannedSite = await scanSite(site);
   const outputDir = path.join(rootDir, toolEnv.build.outputDirName);
   const overwrite = toolEnv.build.overwrite;
+  const envExport = toolEnv.build.exportModel;
+
+  const exportModel = {
+    enabled: options.exportModel?.enabled ?? envExport.enabled,
+    path: options.exportModel?.path ?? envExport.path,
+    only: options.exportModel?.only ?? envExport.only,
+  };
 
   // Handle existing output directory according to policy
   let outputDirExists = false;
@@ -111,6 +123,36 @@ export async function build(
     ? toolEnv.templates.root
     : path.join(process.cwd(), toolEnv.templates.root);
 
+  // Optional model export (debug)
+  if (exportModel.enabled) {
+    const targetPath = path.isAbsolute(exportModel.path)
+      ? exportModel.path
+      : path.join(outputDir, exportModel.path);
+
+    scoped.debug("build.exportModel.start", { path: targetPath });
+
+    try {
+      const payload = JSON.stringify(scannedSite, null, 2);
+      await writeFile(targetPath, payload, "utf8");
+      scoped.info("build.exportModel.success", { path: targetPath });
+    } catch (err: any) {
+      scoped.error("build.exportModel.error", {
+        path: targetPath,
+        error: String(err),
+      });
+      throw err;
+    }
+
+    if (exportModel.only) {
+      if (options.quiet) {
+        scoped.debug("build.exportOnly.success", { path: targetPath });
+      } else {
+        scoped.info("build.exportOnly.success", { path: targetPath });
+      }
+      return;
+    }
+  }
+
   const templatePath = path.join(templatesRoot, toolEnv.templates.default);
 
   let template: string;
@@ -125,8 +167,7 @@ export async function build(
   }
 
   const html = renderTemplate(template, {
-    title: scannedSite.title,
-    lang: scannedSite.lang || "en",
+    site: scannedSite.site,
     liveReloadScript,
   });
 

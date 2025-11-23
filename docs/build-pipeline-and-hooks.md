@@ -108,7 +108,7 @@ Block plugins define:
 
 ---
 
-# 6. Parsing Markdown into an AST
+## 6. Parsing Markdown into an AST
 
 Markdown is converted into an **Abstract Syntax Tree (AST)**.
 
@@ -136,7 +136,7 @@ Webette's AST stage is where raw Markdown becomes a rich, manipulable representa
 
 ---
 
-# 7. Content transformations (AST & block transforms)
+## 7. Content transformations (AST & block transforms)
 
 This stage includes **all transformations** applied before rendering:
 
@@ -162,7 +162,7 @@ All transformations happen **before rendering**, ensuring templates receive clea
 
 ---
 
-# 8. Route generation
+## 8. Route generation
 
 Webette assigns a URL path to each entry.
 
@@ -183,13 +183,13 @@ Examples:
 
 ---
 
-# 9. Template rendering
+## 9. Template rendering
 
 Webette combines:
 
 - **entry data** (title, body, blocks, metadata)
 - **collection data** (pagination, neighbors)
-- **site data** (title, language)
+- **site data** (full `site.*` from `webette.config.ts`)
 - **routes**
 
 … and renders them using templates from:
@@ -201,6 +201,7 @@ The internal templating engine supports:
 
 - `{{key}}` → HTML-escaped
 - `{{{key}}}` → raw insertion (trusted HTML)
+- nested paths like `{{site.author}}` or `{{site.meta.title}}`
 
 Layouts wrap full pages; partials build reusable fragments (header, footer, navigation, etc.).
 
@@ -208,7 +209,7 @@ AST nodes become HTML here — Markdown paragraphs → `<p>`, headings → `<h1>
 
 ---
 
-# 10. HTML post-processing
+## 10. HTML post-processing
 
 After rendering, plugins may adjust the output:
 
@@ -221,7 +222,7 @@ This is the last opportunity to modify the page before writing it.
 
 ---
 
-# 11. Output
+## 11. Output
 
 Generated HTML and assets are written to the folder defined by:
 
@@ -233,9 +234,13 @@ Ignored names (e.g. `.webette`, `_public`, custom patterns) follow tool configur
 
 The output is a complete static site.
 
+Optional debug/export step:
+
+- If `build.exportModel.enabled` (tool config) or the CLI flag `--export-model` is set, the in-memory model (site, collections, entries, blocks) is serialized to JSON in the output folder (default `__webette-model.json`). This happens right after scanning, before HTML rendering. With `build.exportModel.only` or `--export-model-only`, Webette skips HTML generation and only writes the JSON.
+
 ---
 
-# 12. Post-build
+## 12. Post-build
 
 Plugins can perform final tasks:
 

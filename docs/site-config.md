@@ -8,22 +8,20 @@ Webette sites define their settings in a TypeScript config file at the project r
 - Exports: default export (object). Non-default exports are ignored.
 - Loaded fresh on each build/serve: the loader transpiles the file via `Bun.Transpiler` and imports it with a cache-busting data URL.
 
-## Currently consumed fields
+## `site` section
 
 ```ts
 export default {
   site: {
     title: "My Webette site",
     lang: "en",
+    // any other site-level fields (author, theme, etc.)
   },
   // collections, templates, plugins... (future)
 };
 ```
 
-- `site.title`: string, used as page title in the wrapper.
-- `site.lang`: string, used as `lang` attribute.
-
-Other fields are ignored for now but are reloaded with the config; they will be wired in when the collections/entries pipeline lands.
+- The entire `site` section is loaded as-is and available in the model and templating via `site.*` (e.g. `{{site.author}}`). `title` and `lang` default if missing.
 
 ## Error handling
 

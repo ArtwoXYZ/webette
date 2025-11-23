@@ -1,4 +1,3 @@
-- Ajouter un mode debug/export JSON pour inspecter le modele avant rendu HTML.
 - Charger les layouts du site si presents (root/templates/default) avant de tomber sur le wrapper par defaut du tool.
 - Mettre en place le pipeline collections/entrees/blocks (scan disque -> modele -> rendu) avec templates d'entree/liste.
 - Optionner le fallback d'index par defaut (flag ou detection) pour eviter des pages generees sans template.

@@ -16,8 +16,16 @@ Webette renders HTML via simple templates plus a minimal replacement engine.
 
 ## Placeholders available today
 
-- `title`: site title (from `webette.config.ts` or fallback)
-- `lang`: site language (from `webette.config.ts` or fallback)
+- `site.*`: full `site` section from `webette.config.ts` (e.g. `{{site.title}}`, `{{site.lang}}`, `{{site.author}}`)
 - `liveReloadScript`: raw script injected when `serve`/live reload is enabled
 
 These will expand alongside the data model (collections, entries, blocks) as the pipeline is implemented.
+
+## Inspecting the model (debug)
+
+To inspect the in-memory model before rendering templates, enable the export:
+
+- Tool config: set `build.exportModel.enabled` (and optionally `path`, `only`) in `webette.tool.json`.
+- CLI: `--export-model [path]` or `--export-model-only` (overrides the tool config for this run).
+
+When enabled, the model is serialized to JSON right after scanning, before HTML rendering, into the output folder (default `__webette-model.json`). With the `only` option, the HTML step is skipped so you can focus on the data. The JSON includes the full `site` section as provided in `webette.config.ts`.

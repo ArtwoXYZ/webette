@@ -25,7 +25,12 @@ The file is plain JSON. A UTF-8 BOM is ignored if present.
   "build": {
     "ignoreNames": ["_public", ".webette"],
     "outputDirName": "_public",
-    "overwrite": "replace-files"
+    "overwrite": "replace-files",
+    "exportModel": {
+      "enabled": false,
+      "path": "__webette-model.json",
+      "only": false
+    }
   },
   "templates": {
     "root": "templates",
@@ -45,6 +50,9 @@ The file is plain JSON. A UTF-8 BOM is ignored if present.
 - `build.ignoreNames`: directory/file names to ignore in watcher (segments)
 - `build.outputDirName`: output folder name (default `_public`)
 - `build.overwrite`: `none` | `replace-all` | `replace-files`
+- `build.exportModel.enabled`: export the in-memory model to JSON after scanning
+- `build.exportModel.path`: JSON path (relative to `outputDirName` if not absolute)
+- `build.exportModel.only`: if `true`, skip HTML generation (export only)
 - `templates.root`: base folder for internal/fallback templates (resolved from `process.cwd()` unless absolute)
 - `templates.default`: default wrapper used when the site does not provide its own layout (relative to `templates.root`)
 
