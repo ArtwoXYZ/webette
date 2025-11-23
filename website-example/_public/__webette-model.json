@@ -1,8 +1,149 @@
 {
   "rootDir": "website-example",
   "site": {
-    "title": "Website example 12",
+    "title": "Website example",
     "lang": "en",
     "author": "Artwo"
-  }
+  },
+  "config": {
+    "collections": {}
+  },
+  "collections": [
+    {
+      "id": "col__test_de_nom",
+      "rawName": "test de nom posts",
+      "name": "test de nom posts",
+      "slug": "test-de-nom-posts",
+      "path": "test de nom posts",
+      "entries": [
+        {
+          "id": "ent__my_first_post",
+          "rawName": "1 - my first post",
+          "name": "my first post",
+          "slug": "my-first-post",
+          "path": "test de nom posts/1 - my first post",
+          "blocks": [
+            {
+              "id": "blk__the_great_nebula",
+              "rawName": "1 The GREAT NEBULA in ORION.jpg",
+              "name": "The GREAT NEBULA in ORION",
+              "slug": "the-great-nebula-in-orion",
+              "type": "image",
+              "ext": ".jpg",
+              "path": "test de nom posts/1 - my first post/1 The GREAT NEBULA in ORION.jpg"
+            },
+            {
+              "id": "blk__text_2",
+              "rawName": "2 text.md",
+              "name": "text",
+              "slug": "text-2",
+              "type": "markdown",
+              "ext": ".md",
+              "path": "test de nom posts/1 - my first post/2 text.md"
+            },
+            {
+              "id": "blk__herschel",
+              "rawName": "3 Herschel.webp",
+              "name": "Herschel",
+              "slug": "herschel",
+              "type": "image",
+              "ext": ".webp",
+              "path": "test de nom posts/1 - my first post/3 Herschel.webp"
+            },
+            {
+              "id": "blk__text",
+              "rawName": "04 text.md",
+              "name": "text",
+              "slug": "text",
+              "type": "markdown",
+              "ext": ".md",
+              "path": "test de nom posts/1 - my first post/04 text.md"
+            },
+            {
+              "id": "blk__gallerie",
+              "rawName": "gallerie",
+              "name": "gallerie",
+              "slug": "gallerie",
+              "type": "folder",
+              "path": "test de nom posts/1 - my first post/gallerie",
+              "subBlocks": [
+                {
+                  "id": "blk__the_great_nebula_2",
+                  "rawName": "1 The GREAT NEBULA in ORION.jpg",
+                  "name": "The GREAT NEBULA in ORION",
+                  "slug": "the-great-nebula-in-orion-2",
+                  "type": "image",
+                  "ext": ".jpg",
+                  "path": "test de nom posts/1 - my first post/gallerie/1 The GREAT NEBULA in ORION.jpg"
+                },
+                {
+                  "id": "blk__herschel_2",
+                  "rawName": "3 Herschel.webp",
+                  "name": "Herschel",
+                  "slug": "herschel-2",
+                  "type": "image",
+                  "ext": ".webp",
+                  "path": "test de nom posts/1 - my first post/gallerie/3 Herschel.webp"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "ent__my_second_post",
+          "rawName": "02 my second post",
+          "name": "my second post",
+          "slug": "my-second-post",
+          "path": "test de nom posts/02 my second post",
+          "blocks": [
+            {
+              "id": "blk__the_planet_jupiter",
+              "rawName": "1 The Planet Jupiter.jpg",
+              "name": "The Planet Jupiter",
+              "slug": "the-planet-jupiter",
+              "type": "image",
+              "ext": ".jpg",
+              "path": "test de nom posts/02 my second post/1 The Planet Jupiter.jpg"
+            },
+            {
+              "id": "blk__text",
+              "rawName": "2 text.md",
+              "name": "text",
+              "slug": "text",
+              "type": "markdown",
+              "ext": ".md",
+              "path": "test de nom posts/02 my second post/2 text.md"
+            },
+            {
+              "id": "blk__ideal_view_of",
+              "rawName": "Ideal View of Saturn’s Rings and Satellites From the Planet.jpg",
+              "name": "Ideal View of Saturn’s Rings and Satellites From the Planet",
+              "slug": "ideal-view-of-saturn-s-rings-and-satellites-from-the-planet",
+              "type": "image",
+              "ext": ".jpg",
+              "path": "test de nom posts/02 my second post/Ideal View of Saturn’s Rings and Satellites From the Planet.jpg"
+            },
+            {
+              "id": "blk__stars_whose_distances",
+              "rawName": "Stars Whose Distances Are Best Known.jpg",
+              "name": "Stars Whose Distances Are Best Known",
+              "slug": "stars-whose-distances-are-best-known",
+              "type": "image",
+              "ext": ".jpg",
+              "path": "test de nom posts/02 my second post/Stars Whose Distances Are Best Known.jpg"
+            },
+            {
+              "id": "blk__z_text",
+              "rawName": "z text.md",
+              "name": "z text",
+              "slug": "z-text",
+              "type": "markdown",
+              "ext": ".md",
+              "path": "test de nom posts/02 my second post/z text.md"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

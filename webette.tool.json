@@ -10,7 +10,6 @@
     "watcherDebounceMs": 150
   },
   "build": {
-    "ignoreNames": ["_public", ".webette"],
     "outputDirName": "_public",
     "overwrite": "replace-files",
     "exportModel": {

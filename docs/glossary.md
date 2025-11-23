@@ -26,7 +26,7 @@ It typically contains:
 
 ## Collection
 
-A folder located directly in the **site root** that contains content of the same “type” or family.
+A folder located directly in the **site root** that contains content of the same type or family.
 
 Possible examples of collections (all valid):
 
@@ -41,6 +41,12 @@ Webette does not reserve names like `posts/` or `pages/`.
 
 A collection’s behavior (sorting, templates, etc.) is defined in the **site configuration**.
 
+Each collection also carries:
+
+- an ID derived from its slug (short, prefixed `col__`, suffixed on collision);
+- a slug (dash-separated, deduplicated);
+- a POSIX `path` relative to the site root.
+
 ---
 
 ## Entry
@@ -53,6 +59,12 @@ In practice, an entry is usually:
 - containing one or more **blocks** (e.g. `my text.md`, images, data files, etc.).
 
 Each entry typically corresponds to a generated page in the site (for now).
+
+Each entry also carries:
+
+- an ID derived from its slug (short, prefixed `ent__`, suffixed on collision within the collection);
+- a slug (dash-separated, deduplicated within the collection);
+- a POSIX `path` relative to the site root.
 
 ---
 
@@ -68,6 +80,13 @@ Examples:
 - any other format supported by **block plugins**.
 
 Plugins can define how blocks are read, parsed, and integrated into templates.
+
+Each block also carries:
+
+- an ID derived from its slug (short, prefixed `blk__`, suffixed on collision within the entry);
+- a slug (dash-separated, deduplicated within the entry);
+- a POSIX `path` relative to the site root;
+- a `type` hint (folder, markdown, image, video, audio, data, text, table, or file).
 
 ---
 
@@ -136,151 +155,3 @@ It can contain, for example:
 - other global options related to the CLI or runtime.
 
 This is the configuration of the **tool**, shared between multiple sites if needed, and distinct from `webette.config.ts`.
-
----
-
-## Templates
-
-Files (often HTML) defining how a page is rendered.
-
-Templates may receive:
-
-- entry data (title, content, metadata, etc.);
-- collection data (list of entries, pagination, etc.);
-- global site variables.
-
-Templates are generally grouped in a dedicated folder (e.g. `_templates/`).
-
----
-
-## Layout
-
-A “full” template that wraps a page.
-
-Typical examples:
-
-- `default.html`: base layout;
-- `entry.html`: layout for a generic entry;
-- `collection.html`: layout for a list of entries.
-
-A layout often combines smaller templates (**partials**).
-
----
-
-## Partial
-
-A template block reused across multiple layouts.
-
-Examples:
-
-- `header.html`
-- `footer.html`
-- `meta-tags.html`
-- `navigation.html`
-
-Partials are used to avoid duplicating code inside templates.
-
----
-
-## Templating engine
-
-A small internal or external engine used by Webette to:
-
-- inject variables into templates.
-
-Webette currently provides a minimal engine, but may integrate a dedicated tool later (e.g. Handlebars).
-
----
-
-## Plugin
-
-An extension that modifies or enhances Webette’s behavior.
-
-Three main categories:
-
-1. **Block plugins**
-
-   - Handle new file/block types (MD, JSON, images, etc.).
-   - Define how blocks are read and transformed into data for templates.
-
-2. **Enrichment plugins**
-
-   - Transform or enrich textual content (e.g. link detection, YouTube embeds, etc.).
-   - Often run after content parsing.
-
-3. **Functional plugins**
-
-   - Add global features (comments, reactions, sitemap, RSS, etc.).
-   - May run during the build or on the final output.
-
----
-
-## Build
-
-A command/process that:
-
-1. reads the **site root**;
-2. loads the **site configuration**;
-3. applies **plugins**;
-4. renders **templates**;
-5. writes generated files into an output folder (e.g. `_public/`).
-
-The result is a static site ready to be served.
-
----
-
-## Serve
-
-A command that starts a small server to:
-
-- serve the **build** output;
-- allow previewing the site locally in a browser.
-
-Depending on the settings, `serve` may:
-
-- serve the already-generated folder directly;
-- or trigger a build before starting.
-
----
-
-## Watch
-
-A mode where Webette monitors site files:
-
-- when a file changes (content, template, config), a **build** is triggered;
-- the preview server can then display an updated version automatically.
-
----
-
-## Logging
-
-Webette’s internal logging system.
-
-Features:
-
-- levels: `debug`, `info`, `warn`, `error`;
-- hierarchical scopes: e.g. `webette.cli`, `webette.cli.build`, `webette.build.collections`;
-- localization (e.g. messages in `fr` or `en`);
-- output both to the console and a JSONL file (e.g. `.webette/logs.jsonl` or a configured folder).
-
-Logs help understand what Webette is doing during build/serve and diagnose issues.
-
----
-
-## Special folders
-
-Some folders have a specific purpose:
-
-- **Templates folder** (e.g. `_templates/`)
-  Contains layouts and partials.
-
-- **Webette internal folder** (e.g. `.webette/`)
-  Contains logs and possibly other technical files.
-  The name can be configured in the tool configuration.
-
-All other folders in the **site root** are, by default, considered **potential collections**, unless overridden by the theme or configuration.
-
----
-
-_This glossary intentionally focuses on the core concepts.
-Concrete folder names like `blog/`, `pages/`, or `posts/` are implementation or theme choices, not reserved Webette terms._

@@ -4,6 +4,7 @@ import type { Site } from "./model";
 
 interface WebetteConfigFile {
   site?: Record<string, unknown>;
+  collections?: Record<string, unknown>;
 }
 
 // Build the in-memory Site object based on the project folder and config file
@@ -27,8 +28,15 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
 
     const site =
       raw.site && typeof raw.site === "object" ? { ...raw.site } : undefined;
+    const collections =
+      raw.collections && typeof raw.collections === "object"
+        ? { ...raw.collections }
+        : undefined;
 
-    return { site: site as Record<string, unknown> | undefined };
+    return {
+      site: site as Record<string, unknown> | undefined,
+      collections: collections as Record<string, unknown> | undefined,
+    };
   } catch {
     // no file or invalid module -> empty config
     return {};
@@ -41,6 +49,10 @@ export async function createSite(rootDir: string): Promise<Site> {
 
   const siteSection: Record<string, unknown> =
     config.site && typeof config.site === "object" ? { ...config.site } : {};
+  const collectionsConfig: Record<string, unknown> | undefined =
+    config.collections && typeof config.collections === "object"
+      ? { ...config.collections }
+      : undefined;
 
   // Apply minimal defaults for expected fields if absent
   if (typeof siteSection.title !== "string") {
@@ -53,6 +65,9 @@ export async function createSite(rootDir: string): Promise<Site> {
   const site: Site = {
     rootDir,
     site: siteSection,
+    config: {
+      collections: collectionsConfig,
+    },
   };
 
   return site;

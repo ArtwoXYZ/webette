@@ -1,8 +1,8 @@
 export default {
   site: {
-    title: "Website example 12",
+    title: "Website example",
     lang: "en",
-    author: "Artwo",
+    author: "Artwo"
   },
 
   collections: {
@@ -15,5 +15,6 @@ export default {
 
   plugins: [
     // Optional plugin references
+    // root: "_plugins",
   ],
 };

@@ -1,4 +1,37 @@
+export interface Block {
+  id: string;          // identifier scoped to the entry
+  rawName: string;     // raw filename or folder name
+  name: string;        // cleaned name without ordering prefix
+  slug: string;        // slug used for clean url
+  type: string;        // logical block type (md, image, folder, custom, etc.)
+  ext?: string;        // extension when applicable (e.g., ".md")
+  path: string;        // path relative to the site root
+  subBlocks?: Block[]; // nested blocks (e.g., subfolder for galleries)
+}
+
+export interface Entry {
+  id: string;          // identifier derived from the path
+  rawName: string;     // raw folder name
+  name: string;        // cleaned name without ordering prefix
+  slug: string;        // slug used for routing
+  path: string;        // path relative to the site root
+  blocks: Block[];     // files/blocks contained in the entry
+}
+
+export interface Collection {
+  id: string;          // identifier derived from the path
+  rawName: string;     // raw folder name
+  name: string;        // cleaned name
+  slug: string;        // slug used for routing
+  path: string;        // path relative to the site root
+  entries: Entry[];    // entries inside the collection
+}
+
 export interface Site {
-  rootDir: string;           // path to the site's root folder (portfolio, blog, etc.)
-  site: Record<string, unknown>; // full "site" section from webette.config.ts
+  rootDir: string;                  // absolute path to the site root
+  site: Record<string, unknown>;    // "site" section from webette.config.ts
+  config?: {
+    collections?: Record<string, unknown>; // raw collections config from webette.config.ts
+  };
+  collections?: Collection[];       // discovered collections with their entries/blocks
 }

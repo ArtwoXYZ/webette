@@ -19,7 +19,6 @@ export interface WebetteEnv {
     watcherDebounceMs: number;
   };
   build: {
-    ignoreNames: string[];
     outputDirName: string;
     overwrite: OverwritePolicy;
     exportModel: {
@@ -40,10 +39,7 @@ type WebetteEnvOverrides = Partial<{
     Pick<WebetteEnv["serve"], "port" | "liveReloadIntervalMs" | "watcherDebounceMs">
   >;
   build: Partial<
-    Pick<
-      WebetteEnv["build"],
-      "ignoreNames" | "outputDirName" | "overwrite" | "exportModel"
-    >
+    Pick<WebetteEnv["build"], "outputDirName" | "overwrite" | "exportModel">
   >;
   templates: Partial<Pick<WebetteEnv["templates"], "root" | "default">>;
 }>;
@@ -60,7 +56,6 @@ const defaultEnv: WebetteEnv = {
     watcherDebounceMs: 150,
   },
   build: {
-    ignoreNames: ["_public", ".webette"],
     outputDirName: "_public",
     overwrite: "replace-files",
     exportModel: {
@@ -111,13 +106,6 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
 
   const build = {
     ...defaults.build,
-    ...(Array.isArray(overrides.build?.ignoreNames)
-      ? {
-          ignoreNames: overrides.build.ignoreNames.filter(
-            (v): v is string => typeof v === "string" && v.length > 0
-          ),
-        }
-      : {}),
     ...(typeof overrides.build?.outputDirName === "string" && overrides.build.outputDirName
       ? { outputDirName: overrides.build.outputDirName }
       : {}),

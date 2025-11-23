@@ -17,11 +17,12 @@ export default {
     lang: "en",
     // any other site-level fields (author, theme, etc.)
   },
-  // collections, templates, plugins... (future)
+  // collections, templates, plugins...
 };
 ```
 
 - The entire `site` section is loaded as-is and available in the model and templating via `site.*` (e.g. `{{site.author}}`). `title` and `lang` default if missing.
+- Collections are discovered automatically from folders at the site root (ignoring output/logs/templates/hidden/underscore prefixes). The exported model includes `collections`, their `entries`, and `blocks` with IDs, slugs, POSIX paths, and type hints.
 
 ## Error handling
 

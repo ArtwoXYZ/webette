@@ -59,8 +59,10 @@ It is loaded fresh using Bun’s transpiler on every build/serve.
 
 Every folder in the **site root** is considered a **collection**, except for:
 
-- the templates folder (e.g. `_templates/`)
+- the templates folder (e.g. `_templates/`, or the tool fallback if present in the site root)
 - the Webette internal folder (e.g. `.webette/`, configurable)
+- the build output folder (e.g. `_public/`)
+- hidden folders or folders starting with `_`
 
 Examples of valid collections:
 
@@ -70,6 +72,12 @@ Examples of valid collections:
 - `recipes/`
 
 Collections are not reserved; they are simply directories.
+
+Each collection gets:
+
+- an ID derived from its slug (limited to a few words, prefixed `col__`), unique with a numeric suffix if needed;
+- a slug (dash-separated);
+- a POSIX `path` relative to the site root.
 
 Configuration may define extra behavior per collection (sorting, template mapping, routing rules).
 
@@ -89,6 +97,12 @@ Entries are sorted using the glossary rule:
 
 Entries generally correspond to pages.
 
+Each entry gets:
+
+- an ID derived from its slug (limited to a few words, prefixed `ent__`, unique with suffix);
+- a slug (dash-separated, deduplicated per collection);
+- a POSIX `path` relative to the site root.
+
 ---
 
 ## 5. Block discovery & parsing
@@ -96,8 +110,10 @@ Entries generally correspond to pages.
 Inside each entry folder, Webette identifies **blocks**:
 
 - Markdown blocks (`index.md`, `content.md`)
-- Media blocks (images, videos)
-- Data blocks (`meta.json`, YAML files)
+- Media blocks (images: jpg/png/gif/webp/avif/svg/ico/apng; video: mp4/mov/webm/m4v/mkv/avi; audio: mp3/wav/ogg/flac/m4a/aac)
+- Text blocks (`txt`, `rtf`)
+- Table-ish blocks (`csv`, `tsv`)
+- Data blocks (`json`, `yaml`, `yml`)
 - Any custom format handled by **block plugins**
 
 Block plugins define:
@@ -105,6 +121,13 @@ Block plugins define:
 - how to read a given file type
 - how to parse it into structured data
 - how to expose that data to templates
+
+Each block gets:
+
+- an ID derived from its slug (limited to a few words, prefixed `blk__`, unique with suffix across blocks/sub-blocks in the entry);
+- a slug (dash-separated, deduplicated per entry);
+- a POSIX `path` relative to the site root;
+- a `type` (folder, markdown, image, video, audio, data, text, table, or file).
 
 ---
 

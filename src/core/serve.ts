@@ -79,7 +79,6 @@ export async function serve(
   const watchLogger = scoped.child("watch");
 
   const ignoreNames = new Set<string>([
-    ...toolEnv.build.ignoreNames,
     toolEnv.build.outputDirName,
     toolEnv.logging.dirName,
   ]);
