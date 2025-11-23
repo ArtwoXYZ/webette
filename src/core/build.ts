@@ -1,6 +1,5 @@
 import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import * as path from "node:path";
-import { fileURLToPath } from "node:url";
 import { getEnv, resolveLocale } from "../config/env";
 import { t } from "../logging/i18n";
 import { createSite } from "./config";
@@ -108,14 +107,11 @@ export async function build(
   </script>`
     : "";
 
-  const templatePath = path.join(
-    path.dirname(fileURLToPath(import.meta.url)),
-    "..",
-    "..",
-    "templates",
-    "layouts",
-    "index.html"
-  );
+  const templatesRoot = path.isAbsolute(toolEnv.templates.root)
+    ? toolEnv.templates.root
+    : path.join(process.cwd(), toolEnv.templates.root);
+
+  const templatePath = path.join(templatesRoot, toolEnv.templates.default);
 
   let template: string;
   try {

@@ -13,5 +13,9 @@
     "ignoreNames": ["_public", ".webette"],
     "outputDirName": "_public",
     "overwrite": "replace-files"
+  },
+  "templates": {
+    "root": "templates",
+    "default": "wrapper.html"
   }
 }

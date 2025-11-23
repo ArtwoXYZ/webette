@@ -23,6 +23,10 @@ export interface WebetteEnv {
     outputDirName: string;
     overwrite: OverwritePolicy;
   };
+  templates: {
+    root: string;
+    default: string;
+  };
 }
 
 type WebetteEnvOverrides = Partial<{
@@ -33,6 +37,7 @@ type WebetteEnvOverrides = Partial<{
   build: Partial<
     Pick<WebetteEnv["build"], "ignoreNames" | "outputDirName" | "overwrite">
   >;
+  templates: Partial<Pick<WebetteEnv["templates"], "root" | "default">>;
 }>;
 
 const defaultEnv: WebetteEnv = {
@@ -50,6 +55,10 @@ const defaultEnv: WebetteEnv = {
     ignoreNames: ["_public", ".webette"],
     outputDirName: "_public",
     overwrite: "replace-files",
+  },
+  templates: {
+    root: "templates",
+    default: "wrapper.html",
   },
 };
 
@@ -104,7 +113,17 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
       : {}),
   };
 
-  return { logging, serve, build };
+  const templates = {
+    ...defaults.templates,
+    ...(typeof overrides.templates?.root === "string" && overrides.templates.root
+      ? { root: overrides.templates.root }
+      : {}),
+    ...(typeof overrides.templates?.default === "string" && overrides.templates.default
+      ? { default: overrides.templates.default }
+      : {}),
+  };
+
+  return { logging, serve, build, templates };
 }
 
 function resolveConfigPath(toolRoot?: string): string | null {

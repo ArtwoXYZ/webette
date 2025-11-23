@@ -26,6 +26,10 @@ The file is plain JSON. A UTF-8 BOM is ignored if present.
     "ignoreNames": ["_public", ".webette"],
     "outputDirName": "_public",
     "overwrite": "replace-files"
+  },
+  "templates": {
+    "root": "templates",
+    "default": "wrapper.html"
   }
 }
 ```
@@ -41,9 +45,12 @@ The file is plain JSON. A UTF-8 BOM is ignored if present.
 - `build.ignoreNames`: directory/file names to ignore in watcher (segments)
 - `build.outputDirName`: output folder name (default `_public`)
 - `build.overwrite`: `none` | `replace-all` | `replace-files`
+- `templates.root`: base folder for internal/fallback templates (resolved from `process.cwd()` unless absolute)
+- `templates.default`: default wrapper used when the site does not provide its own layout (relative to `templates.root`)
 
 ## Consumption
 
 - Loaded via `getEnv()` in `src/config/env.ts`.
 - Locale resolution is centralized with `resolveLocale(config)`.
 - Consumers (`build`, `serve`, `logger`) do **not** embed defaults; they rely on `getEnv()`.
+- `build` resolves the default wrapper at `path.join(templates.root, templates.default)`; this is only used as fallback when the site has no explicit layout.
