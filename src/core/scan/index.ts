@@ -4,6 +4,7 @@ import { getEnv } from "../../config/env";
 import { detectBlockType } from "./detect-block-type";
 import { toPosix } from "../../utils/path";
 import { cleanName, limitSlugWords, orderKey, slugify } from "../../utils/naming";
+import { resolveRoutes } from "../routes";
 import type { Block, Collection, Entry, Site } from "../model";
 
 async function listBlocks(
@@ -182,8 +183,10 @@ export async function scanSite(site: Site): Promise<Site> {
     })
   );
 
-  return {
+  const scannedSite: Site = {
     ...site,
     collections: collectionsWithEntries,
   };
+
+  return resolveRoutes(scannedSite);
 }

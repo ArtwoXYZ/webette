@@ -131,8 +131,46 @@ export async function build(
 
     scoped.debug("build.exportModel.start", { path: targetPath });
 
+    const orderKeys = (value: unknown): unknown => {
+      if (Array.isArray(value)) return value.map(orderKeys);
+      if (!value || typeof value !== "object") return value;
+
+      const obj = value as Record<string, unknown>;
+      const ordered: Record<string, unknown> = {};
+      const preferred = [
+        "rootDir",
+        "site",
+        "config",
+        "collections",
+        "id",
+        "rawName",
+        "path",
+        "name",
+        "type",
+        "ext",
+        "slug",
+        "route",
+        "entries",
+        "blocks",
+        "subBlocks",
+      ];
+
+      for (const key of preferred) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          ordered[key] = orderKeys(obj[key]);
+        }
+      }
+
+      for (const key of Object.keys(obj)) {
+        if (preferred.includes(key)) continue;
+        ordered[key] = orderKeys(obj[key]);
+      }
+
+      return ordered;
+    };
+
     try {
-      const payload = JSON.stringify(scannedSite, null, 2);
+      const payload = JSON.stringify(orderKeys(scannedSite), null, 2);
       await writeFile(targetPath, payload, "utf8");
       scoped.info("build.exportModel.success", { path: targetPath });
     } catch (err: any) {

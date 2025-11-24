@@ -18,6 +18,7 @@ Webette renders HTML via simple templates plus a minimal replacement engine.
 
 - `site.*`: full `site` section from `webette.config.ts` (e.g. `{{site.title}}`, `{{site.lang}}`, `{{site.author}}`)
 - `liveReloadScript`: raw script injected when `serve`/live reload is enabled
+- `route`: available on site/collection/entry/block in the exported model; routes are slug-based (`collection/entry/`, `collection/entry/block[...][.ext]`, trailing slash for folders)
 
 These will expand alongside the data model (collections, entries, blocks) as the pipeline is implemented.
 

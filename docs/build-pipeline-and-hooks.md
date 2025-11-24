@@ -17,7 +17,7 @@ A Webette build runs through these major phases:
 5. Read and parse **blocks**
 6. Parse Markdown into an **AST**
 7. Transform content (AST transforms, block transforms, enrichment plugins)
-8. Generate **routes**
+8. Resolve **routes** (site/collection/entry/block)
 9. Render **templates** (layouts + partials)
 10. HTML post-processing
 11. Write output
@@ -168,7 +168,7 @@ This stage includes **all transformations** applied before rendering:
 Plugins can:
 
 - detect shortcodes and convert them into structured block nodes
-  e.g. `[video src="https://youtube.com/…"]` → `{ type: "block", name: "video", props: { … } }`
+  e.g. `[video src="https://youtube.com/..."]` -> `{ type: "block", name: "video", props: { ... } }`
 - rewrite links (external, internal, collections-aware)
 - insert metadata nodes
 - transform fenced blocks into semantic components (notes, warnings, embeds)
@@ -187,22 +187,27 @@ All transformations happen **before rendering**, ensuring templates receive clea
 
 ## 8. Route generation
 
-Webette assigns a URL path to each entry.
+Webette assigns a URL path to each entity (site/collection/entry/block).
 
 Default logic:
 
 - Each collection becomes a base segment (`/blog/`, `/notes/`, etc.)
 - Each entry becomes a slug:
 
-  - number prefix removed (`01-welcome` → `welcome`)
-  - slugified (`my first post` → `my-first-post`)
-
-Plugins or config may override routing for collections or entries.
+  - number prefix removed (`01-welcome` -> `welcome`)
+  - slugified (`my first post` -> `my-first-post`)
 
 Examples:
 
-- `blog/01-welcome/` → `/blog/welcome`
-- `videos/my-video/` → `/videos/my-video`
+- `blog/01-welcome/` -> `/blog/welcome`
+- `videos/my-video/` -> `/videos/my-video`
+
+Blocks follow the same pattern:
+
+- `blog/welcome/image.jpg` (extension only when present)
+- `blog/welcome/gallery/` (folders end with a slash)
+
+Plugins or config may override routing for collections or entries.
 
 ---
 
@@ -222,13 +227,13 @@ Webette combines:
 
 The internal templating engine supports:
 
-- `{{key}}` → HTML-escaped
-- `{{{key}}}` → raw insertion (trusted HTML)
+- `{{key}}` -> HTML-escaped
+- `{{{key}}}` -> raw insertion (trusted HTML)
 - nested paths like `{{site.author}}` or `{{site.meta.title}}`
 
 Layouts wrap full pages; partials build reusable fragments (header, footer, navigation, etc.).
 
-AST nodes become HTML here — Markdown paragraphs → `<p>`, headings → `<h1>`, custom blocks → plugin-generated HTML, etc.
+AST nodes become HTML here — Markdown paragraphs -> `<p>`, headings -> `<h1>`, custom blocks -> plugin-generated HTML, etc.
 
 ---
 
@@ -358,9 +363,9 @@ Final stage for generating extra files or exporting data.
 
 # Plugin categories (from the glossary)
 
-- **Block plugins** → `registerBlocks()`, `onBlocksLoaded()`
-- **Enrichment plugins** → `transformContent()` (AST-focused)
-- **Functional plugins** → `onRoutesResolved()`, `onRenderHTML()`, `onBuildComplete()`
+- **Block plugins** -> `registerBlocks()`, `onBlocksLoaded()`
+- **Enrichment plugins** -> `transformContent()` (AST-focused)
+- **Functional plugins** -> `onRoutesResolved()`, `onRenderHTML()`, `onBuildComplete()`
 
 Plugins may implement any mix of these.
 
@@ -368,6 +373,6 @@ Plugins may implement any mix of these.
 
 # Notes
 
-- AST is central to Webette’s content pipeline.
+- AST is central to Webette's content pipeline.
 - Collections, entries, blocks, templates, and routes follow the definitions in the glossary.
 - Site configuration and tool configuration remain strictly separated by design.

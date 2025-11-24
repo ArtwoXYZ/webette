@@ -6,6 +6,7 @@ export interface Block {
   type: string;        // logical block type (md, image, folder, custom, etc.)
   ext?: string;        // extension when applicable (e.g., ".md")
   path: string;        // path relative to the site root
+  route?: string;      // route relative to site root (includes ext when present)
   subBlocks?: Block[]; // nested blocks (e.g., subfolder for galleries)
 }
 
@@ -15,6 +16,7 @@ export interface Entry {
   name: string;        // cleaned name without ordering prefix
   slug: string;        // slug used for routing
   path: string;        // path relative to the site root
+  route?: string;      // route relative to site root (trailing slash)
   blocks: Block[];     // files/blocks contained in the entry
 }
 
@@ -24,6 +26,7 @@ export interface Collection {
   name: string;        // cleaned name
   slug: string;        // slug used for routing
   path: string;        // path relative to the site root
+  route?: string;      // route relative to site root (trailing slash)
   entries: Entry[];    // entries inside the collection
 }
 
@@ -34,4 +37,5 @@ export interface Site {
     collections?: Record<string, unknown>; // raw collections config from webette.config.ts
   };
   collections?: Collection[];       // discovered collections with their entries/blocks
+  route?: string;                   // root route, usually "/"
 }

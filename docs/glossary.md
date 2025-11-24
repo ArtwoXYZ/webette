@@ -37,7 +37,7 @@ Possible examples of collections (all valid):
 - `videos/`
 
 Webette does not reserve names like `posts/` or `pages/`.
-**Any** collection is defined by its folder: it’s simply a choice made by the user or the theme.
+**Any** collection is defined by its folder: it is simply a choice made by the user or the theme.
 
 A collection’s behavior (sorting, templates, etc.) is defined in the **site configuration**.
 
@@ -102,11 +102,11 @@ The exact behavior depends on the theme and configuration, but the term “index
 
 ## Route
 
-The URL path generated for an entry.
+The URL path generated for each entity.
 
 Examples:
 
-- `site root` + `blog/01-welcome/` → `/blog/welcome`
+- `site root` + `blog/01-welcome/` -> `/blog/welcome`
 
 Route generation rules must be defined in the **site configuration**.
 
@@ -114,6 +114,13 @@ Default behaviors:
 
 - Removal of numbers preceding titles (entries and blocks);
 - Slugification.
+
+In the current model, every entity carries a `route`:
+
+- Site: `/`
+- Collection: `collection-slug/`
+- Entry: `collection-slug/entry-slug/`
+- Block: `collection-slug/entry-slug/block-slug[/sub-block-slug...][.ext]` (extension only when the block has one; folders end with a slash)
 
 ---
 

@@ -6,7 +6,11 @@ export default {
   },
 
   collections: {
-    // later, stuff like posts/, pages/...
+    custom: {
+      path: "custom",
+      name: "My custom name",
+      route: "custom_route",
+    },
   },
 
   templates: {
