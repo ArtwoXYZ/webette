@@ -12,16 +12,18 @@ A Webette build runs through these major phases:
 
 1. Load **tool configuration** (`webette.tool.json`)
 2. Load **site configuration** (`webette.config.ts`)
-3. Discover **collections**
-4. Discover **entries**
-5. Read and parse **blocks**
-6. Parse Markdown into an **AST**
-7. Transform content (AST transforms, block transforms, enrichment plugins)
+3. Raw scan: discover **collections**
+4. Raw scan: discover **entries**
+5. Raw scan: discover **blocks** (type/ext only)
+6. Apply **site config** overrides (collections)
+7. Enrich missing **names/slugs/ids**
 8. Resolve **routes** (site/collection/entry/block)
-9. Render **templates** (layouts + partials)
-10. HTML post-processing
-11. Write output
-12. Run post-build hooks
+9. Parse Markdown into an **AST**
+10. Transform content (AST transforms, block transforms, enrichment plugins)
+11. Render **templates** (layouts + partials)
+12. HTML post-processing
+13. Write output
+14. Run post-build hooks
 
 Each step exposes hooks plugins can use to extend or alter the behavior.
 
@@ -55,7 +57,7 @@ It is loaded fresh using Bun’s transpiler on every build/serve.
 
 ---
 
-## 3. Collections discovery
+## 3-5. Raw discovery (collections, entries, blocks)
 
 Every folder in the **site root** is considered a **collection**, except for:
 
@@ -64,124 +66,37 @@ Every folder in the **site root** is considered a **collection**, except for:
 - the build output folder (e.g. `_public/`)
 - hidden folders or folders starting with `_`
 
-Examples of valid collections:
+Valid collections can be `blog/`, `notes/`, `videos/`, `recipes/`, etc.
 
-- `blog/`
-- `notes/`
-- `videos/`
-- `recipes/`
+Raw scan keeps minimal data:
 
-Collections are not reserved; they are simply directories.
+- `rawName` and POSIX `path` for collections, entries, blocks
+- block `type`/`ext` hints
+- deterministic ordering (numeric prefix, then alpha)
 
-Each collection gets:
-
-- an ID derived from its slug (limited to a few words, prefixed `col__`), unique with a numeric suffix if needed;
-- a slug (dash-separated);
-- a POSIX `path` relative to the site root.
-
-Configuration may define extra behavior per collection (sorting, template mapping, routing rules).
+IDs, slugs, and routes are **not** set during the raw scan.
 
 ---
 
-## 4. Entry discovery
+## 6. Apply site config (collections)
 
-Each collection contains **entries**, which are usually:
+If a collection is declared in `webette.config.ts` (`collections.<key>`), its settings override the raw scan where applicable:
 
-- folders (e.g. `01-welcome/`)
-- containing blocks of content (Markdown, images, JSON, etc.)
-
-Entries are sorted using the glossary rule:
-
-1. Leading number (if any)
-2. Alphabetical order as fallback or tie-breaker
-
-Entries generally correspond to pages.
-
-Each entry gets:
-
-- an ID derived from its slug (limited to a few words, prefixed `ent__`, unique with suffix);
-- a slug (dash-separated, deduplicated per collection);
-- a POSIX `path` relative to the site root.
+- `path` (config) matches the folder; falling back to the config key
+- `name` (config) overrides the display name (and is used as the base for the slug if no `slug` is provided)
+- `slug` (config) overrides the generated slug
+- `route` (config) overrides the base route for the collection; entries/blocks inherit this prefix
 
 ---
 
-## 5. Block discovery & parsing
+## 7. Enrich names/slugs/ids
 
-Inside each entry folder, Webette identifies **blocks**:
+After config is applied, Webette fills in the missing derived fields:
 
-- Markdown blocks (`index.md`, `content.md`)
-- Media blocks (images: jpg/png/gif/webp/avif/svg/ico/apng; video: mp4/mov/webm/m4v/mkv/avi; audio: mp3/wav/ogg/flac/m4a/aac)
-- Text blocks (`txt`, `rtf`)
-- Table-ish blocks (`csv`, `tsv`)
-- Data blocks (`json`, `yaml`, `yml`)
-- Any custom format handled by **block plugins**
-
-Block plugins define:
-
-- how to read a given file type
-- how to parse it into structured data
-- how to expose that data to templates
-
-Each block gets:
-
-- an ID derived from its slug (limited to a few words, prefixed `blk__`, unique with suffix across blocks/sub-blocks in the entry);
-- a slug (dash-separated, deduplicated per entry);
-- a POSIX `path` relative to the site root;
-- a `type` (folder, markdown, image, video, audio, data, text, table, or file).
-
----
-
-## 6. Parsing Markdown into an AST
-
-Markdown is converted into an **Abstract Syntax Tree (AST)**.
-
-This is a structured representation of content:
-
-- text nodes
-- paragraphs
-- headings
-- emphasis / strong
-- images
-- links
-- lists
-- code blocks
-- custom fenced blocks
-- shortcodes
-- etc.
-
-Why an AST?
-
-- It allows plugins to safely transform content without fragile text manipulation.
-- It makes it easy to detect patterns (embedded videos, callouts, etc.).
-- It allows generating **custom block nodes** in a structured, predictable way.
-
-Webette's AST stage is where raw Markdown becomes a rich, manipulable representation.
-
----
-
-## 7. Content transformations (AST & block transforms)
-
-This stage includes **all transformations** applied before rendering:
-
-### AST transforms
-
-Plugins can:
-
-- detect shortcodes and convert them into structured block nodes
-  e.g. `[video src="https://youtube.com/..."]` -> `{ type: "block", name: "video", props: { ... } }`
-- rewrite links (external, internal, collections-aware)
-- insert metadata nodes
-- transform fenced blocks into semantic components (notes, warnings, embeds)
-
-### Block-level transforms
-
-Some plugins operate on blocks instead of AST nodes:
-
-- merging multiple blocks into a unified structure
-- extracting metadata from filenames
-- generating computed data (lists, summaries, thumbnails)
-
-All transformations happen **before rendering**, ensuring templates receive clean, structured data.
+- Clean `name` when absent
+- Generate `slug` (with de-duplication) unless provided by config
+- Generate `id` from the final slug
+- Entries/blocks receive their own slugs/ids based on folder/file names
 
 ---
 
@@ -191,8 +106,8 @@ Webette assigns a URL path to each entity (site/collection/entry/block).
 
 Default logic:
 
-- Each collection becomes a base segment (`/blog/`, `/notes/`, etc.)
-- Each entry becomes a slug:
+- Each collection uses its configured `route` if provided, otherwise its slug (`/blog/`, `/notes/`, etc.)
+- Each entry lives under the collection route:
 
   - number prefix removed (`01-welcome` -> `welcome`)
   - slugified (`my first post` -> `my-first-post`)
@@ -220,7 +135,7 @@ Webette combines:
 - **site data** (full `site.*` from `webette.config.ts`)
 - **routes**
 
-… and renders them using templates from:
+... and renders them using templates from:
 
 1. The site’s templates folder (e.g. `_templates/`)
 2. Tool-level fallback templates (`templates.root` + `templates.default`)
@@ -237,7 +152,27 @@ AST nodes become HTML here — Markdown paragraphs -> `<p>`, headings -> `<h1>`,
 
 ---
 
-## 10. HTML post-processing
+## 10. Content transformations (AST & block transforms)
+
+Plugins can:
+
+- detect shortcodes and convert them into structured block nodes
+  e.g. `[video src="https://youtube.com/..."]` -> `{ type: "block", name: "video", props: { ... } }`
+- rewrite links (external, internal, collections-aware)
+- insert metadata nodes
+- transform fenced blocks into semantic components (notes, warnings, embeds)
+
+Some plugins operate on blocks instead of AST nodes:
+
+- merging multiple blocks into a unified structure
+- extracting metadata from filenames
+- generating computed data (lists, summaries, thumbnails)
+
+All transformations happen **before rendering**, ensuring templates receive clean, structured data.
+
+---
+
+## 11. HTML post-processing
 
 After rendering, plugins may adjust the output:
 
@@ -250,7 +185,7 @@ This is the last opportunity to modify the page before writing it.
 
 ---
 
-## 11. Output
+## 12. Output
 
 Generated HTML and assets are written to the folder defined by:
 
@@ -264,11 +199,11 @@ The output is a complete static site.
 
 Optional debug/export step:
 
-- If `build.exportModel.enabled` (tool config) or the CLI flag `--export-model` is set, the in-memory model (site, collections, entries, blocks) is serialized to JSON in the output folder (default `__webette-model.json`). This happens right after scanning, before HTML rendering. With `build.exportModel.only` or `--export-model-only`, Webette skips HTML generation and only writes the JSON.
+- If `build.exportModel.enabled` (tool config) or the CLI flag `--export-model` is set, the in-memory model (site, collections, entries, blocks) is serialized to JSON in the output folder (default `__webette-model.json`). This happens right after scanning/enrichment, before HTML rendering. With `build.exportModel.only` or `--export-model-only`, Webette skips HTML generation and only writes the JSON.
 
 ---
 
-## 12. Post-build
+## 13. Post-build
 
 Plugins can perform final tasks:
 
@@ -330,8 +265,6 @@ Operate on:
 - **AST** (Markdown blocks)
 - block-derived data
 - entry-level computed values
-
-This is where embed detection, shortcode parsing, and rich transformations happen.
 
 Future versions may add a more precise hook like `transformAst(ast, ctx)` for AST-specific operations.
 

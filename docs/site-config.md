@@ -24,6 +24,17 @@ export default {
 - The entire `site` section is loaded as-is and available in the model and templating via `site.*` (e.g. `{{site.author}}`). `title` and `lang` default if missing.
 - Collections are discovered automatically from folders at the site root (ignoring output/logs/templates/hidden/underscore prefixes). The exported model includes `collections`, their `entries`, and `blocks` with IDs, slugs, POSIX paths, and type hints.
 
+## `collections` section (per collection overrides)
+
+Keys match collection folders by `path` (or the key itself if `path` is omitted). Recognized fields today:
+
+- `path`: folder to match (relative to site root)
+- `name`: display name override (used to derive the slug if no slug is provided)
+- `slug`: explicit slug override for the collection
+- `route`: explicit base route override; entries/blocks inherit this prefix
+
+If absent, Webette derives `name`/`slug` from the folder name and `route` from the slug.
+
 ## Error handling
 
 - Missing or invalid config: falls back to defaults (`title`: "My Webette site", `lang`: "en").

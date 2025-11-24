@@ -44,7 +44,7 @@ A collection’s behavior (sorting, templates, etc.) is defined in the **site co
 Each collection also carries:
 
 - an ID derived from its slug (short, prefixed `col__`, suffixed on collision);
-- a slug (dash-separated, deduplicated);
+- a slug (dash-separated, deduplicated; can be overridden by site config);
 - a POSIX `path` relative to the site root.
 
 ---
@@ -118,9 +118,9 @@ Default behaviors:
 In the current model, every entity carries a `route`:
 
 - Site: `/`
-- Collection: `collection-slug/`
-- Entry: `collection-slug/entry-slug/`
-- Block: `collection-slug/entry-slug/block-slug[/sub-block-slug...][.ext]` (extension only when the block has one; folders end with a slash)
+- Collection: `collection-slug/` (or a configured `route` override)
+- Entry: `collection-route/entry-slug/`
+- Block: `collection-route/entry-slug/block-slug[/sub-block-slug...][.ext]` (extension only when the block has one; folders end with a slash)
 
 ---
 

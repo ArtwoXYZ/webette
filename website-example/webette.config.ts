@@ -9,7 +9,7 @@ export default {
     custom: {
       path: "custom",
       name: "My custom name",
-      route: "custom_route",
+      slug: "custom_slug"
     },
   },
 

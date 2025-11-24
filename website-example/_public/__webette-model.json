@@ -8,20 +8,20 @@
   "config": {
     "collections": {
       "custom": {
+        "path": "custom",
         "name": "My custom name",
-        "route": "custom_route",
-        "root": "custom"
+        "slug": "custom_slug"
       }
     }
   },
   "collections": [
     {
-      "id": "col__custom",
+      "id": "col__custom_slug",
       "rawName": "custom",
       "path": "custom",
-      "name": "custom",
-      "slug": "custom",
-      "route": "custom/",
+      "name": "My custom name",
+      "slug": "custom-slug",
+      "route": "custom-slug/",
       "entries": [
         {
           "id": "ent__my_first_post",
@@ -29,7 +29,7 @@
           "path": "custom/1 - my first post",
           "name": "my first post",
           "slug": "my-first-post",
-          "route": "custom/my-first-post/",
+          "route": "custom-slug/my-first-post/",
           "blocks": [
             {
               "id": "blk__the_great_nebula",
@@ -39,17 +39,17 @@
               "type": "image",
               "ext": ".jpg",
               "slug": "the-great-nebula-in-orion",
-              "route": "custom/my-first-post/the-great-nebula-in-orion.jpg"
+              "route": "custom-slug/my-first-post/the-great-nebula-in-orion.jpg"
             },
             {
-              "id": "blk__text_2",
+              "id": "blk__text",
               "rawName": "2 text.md",
               "path": "custom/1 - my first post/2 text.md",
               "name": "text",
               "type": "markdown",
               "ext": ".md",
-              "slug": "text-2",
-              "route": "custom/my-first-post/text-2.md"
+              "slug": "text",
+              "route": "custom-slug/my-first-post/text.md"
             },
             {
               "id": "blk__herschel",
@@ -59,17 +59,17 @@
               "type": "image",
               "ext": ".webp",
               "slug": "herschel",
-              "route": "custom/my-first-post/herschel.webp"
+              "route": "custom-slug/my-first-post/herschel.webp"
             },
             {
-              "id": "blk__text",
+              "id": "blk__text_2",
               "rawName": "04 text.md",
               "path": "custom/1 - my first post/04 text.md",
               "name": "text",
               "type": "markdown",
               "ext": ".md",
-              "slug": "text",
-              "route": "custom/my-first-post/text.md"
+              "slug": "text-2",
+              "route": "custom-slug/my-first-post/text-2.md"
             },
             {
               "id": "blk__gallerie",
@@ -78,7 +78,7 @@
               "name": "gallerie",
               "type": "folder",
               "slug": "gallerie",
-              "route": "custom/my-first-post/gallerie/",
+              "route": "custom-slug/my-first-post/gallerie/",
               "subBlocks": [
                 {
                   "id": "blk__the_great_nebula_2",
@@ -88,7 +88,7 @@
                   "type": "image",
                   "ext": ".jpg",
                   "slug": "the-great-nebula-in-orion-2",
-                  "route": "custom/my-first-post/gallerie/the-great-nebula-in-orion-2.jpg"
+                  "route": "custom-slug/my-first-post/gallerie/the-great-nebula-in-orion-2.jpg"
                 },
                 {
                   "id": "blk__herschel_2",
@@ -98,7 +98,7 @@
                   "type": "image",
                   "ext": ".webp",
                   "slug": "herschel-2",
-                  "route": "custom/my-first-post/gallerie/herschel-2.webp"
+                  "route": "custom-slug/my-first-post/gallerie/herschel-2.webp"
                 }
               ]
             }
@@ -110,7 +110,7 @@
           "path": "custom/02 my second post",
           "name": "my second post",
           "slug": "my-second-post",
-          "route": "custom/my-second-post/",
+          "route": "custom-slug/my-second-post/",
           "blocks": [
             {
               "id": "blk__the_planet_jupiter",
@@ -120,7 +120,7 @@
               "type": "image",
               "ext": ".jpg",
               "slug": "the-planet-jupiter",
-              "route": "custom/my-second-post/the-planet-jupiter.jpg"
+              "route": "custom-slug/my-second-post/the-planet-jupiter.jpg"
             },
             {
               "id": "blk__text",
@@ -130,7 +130,7 @@
               "type": "markdown",
               "ext": ".md",
               "slug": "text",
-              "route": "custom/my-second-post/text.md"
+              "route": "custom-slug/my-second-post/text.md"
             },
             {
               "id": "blk__ideal_view_of",
@@ -140,7 +140,7 @@
               "type": "image",
               "ext": ".jpg",
               "slug": "ideal-view-of-saturn-s-rings-and-satellites-from-the-planet",
-              "route": "custom/my-second-post/ideal-view-of-saturn-s-rings-and-satellites-from-the-planet.jpg"
+              "route": "custom-slug/my-second-post/ideal-view-of-saturn-s-rings-and-satellites-from-the-planet.jpg"
             },
             {
               "id": "blk__stars_whose_distances",
@@ -150,7 +150,7 @@
               "type": "image",
               "ext": ".jpg",
               "slug": "stars-whose-distances-are-best-known",
-              "route": "custom/my-second-post/stars-whose-distances-are-best-known.jpg"
+              "route": "custom-slug/my-second-post/stars-whose-distances-are-best-known.jpg"
             },
             {
               "id": "blk__z_text",
@@ -160,7 +160,7 @@
               "type": "markdown",
               "ext": ".md",
               "slug": "z-text",
-              "route": "custom/my-second-post/z-text.md"
+              "route": "custom-slug/my-second-post/z-text.md"
             }
           ]
         }
@@ -193,14 +193,14 @@
               "route": "posts/my-first-post/the-great-nebula-in-orion.jpg"
             },
             {
-              "id": "blk__text_2",
+              "id": "blk__text",
               "rawName": "2 text.md",
               "path": "posts/1 - my first post/2 text.md",
               "name": "text",
               "type": "markdown",
               "ext": ".md",
-              "slug": "text-2",
-              "route": "posts/my-first-post/text-2.md"
+              "slug": "text",
+              "route": "posts/my-first-post/text.md"
             },
             {
               "id": "blk__herschel",
@@ -213,14 +213,14 @@
               "route": "posts/my-first-post/herschel.webp"
             },
             {
-              "id": "blk__text",
+              "id": "blk__text_2",
               "rawName": "04 text.md",
               "path": "posts/1 - my first post/04 text.md",
               "name": "text",
               "type": "markdown",
               "ext": ".md",
-              "slug": "text",
-              "route": "posts/my-first-post/text.md"
+              "slug": "text-2",
+              "route": "posts/my-first-post/text-2.md"
             },
             {
               "id": "blk__gallerie",
