@@ -37,7 +37,8 @@ videos/
 
 Honestly? Not much.
 
-- There is a CLI (`webette build`, `webette serve`)
+- There is a CLI (run today with `bun run build <path>` / `bun run serve <path>`; target is global `webette build` / `webette serve`)
+  - Options: `-v/--verbose`, `--export-model [path]`, `--export-model-only [path]`
 - It can generate a minimal `_public/index.html`
 - It watches files and reloads the page on save
 - It has a structured logging system with i18n (English/French)

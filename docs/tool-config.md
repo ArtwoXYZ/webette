@@ -44,7 +44,7 @@ The file is plain JSON. A UTF-8 BOM is ignored if present.
 - `logging.level`: `debug` | `info` | `warn` | `error`
 - `logging.locale`: `en` | `fr` (preferred over env vars)
 - `logging.dirName`: folder for `.jsonl` logs (under the **site** root, e.g. `.webette`)
-- `serve.port`: HTTP port for `webette serve`
+- `serve.port`: HTTP port for the serve command (`bun run serve` today, target `webette serve`)
 - `serve.liveReloadIntervalMs`: polling interval for live reload
 - `serve.watcherDebounceMs`: debounce for file watcher rebuilds
 - `build.ignoreNames`: directory/file names to ignore in watcher (segments)

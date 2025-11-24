@@ -45,7 +45,9 @@ my-site/
 Webette must work immediately:
 
 ```
-webette serve path/to/my-site
+bun run serve path/to/my-site
+# Target experience (once the binary exists):
+# webette serve path/to/my-site
 ```
 
 ---
@@ -134,7 +136,7 @@ It contains:
 - a preconfigured `webette.config.ts`
 
 There is no “theme installation” mechanism in the core.
-Users simply extract the folder and run `webette serve`.
+Users simply extract the folder and run `bun run serve <path>` (the goal is to expose a global `webette serve` later).
 
 ---
 
@@ -156,12 +158,25 @@ Users simply extract the folder and run `webette serve`.
 
 The CLI should remain minimal and straightforward.
 
-Primary commands:
+Current commands (run via Bun scripts):
+
+```
+bun run serve <path>
+bun run build <path>
+```
+
+Target experience (once packaged globally):
 
 ```
 webette serve <path>
 webette build <path>
 ```
+
+Flags (current):
+
+- `-v` / `--verbose`
+- `--export-model [path]`
+- `--export-model-only [path]`
 
 No unnecessary verbosity or complex defaults.
 
