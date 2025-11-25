@@ -11,6 +11,7 @@ type CliOptions = {
     path?: string;
     only?: boolean;
   };
+  readContent?: boolean;
 };
 
 function parseArgs(argv: string[]) {
@@ -19,6 +20,7 @@ function parseArgs(argv: string[]) {
 
   let verbose = false;
   const exportModel: CliOptions["exportModel"] = {};
+  let readContent: boolean | undefined = undefined;
 
   const filtered: string[] = [];
 
@@ -58,6 +60,11 @@ function parseArgs(argv: string[]) {
       continue;
     }
 
+    if (arg === "--skip-content") {
+      readContent = false;
+      continue;
+    }
+
     filtered.push(arg);
   }
 
@@ -69,6 +76,7 @@ function parseArgs(argv: string[]) {
   const options: CliOptions = {
     verbose,
     exportModel: Object.keys(exportModel).length ? exportModel : undefined,
+    readContent,
   };
 
   return { command, sitePath, options };
@@ -89,6 +97,7 @@ async function main() {
     console.log("  -v, --verbose           Show debug logs");
     console.log("  --export-model [path]   Export the in-memory model to JSON");
     console.log("  --export-model-only     Export the model and skip HTML generation");
+    console.log("  --skip-content          Do not read/resolve block contents");
     return;
   }
 
@@ -116,6 +125,7 @@ async function main() {
         console.log("Available commands: build, serve");
         console.log("Options:");
         console.log("  -v, --verbose     Show debug logs");
+        console.log("  --skip-content    Do not read/resolve block contents");
         break;
     }
   } catch (error) {

@@ -37,22 +37,18 @@ videos/
 
 Honestly? Not much.
 
-- There is a CLI (run today with `bun run build <path>` / `bun run serve <path>`; target is global `webette build` / `webette serve`)
-  - Options: `-v/--verbose`, `--export-model [path]`, `--export-model-only [path]`
-- It can generate a minimal `_public/index.html`
-- It watches files and reloads the page on save
-- It has a structured logging system with i18n (English/French)
-- Logs are stored in `.webette/logs.jsonl`
-- There's the beginning of a site config (`webette.config.ts`)
-- There's a tiny docs starter: [docs/](https://tangled.org/artwo.xyz/webette/tree/main/docs)
-- And… that's about it
+- CLI (run today with `bun run build <path>` / `bun run serve <path>`; target is global `webette build` / `webette serve`)
+  - Options: `-v/--verbose`, `--export-model [path]`, `--export-model-only [path]`, `--skip-content` (skip block content reading)
+- Disk scan: collections → entries → blocks with types/extensions, ids/slugs/routes
+- Minimal block resolution: markdown/text (raw), json (data), images/videos/audio (meta size/mime) — controlled by `readContent` or `--skip-content`
+- Export the full model to JSON (`__webette-model.json`) right after scan+resolve
+- Generate a `_public/index.html` via a fallback wrapper (site templates not wired yet)
+- Basic dev server with live reload + watchers
+- Structured logging with i18n (en/fr) persisted in `.webette/logs.jsonl`
+- Early site config (`webette.config.ts`) and docs starter: [docs/](https://tangled.org/artwo.xyz/webette/tree/main/docs)
+-- And… that's about it
 
-There is **no** real content management,
-**no** templates,
-**no** routing,
-**no** plugins,
-**no** file scanning,
-and absolutely **no** reason to use Webette for an actual site.
+There is still no multi-page rendering, no site templates, no plugins, and absolutely no reason to use Webette for a real site.
 
 Yet.
 

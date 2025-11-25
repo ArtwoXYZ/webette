@@ -8,6 +8,7 @@ export interface Block {
   path: string;        // path relative to the site root
   route?: string;      // route relative to site root (includes ext when present)
   subBlocks?: Block[]; // nested blocks (e.g., subfolder for galleries)
+  content?: ResolvedBlockContent; // resolved payload (text/data/meta) for rendering/plugins
 }
 
 export interface Entry {
@@ -38,4 +39,13 @@ export interface Site {
   };
   collections?: Collection[];       // discovered collections with their entries/blocks
   route?: string;                   // root route, usually "/"
+}
+
+export interface ResolvedBlockContent {
+  raw?: string;                      // raw text content (md/txt)
+  data?: unknown;                    // parsed data (json, etc.)
+  meta?: {                           // lightweight metadata for media
+    size?: number;                   // byte size when available
+    mime?: string;                   // mimetype inferred from extension
+  };
 }

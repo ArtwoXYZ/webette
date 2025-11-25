@@ -26,6 +26,7 @@ export interface WebetteEnv {
       path: string;
       only: boolean;
     };
+    readContent: boolean;
   };
   templates: {
     root: string;
@@ -39,7 +40,7 @@ type WebetteEnvOverrides = Partial<{
     Pick<WebetteEnv["serve"], "port" | "liveReloadIntervalMs" | "watcherDebounceMs">
   >;
   build: Partial<
-    Pick<WebetteEnv["build"], "outputDirName" | "overwrite" | "exportModel">
+    Pick<WebetteEnv["build"], "outputDirName" | "overwrite" | "exportModel" | "readContent">
   >;
   templates: Partial<Pick<WebetteEnv["templates"], "root" | "default">>;
 }>;
@@ -63,6 +64,7 @@ const defaultEnv: WebetteEnv = {
       path: "__webette-model.json",
       only: false,
     },
+    readContent: true,
   },
   templates: {
     root: "templates",
@@ -129,6 +131,9 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
               : {}),
           },
         }
+      : {}),
+    ...(typeof overrides.build?.readContent === "boolean"
+      ? { readContent: overrides.build.readContent }
       : {}),
   };
 

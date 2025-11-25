@@ -12,6 +12,7 @@
   "build": {
     "outputDirName": "_public",
     "overwrite": "replace-files",
+    "readContent": true,
     "exportModel": {
       "enabled": true,
       "path": "__webette-model.json",

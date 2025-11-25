@@ -4,6 +4,7 @@ import { getEnv, resolveLocale } from "../config/env";
 import { t } from "../logging/i18n";
 import { createSite } from "./config";
 import { scanSite } from "./scan";
+import { resolveBlocks } from "./resolve";
 import { renderTemplate } from "./template";
 import type { Logger } from "../logging/logger";
 
@@ -16,6 +17,7 @@ export interface BuildOptions {
     path?: string;
     only?: boolean;
   };
+  readContent?: boolean; // allow skipping content resolution when requested
 }
 
 export async function build(
@@ -33,6 +35,16 @@ export async function build(
   scoped.debug("build.siteLoaded", { title: site.site.title });
 
   const scannedSite = await scanSite(site);
+  const readContent =
+    typeof options.readContent === "boolean"
+      ? options.readContent
+      : toolEnv.build.readContent;
+
+  const resolvedSite = await resolveBlocks(scannedSite, {
+    rootDir,
+    readContent,
+    logger: scoped.child("resolve"),
+  });
   const outputDir = path.join(rootDir, toolEnv.build.outputDirName);
   const overwrite = toolEnv.build.overwrite;
   const envExport = toolEnv.build.exportModel;
@@ -170,7 +182,7 @@ export async function build(
     };
 
     try {
-      const payload = JSON.stringify(orderKeys(scannedSite), null, 2);
+      const payload = JSON.stringify(orderKeys(resolvedSite), null, 2);
       await writeFile(targetPath, payload, "utf8");
       scoped.info("build.exportModel.success", { path: targetPath });
     } catch (err: any) {
@@ -205,7 +217,7 @@ export async function build(
   }
 
   const html = renderTemplate(template, {
-    site: scannedSite.site,
+    site: resolvedSite.site,
     liveReloadScript,
   });
 

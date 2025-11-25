@@ -26,6 +26,7 @@ The file is plain JSON. A UTF-8 BOM is ignored if present.
     "ignoreNames": ["_public", ".webette"],
     "outputDirName": "_public",
     "overwrite": "replace-files",
+    "readContent": true,
     "exportModel": {
       "enabled": false,
       "path": "__webette-model.json",
@@ -50,6 +51,7 @@ The file is plain JSON. A UTF-8 BOM is ignored if present.
 - `build.ignoreNames`: directory/file names to ignore in watcher (segments)
 - `build.outputDirName`: output folder name (default `_public`)
 - `build.overwrite`: `none` | `replace-all` | `replace-files`
+- `build.readContent`: whether to read/resolve block contents during build/serve (default `true`; set to `false` to only scan structure)
 - `build.exportModel.enabled`: export the in-memory model to JSON after scanning
 - `build.exportModel.path`: JSON path (relative to `outputDirName` if not absolute)
 - `build.exportModel.only`: if `true`, skip HTML generation (export only)
@@ -62,3 +64,4 @@ The file is plain JSON. A UTF-8 BOM is ignored if present.
 - Locale resolution is centralized with `resolveLocale(config)`.
 - Consumers (`build`, `serve`, `logger`) do **not** embed defaults; they rely on `getEnv()`.
 - `build` resolves the default wrapper at `path.join(templates.root, templates.default)`; this is only used as fallback when the site has no explicit layout.
+- CLI override: `--skip-content` sets `readContent` to `false` for that run.

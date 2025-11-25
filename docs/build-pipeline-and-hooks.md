@@ -1,5 +1,7 @@
 # Build Pipeline and Plugin Hooks
 
+> ⚠️ This document is aspirational. The current prototype stops after scanning and resolving basic block content, exports the model, and renders a single fallback wrapper. The phases and hooks below describe the intended direction, not the implemented behavior today.
+
 This document explains how Webette processes a **site root**, how it discovers **collections**, **entries**, and **blocks**, how it transforms **content** using an **AST**, and how **plugins** can hook into each stage.
 
 The goal is to describe the conceptual flow of a Webette build.

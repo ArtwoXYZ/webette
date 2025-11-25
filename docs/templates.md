@@ -1,5 +1,7 @@
 # Templates and fallback wrapper
 
+> ⚠️ Directional note: templates de site, layouts/partials et rendu par collection/entrée ne sont pas encore implémentés. Aujourd’hui seul le wrapper de fallback du tool est utilisé pour générer `_public/index.html`.
+
 Webette renders HTML via simple templates plus a minimal replacement engine.
 
 ## Where templates come from
