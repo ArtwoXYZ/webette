@@ -32,7 +32,506 @@
       "slug": "text",
       "route": "posts/my-second-post/text.md",
       "content": {
-        "raw": "[The Planet Jupiter](https://pdimagearchive.org/images/24f8932b-6a98-4c48-b6e0-582eda84aa92/)\r\n\r\n## Speculum Umbrae\r\n\r\nSous les arcs silencieux, la poussière danse en spirales lentes, **_umbrae volutantur_**, comme si chaque grain cherchait à retrouver sa propre origine. Une inscription presque effacée murmure _lux fractissima_, peut-être authentique, peut-être inventée par un conservateur trop rêveur. Sur un socle triangulaire repose une liste minuscule — à peine lisible — notant : “_figura errans_, _aqua sine aqua_, _materia vana_”. À côté, une flèche dessinée à la main pointe vers un vide parfaitement ordinaire, accompagné de l’annotation : **[“voir absence ici”](#)**. Dans cette galerie où les repères glissent, où les pigments s’écaillent en murmures, chaque pas soulève une brise ténue, et l’on croit entendre, juste un instant, un écho d’époque brisée : _“Ars vagat, anima manet.”_\r\n"
+        "raw": "[The Planet Jupiter](https://pdimagearchive.org/images/24f8932b-6a98-4c48-b6e0-582eda84aa92/)\r\n\r\n## Speculum Umbrae\r\n\r\nSous les arcs silencieux, la poussière danse en spirales lentes, **_umbrae volutantur_**, comme si chaque grain cherchait à retrouver sa propre origine. Une inscription presque effacée murmure _lux fractissima_, peut-être authentique, peut-être inventée par un conservateur trop rêveur. Sur un socle triangulaire repose une liste minuscule — à peine lisible — notant : “_figura errans_, _aqua sine aqua_, _materia vana_”. À côté, une flèche dessinée à la main pointe vers un vide parfaitement ordinaire, accompagné de l’annotation : **[“voir absence ici”](#)**. Dans cette galerie où les repères glissent, où les pigments s’écaillent en murmures, chaque pas soulève une brise ténue, et l’on croit entendre, juste un instant, un écho d’époque brisée : _“Ars vagat, anima manet.”_\r\n",
+        "ast": {
+          "type": "root",
+          "children": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "link",
+                  "title": null,
+                  "url": "https://pdimagearchive.org/images/24f8932b-6a98-4c48-b6e0-582eda84aa92/",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "The Planet Jupiter",
+                      "position": {
+                        "start": {
+                          "line": 1,
+                          "column": 2,
+                          "offset": 1
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 20,
+                          "offset": 19
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "offset": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 94,
+                      "offset": 93
+                    }
+                  }
+                }
+              ],
+              "position": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "offset": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 94,
+                  "offset": 93
+                }
+              }
+            },
+            {
+              "type": "heading",
+              "depth": 2,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Speculum Umbrae",
+                  "position": {
+                    "start": {
+                      "line": 3,
+                      "column": 4,
+                      "offset": 100
+                    },
+                    "end": {
+                      "line": 3,
+                      "column": 19,
+                      "offset": 115
+                    }
+                  }
+                }
+              ],
+              "position": {
+                "start": {
+                  "line": 3,
+                  "column": 1,
+                  "offset": 97
+                },
+                "end": {
+                  "line": 3,
+                  "column": 19,
+                  "offset": 115
+                }
+              }
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Sous les arcs silencieux, la poussière danse en spirales lentes, ",
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 1,
+                      "offset": 119
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 66,
+                      "offset": 184
+                    }
+                  }
+                },
+                {
+                  "type": "strong",
+                  "children": [
+                    {
+                      "type": "emphasis",
+                      "children": [
+                        {
+                          "type": "text",
+                          "value": "umbrae volutantur",
+                          "position": {
+                            "start": {
+                              "line": 5,
+                              "column": 69,
+                              "offset": 187
+                            },
+                            "end": {
+                              "line": 5,
+                              "column": 86,
+                              "offset": 204
+                            }
+                          }
+                        }
+                      ],
+                      "position": {
+                        "start": {
+                          "line": 5,
+                          "column": 68,
+                          "offset": 186
+                        },
+                        "end": {
+                          "line": 5,
+                          "column": 87,
+                          "offset": 205
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 66,
+                      "offset": 184
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 89,
+                      "offset": 207
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "value": ", comme si chaque grain cherchait à retrouver sa propre origine. Une inscription presque effacée murmure ",
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 89,
+                      "offset": 207
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 194,
+                      "offset": 312
+                    }
+                  }
+                },
+                {
+                  "type": "emphasis",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "lux fractissima",
+                      "position": {
+                        "start": {
+                          "line": 5,
+                          "column": 195,
+                          "offset": 313
+                        },
+                        "end": {
+                          "line": 5,
+                          "column": 210,
+                          "offset": 328
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 194,
+                      "offset": 312
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 211,
+                      "offset": 329
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "value": ", peut-être authentique, peut-être inventée par un conservateur trop rêveur. Sur un socle triangulaire repose une liste minuscule — à peine lisible — notant : “",
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 211,
+                      "offset": 329
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 371,
+                      "offset": 489
+                    }
+                  }
+                },
+                {
+                  "type": "emphasis",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "figura errans",
+                      "position": {
+                        "start": {
+                          "line": 5,
+                          "column": 372,
+                          "offset": 490
+                        },
+                        "end": {
+                          "line": 5,
+                          "column": 385,
+                          "offset": 503
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 371,
+                      "offset": 489
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 386,
+                      "offset": 504
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "value": ", ",
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 386,
+                      "offset": 504
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 388,
+                      "offset": 506
+                    }
+                  }
+                },
+                {
+                  "type": "emphasis",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "aqua sine aqua",
+                      "position": {
+                        "start": {
+                          "line": 5,
+                          "column": 389,
+                          "offset": 507
+                        },
+                        "end": {
+                          "line": 5,
+                          "column": 403,
+                          "offset": 521
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 388,
+                      "offset": 506
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 404,
+                      "offset": 522
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "value": ", ",
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 404,
+                      "offset": 522
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 406,
+                      "offset": 524
+                    }
+                  }
+                },
+                {
+                  "type": "emphasis",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "materia vana",
+                      "position": {
+                        "start": {
+                          "line": 5,
+                          "column": 407,
+                          "offset": 525
+                        },
+                        "end": {
+                          "line": 5,
+                          "column": 419,
+                          "offset": 537
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 406,
+                      "offset": 524
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 420,
+                      "offset": 538
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "value": "”. À côté, une flèche dessinée à la main pointe vers un vide parfaitement ordinaire, accompagné de l’annotation : ",
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 420,
+                      "offset": 538
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 534,
+                      "offset": 652
+                    }
+                  }
+                },
+                {
+                  "type": "strong",
+                  "children": [
+                    {
+                      "type": "link",
+                      "title": null,
+                      "url": "#",
+                      "children": [
+                        {
+                          "type": "text",
+                          "value": "“voir absence ici”",
+                          "position": {
+                            "start": {
+                              "line": 5,
+                              "column": 537,
+                              "offset": 655
+                            },
+                            "end": {
+                              "line": 5,
+                              "column": 555,
+                              "offset": 673
+                            }
+                          }
+                        }
+                      ],
+                      "position": {
+                        "start": {
+                          "line": 5,
+                          "column": 536,
+                          "offset": 654
+                        },
+                        "end": {
+                          "line": 5,
+                          "column": 559,
+                          "offset": 677
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 534,
+                      "offset": 652
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 561,
+                      "offset": 679
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "value": ". Dans cette galerie où les repères glissent, où les pigments s’écaillent en murmures, chaque pas soulève une brise ténue, et l’on croit entendre, juste un instant, un écho d’époque brisée : ",
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 561,
+                      "offset": 679
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 752,
+                      "offset": 870
+                    }
+                  }
+                },
+                {
+                  "type": "emphasis",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "“Ars vagat, anima manet.”",
+                      "position": {
+                        "start": {
+                          "line": 5,
+                          "column": 753,
+                          "offset": 871
+                        },
+                        "end": {
+                          "line": 5,
+                          "column": 778,
+                          "offset": 896
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 752,
+                      "offset": 870
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 779,
+                      "offset": 897
+                    }
+                  }
+                }
+              ],
+              "position": {
+                "start": {
+                  "line": 5,
+                  "column": 1,
+                  "offset": 119
+                },
+                "end": {
+                  "line": 5,
+                  "column": 779,
+                  "offset": 897
+                }
+              }
+            }
+          ],
+          "position": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "offset": 0
+            },
+            "end": {
+              "line": 6,
+              "column": 1,
+              "offset": 899
+            }
+          }
+        }
       }
     },
     {
@@ -77,7 +576,836 @@
       "slug": "z-text",
       "route": "posts/my-second-post/z-text.md",
       "content": {
-        "raw": "[Ideal View of Saturn’s Rings and Satellites From the Planet](https://pdimagearchive.org/images/b153230c-b7e5-4127-bdf8-63910a675f67/)\r\n\r\n[Stars Whose Distances Are Best Known](https://pdimagearchive.org/images/0347f0a1-a134-484f-b919-d29bae3c2683/)\r\n\r\nSous la pierre tiède, les fresques effritées libèrent des éclats de pigments, **_pulvis coloris_**, qui dérivent comme des reliques minuscules. Une note manuscrite glissée sous un socle indique simplement : _“vide hic”_, sans lien apparent avec l’œuvre absente.\r\n\r\n> _“Silentium facit formam,”_ prétend une annotation marginale, peut-être authentique, peut-être déposée là par un visiteur trop inspiré.\r\n\r\nDans l’angle le plus sombre de la galerie, un panneau bancal propose une micro-liste d’éléments introuvables :\r\n\r\n- **_figura vacua_**\r\n- **_sonus mutatus_**\r\n- **_calx errans_**\r\n  Un conservateur a ajouté un point d’interrogation après chacun, comme s’il refusait d’en assumer l’existence. Une petite étoile ✶ renvoie à un commentaire disparu, ne laissant qu’un silence administratif.\r\n\r\nPlus loin, au bord d’une vitrine transparente, un souffle froid traverse les fibres d’un textile ancien, _aura fracta_, juste assez pour faire vibrer les ombres. Un faux lien gravé au crayon — **[voir fragmentum](#)** — ne mène nulle part, mais oriente pourtant le regard vers un vide soigneusement éclairé. Dans ce flottement, chaque détail devient hypothèse : un reflet, un grain de poussière, un mot inventé qui prétend être latin.\r\n"
+        "raw": "[Ideal View of Saturn’s Rings and Satellites From the Planet](https://pdimagearchive.org/images/b153230c-b7e5-4127-bdf8-63910a675f67/)\r\n\r\n[Stars Whose Distances Are Best Known](https://pdimagearchive.org/images/0347f0a1-a134-484f-b919-d29bae3c2683/)\r\n\r\nSous la pierre tiède, les fresques effritées libèrent des éclats de pigments, **_pulvis coloris_**, qui dérivent comme des reliques minuscules. Une note manuscrite glissée sous un socle indique simplement : _“vide hic”_, sans lien apparent avec l’œuvre absente.\r\n\r\n> _“Silentium facit formam,”_ prétend une annotation marginale, peut-être authentique, peut-être déposée là par un visiteur trop inspiré.\r\n\r\nDans l’angle le plus sombre de la galerie, un panneau bancal propose une micro-liste d’éléments introuvables :\r\n\r\n- **_figura vacua_**\r\n- **_sonus mutatus_**\r\n- **_calx errans_**\r\n  Un conservateur a ajouté un point d’interrogation après chacun, comme s’il refusait d’en assumer l’existence. Une petite étoile ✶ renvoie à un commentaire disparu, ne laissant qu’un silence administratif.\r\n\r\nPlus loin, au bord d’une vitrine transparente, un souffle froid traverse les fibres d’un textile ancien, _aura fracta_, juste assez pour faire vibrer les ombres. Un faux lien gravé au crayon — **[voir fragmentum](#)** — ne mène nulle part, mais oriente pourtant le regard vers un vide soigneusement éclairé. Dans ce flottement, chaque détail devient hypothèse : un reflet, un grain de poussière, un mot inventé qui prétend être latin.\r\n",
+        "ast": {
+          "type": "root",
+          "children": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "link",
+                  "title": null,
+                  "url": "https://pdimagearchive.org/images/b153230c-b7e5-4127-bdf8-63910a675f67/",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "Ideal View of Saturn’s Rings and Satellites From the Planet",
+                      "position": {
+                        "start": {
+                          "line": 1,
+                          "column": 2,
+                          "offset": 1
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 61,
+                          "offset": 60
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "offset": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 135,
+                      "offset": 134
+                    }
+                  }
+                }
+              ],
+              "position": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "offset": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 135,
+                  "offset": 134
+                }
+              }
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "link",
+                  "title": null,
+                  "url": "https://pdimagearchive.org/images/0347f0a1-a134-484f-b919-d29bae3c2683/",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "Stars Whose Distances Are Best Known",
+                      "position": {
+                        "start": {
+                          "line": 3,
+                          "column": 2,
+                          "offset": 139
+                        },
+                        "end": {
+                          "line": 3,
+                          "column": 38,
+                          "offset": 175
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 3,
+                      "column": 1,
+                      "offset": 138
+                    },
+                    "end": {
+                      "line": 3,
+                      "column": 112,
+                      "offset": 249
+                    }
+                  }
+                }
+              ],
+              "position": {
+                "start": {
+                  "line": 3,
+                  "column": 1,
+                  "offset": 138
+                },
+                "end": {
+                  "line": 3,
+                  "column": 112,
+                  "offset": 249
+                }
+              }
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Sous la pierre tiède, les fresques effritées libèrent des éclats de pigments, ",
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 1,
+                      "offset": 253
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 79,
+                      "offset": 331
+                    }
+                  }
+                },
+                {
+                  "type": "strong",
+                  "children": [
+                    {
+                      "type": "emphasis",
+                      "children": [
+                        {
+                          "type": "text",
+                          "value": "pulvis coloris",
+                          "position": {
+                            "start": {
+                              "line": 5,
+                              "column": 82,
+                              "offset": 334
+                            },
+                            "end": {
+                              "line": 5,
+                              "column": 96,
+                              "offset": 348
+                            }
+                          }
+                        }
+                      ],
+                      "position": {
+                        "start": {
+                          "line": 5,
+                          "column": 81,
+                          "offset": 333
+                        },
+                        "end": {
+                          "line": 5,
+                          "column": 97,
+                          "offset": 349
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 79,
+                      "offset": 331
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 99,
+                      "offset": 351
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "value": ", qui dérivent comme des reliques minuscules. Une note manuscrite glissée sous un socle indique simplement : ",
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 99,
+                      "offset": 351
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 208,
+                      "offset": 460
+                    }
+                  }
+                },
+                {
+                  "type": "emphasis",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "“vide hic”",
+                      "position": {
+                        "start": {
+                          "line": 5,
+                          "column": 209,
+                          "offset": 461
+                        },
+                        "end": {
+                          "line": 5,
+                          "column": 219,
+                          "offset": 471
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 208,
+                      "offset": 460
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 220,
+                      "offset": 472
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "value": ", sans lien apparent avec l’œuvre absente.",
+                  "position": {
+                    "start": {
+                      "line": 5,
+                      "column": 220,
+                      "offset": 472
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 262,
+                      "offset": 514
+                    }
+                  }
+                }
+              ],
+              "position": {
+                "start": {
+                  "line": 5,
+                  "column": 1,
+                  "offset": 253
+                },
+                "end": {
+                  "line": 5,
+                  "column": 262,
+                  "offset": 514
+                }
+              }
+            },
+            {
+              "type": "blockquote",
+              "children": [
+                {
+                  "type": "paragraph",
+                  "children": [
+                    {
+                      "type": "emphasis",
+                      "children": [
+                        {
+                          "type": "text",
+                          "value": "“Silentium facit formam,”",
+                          "position": {
+                            "start": {
+                              "line": 7,
+                              "column": 4,
+                              "offset": 521
+                            },
+                            "end": {
+                              "line": 7,
+                              "column": 29,
+                              "offset": 546
+                            }
+                          }
+                        }
+                      ],
+                      "position": {
+                        "start": {
+                          "line": 7,
+                          "column": 3,
+                          "offset": 520
+                        },
+                        "end": {
+                          "line": 7,
+                          "column": 30,
+                          "offset": 547
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "value": " prétend une annotation marginale, peut-être authentique, peut-être déposée là par un visiteur trop inspiré.",
+                      "position": {
+                        "start": {
+                          "line": 7,
+                          "column": 30,
+                          "offset": 547
+                        },
+                        "end": {
+                          "line": 7,
+                          "column": 138,
+                          "offset": 655
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 7,
+                      "column": 3,
+                      "offset": 520
+                    },
+                    "end": {
+                      "line": 7,
+                      "column": 138,
+                      "offset": 655
+                    }
+                  }
+                }
+              ],
+              "position": {
+                "start": {
+                  "line": 7,
+                  "column": 1,
+                  "offset": 518
+                },
+                "end": {
+                  "line": 7,
+                  "column": 138,
+                  "offset": 655
+                }
+              }
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Dans l’angle le plus sombre de la galerie, un panneau bancal propose une micro-liste d’éléments introuvables :",
+                  "position": {
+                    "start": {
+                      "line": 9,
+                      "column": 1,
+                      "offset": 659
+                    },
+                    "end": {
+                      "line": 9,
+                      "column": 111,
+                      "offset": 769
+                    }
+                  }
+                }
+              ],
+              "position": {
+                "start": {
+                  "line": 9,
+                  "column": 1,
+                  "offset": 659
+                },
+                "end": {
+                  "line": 9,
+                  "column": 111,
+                  "offset": 769
+                }
+              }
+            },
+            {
+              "type": "list",
+              "ordered": false,
+              "start": null,
+              "spread": false,
+              "children": [
+                {
+                  "type": "listItem",
+                  "spread": false,
+                  "checked": null,
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "strong",
+                          "children": [
+                            {
+                              "type": "emphasis",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "value": "figura vacua",
+                                  "position": {
+                                    "start": {
+                                      "line": 11,
+                                      "column": 6,
+                                      "offset": 778
+                                    },
+                                    "end": {
+                                      "line": 11,
+                                      "column": 18,
+                                      "offset": 790
+                                    }
+                                  }
+                                }
+                              ],
+                              "position": {
+                                "start": {
+                                  "line": 11,
+                                  "column": 5,
+                                  "offset": 777
+                                },
+                                "end": {
+                                  "line": 11,
+                                  "column": 19,
+                                  "offset": 791
+                                }
+                              }
+                            }
+                          ],
+                          "position": {
+                            "start": {
+                              "line": 11,
+                              "column": 3,
+                              "offset": 775
+                            },
+                            "end": {
+                              "line": 11,
+                              "column": 21,
+                              "offset": 793
+                            }
+                          }
+                        }
+                      ],
+                      "position": {
+                        "start": {
+                          "line": 11,
+                          "column": 3,
+                          "offset": 775
+                        },
+                        "end": {
+                          "line": 11,
+                          "column": 21,
+                          "offset": 793
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 11,
+                      "column": 1,
+                      "offset": 773
+                    },
+                    "end": {
+                      "line": 11,
+                      "column": 21,
+                      "offset": 793
+                    }
+                  }
+                },
+                {
+                  "type": "listItem",
+                  "spread": false,
+                  "checked": null,
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "strong",
+                          "children": [
+                            {
+                              "type": "emphasis",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "value": "sonus mutatus",
+                                  "position": {
+                                    "start": {
+                                      "line": 12,
+                                      "column": 6,
+                                      "offset": 800
+                                    },
+                                    "end": {
+                                      "line": 12,
+                                      "column": 19,
+                                      "offset": 813
+                                    }
+                                  }
+                                }
+                              ],
+                              "position": {
+                                "start": {
+                                  "line": 12,
+                                  "column": 5,
+                                  "offset": 799
+                                },
+                                "end": {
+                                  "line": 12,
+                                  "column": 20,
+                                  "offset": 814
+                                }
+                              }
+                            }
+                          ],
+                          "position": {
+                            "start": {
+                              "line": 12,
+                              "column": 3,
+                              "offset": 797
+                            },
+                            "end": {
+                              "line": 12,
+                              "column": 22,
+                              "offset": 816
+                            }
+                          }
+                        }
+                      ],
+                      "position": {
+                        "start": {
+                          "line": 12,
+                          "column": 3,
+                          "offset": 797
+                        },
+                        "end": {
+                          "line": 12,
+                          "column": 22,
+                          "offset": 816
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 12,
+                      "column": 1,
+                      "offset": 795
+                    },
+                    "end": {
+                      "line": 12,
+                      "column": 22,
+                      "offset": 816
+                    }
+                  }
+                },
+                {
+                  "type": "listItem",
+                  "spread": false,
+                  "checked": null,
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "strong",
+                          "children": [
+                            {
+                              "type": "emphasis",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "value": "calx errans",
+                                  "position": {
+                                    "start": {
+                                      "line": 13,
+                                      "column": 6,
+                                      "offset": 823
+                                    },
+                                    "end": {
+                                      "line": 13,
+                                      "column": 17,
+                                      "offset": 834
+                                    }
+                                  }
+                                }
+                              ],
+                              "position": {
+                                "start": {
+                                  "line": 13,
+                                  "column": 5,
+                                  "offset": 822
+                                },
+                                "end": {
+                                  "line": 13,
+                                  "column": 18,
+                                  "offset": 835
+                                }
+                              }
+                            }
+                          ],
+                          "position": {
+                            "start": {
+                              "line": 13,
+                              "column": 3,
+                              "offset": 820
+                            },
+                            "end": {
+                              "line": 13,
+                              "column": 20,
+                              "offset": 837
+                            }
+                          }
+                        },
+                        {
+                          "type": "text",
+                          "value": "\r\nUn conservateur a ajouté un point d’interrogation après chacun, comme s’il refusait d’en assumer l’existence. Une petite étoile ✶ renvoie à un commentaire disparu, ne laissant qu’un silence administratif.",
+                          "position": {
+                            "start": {
+                              "line": 13,
+                              "column": 20,
+                              "offset": 837
+                            },
+                            "end": {
+                              "line": 14,
+                              "column": 207,
+                              "offset": 1045
+                            }
+                          }
+                        }
+                      ],
+                      "position": {
+                        "start": {
+                          "line": 13,
+                          "column": 3,
+                          "offset": 820
+                        },
+                        "end": {
+                          "line": 14,
+                          "column": 207,
+                          "offset": 1045
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 13,
+                      "column": 1,
+                      "offset": 818
+                    },
+                    "end": {
+                      "line": 14,
+                      "column": 207,
+                      "offset": 1045
+                    }
+                  }
+                }
+              ],
+              "position": {
+                "start": {
+                  "line": 11,
+                  "column": 1,
+                  "offset": 773
+                },
+                "end": {
+                  "line": 14,
+                  "column": 207,
+                  "offset": 1045
+                }
+              }
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Plus loin, au bord d’une vitrine transparente, un souffle froid traverse les fibres d’un textile ancien, ",
+                  "position": {
+                    "start": {
+                      "line": 16,
+                      "column": 1,
+                      "offset": 1049
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 106,
+                      "offset": 1154
+                    }
+                  }
+                },
+                {
+                  "type": "emphasis",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "aura fracta",
+                      "position": {
+                        "start": {
+                          "line": 16,
+                          "column": 107,
+                          "offset": 1155
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 118,
+                          "offset": 1166
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 16,
+                      "column": 106,
+                      "offset": 1154
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 119,
+                      "offset": 1167
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "value": ", juste assez pour faire vibrer les ombres. Un faux lien gravé au crayon — ",
+                  "position": {
+                    "start": {
+                      "line": 16,
+                      "column": 119,
+                      "offset": 1167
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 194,
+                      "offset": 1242
+                    }
+                  }
+                },
+                {
+                  "type": "strong",
+                  "children": [
+                    {
+                      "type": "link",
+                      "title": null,
+                      "url": "#",
+                      "children": [
+                        {
+                          "type": "text",
+                          "value": "voir fragmentum",
+                          "position": {
+                            "start": {
+                              "line": 16,
+                              "column": 197,
+                              "offset": 1245
+                            },
+                            "end": {
+                              "line": 16,
+                              "column": 212,
+                              "offset": 1260
+                            }
+                          }
+                        }
+                      ],
+                      "position": {
+                        "start": {
+                          "line": 16,
+                          "column": 196,
+                          "offset": 1244
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 216,
+                          "offset": 1264
+                        }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": {
+                      "line": 16,
+                      "column": 194,
+                      "offset": 1242
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 218,
+                      "offset": 1266
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "value": " — ne mène nulle part, mais oriente pourtant le regard vers un vide soigneusement éclairé. Dans ce flottement, chaque détail devient hypothèse : un reflet, un grain de poussière, un mot inventé qui prétend être latin.",
+                  "position": {
+                    "start": {
+                      "line": 16,
+                      "column": 218,
+                      "offset": 1266
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 435,
+                      "offset": 1483
+                    }
+                  }
+                }
+              ],
+              "position": {
+                "start": {
+                  "line": 16,
+                  "column": 1,
+                  "offset": 1049
+                },
+                "end": {
+                  "line": 16,
+                  "column": 435,
+                  "offset": 1483
+                }
+              }
+            }
+          ],
+          "position": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "offset": 0
+            },
+            "end": {
+              "line": 17,
+              "column": 1,
+              "offset": 1485
+            }
+          }
+        }
       }
     }
   ]

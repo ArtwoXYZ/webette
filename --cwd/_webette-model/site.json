@@ -1,0 +1,10 @@
+{
+  "rootDir": "--cwd",
+  "site": {
+    "title": "My Webette site",
+    "lang": "en"
+  },
+  "config": {},
+  "collections": [],
+  "route": "/"
+}

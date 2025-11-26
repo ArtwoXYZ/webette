@@ -46,7 +46,7 @@ Honestly? Not much.
 - Basic dev server with live reload + watchers
 - Structured logging with i18n (en/fr) persisted in `.webette/logs.jsonl`
 - Early site config (`webette.config.ts`) and docs starter: [docs/](https://tangled.org/artwo.xyz/webette/tree/main/docs)
--- And… that's about it
+  -- And… that's about it
 
 There is still no multi-page rendering, no site templates, no plugins, and absolutely no reason to use Webette for a real site.
 
@@ -133,3 +133,11 @@ Because file systems are underrated.
 Because tools should help you, not drain your soul.
 
 And because it’s fun to build.
+
+---
+
+## Requirements
+
+- Bun (CLI/runtime)
+- TypeScript 5 (peer dep for types)
+- Markdown pipeline uses unified/remark (remark-parse, remark-gfm) bundled as dependencies.

@@ -7,6 +7,11 @@
     "build": "bun run src/cli.ts build",
     "serve": "bun run src/cli.ts serve"
   },
+  "dependencies": {
+    "remark-parse": "^11.0.0",
+    "remark-gfm": "^4.0.0",
+    "unified": "^11.0.0"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },

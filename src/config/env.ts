@@ -32,6 +32,9 @@ export interface WebetteEnv {
     root: string;
     default: string;
   };
+  markdown: {
+    remarkPlugins: unknown[];
+  };
 }
 
 type WebetteEnvOverrides = Partial<{
@@ -43,6 +46,7 @@ type WebetteEnvOverrides = Partial<{
     Pick<WebetteEnv["build"], "outputDirName" | "overwrite" | "exportModel" | "readContent">
   >;
   templates: Partial<Pick<WebetteEnv["templates"], "root" | "default">>;
+  markdown: Partial<Pick<WebetteEnv["markdown"], "remarkPlugins">>;
 }>;
 
 const defaultEnv: WebetteEnv = {
@@ -69,6 +73,9 @@ const defaultEnv: WebetteEnv = {
   templates: {
     root: "templates",
     default: "wrapper.html",
+  },
+  markdown: {
+    remarkPlugins: [],
   },
 };
 
@@ -147,7 +154,14 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
       : {}),
   };
 
-  return { logging, serve, build, templates };
+  const markdown = {
+    ...defaults.markdown,
+    ...(Array.isArray(overrides.markdown?.remarkPlugins)
+      ? { remarkPlugins: overrides.markdown.remarkPlugins }
+      : {}),
+  };
+
+  return { logging, serve, build, templates, markdown };
 }
 
 function resolveConfigPath(toolRoot?: string): string | null {

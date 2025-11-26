@@ -18,6 +18,8 @@ export interface ResolvedContent {
     size?: number;
     mime?: string;
   };
+  ast?: unknown; // Structured representation (e.g. mdast) when available
+  html?: string; // Optional HTML rendering for text/markdown blocks
 }
 
 // Context passed to all resolvers

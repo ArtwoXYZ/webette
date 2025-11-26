@@ -152,7 +152,7 @@ Layouts wrap full pages; partials build reusable fragments (header, footer, navi
 
 AST nodes become HTML here – Markdown paragraphs -> `<p>`, headings -> `<h1>`, custom blocks -> plugin-generated HTML, etc.
 
-Markdown is parsed into an AST then rendered to HTML; frontmatter headers (YAML/TOML/JSON en tête de fichier) are ignored and not planned for now.
+Markdown is parsed to an AST (remark/unified) then rendered to HTML; frontmatter headers (YAML/TOML/JSON at the top of the file) are ignored and not planned for now.
 
 ---
 
