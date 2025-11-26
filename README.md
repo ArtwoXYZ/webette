@@ -40,8 +40,8 @@ Honestly? Not much.
 - CLI (run today with `bun run build <path>` / `bun run serve <path>`; target is global `webette build` / `webette serve`)
   - Options: `-v/--verbose`, `--export-model-dir [path]`, `--export-model-only`, `--skip-content` (skip block content reading)
 - Disk scan: collections → entries → blocks with types/extensions, ids/slugs/routes
-- Minimal block resolution: markdown/text (raw), json (data), images/videos/audio (meta size/mime) — controlled by `readContent` or `--skip-content`
-- Export the full model to a split debug folder (`_webette-model/` at the site root, with `site.json` + `entries/...`) right after scan+resolve
+- Minimal block resolution: markdown (raw + AST + HTML), text (raw), json (data), images/videos/audio (meta size/mime) — controlled by `readContent` or `--skip-content`
+- Export the full model to a split debug folder (`.webette/_model/` at the site root, with `site.json` + `entries/...`) right after scan+resolve
 - Generate a `_public/index.html` via a fallback wrapper (site templates not wired yet)
 - Basic dev server with live reload + watchers
 - Structured logging with i18n (en/fr) persisted in `.webette/logs.jsonl`
@@ -140,4 +140,4 @@ And because it’s fun to build.
 
 - Bun (CLI/runtime)
 - TypeScript 5 (peer dep for types)
-- Markdown pipeline uses unified/remark (remark-parse, remark-gfm) bundled as dependencies.
+- Markdown pipeline uses unified/remark + rehype (remark-parse, remark-gfm, remark-rehype, rehype-stringify) bundled as dependencies.

@@ -31,4 +31,4 @@ To inspect the in-memory model before rendering templates, enable the export:
 - Tool config: set `build.exportModel.enabled` (and optionally `dir`, `only`) in `webette.tool.json`.
 - CLI: `--export-model-dir [path]` or `--export-model-only` (overrides the tool config for this run).
 
-When enabled, the model is serialized right after scanning, before HTML rendering, into a folder (default `_webette-model` at the site root). Export is split: `site.json` contains site/config + collections (sans entries), and each entry is written to `entries/<collection>/<entry>.json`. With the `only` option, the HTML step is skipped so you can focus on the data.
+When enabled, the model is serialized right after scanning, before HTML rendering, into a folder (default `.webette/_model` at the site root). Export is split: `site.json` contains site/config + collections (sans entries), and each entry is written to `entries/<collection>/<entry>.json`. With the `only` option, the HTML step is skipped so you can focus on the data.

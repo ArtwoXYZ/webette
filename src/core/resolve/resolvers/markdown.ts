@@ -1,9 +1,9 @@
 import { readFile } from "node:fs/promises";
 import * as path from "node:path";
 import type { Resolver } from "../registry";
-import { parseMarkdownToAst } from "../../markdown/processor";
+import { parseMarkdownToAst, renderMarkdownToHtml } from "../../markdown/processor";
 
-// Resolve markdown blocks: return raw text (no HTML yet)
+// Resolve markdown blocks: keep raw text, mdast, and rendered HTML
 export const resolveMarkdown: Resolver = async (block, ctx) => {
   if (ctx.readContent === false) return undefined;
 
@@ -11,8 +11,19 @@ export const resolveMarkdown: Resolver = async (block, ctx) => {
   const raw = await readFile(filePath, "utf8");
 
   try {
-    const ast = parseMarkdownToAst(raw); // Keep AST for later transforms/rendering
-    return { raw, ast };
+    const remarkPlugins = ctx.remarkPlugins ?? [];
+    const ast = await parseMarkdownToAst(raw, remarkPlugins);
+    const html = await renderMarkdownToHtml(ast, remarkPlugins);
+
+    return {
+      raw,
+      ast,
+      html,
+      meta: {
+        format: "markdown",
+        renderedWith: "remark->rehype->html",
+      },
+    };
   } catch (err) {
     // Do not fail the build on parse errors: keep raw content and log
     ctx.logger?.warn("resolve.markdown.parseError", {

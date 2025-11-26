@@ -15,7 +15,7 @@
     "readContent": true,
     "exportModel": {
       "enabled": true,
-      "dir": "_webette-model",
+      "dir": ".webette/_model",
       "only": false
     }
   },

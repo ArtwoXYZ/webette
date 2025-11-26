@@ -15,7 +15,7 @@ The plan is to use **remark/unified internally**, while exposing a **simple, Web
 - Public API is intentionally minimal:
 
 ```ts
-parseMarkdownToAst(source: string): MarkdownAst;
+parseMarkdownToAst(source: string, remarkPlugins?: unknown[]): Promise<MarkdownAst>;
 ```
 
 - `MarkdownAst` is a **Webette-defined type**, even if internally backed by mdast.
@@ -98,6 +98,7 @@ interface MarkdownBlockContext {
 3. Webette plugins may transform AST or metadata
 4. Convert Markdown AST to HTML internally (remark → rehype → html)
 5. Inject HTML into templates and render pages
+6. Store `raw`, `ast`, `html`, and lightweight metadata (`meta.format`, `meta.renderedWith`) in the model for templates/plugins
 
 ---
 

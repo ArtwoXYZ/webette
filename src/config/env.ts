@@ -65,7 +65,7 @@ const defaultEnv: WebetteEnv = {
     overwrite: "replace-files",
     exportModel: {
       enabled: false,
-      dir: "_webette-model",
+      dir: ".webette/_model",
       only: false,
     },
     readContent: true,

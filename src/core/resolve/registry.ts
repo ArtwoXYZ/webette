@@ -17,6 +17,8 @@ export interface ResolvedContent {
   meta?: {
     size?: number;
     mime?: string;
+    format?: string;
+    renderedWith?: string;
   };
   ast?: unknown; // Structured representation (e.g. mdast) when available
   html?: string; // Optional HTML rendering for text/markdown blocks
@@ -27,6 +29,7 @@ export interface ResolveContext {
   rootDir: string;
   readContent?: boolean;
   logger?: Logger;
+   remarkPlugins?: unknown[];
   beforeBlock?: (block: Block) => void;
   afterBlock?: (block: Block, resolved?: ResolvedContent) => void;
 }

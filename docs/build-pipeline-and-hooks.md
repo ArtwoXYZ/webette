@@ -21,7 +21,7 @@ A Webette build runs through these major phases:
 7. Enrich missing **names/slugs/ids**
 8. Resolve **routes** (site/collection/entry/block)
 9. Parse Markdown into an **AST**
-10. Transform content (AST transforms, block transforms, enrichment plugins)
+10. Transform content (AST transforms, block transforms, enrichment plugins), render Markdown to HTML, and enrich block metadata
 11. Render **templates** (layouts + partials)
 12. HTML post-processing
 13. Write output
@@ -152,7 +152,7 @@ Layouts wrap full pages; partials build reusable fragments (header, footer, navi
 
 AST nodes become HTML here – Markdown paragraphs -> `<p>`, headings -> `<h1>`, custom blocks -> plugin-generated HTML, etc.
 
-Markdown is parsed to an AST (remark/unified) then rendered to HTML; frontmatter headers (YAML/TOML/JSON at the top of the file) are ignored and not planned for now.
+Markdown is parsed to an AST (remark/unified) then rendered to HTML; frontmatter headers (YAML/TOML/JSON at the top of the file) are ignored and not planned for now. Markdown blocks keep `raw`, `ast`, `html`, and lightweight metadata (e.g., `format`, `renderedWith`) in the model for templates/plugins.
 
 ---
 
@@ -203,7 +203,7 @@ The output is a complete static site.
 
 Optional debug/export step:
 
-- If `build.exportModel.enabled` (tool config) or the CLI flag `--export-model-dir` is set, the in-memory model (site, collections, entries, blocks) is serialized into a folder (default `_webette-model` at the site root). This happens right after scanning/enrichment, before HTML rendering. Export is split: `site.json` (site/config + collections + minimal list of entries) and a file for each entry in `entries/<collection>/<entry>.json`. With `build.exportModel.only` or `--export-model-only`, Webette skips HTML generation and only writes these files.
+- If `build.exportModel.enabled` (tool config) or the CLI flag `--export-model-dir` is set, the in-memory model (site, collections, entries, blocks) is serialized into a folder (default `.webette/_model` at the site root). This happens right after scanning/enrichment, before HTML rendering. Export is split: `site.json` (site/config + collections + minimal list of entries) and a file for each entry in `entries/<collection>/<entry>.json`. With `build.exportModel.only` or `--export-model-only`, Webette skips HTML generation and only writes these files.
 
 ---
 

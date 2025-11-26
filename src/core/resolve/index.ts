@@ -9,6 +9,7 @@ export interface ResolveOptions {
   rootDir?: string;
   readContent?: boolean;
   logger?: ResolveContext["logger"];
+  remarkPlugins?: ResolveContext["remarkPlugins"];
   beforeBlock?: ResolveContext["beforeBlock"];
   afterBlock?: ResolveContext["afterBlock"];
 }
@@ -20,6 +21,7 @@ function createContext(site: Site, options: ResolveOptions): ResolveContext {
     rootDir,
     readContent: options.readContent,
     logger: options.logger,
+    remarkPlugins: options.remarkPlugins,
     beforeBlock: options.beforeBlock,
     afterBlock: options.afterBlock,
   };

@@ -29,9 +29,12 @@ The file is plain JSON. A UTF-8 BOM is ignored if present.
     "readContent": true,
     "exportModel": {
       "enabled": false,
-      "dir": "_webette-model",
+      "dir": ".webette/_model",
       "only": false
     }
+  },
+  "markdown": {
+    "remarkPlugins": []
   },
   "templates": {
     "root": "templates",
@@ -53,8 +56,9 @@ The file is plain JSON. A UTF-8 BOM is ignored if present.
 - `build.overwrite`: `none` | `replace-all` | `replace-files`
 - `build.readContent`: whether to read/resolve block contents during build/serve (default `true`; set to `false` to only scan structure)
 - `build.exportModel.enabled`: export the in-memory model after scanning
-- `build.exportModel.dir`: folder for the split export (default `_webette-model`, under the site root if relative)
+- `build.exportModel.dir`: folder for the split export (default `.webette/_model`, under the site root if relative)
 - `build.exportModel.only`: if `true`, skip HTML generation (export only)
+- `markdown.remarkPlugins`: list of remark plugins applied during Markdown parsing/rendering (e.g. `["remark-gfm", ["remark-footnotes", { inlineNotes: true }]]`)
 - `templates.root`: base folder for internal/fallback templates (resolved from `process.cwd()` unless absolute)
 - `templates.default`: default wrapper used when the site does not provide its own layout (relative to `templates.root`)
 
@@ -64,4 +68,5 @@ The file is plain JSON. A UTF-8 BOM is ignored if present.
 - Locale resolution is centralized with `resolveLocale(config)`.
 - Consumers (`build`, `serve`, `logger`) do **not** embed defaults; they rely on `getEnv()`.
 - `build` resolves the default wrapper at `path.join(templates.root, templates.default)`; this is only used as fallback when the site has no explicit layout.
+- Markdown parsing/rendering uses `markdown.remarkPlugins` when converting `.md` blocks to AST/HTML.
 - CLI override: `--skip-content` sets `readContent` to `false` for that run.

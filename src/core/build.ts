@@ -44,6 +44,7 @@ export async function build(
     rootDir,
     readContent,
     logger: scoped.child("resolve"),
+    remarkPlugins: toolEnv.markdown.remarkPlugins,
   });
   const outputDir = path.join(rootDir, toolEnv.build.outputDirName);
   const overwrite = toolEnv.build.overwrite;

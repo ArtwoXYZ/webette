@@ -47,5 +47,9 @@ export interface ResolvedBlockContent {
   meta?: {                           // lightweight metadata for media
     size?: number;                   // byte size when available
     mime?: string;                   // mimetype inferred from extension
+    format?: string;                 // e.g., "markdown"
+    renderedWith?: string;           // pipeline used to generate HTML
   };
+  ast?: unknown;                     // structured representation (e.g. mdast)
+  html?: string;                     // rendered HTML for markdown/text blocks
 }
