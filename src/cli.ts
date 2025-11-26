@@ -8,7 +8,7 @@ type CliOptions = {
   verbose: boolean;
   exportModel?: {
     enabled?: boolean;
-    path?: string;
+    dir?: string;
     only?: boolean;
   };
   readContent?: boolean;
@@ -33,30 +33,25 @@ function parseArgs(argv: string[]) {
       continue;
     }
 
-    if (arg === "--export-model") {
+    if (arg === "--export-model-dir") {
       exportModel.enabled = true;
       const next = rawArgs[i + 1];
       if (next && !next.startsWith("-")) {
-        exportModel.path = next;
+        exportModel.dir = next;
         i++; // skip path value
       }
       continue;
     }
 
-    if (arg.startsWith("--export-model=")) {
+    if (arg.startsWith("--export-model-dir=")) {
       exportModel.enabled = true;
-      exportModel.path = arg.substring("--export-model=".length);
+      exportModel.dir = arg.substring("--export-model-dir=".length);
       continue;
     }
 
     if (arg === "--export-model-only") {
       exportModel.enabled = true;
       exportModel.only = true;
-      const next = rawArgs[i + 1];
-      if (next && !next.startsWith("-")) {
-        exportModel.path = next;
-        i++; // skip path value
-      }
       continue;
     }
 
@@ -94,10 +89,10 @@ async function main() {
     console.log("If no folder is provided, the current directory is used.");
     console.log("");
     console.log("Options:");
-    console.log("  -v, --verbose           Show debug logs");
-    console.log("  --export-model [path]   Export the in-memory model to JSON");
-    console.log("  --export-model-only     Export the model and skip HTML generation");
-    console.log("  --skip-content          Do not read/resolve block contents");
+    console.log("  -v, --verbose             Show debug logs");
+    console.log("  --export-model-dir [path] Export the in-memory model to a folder (split files)");
+    console.log("  --export-model-only       Export the model and skip HTML generation");
+    console.log("  --skip-content            Do not read/resolve block contents");
     return;
   }
 
@@ -124,8 +119,10 @@ async function main() {
         logger.error("cli.unknownCommand", { command });
         console.log("Available commands: build, serve");
         console.log("Options:");
-        console.log("  -v, --verbose     Show debug logs");
-        console.log("  --skip-content    Do not read/resolve block contents");
+        console.log("  -v, --verbose             Show debug logs");
+        console.log("  --export-model-dir [path] Export the in-memory model to a folder (split files)");
+        console.log("  --export-model-only       Export the model and skip HTML generation");
+        console.log("  --skip-content            Do not read/resolve block contents");
         break;
     }
   } catch (error) {

@@ -29,7 +29,7 @@ The file is plain JSON. A UTF-8 BOM is ignored if present.
     "readContent": true,
     "exportModel": {
       "enabled": false,
-      "path": "__webette-model.json",
+      "dir": "_webette-model",
       "only": false
     }
   },
@@ -52,8 +52,8 @@ The file is plain JSON. A UTF-8 BOM is ignored if present.
 - `build.outputDirName`: output folder name (default `_public`)
 - `build.overwrite`: `none` | `replace-all` | `replace-files`
 - `build.readContent`: whether to read/resolve block contents during build/serve (default `true`; set to `false` to only scan structure)
-- `build.exportModel.enabled`: export the in-memory model to JSON after scanning
-- `build.exportModel.path`: JSON path (relative to `outputDirName` if not absolute)
+- `build.exportModel.enabled`: export the in-memory model after scanning
+- `build.exportModel.dir`: folder for the split export (default `_webette-model`, under the site root if relative)
 - `build.exportModel.only`: if `true`, skip HTML generation (export only)
 - `templates.root`: base folder for internal/fallback templates (resolved from `process.cwd()` unless absolute)
 - `templates.default`: default wrapper used when the site does not provide its own layout (relative to `templates.root`)

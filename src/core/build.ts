@@ -14,7 +14,7 @@ export interface BuildOptions {
   quiet?: boolean;      // new: fewer logs when true
   exportModel?: {
     enabled?: boolean;
-    path?: string;
+    dir?: string;
     only?: boolean;
   };
   readContent?: boolean; // allow skipping content resolution when requested
@@ -51,7 +51,7 @@ export async function build(
 
   const exportModel = {
     enabled: options.exportModel?.enabled ?? envExport.enabled,
-    path: options.exportModel?.path ?? envExport.path,
+    dir: options.exportModel?.dir ?? envExport.dir,
     only: options.exportModel?.only ?? envExport.only,
   };
 
@@ -137,11 +137,11 @@ export async function build(
 
   // Optional model export (debug)
   if (exportModel.enabled) {
-    const targetPath = path.isAbsolute(exportModel.path)
-      ? exportModel.path
-      : path.join(outputDir, exportModel.path);
+    const exportDir = path.isAbsolute(exportModel.dir)
+      ? exportModel.dir
+      : path.join(rootDir, exportModel.dir);
 
-    scoped.debug("build.exportModel.start", { path: targetPath });
+    scoped.debug("build.exportModel.start", { dir: exportDir });
 
     const orderKeys = (value: unknown): unknown => {
       if (Array.isArray(value)) return value.map(orderKeys);
@@ -181,13 +181,59 @@ export async function build(
       return ordered;
     };
 
+    const siteSummary = {
+      ...resolvedSite,
+      collections: resolvedSite.collections?.map((collection) => {
+        const { entries, ...rest } = collection;
+        const entrySummaries = entries.map((entry) => ({
+          id: entry.id,
+          rawName: entry.rawName,
+          path: entry.path,
+          name: entry.name,
+          slug: entry.slug,
+          route: entry.route,
+        }));
+        return {
+          ...rest,
+          entries: entrySummaries,
+        };
+      }),
+    };
+
     try {
-      const payload = JSON.stringify(orderKeys(resolvedSite), null, 2);
-      await writeFile(targetPath, payload, "utf8");
-      scoped.info("build.exportModel.success", { path: targetPath });
+      await rm(exportDir, { recursive: true, force: true });
+      await mkdir(exportDir, { recursive: true });
+      await writeFile(
+        path.join(exportDir, "site.json"),
+        JSON.stringify(orderKeys(siteSummary), null, 2),
+        "utf8"
+      );
+
+      const entriesDir = path.join(exportDir, "entries");
+      await mkdir(entriesDir, { recursive: true });
+
+      if (resolvedSite.collections) {
+        for (const collection of resolvedSite.collections) {
+          const collectionDirName = collection.slug || collection.id;
+          const collectionDir = path.join(entriesDir, collectionDirName);
+          await mkdir(collectionDir, { recursive: true });
+
+          for (const entry of collection.entries) {
+            const entryFileName = `${entry.slug || entry.id}.json`;
+            const entryPath = path.join(collectionDir, entryFileName);
+            await writeFile(
+              entryPath,
+              JSON.stringify(orderKeys(entry), null, 2),
+              "utf8"
+            );
+          }
+        }
+      }
+
+      scoped.info("build.exportModel.success", { dir: exportDir });
     } catch (err: any) {
       scoped.error("build.exportModel.error", {
-        path: targetPath,
+        dir: exportDir,
         error: String(err),
       });
       throw err;
@@ -195,9 +241,9 @@ export async function build(
 
     if (exportModel.only) {
       if (options.quiet) {
-        scoped.debug("build.exportOnly.success", { path: targetPath });
+        scoped.debug("build.exportOnly.success", { dir: exportDir });
       } else {
-        scoped.info("build.exportOnly.success", { path: targetPath });
+        scoped.info("build.exportOnly.success", { dir: exportDir });
       }
       return;
     }

@@ -1,0 +1,72 @@
+{
+  "rootDir": "website-example",
+  "site": {
+    "title": "Website example",
+    "lang": "en",
+    "author": "Artwo"
+  },
+  "config": {
+    "collections": {
+      "custom": {
+        "path": "custom",
+        "name": "My custom name",
+        "slug": "custom_slug"
+      }
+    }
+  },
+  "collections": [
+    {
+      "id": "col__custom_slug",
+      "rawName": "custom",
+      "path": "custom",
+      "name": "My custom name",
+      "slug": "custom-slug",
+      "route": "custom-slug/",
+      "entries": [
+        {
+          "id": "ent__my_first_post",
+          "rawName": "1 - my first post",
+          "path": "custom/1 - my first post",
+          "name": "my first post",
+          "slug": "my-first-post",
+          "route": "custom-slug/my-first-post/"
+        },
+        {
+          "id": "ent__my_second_post",
+          "rawName": "02 my second post",
+          "path": "custom/02 my second post",
+          "name": "my second post",
+          "slug": "my-second-post",
+          "route": "custom-slug/my-second-post/"
+        }
+      ]
+    },
+    {
+      "id": "col__posts",
+      "rawName": "posts",
+      "path": "posts",
+      "name": "posts",
+      "slug": "posts",
+      "route": "posts/",
+      "entries": [
+        {
+          "id": "ent__my_first_post",
+          "rawName": "1 - my first post",
+          "path": "posts/1 - my first post",
+          "name": "my first post",
+          "slug": "my-first-post",
+          "route": "posts/my-first-post/"
+        },
+        {
+          "id": "ent__my_second_post",
+          "rawName": "02 my second post",
+          "path": "posts/02 my second post",
+          "name": "my second post",
+          "slug": "my-second-post",
+          "route": "posts/my-second-post/"
+        }
+      ]
+    }
+  ],
+  "route": "/"
+}

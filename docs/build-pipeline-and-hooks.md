@@ -150,7 +150,9 @@ The internal templating engine supports:
 
 Layouts wrap full pages; partials build reusable fragments (header, footer, navigation, etc.).
 
-AST nodes become HTML here — Markdown paragraphs -> `<p>`, headings -> `<h1>`, custom blocks -> plugin-generated HTML, etc.
+AST nodes become HTML here – Markdown paragraphs -> `<p>`, headings -> `<h1>`, custom blocks -> plugin-generated HTML, etc.
+
+Markdown is parsed into an AST then rendered to HTML; frontmatter headers (YAML/TOML/JSON en tête de fichier) are ignored and not planned for now.
 
 ---
 
@@ -201,7 +203,7 @@ The output is a complete static site.
 
 Optional debug/export step:
 
-- If `build.exportModel.enabled` (tool config) or the CLI flag `--export-model` is set, the in-memory model (site, collections, entries, blocks) is serialized to JSON in the output folder (default `__webette-model.json`). This happens right after scanning/enrichment, before HTML rendering. With `build.exportModel.only` or `--export-model-only`, Webette skips HTML generation and only writes the JSON.
+- If `build.exportModel.enabled` (tool config) or the CLI flag `--export-model-dir` is set, the in-memory model (site, collections, entries, blocks) is serialized into a folder (default `_webette-model` at the site root). This happens right after scanning/enrichment, before HTML rendering. Export is split: `site.json` (site/config + collections + minimal list of entries) and a file for each entry in `entries/<collection>/<entry>.json`. With `build.exportModel.only` or `--export-model-only`, Webette skips HTML generation and only writes these files.
 
 ---
 

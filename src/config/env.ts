@@ -23,7 +23,7 @@ export interface WebetteEnv {
     overwrite: OverwritePolicy;
     exportModel: {
       enabled: boolean;
-      path: string;
+      dir: string;
       only: boolean;
     };
     readContent: boolean;
@@ -61,7 +61,7 @@ const defaultEnv: WebetteEnv = {
     overwrite: "replace-files",
     exportModel: {
       enabled: false,
-      path: "__webette-model.json",
+      dir: "_webette-model",
       only: false,
     },
     readContent: true,
@@ -122,9 +122,9 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
             ...(typeof overrides.build.exportModel.enabled === "boolean"
               ? { enabled: overrides.build.exportModel.enabled }
               : {}),
-            ...(typeof overrides.build.exportModel.path === "string" &&
-            overrides.build.exportModel.path
-              ? { path: overrides.build.exportModel.path }
+            ...(typeof overrides.build.exportModel.dir === "string" &&
+            overrides.build.exportModel.dir
+              ? { dir: overrides.build.exportModel.dir }
               : {}),
             ...(typeof overrides.build.exportModel.only === "boolean"
               ? { only: overrides.build.exportModel.only }

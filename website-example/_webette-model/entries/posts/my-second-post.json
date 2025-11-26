@@ -1,0 +1,84 @@
+{
+  "id": "ent__my_second_post",
+  "rawName": "02 my second post",
+  "path": "posts/02 my second post",
+  "name": "my second post",
+  "slug": "my-second-post",
+  "route": "posts/my-second-post/",
+  "blocks": [
+    {
+      "id": "blk__the_planet_jupiter",
+      "rawName": "1 The Planet Jupiter.jpg",
+      "path": "posts/02 my second post/1 The Planet Jupiter.jpg",
+      "name": "The Planet Jupiter",
+      "type": "image",
+      "ext": ".jpg",
+      "slug": "the-planet-jupiter",
+      "route": "posts/my-second-post/the-planet-jupiter.jpg",
+      "content": {
+        "meta": {
+          "size": 60614,
+          "mime": "image/jpeg"
+        }
+      }
+    },
+    {
+      "id": "blk__text",
+      "rawName": "2 text.md",
+      "path": "posts/02 my second post/2 text.md",
+      "name": "text",
+      "type": "markdown",
+      "ext": ".md",
+      "slug": "text",
+      "route": "posts/my-second-post/text.md",
+      "content": {
+        "raw": "[The Planet Jupiter](https://pdimagearchive.org/images/24f8932b-6a98-4c48-b6e0-582eda84aa92/)\r\n\r\n## Speculum Umbrae\r\n\r\nSous les arcs silencieux, la poussière danse en spirales lentes, **_umbrae volutantur_**, comme si chaque grain cherchait à retrouver sa propre origine. Une inscription presque effacée murmure _lux fractissima_, peut-être authentique, peut-être inventée par un conservateur trop rêveur. Sur un socle triangulaire repose une liste minuscule — à peine lisible — notant : “_figura errans_, _aqua sine aqua_, _materia vana_”. À côté, une flèche dessinée à la main pointe vers un vide parfaitement ordinaire, accompagné de l’annotation : **[“voir absence ici”](#)**. Dans cette galerie où les repères glissent, où les pigments s’écaillent en murmures, chaque pas soulève une brise ténue, et l’on croit entendre, juste un instant, un écho d’époque brisée : _“Ars vagat, anima manet.”_\r\n"
+      }
+    },
+    {
+      "id": "blk__ideal_view_of",
+      "rawName": "Ideal View of Saturn’s Rings and Satellites From the Planet.jpg",
+      "path": "posts/02 my second post/Ideal View of Saturn’s Rings and Satellites From the Planet.jpg",
+      "name": "Ideal View of Saturn’s Rings and Satellites From the Planet",
+      "type": "image",
+      "ext": ".jpg",
+      "slug": "ideal-view-of-saturn-s-rings-and-satellites-from-the-planet",
+      "route": "posts/my-second-post/ideal-view-of-saturn-s-rings-and-satellites-from-the-planet.jpg",
+      "content": {
+        "meta": {
+          "size": 236767,
+          "mime": "image/jpeg"
+        }
+      }
+    },
+    {
+      "id": "blk__stars_whose_distances",
+      "rawName": "Stars Whose Distances Are Best Known.jpg",
+      "path": "posts/02 my second post/Stars Whose Distances Are Best Known.jpg",
+      "name": "Stars Whose Distances Are Best Known",
+      "type": "image",
+      "ext": ".jpg",
+      "slug": "stars-whose-distances-are-best-known",
+      "route": "posts/my-second-post/stars-whose-distances-are-best-known.jpg",
+      "content": {
+        "meta": {
+          "size": 156236,
+          "mime": "image/jpeg"
+        }
+      }
+    },
+    {
+      "id": "blk__z_text",
+      "rawName": "z text.md",
+      "path": "posts/02 my second post/z text.md",
+      "name": "z text",
+      "type": "markdown",
+      "ext": ".md",
+      "slug": "z-text",
+      "route": "posts/my-second-post/z-text.md",
+      "content": {
+        "raw": "[Ideal View of Saturn’s Rings and Satellites From the Planet](https://pdimagearchive.org/images/b153230c-b7e5-4127-bdf8-63910a675f67/)\r\n\r\n[Stars Whose Distances Are Best Known](https://pdimagearchive.org/images/0347f0a1-a134-484f-b919-d29bae3c2683/)\r\n\r\nSous la pierre tiède, les fresques effritées libèrent des éclats de pigments, **_pulvis coloris_**, qui dérivent comme des reliques minuscules. Une note manuscrite glissée sous un socle indique simplement : _“vide hic”_, sans lien apparent avec l’œuvre absente.\r\n\r\n> _“Silentium facit formam,”_ prétend une annotation marginale, peut-être authentique, peut-être déposée là par un visiteur trop inspiré.\r\n\r\nDans l’angle le plus sombre de la galerie, un panneau bancal propose une micro-liste d’éléments introuvables :\r\n\r\n- **_figura vacua_**\r\n- **_sonus mutatus_**\r\n- **_calx errans_**\r\n  Un conservateur a ajouté un point d’interrogation après chacun, comme s’il refusait d’en assumer l’existence. Une petite étoile ✶ renvoie à un commentaire disparu, ne laissant qu’un silence administratif.\r\n\r\nPlus loin, au bord d’une vitrine transparente, un souffle froid traverse les fibres d’un textile ancien, _aura fracta_, juste assez pour faire vibrer les ombres. Un faux lien gravé au crayon — **[voir fragmentum](#)** — ne mène nulle part, mais oriente pourtant le regard vers un vide soigneusement éclairé. Dans ce flottement, chaque détail devient hypothèse : un reflet, un grain de poussière, un mot inventé qui prétend être latin.\r\n"
+      }
+    }
+  ]
+}

@@ -175,8 +175,8 @@ webette build <path>
 Flags (current):
 
 - `-v` / `--verbose`
-- `--export-model [path]`
-- `--export-model-only [path]`
+- `--export-model-dir [path]`
+- `--export-model-only`
 
 No unnecessary verbosity or complex defaults.
 
