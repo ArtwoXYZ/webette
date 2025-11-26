@@ -17,6 +17,8 @@ export interface ResolvedContent {
   meta?: {
     size?: number;
     mime?: string;
+    width?: number;
+    height?: number;
     format?: string;
     renderedWith?: string;
   };

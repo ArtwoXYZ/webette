@@ -4,3 +4,4 @@
 - Rendre optionnel le fallback d'index par défaut (flag ou détection) pour éviter des pages générées sans template.
 - Étendre les placeholders du mini moteur (site/collection/entry) une fois le modèle structuré en place.
 - Ouvrir la config markdown.remarkPlugins (tool/site) et documenter la pipeline Markdown/AST + requirements. ✔︎ config prise en compte + docs/README mis à jour
+- Enrichir les métadonnées image (dimensions) et préparer l'optimisation/variantes (sharp, etc.).

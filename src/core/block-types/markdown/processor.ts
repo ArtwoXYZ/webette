@@ -3,9 +3,7 @@ import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
-import type { Root as MdastRoot } from "mdast";
-
-export type MarkdownAst = MdastRoot;
+import { type MarkdownAst } from "./types";
 
 type RemarkPlugin = Plugin<any[], any>;
 type RemarkPluginLike = RemarkPlugin | [RemarkPlugin, ...any[]];

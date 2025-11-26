@@ -1,7 +1,10 @@
 import { readFile } from "node:fs/promises";
 import * as path from "node:path";
 import type { Resolver } from "../registry";
-import { parseMarkdownToAst, renderMarkdownToHtml } from "../../markdown/processor";
+import {
+  parseMarkdownToAst,
+  renderMarkdownToHtml,
+} from "../../block-types/markdown/processor";
 
 // Resolve markdown blocks: keep raw text, mdast, and rendered HTML
 export const resolveMarkdown: Resolver = async (block, ctx) => {

@@ -1,6 +1,7 @@
 import { stat } from "node:fs/promises";
 import * as path from "node:path";
 import type { Resolver } from "../registry";
+import imageSize from "image-size";
 
 const mimeByExt: Record<string, string> = {
   ".jpg": "image/jpeg",
@@ -23,10 +24,27 @@ export const resolveImage: Resolver = async (block, ctx) => {
   const ext = block.ext?.toLowerCase() ?? "";
   const mime = mimeByExt[ext];
 
+  let dimensions: { width?: number; height?: number } = {};
+  try {
+    const size = imageSize(filePath);
+    dimensions = {
+      width: typeof size.width === "number" ? size.width : undefined,
+      height: typeof size.height === "number" ? size.height : undefined,
+    };
+  } catch (err) {
+    ctx.logger?.warn("resolve.image.dimensionsFailed", {
+      blockId: block.id,
+      path: block.path,
+      error: String(err),
+    });
+  }
+
   return {
     meta: {
       size: stats.size,
       ...(mime ? { mime } : {}),
+      ...(dimensions.width ? { width: dimensions.width } : {}),
+      ...(dimensions.height ? { height: dimensions.height } : {}),
     },
   };
 };
