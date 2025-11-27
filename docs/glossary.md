@@ -152,7 +152,7 @@ This is the configuration of the **site**, not of the Webette tool itself.
 
 ## Tool configuration (environment)
 
-A configuration file dedicated to Webette as a tool (`webette.tool.json`).
+  A configuration file dedicated to Webette as a tool (`webette.tool.ts`).
 
 It can contain, for example:
 

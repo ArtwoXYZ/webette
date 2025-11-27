@@ -141,3 +141,4 @@ And because it’s fun to build.
 - Bun (CLI/runtime)
 - TypeScript 5 (peer dep for types)
 - Markdown pipeline uses unified/remark + rehype (remark-parse, remark-gfm, remark-rehype, rehype-stringify) bundled as dependencies.
+- Images: metadata resolution, optional sharp-based variants (small/medium/large), routes under `assets/images/…`.

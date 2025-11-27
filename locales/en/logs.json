@@ -18,5 +18,10 @@
   "build.exportModel.start": "Exporting in-memory model to {path}…",
   "build.exportModel.success": "Model exported to {path}.",
   "build.exportModel.error": "Failed to export model to {path}: {error}",
-  "build.exportOnly.success": "Export-only build completed (model: {path})."
+  "build.exportOnly.success": "Export-only build completed (model: {path}).",
+  "resolve.image.dimensionsFailed": "Could not read dimensions for {path}: {error}",
+  "resolve.image.sharpMissing": "Image engine (sharp) not available: {error}",
+  "resolve.image.defaultReencodeSkipped": "Default variant left untouched for {path} (sharp missing).",
+  "resolve.image.defaultFailed": "Failed to prepare default image for {path}: {error}",
+  "resolve.image.variantFailed": "Failed to generate variant {variant} for {path}: {error}"
 }

@@ -6,6 +6,22 @@ import { normalizeLocale, type Locale } from "../logging/i18n";
 
 export type LogLevel = "debug" | "info" | "warn" | "error";
 export type OverwritePolicy = "none" | "replace-all" | "replace-files";
+export type ImageFormat = "webp" | "avif" | "jpeg" | "png";
+export type ImageFit = "cover" | "contain" | "fill" | "inside" | "outside";
+
+export interface ImagesEnv {
+  requiresImageEngine: boolean;
+  sizes: {
+    small: number;
+    medium: number;
+    large: number;
+  };
+  format: ImageFormat;
+  quality: number;
+  fit: ImageFit;
+  outputDir: string; // relative to the output directory (e.g. "assets/images")
+  reencodeDefault: boolean;
+}
 
 export interface WebetteEnv {
   logging: {
@@ -35,6 +51,7 @@ export interface WebetteEnv {
   markdown: {
     remarkPlugins: unknown[];
   };
+  images: ImagesEnv;
 }
 
 type WebetteEnvOverrides = Partial<{
@@ -47,6 +64,7 @@ type WebetteEnvOverrides = Partial<{
   >;
   templates: Partial<Pick<WebetteEnv["templates"], "root" | "default">>;
   markdown: Partial<Pick<WebetteEnv["markdown"], "remarkPlugins">>;
+  images: Partial<ImagesEnv>;
 }>;
 
 const defaultEnv: WebetteEnv = {
@@ -76,6 +94,19 @@ const defaultEnv: WebetteEnv = {
   },
   markdown: {
     remarkPlugins: [],
+  },
+  images: {
+    requiresImageEngine: false,
+    sizes: {
+      small: 480,
+      medium: 960,
+      large: 1440,
+    },
+    format: "webp",
+    quality: 80,
+    fit: "cover",
+    outputDir: "assets/images",
+    reencodeDefault: false,
   },
 };
 
@@ -161,7 +192,45 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
       : {}),
   };
 
-  return { logging, serve, build, templates, markdown };
+  const images = {
+    ...defaults.images,
+    ...(typeof overrides.images?.requiresImageEngine === "boolean"
+      ? { requiresImageEngine: overrides.images.requiresImageEngine }
+      : {}),
+    sizes: {
+      ...defaults.images.sizes,
+      ...(overrides.images?.sizes &&
+      typeof overrides.images.sizes === "object"
+        ? (["small", "medium", "large"] as const).reduce(
+            (acc, key) => {
+              const value = (overrides.images?.sizes as Record<string, unknown>)[key];
+              if (typeof value === "number" && value > 0) {
+                acc[key] = value;
+              }
+              return acc;
+            },
+            {} as Partial<ImagesEnv["sizes"]>
+          )
+        : {}),
+    },
+    ...(typeof overrides.images?.format === "string" && overrides.images.format
+      ? { format: overrides.images.format }
+      : {}),
+    ...(typeof overrides.images?.quality === "number"
+      ? { quality: overrides.images.quality }
+      : {}),
+    ...(typeof overrides.images?.fit === "string" && overrides.images.fit
+      ? { fit: overrides.images.fit }
+      : {}),
+    ...(typeof overrides.images?.outputDir === "string" && overrides.images.outputDir
+      ? { outputDir: overrides.images.outputDir }
+      : {}),
+    ...(typeof overrides.images?.reencodeDefault === "boolean"
+      ? { reencodeDefault: overrides.images.reencodeDefault }
+      : {}),
+  };
+
+  return { logging, serve, build, templates, markdown, images };
 }
 
 function resolveConfigPath(toolRoot?: string): string | null {
@@ -176,15 +245,15 @@ function resolveConfigPath(toolRoot?: string): string | null {
 
   // 1) toolRoot override (if provided explicitly by caller)
   if (toolRoot) {
-    candidates.push(path.join(toolRoot, "webette.tool.json"));
+    candidates.push(path.join(toolRoot, "webette.tool.ts"));
   }
 
   // 2) current working directory (typical use when running from repo root)
-  candidates.push(path.join(process.cwd(), "webette.tool.json"));
+  candidates.push(path.join(process.cwd(), "webette.tool.ts"));
 
   // 3) directory of this file (fallback when bundled/installed elsewhere)
   const here = path.dirname(fileURLToPath(import.meta.url));
-  candidates.push(path.join(here, "..", "..", "webette.tool.json"));
+  candidates.push(path.join(here, "..", "..", "webette.tool.ts"));
 
   for (const candidate of candidates) {
     if (existsSync(candidate)) {
@@ -205,8 +274,13 @@ export async function getEnv(toolRoot?: string): Promise<WebetteEnv> {
   if (configPath) {
     try {
       const raw = await readFile(configPath, "utf8");
-      const cleaned = raw.replace(/^\uFEFF/, "");
-      overrides = JSON.parse(cleaned);
+      const transpiled = new Bun.Transpiler({ loader: "ts" }).transformSync(raw);
+      const dataUrl = `data:text/javascript;base64,${Buffer.from(transpiled).toString(
+        "base64"
+      )}?tool-config=${Date.now()}`;
+      const mod = await import(dataUrl);
+      const parsed = mod?.default ?? mod;
+      overrides = parsed && typeof parsed === "object" ? (parsed as WebetteEnvOverrides) : {};
     } catch {
       // ignore and fall back to defaults
     }

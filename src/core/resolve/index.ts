@@ -1,8 +1,22 @@
 import type { Collection, Entry, Site, Block } from "../model";
-import {
-  getResolver,
-  type ResolveContext,
-} from "./registry";
+import type { WebetteEnv } from "../../config/env";
+import { resolveImageConfig } from "../block-types/image/config";
+import { getResolver, type ResolveContext } from "./registry";
+
+function splitRouteSegments(route?: string): string[] {
+  if (!route) return [];
+  return route.replace(/^\/+|\/+$/g, "").split("/").filter(Boolean);
+}
+
+function buildBlockRouteHint(block: Block, parentSegments: string[]): {
+  routeHint: string;
+  routeSegments: string[];
+} {
+  const routeSegments = [...parentSegments, block.slug];
+  const routeBase = routeSegments.join("/");
+  const routeHint = block.ext ? `${routeBase}${block.ext}` : `${routeBase}/`;
+  return { routeHint, routeSegments };
+}
 
 // Entry point: walk the scanned model and enrich blocks with resolved content.
 export interface ResolveOptions {
@@ -12,13 +26,20 @@ export interface ResolveOptions {
   remarkPlugins?: ResolveContext["remarkPlugins"];
   beforeBlock?: ResolveContext["beforeBlock"];
   afterBlock?: ResolveContext["afterBlock"];
+  toolEnv?: WebetteEnv;
 }
 
 function createContext(site: Site, options: ResolveOptions): ResolveContext {
   const rootDir = options.rootDir ?? site.rootDir;
+  const imageConfig = options.toolEnv
+    ? resolveImageConfig(rootDir, options.toolEnv, site)
+    : undefined;
 
   return {
     rootDir,
+    site,
+    toolEnv: options.toolEnv,
+    imageConfig,
     readContent: options.readContent,
     logger: options.logger,
     remarkPlugins: options.remarkPlugins,
@@ -29,29 +50,39 @@ function createContext(site: Site, options: ResolveOptions): ResolveContext {
 
 async function resolveBlock(
   block: Block,
-  ctx: ResolveContext
+  ctx: ResolveContext,
+  parentRouteSegments: string[]
 ): Promise<Block> {
   ctx.beforeBlock?.(block);
 
+  const { routeHint, routeSegments } = buildBlockRouteHint(block, parentRouteSegments);
+  const scopedCtx: ResolveContext = { ...ctx, routeHint, routeSegments };
+
   // Resolve children first so folder/meta resolvers see already enriched subBlocks
   const subBlocks = block.subBlocks
-    ? await Promise.all(block.subBlocks.map((child) => resolveBlock(child, ctx)))
+    ? await Promise.all(block.subBlocks.map((child) => resolveBlock(child, scopedCtx, routeSegments)))
     : undefined;
 
   const resolver = getResolver(block);
-  const resolved = resolver ? await resolver(block, ctx) : undefined;
+  const resolved = resolver ? await resolver(block, scopedCtx) : undefined;
 
   ctx.afterBlock?.(block, resolved);
 
+  const { blockRoute, ...content } = resolved ?? {};
+
   return {
     ...block,
+    ...(blockRoute ? { route: blockRoute } : {}),
     ...(subBlocks ? { subBlocks } : {}),
-    ...(resolved ? { content: resolved } : {}),
+    ...(resolved ? { content } : {}),
   };
 }
 
 async function resolveEntry(entry: Entry, ctx: ResolveContext): Promise<Entry> {
-  const blocks = await Promise.all(entry.blocks.map((blk) => resolveBlock(blk, ctx)));
+  const parentSegments = splitRouteSegments(entry.route);
+  const blocks = await Promise.all(
+    entry.blocks.map((blk) => resolveBlock(blk, ctx, parentSegments))
+  );
   return { ...entry, blocks };
 }
 

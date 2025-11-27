@@ -2,20 +2,10 @@ import { stat } from "node:fs/promises";
 import * as path from "node:path";
 import type { Resolver } from "../registry";
 import imageSize from "image-size";
+import { collectImageMeta, mimeByExt } from "../../block-types/image/meta";
+import { copyOriginalAsset, generateImageVariants } from "../../block-types/image/engine";
 
-const mimeByExt: Record<string, string> = {
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".png": "image/png",
-  ".gif": "image/gif",
-  ".webp": "image/webp",
-  ".avif": "image/avif",
-  ".svg": "image/svg+xml",
-  ".ico": "image/x-icon",
-  ".apng": "image/apng",
-};
-
-// Resolve image blocks: keep it light, only record size and mime
+// Resolve image blocks: record metadata, optionally copy originals, and generate variants.
 export const resolveImage: Resolver = async (block, ctx) => {
   if (ctx.readContent === false) return undefined;
 
@@ -27,10 +17,7 @@ export const resolveImage: Resolver = async (block, ctx) => {
   let dimensions: { width?: number; height?: number } = {};
   try {
     const size = imageSize(filePath);
-    dimensions = {
-      width: typeof size.width === "number" ? size.width : undefined,
-      height: typeof size.height === "number" ? size.height : undefined,
-    };
+    dimensions = collectImageMeta(size);
   } catch (err) {
     ctx.logger?.warn("resolve.image.dimensionsFailed", {
       blockId: block.id,
@@ -39,12 +26,39 @@ export const resolveImage: Resolver = async (block, ctx) => {
     });
   }
 
-  return {
-    meta: {
-      size: stats.size,
-      ...(mime ? { mime } : {}),
-      ...(dimensions.width ? { width: dimensions.width } : {}),
-      ...(dimensions.height ? { height: dimensions.height } : {}),
-    },
+  const meta = {
+    size: stats.size,
+    ...(mime ? { mime } : {}),
+    ...(dimensions.width ? { width: dimensions.width } : {}),
+    ...(dimensions.height ? { height: dimensions.height } : {}),
   };
+
+  // If the image engine is disabled, still copy the original to the public assets path.
+  if (!ctx.imageConfig?.requiresImageEngine) {
+    const copied = await copyOriginalAsset({
+      block,
+      filePath,
+      config: ctx.imageConfig,
+      logger: ctx.logger,
+      routeHint: ctx.routeHint,
+      routeSegments: ctx.routeSegments,
+    });
+    const blockRoute = copied?.route;
+    return { meta, ...(blockRoute ? { blockRoute } : {}) };
+  }
+
+  const variants = await generateImageVariants({
+    block,
+    filePath,
+    dimensions,
+    stats,
+    config: ctx.imageConfig,
+    logger: ctx.logger,
+    routeHint: ctx.routeHint,
+    routeSegments: ctx.routeSegments,
+  });
+
+  const blockRoute = variants[0]?.route;
+
+  return { meta, variants, ...(blockRoute ? { blockRoute } : {}) };
 };

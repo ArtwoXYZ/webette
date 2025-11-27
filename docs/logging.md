@@ -9,7 +9,7 @@ Webette uses a structured, locale-aware logger:
 
 ## Configuration
 
-- Locale and min level come from the tool config (`webette.tool.json`) via `getEnv()` / `resolveLocale()`.
+- Locale and min level come from the tool config (`webette.tool.ts`) via `getEnv()` / `resolveLocale()`.
 - `logging.dirName` controls where logs are written inside the **site** root (default `.webette`).
 - Verbose flag (`-v`) forces `debug` min level.
 

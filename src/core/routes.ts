@@ -27,16 +27,13 @@ function joinRoute(...segments: string[]): string {
 }
 
 function resolveBlockRoutes(block: Block, parentSegments: string[]): Block {
-  // Blocks inherit the parent route; folders end with "/", files keep their extension.
+  // Blocks inherit the parent route segments for structure, but the route itself
+  // is set later by resolvers/processors when needed.
   const segments = [...parentSegments, block.slug];
-  const routeBase = joinRoute(...segments);
-  const route = block.ext ? `${routeBase}${block.ext}` : `${routeBase}/`;
-
   const subBlocks = block.subBlocks?.map((sub) => resolveBlockRoutes(sub, segments));
 
   return {
     ...block,
-    route,
     ...(subBlocks ? { subBlocks } : {}),
   };
 }

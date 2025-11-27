@@ -6,7 +6,7 @@ Webette renders HTML via simple templates plus a minimal replacement engine.
 
 ## Where templates come from
 
-- Tool defaults are configured in `webette.tool.json` (`templates.root`, `templates.default`).
+- Tool defaults are configured in `webette.tool.ts` (`templates.root`, `templates.default`).
 - The default wrapper lives at `path.join(process.cwd(), templates.root, templates.default)` (relative to the CLI working dir unless `templates.root` is absolute).
 - When a site provides its own layout, it should live under its project root (e.g. `site/_templates` or `site/templates`). The build should prefer site templates over the tool fallback.
 
@@ -28,7 +28,7 @@ These will expand alongside the data model (collections, entries, blocks) as the
 
 To inspect the in-memory model before rendering templates, enable the export:
 
-- Tool config: set `build.exportModel.enabled` (and optionally `dir`, `only`) in `webette.tool.json`.
+- Tool config: set `build.exportModel.enabled` (and optionally `dir`, `only`) in `webette.tool.ts`.
 - CLI: `--export-model-dir [path]` or `--export-model-only` (overrides the tool config for this run).
 
 When enabled, the model is serialized right after scanning, before HTML rendering, into a folder (default `.webette/_model` at the site root). Export is split: `site.json` contains site/config + collections (sans entries), and each entry is written to `entries/<collection>/<entry>.json`. With the `only` option, the HTML step is skipped so you can focus on the data.

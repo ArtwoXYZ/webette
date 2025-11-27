@@ -39,13 +39,6 @@ export async function build(
     typeof options.readContent === "boolean"
       ? options.readContent
       : toolEnv.build.readContent;
-
-  const resolvedSite = await resolveBlocks(scannedSite, {
-    rootDir,
-    readContent,
-    logger: scoped.child("resolve"),
-    remarkPlugins: toolEnv.markdown.remarkPlugins,
-  });
   const outputDir = path.join(rootDir, toolEnv.build.outputDirName);
   const overwrite = toolEnv.build.overwrite;
   const envExport = toolEnv.build.exportModel;
@@ -106,6 +99,14 @@ export async function build(
     // Directory already exists: not fatal when recursive, continue
     scoped.debug("build.outputDirExists", { outputDir });
   }
+
+  const resolvedSite = await resolveBlocks(scannedSite, {
+    rootDir,
+    readContent,
+    logger: scoped.child("resolve"),
+    remarkPlugins: toolEnv.markdown.remarkPlugins,
+    toolEnv,
+  });
 
   const liveReloadScript = options.liveReload
     ? `

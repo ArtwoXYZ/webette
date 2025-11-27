@@ -41,6 +41,19 @@ export interface Site {
   route?: string;                   // root route, usually "/"
 }
 
+export type ImageVariantName = "default" | "small" | "medium" | "large";
+
+export interface ImageVariant {
+  name: ImageVariantName;
+  route: string;                     // public path to the generated variant
+  width?: number;
+  height?: number;
+  format?: string;
+  size?: number;
+  aliasOf?: ImageVariantName;
+  reason?: string;
+}
+
 export interface ResolvedBlockContent {
   raw?: string;                      // raw text content (md/txt)
   data?: unknown;                    // parsed data (json, etc.)
@@ -52,6 +65,7 @@ export interface ResolvedBlockContent {
     format?: string;                 // e.g., "markdown"
     renderedWith?: string;           // pipeline used to generate HTML
   };
+  variants?: ImageVariant[];         // generated/resolved variants for media (images)
   ast?: unknown;                     // structured representation (e.g. mdast)
   html?: string;                     // rendered HTML for markdown/text blocks
 }

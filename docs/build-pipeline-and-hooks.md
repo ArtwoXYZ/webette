@@ -12,14 +12,14 @@ The goal is to describe the conceptual flow of a Webette build.
 
 A Webette build runs through these major phases:
 
-1. Load **tool configuration** (`webette.tool.json`)
+1. Load **tool configuration** (`webette.tool.ts`)
 2. Load **site configuration** (`webette.config.ts`)
 3. Raw scan: discover **collections**
 4. Raw scan: discover **entries**
 5. Raw scan: discover **blocks** (type/ext only)
 6. Apply **site config** overrides (collections)
 7. Enrich missing **names/slugs/ids**
-8. Resolve **routes** (site/collection/entry/block)
+8. Resolve **routes** (site/collection/entry; blocks later, by resolvers when needed)
 9. Parse Markdown into an **AST**
 10. Transform content (AST transforms, block transforms, enrichment plugins), render Markdown to HTML, and enrich block metadata
 11. Render **templates** (layouts + partials)
@@ -35,7 +35,7 @@ Each step exposes hooks plugins can use to extend or alter the behavior.
 
 ## 1. Tool configuration
 
-`webette.tool.json` defines settings used by the Webette **tool**, not by a specific site:
+`webette.tool.ts` defines settings used by the Webette **tool**, not by a specific site:
 
 - Logging (level, locale, folder)
 - Template fallback root and default wrapper
@@ -191,11 +191,7 @@ This is the last opportunity to modify the page before writing it.
 
 ## 12. Output
 
-Generated HTML and assets are written to the folder defined by:
-
-```
-build.outputDirName (from webette.tool.json)
-```
+Generated HTML and assets are written to the folder defined by `build.outputDirName` (from `webette.tool.ts`).
 
 Ignored names (e.g. `.webette`, `_public`, custom patterns) follow tool configuration rules.
 

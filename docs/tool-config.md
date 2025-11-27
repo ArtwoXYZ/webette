@@ -1,46 +1,37 @@
-# Tool Configuration (`webette.tool.json`)
+# Tool Configuration (`webette.tool.ts`)
 
-Webette has a small tool-level configuration file, independent from any site config. It lives next to the CLI (default: current working directory) and is resolved in this order:
+Webette has a small tool-level configuration file in TS, independent from any site config. It lives next to the CLI (default: current working directory) and is resolved in this order:
 
 1. Explicit path via `WEBETTE_TOOL_CONFIG` (absolute or relative to `process.cwd()`).
-2. `process.cwd()/webette.tool.json` (typical when running from the repo root).
+2. `process.cwd()/webette.tool.ts` (typical when running from the repo root).
 3. Fallback: two levels above `src/config/env.ts` (for bundled installs).
 
-The file is plain JSON. A UTF-8 BOM is ignored if present.
+The file is transpiled (TS). A UTF-8 BOM is ignored if present.
 
-## Shape
+## Shape (example)
 
-```json
-{
-  "logging": {
-    "level": "info",
-    "locale": "fr",
-    "dirName": ".webette"
+```ts
+export default {
+  logging: { level: "info", locale: "fr", dirName: ".webette" },
+  serve: { port: 4173, liveReloadIntervalMs: 1000, watcherDebounceMs: 150 },
+  build: {
+    outputDirName: "_public",
+    overwrite: "replace-files",
+    readContent: true,
+    exportModel: { enabled: false, dir: ".webette/_model", only: false },
   },
-  "serve": {
-    "port": 4173,
-    "liveReloadIntervalMs": 1000,
-    "watcherDebounceMs": 150
+  markdown: { remarkPlugins: [] },
+  templates: { root: "templates", default: "wrapper.html" },
+  images: {
+    requiresImageEngine: false,
+    sizes: { small: 480, medium: 960, large: 1440 },
+    format: "webp",
+    quality: 80,
+    fit: "cover",
+    outputDir: "assets/images",
+    reencodeDefault: false,
   },
-  "build": {
-    "ignoreNames": ["_public", ".webette"],
-    "outputDirName": "_public",
-    "overwrite": "replace-files",
-    "readContent": true,
-    "exportModel": {
-      "enabled": false,
-      "dir": ".webette/_model",
-      "only": false
-    }
-  },
-  "markdown": {
-    "remarkPlugins": []
-  },
-  "templates": {
-    "root": "templates",
-    "default": "wrapper.html"
-  }
-}
+};
 ```
 
 ### Fields
@@ -61,6 +52,7 @@ The file is plain JSON. A UTF-8 BOM is ignored if present.
 - `markdown.remarkPlugins`: list of remark plugins applied during Markdown parsing/rendering (e.g. `["remark-gfm", ["remark-footnotes", { inlineNotes: true }]]`)
 - `templates.root`: base folder for internal/fallback templates (resolved from `process.cwd()` unless absolute)
 - `templates.default`: default wrapper used when the site does not provide its own layout (relative to `templates.root`)
+- `images.*`: defaults for the image pipeline (engine on/off, sizes, format/quality/fit, `outputDir`, `reencodeDefault`); site config (`webette.config.ts`) can override.
 
 ## Consumption
 

@@ -1,5 +1,5 @@
 // Resolver registry: maps block types to their content resolvers.
-import type { Block } from "../model";
+import type { Block, ImageVariant, Site } from "../model";
 import { resolveMarkdown } from "./resolvers/markdown";
 import { resolveText } from "./resolvers/text";
 import { resolveData } from "./resolvers/data";
@@ -10,6 +10,8 @@ import { resolveFolder } from "./resolvers/folder";
 import { resolveTable } from "./resolvers/table";
 import { resolveFile } from "./resolvers/file";
 import type { Logger } from "../../logging/logger";
+import type { ImagePipelineConfig } from "../block-types/image/config";
+import type { WebetteEnv } from "../../config/env";
 
 export interface ResolvedContent {
   raw?: string;
@@ -24,14 +26,21 @@ export interface ResolvedContent {
   };
   ast?: unknown; // Structured representation (e.g. mdast) when available
   html?: string; // Optional HTML rendering for text/markdown blocks
+  variants?: ImageVariant[]; // Generated variants for media (images)
+  blockRoute?: string; // Optional override for the block route (e.g., generated asset path)
 }
 
 // Context passed to all resolvers
 export interface ResolveContext {
   rootDir: string;
+  site: Site;
+  toolEnv?: WebetteEnv;
+  imageConfig?: ImagePipelineConfig;
+  routeHint?: string;      // slug-based route hint for the current block (public-ish)
+  routeSegments?: string[]; // slug-based segments for the current block
   readContent?: boolean;
   logger?: Logger;
-   remarkPlugins?: unknown[];
+  remarkPlugins?: unknown[];
   beforeBlock?: (block: Block) => void;
   afterBlock?: (block: Block, resolved?: ResolvedContent) => void;
 }
