@@ -35,4 +35,10 @@ export default {
     outputDir: "assets/images",
     reencodeDefault: false,
   },
+
+  audio: {
+    // Currently copy-only; set outputDir to control public path under the build dir.
+    outputDir: "assets/audio",
+    requiresAudioEngine: false,
+  },
 };

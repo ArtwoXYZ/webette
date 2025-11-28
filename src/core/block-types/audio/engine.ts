@@ -9,6 +9,7 @@ async function ensureDir(dir: string) {
   await mkdir(dir, { recursive: true });
 }
 
+// Copy the original audio file to the public assets path and return its route + size.
 export async function copyAudioAsset(options: {
   block: Block;
   filePath: string;

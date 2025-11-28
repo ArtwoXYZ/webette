@@ -5,6 +5,7 @@ function escapeExtForRegex(ext: string): string {
   return ext.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// Build output base/public paths for audio assets using slug-based route hints (mirrors image handling).
 export function resolveAudioOutputPaths(options: {
   block: Block;
   outputDir: string;

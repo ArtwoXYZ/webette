@@ -2,6 +2,7 @@ import * as path from "node:path";
 import type { Site } from "../../model";
 import type { WebetteEnv } from "../../../config/env";
 
+// Minimal audio pipeline config: only controls copy/output locations (no variants yet).
 export interface AudioPipelineConfig {
   requiresAudioEngine: boolean;
   outputDir: string; // absolute path: <root>/<outputDirName>/<audio.outputDir>
@@ -23,6 +24,7 @@ function normalizeOutputDir(
   return path.join(rootDir, outputDirName, clean);
 }
 
+// Merge tool defaults with optional site overrides to build the audio pipeline config.
 export function resolveAudioConfig(
   rootDir: string,
   env: WebetteEnv,

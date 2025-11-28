@@ -1,5 +1,6 @@
 import type { Logger } from "../../../logging/logger";
 
+// Minimal shape of the optional music-metadata module (kept inline to avoid hard dependency).
 interface MusicMetadataModule {
   parseFile: (
     filePath: string,
@@ -18,6 +19,7 @@ interface MusicMetadataModule {
 
 let cachedMusicMetadata: MusicMetadataModule | null | undefined;
 
+// Lazy-load music-metadata; cache null when missing so we don't retry on every file.
 async function loadMusicMetadata(logger?: Logger): Promise<MusicMetadataModule | null> {
   if (cachedMusicMetadata !== undefined) return cachedMusicMetadata;
   try {
@@ -50,6 +52,7 @@ export async function readAudioMetadata(
   filePath: string,
   logger?: Logger
 ): Promise<AudioMetadataSummary | null> {
+  // Best-effort: if the lib is missing or parsing fails, caller will fall back to base meta.
   const musicMetadata = await loadMusicMetadata(logger);
   if (!musicMetadata) return null;
 

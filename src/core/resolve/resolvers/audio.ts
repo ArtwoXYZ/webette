@@ -13,7 +13,7 @@ const mimeByExt: Record<string, string> = {
   ".aac": "audio/aac",
 };
 
-// Resolve audio blocks: only store lightweight metadata
+// Resolve audio blocks: gather lightweight metadata, optional deep tags, and always copy the asset to a public route.
 export const resolveAudio: Resolver = async (block, ctx) => {
   if (ctx.readContent === false) return undefined;
 
