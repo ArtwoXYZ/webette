@@ -78,10 +78,16 @@ export async function serve(
 
   const watchLogger = scoped.child("watch");
 
+  const collectSegments = (p: string | undefined) =>
+    (p ?? "")
+      .split(/[\\/]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
   const ignoreNames = new Set<string>([
-    toolEnv.build.outputDirName,
-    toolEnv.logging.dirName,
-    toolEnv.build.exportModel.dir,
+    ...collectSegments(toolEnv.build.outputDirName),
+    ...collectSegments(toolEnv.logging.dirName),
+    ...collectSegments(toolEnv.build.exportModel.dir),
   ]);
 
   const shouldIgnore = (name: string) => {

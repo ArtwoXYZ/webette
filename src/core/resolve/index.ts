@@ -1,6 +1,7 @@
 import type { Collection, Entry, Site, Block } from "../model";
 import type { WebetteEnv } from "../../config/env";
 import { resolveImageConfig } from "../block-types/image/config";
+import { resolveAudioConfig } from "../block-types/audio/config";
 import { getResolver, type ResolveContext } from "./registry";
 
 function splitRouteSegments(route?: string): string[] {
@@ -34,12 +35,16 @@ function createContext(site: Site, options: ResolveOptions): ResolveContext {
   const imageConfig = options.toolEnv
     ? resolveImageConfig(rootDir, options.toolEnv, site)
     : undefined;
+  const audioConfig = options.toolEnv
+    ? resolveAudioConfig(rootDir, options.toolEnv, site)
+    : undefined;
 
   return {
     rootDir,
     site,
     toolEnv: options.toolEnv,
     imageConfig,
+    audioConfig,
     readContent: options.readContent,
     logger: options.logger,
     remarkPlugins: options.remarkPlugins,

@@ -33,12 +33,17 @@ export const resolveImage: Resolver = async (block, ctx) => {
     ...(dimensions.height ? { height: dimensions.height } : {}),
   };
 
+  const imageConfig = ctx.imageConfig;
+  if (!imageConfig) {
+    return { meta };
+  }
+
   // If the image engine is disabled, still copy the original to the public assets path.
-  if (!ctx.imageConfig?.requiresImageEngine) {
+  if (!imageConfig.requiresImageEngine) {
     const copied = await copyOriginalAsset({
       block,
       filePath,
-      config: ctx.imageConfig,
+      config: imageConfig,
       logger: ctx.logger,
       routeHint: ctx.routeHint,
       routeSegments: ctx.routeSegments,
@@ -52,7 +57,7 @@ export const resolveImage: Resolver = async (block, ctx) => {
     filePath,
     dimensions,
     stats,
-    config: ctx.imageConfig,
+    config: imageConfig,
     logger: ctx.logger,
     routeHint: ctx.routeHint,
     routeSegments: ctx.routeSegments,

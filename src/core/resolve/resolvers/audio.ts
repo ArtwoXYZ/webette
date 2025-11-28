@@ -1,6 +1,8 @@
 import { stat } from "node:fs/promises";
 import * as path from "node:path";
 import type { Resolver } from "../registry";
+import { readAudioMetadata } from "../../block-types/audio/metadata";
+import { copyAudioAsset } from "../../block-types/audio/engine";
 
 const mimeByExt: Record<string, string> = {
   ".mp3": "audio/mpeg",
@@ -20,10 +22,45 @@ export const resolveAudio: Resolver = async (block, ctx) => {
   const ext = block.ext?.toLowerCase() ?? "";
   const mime = mimeByExt[ext];
 
+  const baseMeta = {
+    size: stats.size,
+    ...(mime ? { mime } : {}),
+  };
+
+  const audioConfig = ctx.audioConfig;
+  if (!audioConfig) {
+    return { meta: baseMeta };
+  }
+
+  const parsedMeta = await readAudioMetadata(filePath, ctx.logger);
+
+  const meta = {
+    ...baseMeta,
+    ...(parsedMeta?.duration ? { duration: parsedMeta.duration } : {}),
+    ...(parsedMeta?.bitrate ? { bitrate: parsedMeta.bitrate } : {}),
+    ...(parsedMeta?.sampleRate ? { sampleRate: parsedMeta.sampleRate } : {}),
+    ...(parsedMeta?.channels ? { channels: parsedMeta.channels } : {}),
+    ...(parsedMeta?.codec ? { codec: parsedMeta.codec } : {}),
+    ...(parsedMeta?.title ? { title: parsedMeta.title } : {}),
+    ...(parsedMeta?.artist ? { artist: parsedMeta.artist } : {}),
+    ...(parsedMeta?.album ? { album: parsedMeta.album } : {}),
+    ...(parsedMeta?.year ? { year: parsedMeta.year } : {}),
+    ...(parsedMeta?.genre && parsedMeta.genre.length ? { genre: parsedMeta.genre } : {}),
+  };
+
+  const copied = await copyAudioAsset({
+    block,
+    filePath,
+    config: audioConfig,
+    logger: ctx.logger,
+    routeHint: ctx.routeHint,
+    routeSegments: ctx.routeSegments,
+  });
+
+  const blockRoute = copied?.route;
+
   return {
-    meta: {
-      size: stats.size,
-      ...(mime ? { mime } : {}),
-    },
+    meta,
+    ...(blockRoute ? { blockRoute } : {}),
   };
 };

@@ -23,6 +23,11 @@ export interface ImagesEnv {
   reencodeDefault: boolean;
 }
 
+export interface AudioEnv {
+  requiresAudioEngine: boolean;
+  outputDir: string; // relative to the output directory (e.g. "assets/audio")
+}
+
 export interface WebetteEnv {
   logging: {
     level: LogLevel;
@@ -52,6 +57,7 @@ export interface WebetteEnv {
     remarkPlugins: unknown[];
   };
   images: ImagesEnv;
+  audio: AudioEnv;
 }
 
 type WebetteEnvOverrides = Partial<{
@@ -65,6 +71,7 @@ type WebetteEnvOverrides = Partial<{
   templates: Partial<Pick<WebetteEnv["templates"], "root" | "default">>;
   markdown: Partial<Pick<WebetteEnv["markdown"], "remarkPlugins">>;
   images: Partial<ImagesEnv>;
+  audio: Partial<AudioEnv>;
 }>;
 
 const defaultEnv: WebetteEnv = {
@@ -107,6 +114,10 @@ const defaultEnv: WebetteEnv = {
     fit: "cover",
     outputDir: "assets/images",
     reencodeDefault: false,
+  },
+  audio: {
+    requiresAudioEngine: false,
+    outputDir: "assets/audio",
   },
 };
 
@@ -230,7 +241,17 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
       : {}),
   };
 
-  return { logging, serve, build, templates, markdown, images };
+  const audio = {
+    ...defaults.audio,
+    ...(typeof overrides.audio?.requiresAudioEngine === "boolean"
+      ? { requiresAudioEngine: overrides.audio.requiresAudioEngine }
+      : {}),
+    ...(typeof overrides.audio?.outputDir === "string" && overrides.audio.outputDir
+      ? { outputDir: overrides.audio.outputDir }
+      : {}),
+  };
+
+  return { logging, serve, build, templates, markdown, images, audio };
 }
 
 function resolveConfigPath(toolRoot?: string): string | null {

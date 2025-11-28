@@ -64,6 +64,16 @@ export interface ResolvedBlockContent {
     height?: number;                 // pixel height when available
     format?: string;                 // e.g., "markdown"
     renderedWith?: string;           // pipeline used to generate HTML
+    duration?: number;               // seconds (audio)
+    bitrate?: number;                // bits per second (audio)
+    sampleRate?: number;             // Hz (audio)
+    channels?: number;               // channel count (audio)
+    codec?: string;                  // codec identifier (audio)
+    title?: string;                  // tag (audio)
+    artist?: string;                 // tag (audio)
+    album?: string;                  // tag (audio)
+    year?: number;                   // tag (audio)
+    genre?: string[];                // tag (audio)
   };
   variants?: ImageVariant[];         // generated/resolved variants for media (images)
   ast?: unknown;                     // structured representation (e.g. mdast)

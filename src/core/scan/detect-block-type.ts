@@ -10,7 +10,6 @@ export function detectBlockType(ext: string | undefined, isDirectory: boolean): 
     return "image";
   if ([".mp4", ".mov", ".webm", ".m4v", ".mkv", ".avi"].includes(lower)) return "video";
   if ([".mp3", ".wav", ".ogg", ".flac", ".m4a", ".aac"].includes(lower)) return "audio";
-  if ([".json", ".yaml", ".yml"].includes(lower)) return "data";
   if ([".csv", ".tsv", ".tab"].includes(lower)) return "table";
 
   return "file";

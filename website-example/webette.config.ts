@@ -23,7 +23,7 @@ export default {
   ],
 
   images: {
-    requiresImageEngine: false,
+    requiresImageEngine: true,
     sizes: {
       small: 480,
       medium: 960,

@@ -2,7 +2,6 @@
 import type { Block, ImageVariant, Site } from "../model";
 import { resolveMarkdown } from "./resolvers/markdown";
 import { resolveText } from "./resolvers/text";
-import { resolveData } from "./resolvers/data";
 import { resolveImage } from "./resolvers/image";
 import { resolveVideo } from "./resolvers/video";
 import { resolveAudio } from "./resolvers/audio";
@@ -11,11 +10,11 @@ import { resolveTable } from "./resolvers/table";
 import { resolveFile } from "./resolvers/file";
 import type { Logger } from "../../logging/logger";
 import type { ImagePipelineConfig } from "../block-types/image/config";
+import type { AudioPipelineConfig } from "../block-types/audio/config";
 import type { WebetteEnv } from "../../config/env";
 
 export interface ResolvedContent {
   raw?: string;
-  data?: unknown;
   meta?: {
     size?: number;
     mime?: string;
@@ -23,6 +22,16 @@ export interface ResolvedContent {
     height?: number;
     format?: string;
     renderedWith?: string;
+    duration?: number;
+    bitrate?: number;
+    sampleRate?: number;
+    channels?: number;
+    codec?: string;
+    title?: string;
+    artist?: string;
+    album?: string;
+    year?: number;
+    genre?: string[];
   };
   ast?: unknown; // Structured representation (e.g. mdast) when available
   html?: string; // Optional HTML rendering for text/markdown blocks
@@ -36,6 +45,7 @@ export interface ResolveContext {
   site: Site;
   toolEnv?: WebetteEnv;
   imageConfig?: ImagePipelineConfig;
+  audioConfig?: AudioPipelineConfig;
   routeHint?: string;      // slug-based route hint for the current block (public-ish)
   routeSegments?: string[]; // slug-based segments for the current block
   readContent?: boolean;
@@ -54,7 +64,6 @@ export type Resolver = (
 const typeResolvers = new Map<string, Resolver>([
   ["markdown", resolveMarkdown],
   ["text", resolveText],
-  ["data", resolveData],
   ["table", resolveTable],
   ["image", resolveImage],
   ["video", resolveVideo],

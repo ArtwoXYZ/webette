@@ -25,7 +25,7 @@ export default {
     default: "wrapper.html", // default wrapper
   },
   images: {
-    requiresImageEngine: false, // enable variant generation via sharp
+    requiresImageEngine: true, // enable variant generation via sharp
     sizes: {
       small: 480, // max width for small
       medium: 960, // max width for medium

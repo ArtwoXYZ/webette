@@ -6,6 +6,7 @@ interface WebetteConfigFile {
   site?: Record<string, unknown>;
   collections?: Record<string, unknown>;
   images?: Record<string, unknown>;
+  audio?: Record<string, unknown>;
 }
 
 // Build the in-memory Site object based on the project folder and config file
@@ -37,11 +38,16 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
       raw.images && typeof raw.images === "object"
         ? { ...raw.images }
         : undefined;
+    const audio =
+      raw.audio && typeof raw.audio === "object"
+        ? { ...raw.audio }
+        : undefined;
 
     return {
       site: site as Record<string, unknown> | undefined,
       collections: collections as Record<string, unknown> | undefined,
       images: images as Record<string, unknown> | undefined,
+      audio: audio as Record<string, unknown> | undefined,
     };
   } catch {
     // no file or invalid module -> empty config
@@ -57,6 +63,9 @@ export async function createSite(rootDir: string): Promise<Site> {
     config.site && typeof config.site === "object" ? { ...config.site } : {};
   if (config.images && typeof config.images === "object") {
     siteSection.images = { ...(siteSection.images as Record<string, unknown> | undefined), ...config.images };
+  }
+  if (config.audio && typeof config.audio === "object") {
+    siteSection.audio = { ...(siteSection.audio as Record<string, unknown> | undefined), ...config.audio };
   }
   const collectionsConfig: Record<string, unknown> | undefined =
     config.collections && typeof config.collections === "object"
