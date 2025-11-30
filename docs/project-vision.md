@@ -154,7 +154,27 @@ Users simply extract the folder and run `bun run serve <path>` (the goal is to e
 
 ---
 
-## 8. CLI Commands
+## 8. Generic blocks and plugins
+
+Webette uses a single generic type, `unclassified`, for any file that is not recognized as a core content type (markdown, image, audio, video, folder).
+
+Plugins can:
+
+- inspect `unclassified` blocks,
+- read their content (for example, JSON, YAML, CSV),
+- and attach semantic metadata or structured content.
+
+Examples of what plugins might do:
+
+- mark `.json` and `.yaml` files as `meta.kind = "data"` and expose a parsed object;
+- mark `.csv` files as `meta.kind = "table"` and expose a list of rows;
+- recognize `.pdf` files and extract their text.
+
+This design keeps the core small and lets advanced behavior live in plugins.
+
+---
+
+## 9. CLI Commands
 
 The CLI should remain minimal and straightforward.
 
@@ -182,7 +202,7 @@ No unnecessary verbosity or complex defaults.
 
 ---
 
-## 9. Development Philosophy
+## 10. Development Philosophy
 
 - **Filesystem-first:** the disk is the single source of truth.
 - **No hidden conventions:** all behavior must be explicit.

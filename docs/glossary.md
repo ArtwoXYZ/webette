@@ -56,7 +56,7 @@ A unit of content within a **collection**.
 In practice, an entry is usually:
 
 - a **folder** (e.g. `01 welcome/`);
-- containing one or more **blocks** (e.g. `my text.md`, images, data files, etc.).
+- containing one or more **blocks** (e.g. `my text.md`, images, or auxiliary files that may stay unclassified).
 
 Each entry typically corresponds to a generated page in the site (for now).
 
@@ -72,11 +72,11 @@ Each entry also carries:
 
 An individual file inside an **entry**, representing a piece of content or data.
 
-Examples:
+Examples (unknown formats fall back to `unclassified` until a plugin handles them):
 
 - `my text.md`: main Markdown content;
 - `01-image.png`: associated image;
-- `02-meta.json`: additional data;
+- `02-meta.json`: additional data kept as `unclassified`;
 - any other format supported by **block plugins**.
 
 Plugins can define how blocks are read, parsed, and integrated into templates.
@@ -86,7 +86,7 @@ Each block also carries:
 - an ID derived from its slug (short, prefixed `blk__`, suffixed on collision within the entry);
 - a slug (dash-separated, deduplicated within the entry);
 - a POSIX `path` relative to the site root;
-- a `type` hint (folder, markdown, image, video, audio, data, text, table, or file).
+- a `type` hint (folder, markdown, text, image, video, audio, or unclassified).
 
 ---
 

@@ -6,8 +6,7 @@ import { resolveImage } from "./resolvers/image";
 import { resolveVideo } from "./resolvers/video";
 import { resolveAudio } from "./resolvers/audio";
 import { resolveFolder } from "./resolvers/folder";
-import { resolveTable } from "./resolvers/table";
-import { resolveFile } from "./resolvers/file";
+import { resolveUnclassified } from "./resolvers/unclassified";
 import type { Logger } from "../../logging/logger";
 import type { ImagePipelineConfig } from "../block-types/image/config";
 import type { AudioPipelineConfig } from "../block-types/audio/config";
@@ -64,12 +63,11 @@ export type Resolver = (
 const typeResolvers = new Map<string, Resolver>([
   ["markdown", resolveMarkdown],
   ["text", resolveText],
-  ["table", resolveTable],
   ["image", resolveImage],
   ["video", resolveVideo],
   ["audio", resolveAudio],
   ["folder", resolveFolder],
-  ["file", resolveFile],
+  ["unclassified", resolveUnclassified],
 ]);
 
 export function getResolver(block: Block): Resolver | undefined {

@@ -73,7 +73,7 @@ Valid collections can be `blog/`, `notes/`, `videos/`, `recipes/`, etc.
 Raw scan keeps minimal data:
 
 - `rawName` and POSIX `path` for collections, entries, blocks
-- block `type`/`ext` hints
+- block `type`/`ext` hints (markdown, text, image, audio, video, folder; everything else becomes `unclassified` so plugins can opt in)
 - deterministic ordering (numeric prefix, then alpha)
 
 IDs, slugs, and routes are **not** set during the raw scan.
