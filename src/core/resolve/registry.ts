@@ -10,6 +10,7 @@ import { resolveUnclassified } from "./resolvers/unclassified";
 import type { Logger } from "../../logging/logger";
 import type { ImagePipelineConfig } from "../block-types/image/config";
 import type { AudioPipelineConfig } from "../block-types/audio/config";
+import type { VideoPipelineConfig } from "../block-types/video/config";
 import type { WebetteEnv } from "../../config/env";
 
 export interface ResolvedContent {
@@ -45,6 +46,7 @@ export interface ResolveContext {
   toolEnv?: WebetteEnv;
   imageConfig?: ImagePipelineConfig;
   audioConfig?: AudioPipelineConfig;
+  videoConfig?: VideoPipelineConfig;
   routeHint?: string;      // slug-based route hint for the current block (public-ish)
   routeSegments?: string[]; // slug-based segments for the current block
   readContent?: boolean;

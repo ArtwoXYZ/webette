@@ -19,12 +19,16 @@ export default {
   },
   // optional markdown overrides (applies to .txt handling and shared remark plugins)
   // markdown: { treatTxtAsMarkdown: false },
+  // optional media overrides
+  // video: { outputDir: "assets/video" },
+  // audio: { outputDir: "assets/audio" },
   // collections, templates, plugins...
 };
 ```
 
 - The entire `site` section is loaded as-is and available in the model and templating via `site.*` (e.g. `{{site.author}}`). `title` and `lang` default if missing.
 - You can override `.txt` handling per site by setting `markdown.treatTxtAsMarkdown` (`true` => use Markdown pipeline; `false` => keep as plain text).
+- You can override media output paths per site by setting `video.outputDir` / `audio.outputDir` (relative to the build output).
 - Collections are discovered automatically from folders at the site root (ignoring output/logs/templates/hidden/underscore prefixes). The exported model includes `collections`, their `entries`, and `blocks` with IDs, slugs, POSIX paths, and type hints.
 
 ## `collections` section (per collection overrides)

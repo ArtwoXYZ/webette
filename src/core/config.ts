@@ -8,6 +8,7 @@ interface WebetteConfigFile {
   images?: Record<string, unknown>;
   audio?: Record<string, unknown>;
   markdown?: Record<string, unknown>;
+  video?: Record<string, unknown>;
 }
 
 // Build the in-memory Site object based on the project folder and config file
@@ -43,6 +44,10 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
       raw.audio && typeof raw.audio === "object"
         ? { ...raw.audio }
         : undefined;
+    const video =
+      raw.video && typeof raw.video === "object"
+        ? { ...raw.video }
+        : undefined;
     const markdown =
       raw.markdown && typeof raw.markdown === "object"
         ? { ...raw.markdown }
@@ -53,6 +58,7 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
       collections: collections as Record<string, unknown> | undefined,
       images: images as Record<string, unknown> | undefined,
       audio: audio as Record<string, unknown> | undefined,
+      video: video as Record<string, unknown> | undefined,
       markdown: markdown as Record<string, unknown> | undefined,
     };
   } catch {
@@ -78,6 +84,12 @@ export async function createSite(rootDir: string): Promise<Site> {
     siteSection.audio = {
       ...(siteSection.audio as Record<string, unknown> | undefined),
       ...config.audio,
+    };
+  }
+  if (config.video && typeof config.video === "object") {
+    siteSection.video = {
+      ...(siteSection.video as Record<string, unknown> | undefined),
+      ...config.video,
     };
   }
   if (config.markdown && typeof config.markdown === "object") {

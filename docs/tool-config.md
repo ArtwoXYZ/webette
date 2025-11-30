@@ -31,6 +31,8 @@ export default {
     outputDir: "assets/images",
     reencodeDefault: false,
   },
+  video: { outputDir: "assets/video" },
+  audio: { outputDir: "assets/audio" },
 };
 ```
 
@@ -54,6 +56,8 @@ export default {
 - `templates.root`: base folder for internal/fallback templates (resolved from `process.cwd()` unless absolute)
 - `templates.default`: default wrapper used when the site does not provide its own layout (relative to `templates.root`)
 - `images.*`: defaults for the image pipeline (engine on/off, sizes, format/quality/fit, `outputDir`, `reencodeDefault`); site config (`webette.config.ts`) can override.
+- `video.outputDir`: relative folder under the build output for copied video assets (no transcode in core; plugins handle variants/thumbnails)
+- `audio.*`: defaults for audio handling (`outputDir`); originals are copied to `outputDir`.
 
 ## Consumption
 

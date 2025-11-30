@@ -24,8 +24,11 @@ export interface ImagesEnv {
 }
 
 export interface AudioEnv {
-  requiresAudioEngine: boolean;
   outputDir: string; // relative to the output directory (e.g. "assets/audio")
+}
+
+export interface VideoEnv {
+  outputDir: string; // relative to the output directory (e.g. "assets/video")
 }
 
 export interface WebetteEnv {
@@ -59,6 +62,7 @@ export interface WebetteEnv {
   };
   images: ImagesEnv;
   audio: AudioEnv;
+  video: VideoEnv;
 }
 
 type WebetteEnvOverrides = Partial<{
@@ -75,6 +79,7 @@ type WebetteEnvOverrides = Partial<{
   >;
   images: Partial<ImagesEnv>;
   audio: Partial<AudioEnv>;
+  video: Partial<VideoEnv>;
 }>;
 
 const defaultEnv: WebetteEnv = {
@@ -120,8 +125,10 @@ const defaultEnv: WebetteEnv = {
     reencodeDefault: false,
   },
   audio: {
-    requiresAudioEngine: false,
     outputDir: "assets/audio",
+  },
+  video: {
+    outputDir: "assets/video",
   },
 };
 
@@ -250,15 +257,19 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
 
   const audio = {
     ...defaults.audio,
-    ...(typeof overrides.audio?.requiresAudioEngine === "boolean"
-      ? { requiresAudioEngine: overrides.audio.requiresAudioEngine }
-      : {}),
     ...(typeof overrides.audio?.outputDir === "string" && overrides.audio.outputDir
       ? { outputDir: overrides.audio.outputDir }
       : {}),
   };
 
-  return { logging, serve, build, templates, markdown, images, audio };
+  const video = {
+    ...defaults.video,
+    ...(typeof overrides.video?.outputDir === "string" && overrides.video.outputDir
+      ? { outputDir: overrides.video.outputDir }
+      : {}),
+  };
+
+  return { logging, serve, build, templates, markdown, images, audio, video };
 }
 
 function resolveConfigPath(toolRoot?: string): string | null {

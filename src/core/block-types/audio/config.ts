@@ -4,7 +4,6 @@ import type { WebetteEnv } from "../../../config/env";
 
 // Minimal audio pipeline config: only controls copy/output locations (no variants yet).
 export interface AudioPipelineConfig {
-  requiresAudioEngine: boolean;
   outputDir: string; // absolute path: <root>/<outputDirName>/<audio.outputDir>
   publicBase: string; // URL prefix for routes, derived from outputDir segment
 }
@@ -37,13 +36,6 @@ export function resolveAudioConfig(
 
   const envAudio = env.audio;
 
-  const requiresAudioEngine =
-    (rawSiteAudio && typeof rawSiteAudio === "object" &&
-      typeof (rawSiteAudio as Record<string, unknown>).requiresAudioEngine ===
-        "boolean"
-      ? (rawSiteAudio as Record<string, unknown>).requiresAudioEngine
-      : undefined) ?? envAudio.requiresAudioEngine;
-
   const outputDirSegment =
     (rawSiteAudio && typeof rawSiteAudio === "object"
       ? (rawSiteAudio as Record<string, unknown>).outputDir
@@ -62,7 +54,6 @@ export function resolveAudioConfig(
       : envAudio.outputDir.replace(/^\/+|\/+$/g, "");
 
   return {
-    requiresAudioEngine: Boolean(requiresAudioEngine),
     outputDir,
     publicBase,
   };

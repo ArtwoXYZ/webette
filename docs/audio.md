@@ -25,7 +25,6 @@
 - Tool defaults live in `webette.tool.ts` under `audio`; site overrides under `site.audio` in `webette.config.ts`.
 - Fields:
   - `outputDir`: relative path under the build output (default `assets/audio`).
-  - `requiresAudioEngine`: reserved for future processing (currently only copying is performed).
 
 ## Example output (content)
 

@@ -43,6 +43,10 @@ export default {
   audio: {
     // Currently copy-only; set outputDir to control public path under the build dir.
     outputDir: "assets/audio",
-    requiresAudioEngine: false,
+  },
+
+  video: {
+    // Copy-only by default; set outputDir to control public path under the build dir.
+    outputDir: "assets/video",
   },
 };

@@ -201,6 +201,7 @@ The output is a complete static site.
 Optional debug/export step:
 
 - If `build.exportModel.enabled` (tool config) or the CLI flag `--export-model-dir` is set, the in-memory model (site, collections, entries, blocks) is serialized into a folder (default `.webette/_model` at the site root). This happens right after scanning/enrichment, before HTML rendering. Export is split: `site.json` (site/config + collections + minimal list of entries) and a file for each entry in `entries/<collection>/<entry>.json`. With `build.exportModel.only` or `--export-model-only`, Webette skips HTML generation and only writes these files.
+- Media handling (core defaults): images optionally generate variants (if the engine is on) and always copy a default; audio and video are copied as-is to their configured output dirs with lightweight metadata (size/mime). Plugins handle transcodes or thumbnails.
 
 ---
 
