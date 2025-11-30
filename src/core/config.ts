@@ -7,6 +7,7 @@ interface WebetteConfigFile {
   collections?: Record<string, unknown>;
   images?: Record<string, unknown>;
   audio?: Record<string, unknown>;
+  markdown?: Record<string, unknown>;
 }
 
 // Build the in-memory Site object based on the project folder and config file
@@ -42,12 +43,17 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
       raw.audio && typeof raw.audio === "object"
         ? { ...raw.audio }
         : undefined;
+    const markdown =
+      raw.markdown && typeof raw.markdown === "object"
+        ? { ...raw.markdown }
+        : undefined;
 
     return {
       site: site as Record<string, unknown> | undefined,
       collections: collections as Record<string, unknown> | undefined,
       images: images as Record<string, unknown> | undefined,
       audio: audio as Record<string, unknown> | undefined,
+      markdown: markdown as Record<string, unknown> | undefined,
     };
   } catch {
     // no file or invalid module -> empty config
@@ -61,11 +67,24 @@ export async function createSite(rootDir: string): Promise<Site> {
 
   const siteSection: Record<string, unknown> =
     config.site && typeof config.site === "object" ? { ...config.site } : {};
+  // Merge top-level sections into site metadata to keep consumers simple.
   if (config.images && typeof config.images === "object") {
-    siteSection.images = { ...(siteSection.images as Record<string, unknown> | undefined), ...config.images };
+    siteSection.images = {
+      ...(siteSection.images as Record<string, unknown> | undefined),
+      ...config.images,
+    };
   }
   if (config.audio && typeof config.audio === "object") {
-    siteSection.audio = { ...(siteSection.audio as Record<string, unknown> | undefined), ...config.audio };
+    siteSection.audio = {
+      ...(siteSection.audio as Record<string, unknown> | undefined),
+      ...config.audio,
+    };
+  }
+  if (config.markdown && typeof config.markdown === "object") {
+    siteSection.markdown = {
+      ...(siteSection.markdown as Record<string, unknown> | undefined),
+      ...config.markdown,
+    };
   }
   const collectionsConfig: Record<string, unknown> | undefined =
     config.collections && typeof config.collections === "object"

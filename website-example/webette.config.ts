@@ -22,6 +22,10 @@ export default {
     // root: "_plugins",
   ],
 
+  markdown: {
+    treatTxtAsMarkdown: true, // set to false to keep .txt blocks as plain text
+  },
+
   images: {
     requiresImageEngine: true,
     sizes: {

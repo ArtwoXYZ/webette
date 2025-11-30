@@ -76,6 +76,7 @@ Examples (unknown formats fall back to `unclassified` until a plugin handles the
 
 - `my text.md`: main Markdown content;
 - `01-image.png`: associated image;
+- `my-notes.txt`: treated as Markdown by default (set `markdown.treatTxtAsMarkdown = false` in tool or site config to keep plain text);
 - `02-meta.json`: additional data kept as `unclassified`;
 - any other format supported by **block plugins**.
 

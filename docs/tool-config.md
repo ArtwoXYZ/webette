@@ -20,7 +20,7 @@ export default {
     readContent: true,
     exportModel: { enabled: false, dir: ".webette/_model", only: false },
   },
-  markdown: { remarkPlugins: [] },
+  markdown: { remarkPlugins: [], treatTxtAsMarkdown: true },
   templates: { root: "templates", default: "wrapper.html" },
   images: {
     requiresImageEngine: false,
@@ -50,6 +50,7 @@ export default {
 - `build.exportModel.dir`: folder for the split export (default `.webette/_model`, under the site root if relative)
 - `build.exportModel.only`: if `true`, skip HTML generation (export only)
 - `markdown.remarkPlugins`: list of remark plugins applied during Markdown parsing/rendering (e.g. `["remark-gfm", ["remark-footnotes", { inlineNotes: true }]]`)
+- `markdown.treatTxtAsMarkdown`: when `true`, `.txt` files use the Markdown pipeline; set to `false` to keep plain text blocks
 - `templates.root`: base folder for internal/fallback templates (resolved from `process.cwd()` unless absolute)
 - `templates.default`: default wrapper used when the site does not provide its own layout (relative to `templates.root`)
 - `images.*`: defaults for the image pipeline (engine on/off, sizes, format/quality/fit, `outputDir`, `reencodeDefault`); site config (`webette.config.ts`) can override.

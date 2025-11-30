@@ -1,11 +1,24 @@
 // Lightweight file-type detector to tag blocks
-export function detectBlockType(ext: string | undefined, isDirectory: boolean): string {
+type DetectOptions = {
+  treatTxtAsMarkdown?: boolean;
+};
+
+export function detectBlockType(
+  ext: string | undefined,
+  isDirectory: boolean,
+  options: DetectOptions = {}
+): string {
   if (isDirectory) return "folder";
   if (!ext) return "unclassified";
 
   const lower = ext.toLowerCase();
   if ([".md", ".markdown", ".mdown"].includes(lower)) return "markdown";
-  if ([".txt", ".rtf"].includes(lower)) return "text";
+
+  // Allow .txt to reuse the markdown pipeline by default; when disabled, keep it as plain text.
+  if (lower === ".txt") {
+    return options.treatTxtAsMarkdown === false ? "text" : "markdown";
+  }
+
   if ([".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif", ".svg", ".ico", ".apng"].includes(lower))
     return "image";
   if ([".mp4", ".mov", ".webm", ".m4v", ".mkv", ".avi"].includes(lower)) return "video";

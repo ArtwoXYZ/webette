@@ -55,6 +55,7 @@ export interface WebetteEnv {
   };
   markdown: {
     remarkPlugins: unknown[];
+    treatTxtAsMarkdown: boolean;
   };
   images: ImagesEnv;
   audio: AudioEnv;
@@ -69,7 +70,9 @@ type WebetteEnvOverrides = Partial<{
     Pick<WebetteEnv["build"], "outputDirName" | "overwrite" | "exportModel" | "readContent">
   >;
   templates: Partial<Pick<WebetteEnv["templates"], "root" | "default">>;
-  markdown: Partial<Pick<WebetteEnv["markdown"], "remarkPlugins">>;
+  markdown: Partial<
+    Pick<WebetteEnv["markdown"], "remarkPlugins" | "treatTxtAsMarkdown">
+  >;
   images: Partial<ImagesEnv>;
   audio: Partial<AudioEnv>;
 }>;
@@ -101,6 +104,7 @@ const defaultEnv: WebetteEnv = {
   },
   markdown: {
     remarkPlugins: [],
+    treatTxtAsMarkdown: true,
   },
   images: {
     requiresImageEngine: false,
@@ -200,6 +204,9 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
     ...defaults.markdown,
     ...(Array.isArray(overrides.markdown?.remarkPlugins)
       ? { remarkPlugins: overrides.markdown.remarkPlugins }
+      : {}),
+    ...(typeof overrides.markdown?.treatTxtAsMarkdown === "boolean"
+      ? { treatTxtAsMarkdown: overrides.markdown.treatTxtAsMarkdown }
       : {}),
   };
 

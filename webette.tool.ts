@@ -37,6 +37,10 @@ export default {
     outputDir: "assets/images", // relative path under output dir
     reencodeDefault: false, // re-encode the default variant without resize
   },
+  markdown: {
+    remarkPlugins: [], // shared plugins applied to markdown parsing/rendering
+    treatTxtAsMarkdown: true, // when true, .txt files use the markdown pipeline
+  },
   audio: {
     requiresAudioEngine: false, // reserved for future processing (currently copy-only)
     outputDir: "assets/audio", // relative path under output dir

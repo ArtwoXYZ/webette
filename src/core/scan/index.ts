@@ -47,7 +47,8 @@ function normalizePath(value: string): string {
 
 async function listBlocksRaw(
   rootDir: string,
-  entryRelPath: string
+  entryRelPath: string,
+  options: { treatTxtAsMarkdown: boolean }
 ): Promise<RawBlock[]> {
   const absoluteEntry = path.join(rootDir, entryRelPath);
   const dirEntries = await readdir(absoluteEntry, { withFileTypes: true });
@@ -60,10 +61,10 @@ async function listBlocksRaw(
     const relPath = toPosix(path.join(entryRelPath, rawName));
     const isDirectory = fsEntry.isDirectory();
     const ext = isDirectory ? undefined : path.extname(rawName) || undefined;
-    const type = detectBlockType(ext, isDirectory);
+    const type = detectBlockType(ext, isDirectory, options);
 
     const subBlocks = isDirectory
-      ? await listBlocksRaw(rootDir, relPath)
+      ? await listBlocksRaw(rootDir, relPath, options)
       : undefined;
 
     blocks.push({
@@ -87,7 +88,8 @@ async function listBlocksRaw(
 
 async function listEntriesRaw(
   rootDir: string,
-  collectionPath: string
+  collectionPath: string,
+  options: { treatTxtAsMarkdown: boolean }
 ): Promise<RawEntry[]> {
   const absolute = path.join(rootDir, collectionPath);
   const dirEntries = await readdir(absolute, { withFileTypes: true });
@@ -100,7 +102,7 @@ async function listEntriesRaw(
     if (!rawName || rawName.startsWith(".") || rawName.startsWith("_")) continue;
 
     const relPath = toPosix(path.join(collectionPath, rawName));
-    const blocks = await listBlocksRaw(rootDir, relPath);
+    const blocks = await listBlocksRaw(rootDir, relPath, options);
 
     entries.push({
       rawName,
@@ -276,6 +278,19 @@ function enrichCollections(
 
 export async function scanSite(site: Site): Promise<Site> {
   const toolEnv = await getEnv();
+  const siteMarkdownConfig =
+    site?.site && typeof site.site === "object"
+      ? (site.site as Record<string, unknown>).markdown
+      : undefined;
+  const siteTreatTxtAsMarkdown =
+    siteMarkdownConfig && typeof siteMarkdownConfig === "object"
+      ? (siteMarkdownConfig as Record<string, unknown>).treatTxtAsMarkdown
+      : undefined;
+  // Site can opt out of the default ".txt as markdown" behavior; tool env is the fallback.
+  const treatTxtAsMarkdown =
+    typeof siteTreatTxtAsMarkdown === "boolean"
+      ? siteTreatTxtAsMarkdown
+      : toolEnv.markdown.treatTxtAsMarkdown;
 
   // Pass 1: raw structure
   const rawCollections = await listCollectionsRaw(
@@ -287,7 +302,9 @@ export async function scanSite(site: Site): Promise<Site> {
 
   const collectionsWithEntries = await Promise.all(
     rawCollections.map(async (collection) => {
-      const entries = await listEntriesRaw(site.rootDir, collection.path);
+      const entries = await listEntriesRaw(site.rootDir, collection.path, {
+        treatTxtAsMarkdown,
+      });
       return { ...collection, entries };
     })
   );

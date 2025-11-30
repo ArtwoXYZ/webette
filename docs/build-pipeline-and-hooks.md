@@ -74,6 +74,7 @@ Raw scan keeps minimal data:
 
 - `rawName` and POSIX `path` for collections, entries, blocks
 - block `type`/`ext` hints (markdown, text, image, audio, video, folder; everything else becomes `unclassified` so plugins can opt in)
+- `.txt` files are treated as Markdown by default; set `markdown.treatTxtAsMarkdown = false` in the tool config or the site config to keep them as plain text blocks
 - deterministic ordering (numeric prefix, then alpha)
 
 IDs, slugs, and routes are **not** set during the raw scan.
