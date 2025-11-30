@@ -1,11 +1,11 @@
 {
-  "build.start": "Démarrage du build dans {rootDir}…",
+  "build.start": "Démarrage du build dans {rootDir}",
   "build.siteLoaded": "Configuration du site chargée (titre : {title}).",
   "build.mkdirFailed": "Impossible de créer le dossier de sortie {outputDir} : {error}",
   "build.outputDirExists": "Le dossier de sortie {outputDir} existe déjà, on continue.",
   "build.fileGenerated": "Fichier généré : {path}",
   "build.success": "Build terminé : {path}",
-  "serve.initialBuild": "Build initial en cours dans {rootDir}…",
+  "serve.initialBuild": "Build initial en cours dans {rootDir}",
   "serve.initialBuildDone": "Build initial terminé (version : {version}).",
   "serve.listening": "Serveur lancé sur {url}",
   "serve.watchEvent": "Changement détecté ({eventType}) : {filename}",
@@ -15,7 +15,7 @@
   "serve.stopHint": "Appuie sur Ctrl+C pour arrêter le serveur.",
   "build.overwriteDenied": "Le dossier de sortie {outputDir} existe et la politique est \"none\". Build annulé.",
   "build.outputNotDirectory": "Le chemin de sortie existe mais n'est pas un dossier : {outputDir}",
-  "build.exportModel.start": "Export du modèle en mémoire vers {path}…",
+  "build.exportModel.start": "Export du modèle en mémoire vers {path}",
   "build.exportModel.success": "Modèle exporté vers {path}.",
   "build.exportModel.error": "Échec de l'export du modèle vers {path} : {error}",
   "build.exportOnly.success": "Export seul terminé (modèle : {path}).",
@@ -23,5 +23,6 @@
   "resolve.image.sharpMissing": "Moteur d'images (sharp) indisponible : {error}",
   "resolve.image.defaultReencodeSkipped": "Variante default laissée intacte pour {path} (sharp absent).",
   "resolve.image.defaultFailed": "Échec de la variante default pour {path} : {error}",
-  "resolve.image.variantFailed": "Échec de la variante {variant} pour {path} : {error}"
+  "resolve.image.variantFailed": "Échec de la variante {variant} pour {path} : {error}",
+  "template.notFound": "Aucun template trouvé. Chemins testés : {paths}"
 }

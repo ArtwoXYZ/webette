@@ -15,6 +15,9 @@ import { generatedVariants } from "./config";
 type SharpModule = typeof import("sharp");
 let cachedSharp: SharpModule | null | undefined;
 
+const ensureLeadingSlash = (route: string): string =>
+  route.startsWith("/") ? route : `/${route}`;
+
 async function ensureDir(dir: string) {
   await mkdir(dir, { recursive: true });
 }
@@ -65,7 +68,7 @@ export async function generateImageVariants(options: {
       : originalExt;
   const defaultFileName = buildVariantFileName(slug, "default", defaultExt);
   const defaultOutputPath = path.join(baseDir, defaultFileName);
-  const defaultRoute = path.posix.join(publicStem, defaultFileName);
+  const defaultRoute = ensureLeadingSlash(path.posix.join(publicStem, defaultFileName));
 
   const variants: ImageVariant[] = [];
 
@@ -171,9 +174,9 @@ export async function generateImageVariants(options: {
         .toFormat(config.format, { quality: config.quality })
         .toFile(outputPath);
 
-      variants.push({
+    variants.push({
         name,
-        route,
+        route: ensureLeadingSlash(route),
         width: info.width ?? target.width ?? defaultVariant.width,
         height: info.height ?? target.height ?? defaultVariant.height,
         format: info.format,
@@ -225,7 +228,7 @@ export async function copyOriginalAsset(options: {
     const outputPath = path.join(baseDir, fileName);
     await copyFile(filePath, outputPath);
     const copied = await stat(outputPath);
-    const route = path.posix.join(publicStem, fileName);
+    const route = ensureLeadingSlash(path.posix.join(publicStem, fileName));
     return { route, size: copied.size };
   } catch (err) {
     logger?.warn("resolve.image.copyOriginalFailed", {

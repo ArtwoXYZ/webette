@@ -1,11 +1,11 @@
-import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, rm, stat, writeFile } from "node:fs/promises";
 import * as path from "node:path";
 import { getEnv, resolveLocale } from "../config/env";
 import { t } from "../logging/i18n";
 import { createSite } from "./config";
 import { scanSite } from "./scan";
 import { resolveBlocks } from "./resolve";
-import { renderTemplate } from "./template";
+import { createTemplateRenderer } from "./template";
 import type { Logger } from "../logging/logger";
 
 export interface BuildOptions {
@@ -133,10 +133,6 @@ export async function build(
   </script>`
     : "";
 
-  const templatesRoot = path.isAbsolute(toolEnv.templates.root)
-    ? toolEnv.templates.root
-    : path.join(process.cwd(), toolEnv.templates.root);
-
   // Optional model export (debug)
   if (exportModel.enabled) {
     const exportDir = path.isAbsolute(exportModel.dir)
@@ -251,31 +247,52 @@ export async function build(
     }
   }
 
-  const templatePath = path.join(templatesRoot, toolEnv.templates.default);
-
-  let template: string;
-  try {
-    template = await readFile(templatePath, "utf8");
-  } catch (err: any) {
-    scoped.error("build.templateReadFailed", {
-      templatePath,
-      error: String(err),
-    });
-    throw err;
-  }
-
-  const html = renderTemplate(template, {
-    site: resolvedSite.site,
-    liveReloadScript,
+  // Prepare Handlebars template (site overrides take precedence over tool fallback).
+  const templateRenderer = await createTemplateRenderer({
+    rootDir,
+    defaultTemplateName: toolEnv.templates.default,
+    templatesRoot: toolEnv.templates.root,
+    logger: scoped.child("templates"),
   });
 
-  const indexPath = path.join(outputDir, "index.html");
-  await writeFile(indexPath, html, "utf8");
-  scoped.debug("build.fileGenerated", { path: indexPath });
+  const renderBaseContext = {
+    model: resolvedSite,
+    site: resolvedSite.site,
+    collections: resolvedSite.collections ?? [],
+    liveReloadScript,
+  };
+
+  let renderedPages = 0;
+
+  if (resolvedSite.collections) {
+    for (const collection of resolvedSite.collections) {
+      for (const entry of collection.entries) {
+        const entryRouteRelative = entry.route
+          ? entry.route.replace(/^\/+/, "")
+          : path.join(collection.slug || collection.id, entry.slug || entry.id);
+
+        const context = {
+          ...renderBaseContext,
+          collection,
+          entry,
+          blocks: entry.blocks,
+        };
+
+        const html = templateRenderer.render(context);
+        const entryOutputDir = path.join(outputDir, entryRouteRelative);
+
+        await mkdir(entryOutputDir, { recursive: true });
+        const entryIndexPath = path.join(entryOutputDir, "index.html");
+        await writeFile(entryIndexPath, html, "utf8");
+        scoped.debug("build.fileGenerated", { path: entryIndexPath });
+        renderedPages += 1;
+      }
+    }
+  }
 
   if (options.quiet) {
-    scoped.debug("build.success", { path: indexPath });
+    scoped.debug("build.success", { pages: renderedPages });
   } else {
-    scoped.info("build.success", { path: indexPath });
+    scoped.info("build.success", { pages: renderedPages });
   }
 }

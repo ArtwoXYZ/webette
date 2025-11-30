@@ -5,6 +5,9 @@ import type { Logger } from "../../../logging/logger";
 import type { AudioPipelineConfig } from "./config";
 import { resolveAudioOutputPaths } from "./paths";
 
+const ensureLeadingSlash = (route: string): string =>
+  route.startsWith("/") ? route : `/${route}`;
+
 async function ensureDir(dir: string) {
   await mkdir(dir, { recursive: true });
 }
@@ -34,7 +37,7 @@ export async function copyAudioAsset(options: {
     const outputPath = path.join(baseDir, fileName);
     await copyFile(filePath, outputPath);
     const copied = await stat(outputPath);
-    const route = path.posix.join(publicStem, fileName);
+    const route = ensureLeadingSlash(path.posix.join(publicStem, fileName));
     return { route, size: copied.size };
   } catch (err) {
     logger?.warn("resolve.audio.copyFailed", {

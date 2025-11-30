@@ -14,7 +14,7 @@
 - Controlled by the `images` section in config (tool defaults in `webette.tool.ts`, site overrides in `webette.config.ts` under `images`).
 - Sizes are limited to `small`, `medium`, `large` (+ `default` = original):
   - Defaults: `small=480`, `medium=960`, `large=1440` (px, width max), `format=webp`, `quality=80`, `fit=cover`.
-- Paths: `outputDir` (default `assets/images` under the build dir) is also the public route prefix for generated files. Route format: `assets/images/<collection-slug>/<entry-slug>/<block-slug>@<variant>.<ext>`.
+- Paths: `outputDir` (default `assets/images` under the build dir) is also the public route prefix for generated files. Route format: `/assets/images/<collection-slug>/<entry-slug>/<block-slug>@<variant>.<ext>`.
   - `reencodeDefault` (default `false`): when `true` and sharp is present, the `default` variant is re-encoded without resizing; otherwise the original is copied.
 - Set `requiresImageEngine: true` to generate variants; otherwise only the original is copied.
 - Config priority: tool defaults → site overrides (site `images.*` wins over tool settings).
@@ -56,7 +56,7 @@ export default {
   "variants": [
     {
       "name": "default",
-      "route": "assets/images/posts/my-entry/photo@default.jpg",
+      "route": "/assets/images/posts/my-entry/photo@default.jpg",
       "width": 1200,
       "height": 800,
       "format": "jpg",
@@ -64,7 +64,7 @@ export default {
     },
     {
       "name": "small",
-      "route": "assets/images/posts/my-entry/photo@small.webp",
+      "route": "/assets/images/posts/my-entry/photo@small.webp",
       "width": 480,
       "height": 320,
       "format": "webp",
@@ -72,7 +72,7 @@ export default {
     },
     {
       "name": "large",
-      "route": "assets/images/posts/my-entry/photo@default.jpg",
+      "route": "/assets/images/posts/my-entry/photo@default.jpg",
       "aliasOf": "default",
       "reason": "source-too-small"
     }

@@ -116,12 +116,12 @@ Default behaviors:
 - Removal of numbers preceding titles (entries and blocks);
 - Slugification.
 
-In the current model, every entity carries a `route`:
+In the current model, every entity carries a `route` (root-relative with a leading slash):
 
 - Site: `/`
-- Collection: `collection-slug/` (or a configured `route` override)
-- Entry: `collection-route/entry-slug/`
-- Block: `collection-route/entry-slug/block-slug[/sub-block-slug...][.ext]` (extension only when the block has one; folders end with a slash)
+- Collection: `/collection-slug/` (or a configured `route` override)
+- Entry: `/collection-route/entry-slug/`
+- Block: `/collection-route/entry-slug/block-slug[/sub-block-slug...][.ext]` (extension only when the block has one; folders end with a slash)
 
 ---
 

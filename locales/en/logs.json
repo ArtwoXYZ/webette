@@ -23,5 +23,6 @@
   "resolve.image.sharpMissing": "Image engine (sharp) not available: {error}",
   "resolve.image.defaultReencodeSkipped": "Default variant left untouched for {path} (sharp missing).",
   "resolve.image.defaultFailed": "Failed to prepare default image for {path}: {error}",
-  "resolve.image.variantFailed": "Failed to generate variant {variant} for {path}: {error}"
+  "resolve.image.variantFailed": "Failed to generate variant {variant} for {path}: {error}",
+  "template.notFound": "No template found. Looked for: {paths}"
 }

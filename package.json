@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "image-size": "^1.1.1",
+    "handlebars": "^4.7.8",
     "rehype-stringify": "^10.0.0",
     "remark-parse": "^11.0.0",
     "remark-gfm": "^4.0.0",

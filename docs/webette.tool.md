@@ -28,9 +28,9 @@ This file configures the tool (not the site). It is a TS module (`export default
 - `format`: `"webp" | "avif" | "jpeg" | "png"` (target format).
 - `quality`: number 1–100 (target quality).
 - `fit`: `"cover" | "contain" | "fill" | "inside" | "outside"` (resize strategy).
-- `outputDir`: relative path under the output folder (and URL) where files are written (default `assets/images` under `_public`).
+  - `outputDir`: relative path under the output folder (and URL) where files are written (default `assets/images` under `_public`; routes are root-relative, e.g. `/assets/images/...`).
 - `reencodeDefault`: `true|false` (re-encode the `default` variant without resizing when sharp is present; otherwise copy).
 
 Notes:
 - The site config (`webette.config.ts`, `images` section) can override these values and wins over the tool (notably `requiresImageEngine`).
-- For images, `outputDir` is both the target folder and the public route prefix (`assets/images/<collection>/<entry>/<block>@<variant>.<ext>`).
+- For images, `outputDir` is both the target folder and the public route prefix (`/assets/images/<collection>/<entry>/<block>@<variant>.<ext>`).

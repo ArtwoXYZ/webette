@@ -17,7 +17,7 @@
 ## Paths and routes
 
 - Output dir comes from config: `<root>/<outputDirName>/<audio.outputDir>` (defaults to `_public/assets/audio` via `webette.tool.ts`; site overrides with `site.audio.outputDir`).
-- Public routes mirror the output segment: `assets/audio/<collection>/<entry>/<slug><ext>`.
+- Public routes mirror the output segment: `/assets/audio/<collection>/<entry>/<slug><ext>`.
 - Slug/route hints are reused so nested routes match the content structure.
 
 ## Configuration
@@ -44,6 +44,6 @@
     "year": 2024,
     "genre": ["Rock"]
   },
-  "blockRoute": "assets/audio/posts/my-entry/song.mp3"
+  "blockRoute": "/assets/audio/posts/my-entry/song.mp3"
 }
 ```

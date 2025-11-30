@@ -26,6 +26,10 @@ function joinRoute(...segments: string[]): string {
   return segments.filter(Boolean).join("/");
 }
 
+function ensureLeadingSlash(value: string): string {
+  return value.startsWith("/") ? value : `/${value}`;
+}
+
 function resolveBlockRoutes(block: Block, parentSegments: string[]): Block {
   // Blocks inherit the parent route segments for structure, but the route itself
   // is set later by resolvers/processors when needed.
@@ -42,7 +46,7 @@ function resolveEntryRoutes(entry: Entry, collectionRoute: string): Entry {
   // Entries live under the collection route; blocks nest beneath entries.
   const baseSegments = routeSegments(collectionRoute);
   const parentSegments = [...baseSegments, entry.slug];
-  const route = `${joinRoute(...parentSegments)}/`;
+  const route = ensureLeadingSlash(`${joinRoute(...parentSegments)}/`);
   const blocks = entry.blocks.map((block) =>
     resolveBlockRoutes(block, parentSegments)
   );
@@ -62,7 +66,7 @@ function resolveCollectionRoutes(
   const configuredRoute = normalizeRouteSegment(collectionConfig?.route);
 
   const baseRoute = configuredRoute ?? collection.slug;
-  const route = `${joinRoute(baseRoute)}/`;
+  const route = ensureLeadingSlash(`${joinRoute(baseRoute)}/`);
   const entries = collection.entries.map((entry) =>
     resolveEntryRoutes(entry, baseRoute)
   );
