@@ -6,6 +6,7 @@ import { createSite } from "./config";
 import { scanSite } from "./scan";
 import { resolveBlocks } from "./resolve";
 import { createTemplateRenderer } from "./template";
+import type { Block } from "./model";
 import type { Logger } from "../logging/logger";
 
 export interface BuildOptions {
@@ -18,6 +19,13 @@ export interface BuildOptions {
     only?: boolean;
   };
   readContent?: boolean; // allow skipping content resolution when requested
+}
+
+function countBlocks(blocks: Block[] = []): number {
+  return blocks.reduce(
+    (total, block) => total + 1 + (block.subBlocks ? countBlocks(block.subBlocks) : 0),
+    0
+  );
 }
 
 export async function build(
@@ -35,6 +43,48 @@ export async function build(
   scoped.debug("build.siteLoaded", { title: site.site.title });
 
   const scannedSite = await scanSite(site);
+  const collectionsList = scannedSite.collections ?? [];
+  const entriesCount = collectionsList.reduce(
+    (acc, collection) => acc + collection.entries.length,
+    0
+  );
+  const blocksCount = collectionsList.reduce(
+    (acc, collection) =>
+      acc +
+      collection.entries.reduce((entryAcc, entry) => entryAcc + countBlocks(entry.blocks), 0),
+    0
+  );
+
+  for (const collection of collectionsList) {
+    if (!collection.entries.length) {
+      scoped.warn("scan.collectionEmpty", {
+        collection: collection.slug || collection.id,
+        path: collection.path,
+      });
+    }
+    for (const entry of collection.entries) {
+      if (!entry.blocks.length) {
+        scoped.warn("scan.entryEmpty", {
+          collection: collection.slug || collection.id,
+          entry: entry.slug || entry.id,
+          path: entry.path,
+        });
+      }
+    }
+  }
+  if (options.quiet) {
+    scoped.debug("scan.summary", {
+      collections: collectionsList.length,
+      entries: entriesCount,
+      blocks: blocksCount,
+    });
+  } else {
+    scoped.info("scan.summary", {
+      collections: collectionsList.length,
+      entries: entriesCount,
+      blocks: blocksCount,
+    });
+  }
   const readContent =
     typeof options.readContent === "boolean"
       ? options.readContent
