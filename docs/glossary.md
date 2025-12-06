@@ -49,6 +49,25 @@ Each collection also carries:
 
 ---
 
+## Build output directory (`outputDir`)
+
+The folder where generated HTML and copied/generated assets are written.
+
+- Absolute path: `<site root>/<build.outputDirName>` (default `_public`)
+- Contains: one `index.html` per entry, plus media assets (`assets/images`, `assets/audio`, `assets/video`)
+
+---
+
+## Model export directory (`exportDir`)
+
+Optional debug export of the in-memory model (no HTML).
+
+- Absolute path: `<site root>/<build.exportModel.dir>` (default `.webette/_model`)
+- Contains: `site.json` (site/config + collections + entry summaries) and `entries/<collection>/<entry>.json`
+- Only written when `build.exportModel.enabled` (tool config) or CLI export flags are set
+
+---
+
 ## Entry
 
 A unit of content within a **collection**.

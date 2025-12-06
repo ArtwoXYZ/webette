@@ -139,7 +139,7 @@ export async function build(
       ? exportModel.dir
       : path.join(rootDir, exportModel.dir);
 
-    scoped.debug("build.exportModel.start", { dir: exportDir });
+    scoped.debug("build.exportModel.start", { path: exportDir });
 
     const orderKeys = (value: unknown): unknown => {
       if (Array.isArray(value)) return value.map(orderKeys);
@@ -228,10 +228,10 @@ export async function build(
         }
       }
 
-      scoped.info("build.exportModel.success", { dir: exportDir });
+      scoped.info("build.exportModel.success", { path: exportDir });
     } catch (err: any) {
       scoped.error("build.exportModel.error", {
-        dir: exportDir,
+        path: exportDir,
         error: String(err),
       });
       throw err;
@@ -239,9 +239,9 @@ export async function build(
 
     if (exportModel.only) {
       if (options.quiet) {
-        scoped.debug("build.exportOnly.success", { dir: exportDir });
+        scoped.debug("build.exportOnly.success", { path: exportDir });
       } else {
-        scoped.info("build.exportOnly.success", { dir: exportDir });
+        scoped.info("build.exportOnly.success", { path: exportDir });
       }
       return;
     }
@@ -291,8 +291,8 @@ export async function build(
   }
 
   if (options.quiet) {
-    scoped.debug("build.success", { pages: renderedPages });
+    scoped.debug("build.success", { path: outputDir, pages: renderedPages });
   } else {
-    scoped.info("build.success", { pages: renderedPages });
+    scoped.info("build.success", { path: outputDir, pages: renderedPages });
   }
 }
