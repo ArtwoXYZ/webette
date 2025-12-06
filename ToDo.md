@@ -1,7 +1,6 @@
-- Brancher le rendu HTML depuis l'AST Markdown (remark -> rehype/html) et exposer les helpers pour les templates (prioritaire). ✔︎ rendu HTML stocké (raw/ast/html + meta), helpers templates à faire plus tard
-- Mettre en place les routes et le rendu basique pour collections/entrées (le scan + modèle/ids/types est en place).
-- Charger les layouts du site si présents (root/templates/default) avant de tomber sur le wrapper par défaut du tool.
-- Rendre optionnel le fallback d'index par défaut (flag ou détection) pour éviter des pages générées sans template.
-- Étendre les placeholders du mini moteur (site/collection/entry) une fois le modèle structuré en place.
-- Ouvrir la config markdown.remarkPlugins (tool/site) et documenter la pipeline Markdown/AST + requirements. ✔︎ config prise en compte + docs/README mis à jour
-- Enrichir les métadonnées image (dimensions) et préparer l'optimisation/variantes (sharp, etc.).
+- Refondre la structure/config des templates : wrapper implicite (`defaultWrapper`), layouts explicites (`defaultLayout`, `indexLayout`), fallback site > tool, logs du wrapper/layout retenus.
+- Fournir des templates par défaut (wrapper + layouts) propres, partials optionnels.
+- Générer un index minimal (listing) pour racine/collections via `indexLayout`, désactivable.
+- Protéger les dossiers d’assets : ajouter un `index.html` placeholder et proposer un `.htaccess` optionnel avec `Options -Indexes` (portée limitée à Apache) ; documenter cette option.
+- Mettre à jour la doc sur wrapper/layout/partials et la config associée, y compris l’index/placeholder/.htaccess.
+- Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)
