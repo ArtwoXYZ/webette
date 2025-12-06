@@ -24,6 +24,23 @@ function shouldLog(level: LogLevel, minLevel: LogLevel): boolean {
   return levelOrder.indexOf(level) >= levelOrder.indexOf(minLevel);
 }
 
+const supportsColor =
+  typeof process !== "undefined" &&
+  Boolean(process.stdout && process.stdout.isTTY);
+
+function colorize(level: LogLevel, text: string): string {
+  if (!supportsColor) return text;
+  const reset = "\x1b[0m";
+  const colors: Record<LogLevel, string> = {
+    debug: "\x1b[90m", // gray
+    info: "\x1b[36m",  // cyan
+    warn: "\x1b[33m",  // yellow
+    error: "\x1b[31m", // red
+  };
+  const color = colors[level] ?? "";
+  return color ? `${color}${text}${reset}` : text;
+}
+
 function ensureDirExists(dir: string) {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
@@ -82,18 +99,20 @@ export class Logger {
 
     // 1) Console output (in the selected language)
     const prefix = `[${timestamp}] [${this.scope}]`;
+    const formatted = `${prefix} ${renderedMessage}`;
+    const colored = colorize(level, formatted);
     switch (level) {
       case "debug":
-        console.debug(prefix, renderedMessage);
+        console.debug(colored);
         break;
       case "info":
-        console.info(prefix, renderedMessage);
+        console.info(colored);
         break;
       case "warn":
-        console.warn(prefix, renderedMessage);
+        console.warn(colored);
         break;
       case "error":
-        console.error(prefix, renderedMessage);
+        console.error(colored);
         break;
     }
 
