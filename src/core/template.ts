@@ -1,5 +1,6 @@
 import { readFile, readdir, stat } from "node:fs/promises";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import Handlebars from "handlebars";
 import { registerDefaultHelpers } from "./templates/helpers";
 import type { Logger } from "../logging/logger";
@@ -64,13 +65,18 @@ export async function createTemplateRenderer(options: {
 }): Promise<TemplateResolution> {
   registerDefaultHelpers();
 
+  const toolRoot = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "..",
+    ".."
+  );
   const siteTemplatesRoot = path.isAbsolute(options.templatesRoot)
     ? options.templatesRoot
     : path.join(options.rootDir, options.templatesRoot);
 
   const toolTemplatesRoot = path.isAbsolute(options.templatesRoot)
     ? options.templatesRoot
-    : path.join(process.cwd(), options.templatesRoot);
+    : path.join(toolRoot, options.templatesRoot);
 
   const candidates = [
     path.join(siteTemplatesRoot, options.defaultTemplateName),
@@ -81,11 +87,25 @@ export async function createTemplateRenderer(options: {
     candidates,
     options.logger
   );
+  const selectedSource =
+    path.normalize(templatesRoot) === path.normalize(siteTemplatesRoot)
+      ? "site"
+      : "tool";
+  const logBase = selectedSource === "site" ? options.rootDir : toolRoot;
+  const templatePathForLog =
+    path.relative(logBase, templatePath) || templatePath;
+  const templatesRootForLog =
+    path.relative(logBase, templatesRoot) || templatesRoot;
+  options.logger?.debug("template.resolved", {
+    templatePath: templatePathForLog,
+    templatesRoot: templatesRootForLog,
+    source: selectedSource,
+  });
   // Register partials after the final templates root is chosen.
   await registerPartials(templatesRoot, options.logger);
 
-  const source = await readFile(templatePath, "utf8");
-  const compiled = Handlebars.compile(source);
+  const templateSource = await readFile(templatePath, "utf8");
+  const compiled = Handlebars.compile(templateSource);
 
   return {
     templatePath,

@@ -24,5 +24,6 @@
   "resolve.image.defaultReencodeSkipped": "Variante default laissée intacte pour {path} (sharp absent).",
   "resolve.image.defaultFailed": "Échec de la variante default pour {path} : {error}",
   "resolve.image.variantFailed": "Échec de la variante {variant} pour {path} : {error}",
-  "template.notFound": "Aucun template trouvé. Chemins testés : {paths}"
+  "template.notFound": "Aucun template trouvé. Chemins testés : {paths}",
+  "template.resolved": "Template choisi : {templatePath} (racine : {templatesRoot}, source : {source})"
 }
