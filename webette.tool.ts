@@ -13,7 +13,7 @@ export default {
   build: {
     outputDirName: "_public", // build output directory
     overwrite: "replace-all", // "none" | "replace-all" | "replace-files"
-    readContent: true, // resolve block contents or skip
+    readContent: false, // resolve block contents or skip
     exportModel: {
       enabled: true, // export the in-memory model
       dir: ".webette/_model", // target folder for export

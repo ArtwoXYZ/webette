@@ -196,7 +196,7 @@ This is the last opportunity to modify the page before writing it.
 
 Generated HTML and assets are written to the folder defined by `build.outputDirName` (from `webette.tool.ts`).
 
-- **Build output (`outputDir`)**: `<site root>/<build.outputDirName>` (default `_public`). Contains generated `index.html` per entry and media assets under `assets/images|audio|video`. Ignored names (e.g. `.webette`, `_public`, custom patterns) follow tool configuration rules.
+- **Build output (`outputDir`)**: `<site root>/<build.outputDirName>` (default `_public`). Contains generated `index.html` per entry and media assets under `assets/images|audio|video`. Ignored names (e.g. `.webette`, `_public`, custom patterns) follow tool configuration rules. When `readContent=false` (e.g., `--skip-content`), resolvers are short-circuited: no file is read, no asset is copied or generated, pages are rendered with empty blocks.
 - **Model export (`exportDir`)**: `<site root>/<build.exportModel.dir>` (default `.webette/_model`). Only written when `build.exportModel.enabled` (tool config) or CLI export flags are set. Contains `site.json` (site/config + collections + entry summaries) and split entry files under `entries/<collection>/<entry>.json`. With `build.exportModel.only` or `--export-model-only`, HTML generation is skipped.
 
 Media handling (core defaults): images optionally generate variants (if the engine is on) and always copy a default; audio and video are copied as-is to their configured output dirs with lightweight metadata (size/mime). Plugins handle transcodes or thumbnails.

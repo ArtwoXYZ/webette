@@ -43,11 +43,19 @@ export async function build(
   scoped.debug("build.siteLoaded", { title: site.site.title });
 
   const scannedSite = await scanSite(site);
+  const readContent =
+    typeof options.readContent === "boolean"
+      ? options.readContent
+      : toolEnv.build.readContent;
   const collectionsList = scannedSite.collections ?? [];
   const entriesCount = collectionsList.reduce(
     (acc, collection) => acc + collection.entries.length,
     0
   );
+
+  if (readContent === false) {
+    scoped.info("build.skipContent", {});
+  }
   const blocksCount = collectionsList.reduce(
     (acc, collection) =>
       acc +
@@ -85,10 +93,6 @@ export async function build(
       blocks: blocksCount,
     });
   }
-  const readContent =
-    typeof options.readContent === "boolean"
-      ? options.readContent
-      : toolEnv.build.readContent;
   const outputDir = path.join(rootDir, toolEnv.build.outputDirName);
   const overwrite = toolEnv.build.overwrite;
   const envExport = toolEnv.build.exportModel;
