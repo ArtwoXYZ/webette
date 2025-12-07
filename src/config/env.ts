@@ -45,6 +45,8 @@ export interface WebetteEnv {
   build: {
     outputDirName: string;
     overwrite: OverwritePolicy;
+    protectAssets: boolean;
+    writeHtaccess: boolean;
     generateIndex: boolean;
     exportModel: {
       enabled: boolean;
@@ -59,6 +61,7 @@ export interface WebetteEnv {
     defaultWrapper: string;
     defaultLayout: string;
     defaultIndexLayout: string;
+    accessForbiddenLayout: string;
   };
   markdown: {
     remarkPlugins: unknown[];
@@ -77,13 +80,20 @@ type WebetteEnvOverrides = Partial<{
   build: Partial<
     Pick<
       WebetteEnv["build"],
-      "outputDirName" | "overwrite" | "exportModel" | "readContent" | "prettyPrint" | "generateIndex"
+      | "outputDirName"
+      | "overwrite"
+      | "exportModel"
+      | "readContent"
+      | "prettyPrint"
+      | "generateIndex"
+      | "protectAssets"
+      | "writeHtaccess"
     >
   >;
   templates: Partial<
     Pick<
       WebetteEnv["templates"],
-      "root" | "defaultWrapper" | "defaultLayout" | "defaultIndexLayout"
+      "root" | "defaultWrapper" | "defaultLayout" | "defaultIndexLayout" | "accessForbiddenLayout"
     >
   >;
   markdown: Partial<
@@ -108,6 +118,8 @@ const defaultEnv: WebetteEnv = {
   build: {
     outputDirName: "_public",
     overwrite: "replace-files",
+    protectAssets: true,
+    writeHtaccess: false,
     generateIndex: true,
     exportModel: {
       enabled: false,
@@ -122,6 +134,7 @@ const defaultEnv: WebetteEnv = {
     defaultWrapper: "wrapper/wrapper.html",
     defaultLayout: "layout/post.html",
     defaultIndexLayout: "layout/index.html",
+    accessForbiddenLayout: "layout/access-forbidden.html",
   },
   markdown: {
     remarkPlugins: [],
@@ -217,6 +230,12 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
     ...(typeof overrides.build?.generateIndex === "boolean"
       ? { generateIndex: overrides.build.generateIndex }
       : {}),
+    ...(typeof overrides.build?.protectAssets === "boolean"
+      ? { protectAssets: overrides.build.protectAssets }
+      : {}),
+    ...(typeof overrides.build?.writeHtaccess === "boolean"
+      ? { writeHtaccess: overrides.build.writeHtaccess }
+      : {}),
   };
 
   const templates = {
@@ -235,6 +254,10 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
     ...(typeof overrides.templates?.defaultIndexLayout === "string" &&
     overrides.templates.defaultIndexLayout
       ? { defaultIndexLayout: overrides.templates.defaultIndexLayout }
+      : {}),
+    ...(typeof overrides.templates?.accessForbiddenLayout === "string" &&
+    overrides.templates.accessForbiddenLayout
+      ? { accessForbiddenLayout: overrides.templates.accessForbiddenLayout }
       : {}),
   };
 

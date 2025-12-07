@@ -1,4 +1,4 @@
-import { mkdir, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, rm, stat, writeFile, readdir } from "node:fs/promises";
 import * as path from "node:path";
 import { getEnv, resolveLocale } from "../config/env";
 import { t } from "../logging/i18n";
@@ -26,6 +26,8 @@ export interface BuildOptions {
   readContent?: boolean; // allow skipping content resolution when requested
   prettyPrint?: boolean;
   generateIndex?: boolean;
+  protectAssets?: boolean;
+  writeHtaccess?: boolean;
 }
 
 function countBlocks(blocks: Block[] = []): number {
@@ -53,6 +55,17 @@ export async function build(
     typeof options.generateIndex === "boolean"
       ? options.generateIndex
       : toolEnv.build.generateIndex;
+  const accessForbiddenLayoutName =
+    path.parse(toolEnv.templates.accessForbiddenLayout).name ||
+    toolEnv.templates.accessForbiddenLayout;
+  const protectAssets =
+    typeof options.protectAssets === "boolean"
+      ? options.protectAssets
+      : toolEnv.build.protectAssets;
+  const writeHtaccess =
+    typeof options.writeHtaccess === "boolean"
+      ? options.writeHtaccess
+      : toolEnv.build.writeHtaccess;
 
   scoped.debug("build.start", { rootDir });
 
@@ -362,6 +375,63 @@ export async function build(
     }
   };
 
+  const protectAssetDirs = async () => {
+    if (!protectAssets) return;
+
+    const assetSegments = [
+      toolEnv.images.outputDir,
+      toolEnv.audio.outputDir,
+      toolEnv.video.outputDir,
+    ]
+      .map((seg) => seg.replace(/^[/\\]+/, ""))
+      .filter(Boolean);
+
+    const seen = new Set<string>();
+
+    const walkDirs = async (base: string): Promise<string[]> => {
+      const dirs: string[] = [];
+      const entries = await readdir(base, { withFileTypes: true }).catch(() => []);
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue;
+        const child = path.join(base, entry.name);
+        dirs.push(child);
+        dirs.push(...(await walkDirs(child)));
+      }
+      return dirs;
+    };
+
+    for (const seg of assetSegments) {
+      const baseDir = path.join(outputDir, seg);
+      await mkdir(baseDir, { recursive: true });
+      const dirs = [baseDir, ...(await walkDirs(baseDir))];
+
+      for (const dirPath of dirs) {
+        const rel = path.relative(outputDir, dirPath).replace(/\\+/g, "/");
+        if (seen.has(rel)) continue;
+        seen.add(rel);
+
+        const route = `/${rel}`;
+        const ctx = {
+          ...renderBaseContext,
+          layoutName: accessForbiddenLayoutName,
+          entry: { name: "Access forbidden", route },
+        };
+
+        const html = templateRenderer.render(ctx);
+        const targetPath = path.join(dirPath, "index.html");
+        const finalHtml = await formatHtml(html, targetPath);
+        await writeFile(targetPath, finalHtml, "utf8");
+        scoped.debug("build.fileGenerated", { path: targetPath });
+
+        if (writeHtaccess) {
+          const htaccessPath = path.join(dirPath, ".htaccess");
+          await writeFile(htaccessPath, "Options -Indexes\n", "utf8");
+          scoped.debug("build.fileGenerated", { path: htaccessPath });
+        }
+      }
+    }
+  };
+
   let renderedPages = 0;
 
   if (resolvedSite.collections) {
@@ -434,6 +504,8 @@ export async function build(
       scoped.debug("build.fileGenerated", { path: collectionIndexPath });
     }
   }
+
+  await protectAssetDirs();
 
   if (options.quiet) {
     scoped.debug("build.success", { path: outputDir, pages: renderedPages });

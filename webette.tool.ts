@@ -13,6 +13,8 @@ export default {
   build: {
     outputDirName: "_public", // build output directory
     overwrite: "replace-all", // "none" | "replace-all" | "replace-files"
+    protectAssets: true, // generate forbidden placeholders in asset folders
+    writeHtaccess: false, // write .htaccess with Options -Indexes (Apache only)
     generateIndex: true, // generate root/collection indexes
     readContent: true, // resolve block contents or skip
     exportModel: {
@@ -26,6 +28,7 @@ export default {
     defaultWrapper: "wrapper/wrapper.html", // default wrapper
     defaultLayout: "layout/post.html", // default layout
     defaultIndexLayout: "layout/index.html", // default index layout
+    accessForbiddenLayout: "layout/access-forbidden.html", // default forbidden layout
   },
   images: {
     requiresImageEngine: true, // enable variant generation via sharp
