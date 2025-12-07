@@ -1,4 +1,4 @@
-import Handlebars from "handlebars";
+﻿import Handlebars from "handlebars";
 import type { Collection, Entry } from "../model";
 
 let helpersRegistered = false;
@@ -225,3 +225,4 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     return new Handlebars.SafeString(templateFn(context));
   });
 }
+

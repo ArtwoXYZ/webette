@@ -26,6 +26,7 @@ export async function serve(
   const templatesRoot = path.isAbsolute(toolEnv.templates.root)
     ? toolEnv.templates.root
     : path.join(process.cwd(), toolEnv.templates.root);
+  const notFoundPath = path.join(outputDir, "404.html");
 
   // 1. Initial build with liveReload = true, in quiet mode
   scoped.info("serve.initialBuild", { rootDir });
@@ -64,6 +65,17 @@ export async function serve(
         }
         return new Response(Bun.file(filePath));
       } catch {
+        try {
+          const notFoundStat = await stat(notFoundPath);
+          if (notFoundStat.isFile()) {
+            return new Response(Bun.file(notFoundPath), {
+              status: 404,
+              headers: { "Content-Type": "text/html; charset=utf-8" },
+            });
+          }
+        } catch {
+          // fall through to plain text 404
+        }
         return new Response("Not found", { status: 404 });
       }
     },

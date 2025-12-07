@@ -4,9 +4,9 @@ Webette renders HTML with Handlebars. Each entry gets its own `index.html`; opti
 
 ## Where templates come from
 
-- Tool defaults are configured in `webette.tool.ts` (`templates.root`, `templates.defaultWrapper`, `templates.defaultLayout`, `templates.defaultIndexLayout`, `templates.accessForbiddenLayout`).
+- Tool defaults are configured in `webette.tool.ts` (`templates.root`, `templates.defaultWrapper`, `templates.defaultLayout`, `templates.defaultIndexLayout`, `templates.notFoundLayout`, `templates.accessForbiddenLayout`).
 - The renderer looks first under the site root (`<site>/<templates.root>/...`), then falls back to the tool (`process.cwd()` + `templates.root`).
-- Folder structure: `wrapper/` for the wrapper, `layout/` for layouts (registered as partials), `partial/` for classic partials (e.g. `templates/partial/header.hbs` -> `{{> header}}`). `layout/index.html` is the default index layout used for root/collection listings when index generation is enabled. `layout/access-forbidden.html` is the default layout used to render forbidden placeholders in asset folders.
+- Folder structure: `wrapper/` for the wrapper, `layout/` for layouts (registered as partials), `partial/` for classic partials (e.g. `templates/partial/header.hbs` -> `{{> header}}`). `layout/index.html` is the default index layout used for root/collection listings when index generation is enabled. `layout/access-forbidden.html` is the default layout used to render forbidden placeholders in asset folders. `layout/not-found.html` is the default layout used to render the static `404.html`.
 - Helper: the wrapper calls `{{{renderLayout layoutName}}}` which resolves the layout (partial) by name; `layoutName` defaults to `templates.defaultLayout`.
 
 ## Template syntax
@@ -34,7 +34,8 @@ Routes in the model are root-relative (e.g. `/assets/images/...`), so they work 
 - The fallback wrapper (`templates/wrapper/wrapper.html`) envelopes the page and delegates the body to a layout via `renderLayout`.
 - The fallback layout (`templates/layout/post.html`) renders an entry (title, markdown/text/image/audio/video blocks).
 - The fallback index layout (`templates/layout/index.html`) renders the root or collection listings (simple links + counters).
-- The fallback access-forbidden layout (`templates/layout/access-forbidden.html`) renders minimal “Access forbidden” pages in asset folders.
+- The fallback access-forbidden layout (`templates/layout/access-forbidden.html`) renders minimal "Access forbidden" pages in asset folders.
+- The fallback not-found layout (`templates/layout/not-found.html`) renders the static `404.html` page.
 
 Sites can override wrapper and layouts by dropping their files under `<site>/<templates.root>/wrapper/...` and `<site>/<templates.root>/layout/...`; resolution order is site > tool.
 

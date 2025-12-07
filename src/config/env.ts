@@ -47,6 +47,7 @@ export interface WebetteEnv {
     overwrite: OverwritePolicy;
     protectAssets: boolean;
     writeHtaccess: boolean;
+    writeNginxSample: boolean;
     generateIndex: boolean;
     exportModel: {
       enabled: boolean;
@@ -61,6 +62,7 @@ export interface WebetteEnv {
     defaultWrapper: string;
     defaultLayout: string;
     defaultIndexLayout: string;
+    notFoundLayout: string;
     accessForbiddenLayout: string;
   };
   markdown: {
@@ -88,12 +90,13 @@ type WebetteEnvOverrides = Partial<{
       | "generateIndex"
       | "protectAssets"
       | "writeHtaccess"
+      | "writeNginxSample"
     >
   >;
   templates: Partial<
     Pick<
       WebetteEnv["templates"],
-      "root" | "defaultWrapper" | "defaultLayout" | "defaultIndexLayout" | "accessForbiddenLayout"
+      "root" | "defaultWrapper" | "defaultLayout" | "defaultIndexLayout" | "notFoundLayout" | "accessForbiddenLayout"
     >
   >;
   markdown: Partial<
@@ -120,6 +123,7 @@ const defaultEnv: WebetteEnv = {
     overwrite: "replace-files",
     protectAssets: true,
     writeHtaccess: false,
+    writeNginxSample: false,
     generateIndex: true,
     exportModel: {
       enabled: false,
@@ -134,6 +138,7 @@ const defaultEnv: WebetteEnv = {
     defaultWrapper: "wrapper/wrapper.html",
     defaultLayout: "layout/post.html",
     defaultIndexLayout: "layout/index.html",
+    notFoundLayout: "layout/not-found.html",
     accessForbiddenLayout: "layout/access-forbidden.html",
   },
   markdown: {
@@ -236,6 +241,9 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
     ...(typeof overrides.build?.writeHtaccess === "boolean"
       ? { writeHtaccess: overrides.build.writeHtaccess }
       : {}),
+    ...(typeof overrides.build?.writeNginxSample === "boolean"
+      ? { writeNginxSample: overrides.build.writeNginxSample }
+      : {}),
   };
 
   const templates = {
@@ -254,6 +262,10 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
     ...(typeof overrides.templates?.defaultIndexLayout === "string" &&
     overrides.templates.defaultIndexLayout
       ? { defaultIndexLayout: overrides.templates.defaultIndexLayout }
+      : {}),
+    ...(typeof overrides.templates?.notFoundLayout === "string" &&
+    overrides.templates.notFoundLayout
+      ? { notFoundLayout: overrides.templates.notFoundLayout }
       : {}),
     ...(typeof overrides.templates?.accessForbiddenLayout === "string" &&
     overrides.templates.accessForbiddenLayout

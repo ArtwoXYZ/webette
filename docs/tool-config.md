@@ -22,6 +22,7 @@ export default {
     generateIndex: true,
     protectAssets: true,
     writeHtaccess: false,
+    writeNginxSample: false,
     exportModel: { enabled: false, dir: ".webette/_model", only: false },
   },
   markdown: { remarkPlugins: [], treatTxtAsMarkdown: true },
@@ -30,6 +31,7 @@ export default {
     defaultWrapper: "wrapper/wrapper.html",
     defaultLayout: "layout/post.html",
     defaultIndexLayout: "layout/index.html",
+    notFoundLayout: "layout/not-found.html",
     accessForbiddenLayout: "layout/access-forbidden.html",
   },
   images: {
@@ -60,7 +62,8 @@ export default {
 - `build.prettyPrint`: pretty-format generated HTML via rehype (default `true`)
 - `build.generateIndex`: generate root/collection index pages (default `true`)
 - `build.protectAssets`: write a forbidden `index.html` in asset folders (default `true`)
-- `build.writeHtaccess`: write a root `.htaccess` with `Options -Indexes` (Apache only, default `false`)
+- `build.writeHtaccess`: write a root `.htaccess` with `ErrorDocument 404 /404.html` and `Options -Indexes` (Apache only, default `false`)
+- `build.writeNginxSample`: write a sample `nginx.conf` in the build output (default `false`)
 - `build.exportModel.enabled`: export the in-memory model after scanning
 - `build.exportModel.dir`: folder for the split export (default `.webette/_model`, under the site root if relative)
 - `build.exportModel.only`: if `true`, skip HTML generation (export only)
@@ -70,6 +73,7 @@ export default {
 - `templates.defaultWrapper`: wrapper used when the site does not provide its own (relative to `templates.root`)
 - `templates.defaultLayout`: layout partial used when the site does not provide its own (relative to `templates.root`)
 - `templates.defaultIndexLayout`: index layout used for root/collection listings (relative to `templates.root`)
+- `templates.notFoundLayout`: layout used to render the static `404.html` page (relative to `templates.root`)
 - `templates.accessForbiddenLayout`: layout used for asset-folder forbidden pages (relative to `templates.root`)
 - `images.*`: defaults for the image pipeline (engine on/off, sizes, format/quality/fit, `outputDir`, `reencodeDefault`); site config (`webette.config.ts`) can override.
 - `video.outputDir`: relative folder under the build output for copied video assets (no transcode in core; plugins handle variants/thumbnails)

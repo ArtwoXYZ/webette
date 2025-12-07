@@ -14,7 +14,8 @@ export default {
     outputDirName: "_public", // build output directory
     overwrite: "replace-all", // "none" | "replace-all" | "replace-files"
     protectAssets: true, // generate forbidden placeholders in asset folders
-    writeHtaccess: false, // write .htaccess with Options -Indexes (Apache only)
+    writeHtaccess: true, // write a root .htaccess with ErrorDocument 404 and Options -Indexes (Apache only)
+    writeNginxSample: true, // write a sample nginx.conf in the build output
     generateIndex: true, // generate root/collection indexes
     readContent: true, // resolve block contents or skip
     exportModel: {
@@ -28,6 +29,7 @@ export default {
     defaultWrapper: "wrapper/wrapper.html", // default wrapper
     defaultLayout: "layout/post.html", // default layout
     defaultIndexLayout: "layout/index.html", // default index layout
+    notFoundLayout: "layout/not-found.html", // default 404 layout
     accessForbiddenLayout: "layout/access-forbidden.html", // default forbidden layout
   },
   images: {
