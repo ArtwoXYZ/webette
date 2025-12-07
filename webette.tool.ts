@@ -13,7 +13,7 @@ export default {
   build: {
     outputDirName: "_public", // build output directory
     overwrite: "replace-all", // "none" | "replace-all" | "replace-files"
-    readContent: false, // resolve block contents or skip
+    readContent: true, // resolve block contents or skip
     exportModel: {
       enabled: true, // export the in-memory model
       dir: ".webette/_model", // target folder for export
@@ -22,7 +22,8 @@ export default {
   },
   templates: {
     root: "templates", // default templates folder
-    default: "wrapper.html", // default wrapper
+    defaultWrapper: "wrapper/wrapper.html", // default wrapper
+    defaultLayout: "layout/post.html", // default layout
   },
   images: {
     requiresImageEngine: true, // enable variant generation via sharp

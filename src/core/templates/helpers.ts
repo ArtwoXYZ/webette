@@ -4,9 +4,11 @@ import type { Collection, Entry } from "../model";
 let helpersRegistered = false;
 
 // Register a small set of reusable helpers for templates.
-export function registerDefaultHelpers() {
+export function registerDefaultHelpers(options?: { defaultLayoutName?: string }) {
   if (helpersRegistered) return;
   helpersRegistered = true;
+
+  const fallbackLayout = options?.defaultLayoutName?.trim() || "layout";
 
   Handlebars.registerHelper("eq", (a: unknown, b: unknown) => a === b);
   Handlebars.registerHelper("neq", (a: unknown, b: unknown) => a !== b);
@@ -64,5 +66,21 @@ export function registerDefaultHelpers() {
     if (!foundEntry) return "";
     const data = { ...(options.data || {}), collection: foundCollection };
     return options.fn(foundEntry, { data });
+  });
+
+  // Render a layout partial by name, with a default fallback.
+  Handlebars.registerHelper("renderLayout", function (name: unknown, options) {
+    const layoutName =
+      (typeof name === "string" && name.trim()) || fallbackLayout;
+    const partial = Handlebars.partials[layoutName];
+    if (!partial) return "";
+
+    const context = options.data?.root ?? {};
+    const templateFn =
+      typeof partial === "function"
+        ? (partial as Handlebars.TemplateDelegate)
+        : Handlebars.compile(partial as string);
+
+    return new Handlebars.SafeString(templateFn(context));
   });
 }

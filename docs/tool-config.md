@@ -18,10 +18,15 @@ export default {
     outputDirName: "_public",
     overwrite: "replace-files",
     readContent: true,
+    prettyPrint: true,
     exportModel: { enabled: false, dir: ".webette/_model", only: false },
   },
   markdown: { remarkPlugins: [], treatTxtAsMarkdown: true },
-  templates: { root: "templates", default: "wrapper.html" },
+  templates: {
+    root: "templates",
+    defaultWrapper: "wrapper/wrapper.html",
+    defaultLayout: "layout/post.html",
+  },
   images: {
     requiresImageEngine: false,
     sizes: { small: 480, medium: 960, large: 1440 },
@@ -44,17 +49,18 @@ export default {
 - `serve.port`: HTTP port for the serve command (`bun run serve` today, target `webette serve`)
 - `serve.liveReloadIntervalMs`: polling interval for live reload
 - `serve.watcherDebounceMs`: debounce for file watcher rebuilds
-- `build.ignoreNames`: directory/file names to ignore in watcher (segments)
 - `build.outputDirName`: output folder name (default `_public`)
 - `build.overwrite`: `none` | `replace-all` | `replace-files`
 - `build.readContent`: whether to read/resolve block contents during build/serve (default `true`; set to `false` to only scan structure)
+- `build.prettyPrint`: pretty-format generated HTML via rehype (default `true`)
 - `build.exportModel.enabled`: export the in-memory model after scanning
 - `build.exportModel.dir`: folder for the split export (default `.webette/_model`, under the site root if relative)
 - `build.exportModel.only`: if `true`, skip HTML generation (export only)
 - `markdown.remarkPlugins`: list of remark plugins applied during Markdown parsing/rendering (e.g. `["remark-gfm", ["remark-footnotes", { inlineNotes: true }]]`)
 - `markdown.treatTxtAsMarkdown`: when `true`, `.txt` files use the Markdown pipeline; set to `false` to keep plain text blocks
 - `templates.root`: base folder for internal/fallback templates (resolved from `process.cwd()` unless absolute)
-- `templates.default`: default wrapper used when the site does not provide its own layout (relative to `templates.root`)
+- `templates.defaultWrapper`: wrapper used when the site does not provide its own (relative to `templates.root`)
+- `templates.defaultLayout`: layout partial used when the site does not provide its own (relative to `templates.root`)
 - `images.*`: defaults for the image pipeline (engine on/off, sizes, format/quality/fit, `outputDir`, `reencodeDefault`); site config (`webette.config.ts`) can override.
 - `video.outputDir`: relative folder under the build output for copied video assets (no transcode in core; plugins handle variants/thumbnails)
 - `audio.*`: defaults for audio handling (`outputDir`); originals are copied to `outputDir`.

@@ -29,5 +29,7 @@
   "resolve.image.defaultFailed": "Échec de la variante default pour {path} : {error}",
   "resolve.image.variantFailed": "Échec de la variante {variant} pour {path} : {error}",
   "template.notFound": "Aucun template trouvé. Chemins testés : {paths}",
-  "template.resolved": "Template choisi : {templatePath} (racine : {templatesRoot}, source : {source})"
+  "template.resolved": "Template choisi : {templatePath} (racine : {templatesRoot}, source : {source})",
+  "template.layoutsLoadFailed": "Chargement des layouts impossible depuis {layoutsDir} : {error}",
+  "build.prettyPrintFailed": "Échec du pretty-print HTML pour {path} : {error}"
 }

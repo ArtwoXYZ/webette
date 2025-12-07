@@ -19,7 +19,7 @@ It typically contains:
 
 - the **site configuration** file (e.g. `webette.config.ts`);
 - one or more **collection** folders;
-- the **templates** folder (e.g. `_templates/`);
+- the **templates** folder (e.g. `templates/`);
 - and optionally some internal folders (logs, cache, etc.).
 
 ---

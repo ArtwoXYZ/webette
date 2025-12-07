@@ -31,13 +31,14 @@ my-site/
       index.md
   pages/
     index/
-      index.md
-  _templates/
-    layouts/
-      default.html
-      page.html
+    index.md
+  templates/
+    wrapper/
+      wrapper.html
+    layout/
       post.html
-    partials/
+      page.html
+    partial/
       header.html
       footer.html
 ```

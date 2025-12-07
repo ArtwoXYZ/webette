@@ -6,8 +6,8 @@ import { registerDefaultHelpers } from "./templates/helpers";
 import type { Logger } from "../logging/logger";
 
 type TemplateResolution = {
-  templatePath: string;
-  templatesRoot: string;
+  templatePath: string; // resolved wrapper path
+  templatesRoot: string; // root that provided the wrapper
   render: (context: Record<string, unknown>) => string;
 };
 
@@ -35,7 +35,7 @@ async function resolveTemplatePath(
 }
 
 async function registerPartials(templatesRoot: string, logger?: Logger) {
-  const partialsDir = path.join(templatesRoot, "partials");
+  const partialsDir = path.join(templatesRoot, "partial");
 
   try {
     const entries = await readdir(partialsDir, { withFileTypes: true });
@@ -56,14 +56,38 @@ async function registerPartials(templatesRoot: string, logger?: Logger) {
   }
 }
 
-// Compile a Handlebars template from site or tool templates (site-first fallback to tool).
+async function registerLayouts(templatesRoot: string, logger?: Logger) {
+  const layoutsDir = path.join(templatesRoot, "layout");
+
+  try {
+    const entries = await readdir(layoutsDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isFile()) continue;
+      const name = path.parse(entry.name).name;
+      const layoutPath = path.join(layoutsDir, entry.name);
+      const source = await readFile(layoutPath, "utf8");
+      Handlebars.registerPartial(name, source);
+    }
+  } catch (err: any) {
+    if (err?.code !== "ENOENT") {
+      logger?.warn("template.layoutsLoadFailed", {
+        layoutsDir,
+        error: String(err),
+      });
+    }
+  }
+}
+
+// Compile a Handlebars wrapper from site or tool templates (site-first fallback to tool).
 export async function createTemplateRenderer(options: {
   rootDir: string;
-  defaultTemplateName: string;
+  defaultWrapperName: string;
+  defaultLayoutName: string;
   templatesRoot: string; // from tool config
   logger?: Logger;
 }): Promise<TemplateResolution> {
-  registerDefaultHelpers();
+  const layoutPartialName = path.parse(options.defaultLayoutName).name || options.defaultLayoutName;
+  registerDefaultHelpers({ defaultLayoutName: layoutPartialName });
 
   const toolRoot = path.join(
     path.dirname(fileURLToPath(import.meta.url)),
@@ -78,13 +102,20 @@ export async function createTemplateRenderer(options: {
     ? options.templatesRoot
     : path.join(toolRoot, options.templatesRoot);
 
-  const candidates = [
-    path.join(siteTemplatesRoot, options.defaultTemplateName),
-    path.join(toolTemplatesRoot, options.defaultTemplateName),
+  // Register shared partials and layouts: tool first, then site overrides.
+  await registerLayouts(toolTemplatesRoot, options.logger);
+  await registerPartials(toolTemplatesRoot, options.logger);
+  await registerLayouts(siteTemplatesRoot, options.logger);
+  await registerPartials(siteTemplatesRoot, options.logger);
+
+  // Resolve default wrapper (site > tool)
+  const wrapperCandidates = [
+    path.join(siteTemplatesRoot, options.defaultWrapperName),
+    path.join(toolTemplatesRoot, options.defaultWrapperName),
   ];
 
   const { templatePath, templatesRoot } = await resolveTemplatePath(
-    candidates,
+    wrapperCandidates,
     options.logger
   );
   const selectedSource =
@@ -97,12 +128,37 @@ export async function createTemplateRenderer(options: {
   const templatesRootForLog =
     path.relative(logBase, templatesRoot) || templatesRoot;
   options.logger?.debug("template.resolved", {
+    kind: "wrapper",
     templatePath: templatePathForLog,
     templatesRoot: templatesRootForLog,
     source: selectedSource,
   });
-  // Register partials after the final templates root is chosen.
-  await registerPartials(templatesRoot, options.logger);
+
+  // Resolve default layout to confirm availability and log the source.
+  const layoutCandidates = [
+    path.join(siteTemplatesRoot, options.defaultLayoutName),
+    path.join(toolTemplatesRoot, options.defaultLayoutName),
+  ];
+  const layoutResolution = await resolveTemplatePath(layoutCandidates, options.logger);
+  const layoutSelectedSource =
+    path.normalize(layoutResolution.templatesRoot) ===
+    path.normalize(siteTemplatesRoot)
+      ? "site"
+      : "tool";
+  const layoutLogBase =
+    layoutSelectedSource === "site" ? options.rootDir : toolRoot;
+  const layoutPathForLog =
+    path.relative(layoutLogBase, layoutResolution.templatePath) ||
+    layoutResolution.templatePath;
+  const layoutRootForLog =
+    path.relative(layoutLogBase, layoutResolution.templatesRoot) ||
+    layoutResolution.templatesRoot;
+  options.logger?.debug("template.resolved", {
+    kind: "layout",
+    templatePath: layoutPathForLog,
+    templatesRoot: layoutRootForLog,
+    source: layoutSelectedSource,
+  });
 
   const templateSource = await readFile(templatePath, "utf8");
   const compiled = Handlebars.compile(templateSource);

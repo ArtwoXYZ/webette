@@ -29,5 +29,7 @@
   "resolve.image.defaultFailed": "Failed to prepare default image for {path}: {error}",
   "resolve.image.variantFailed": "Failed to generate variant {variant} for {path}: {error}",
   "template.notFound": "No template found. Looked for: {paths}",
-  "template.resolved": "Using template at {templatePath} (root: {templatesRoot}, source: {source})"
+  "template.resolved": "Using template at {templatePath} (root: {templatesRoot}, source: {source})",
+  "template.layoutsLoadFailed": "Failed to load layouts from {layoutsDir}: {error}",
+  "build.prettyPrintFailed": "HTML pretty-print failed for {path}: {error}"
 }

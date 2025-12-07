@@ -51,10 +51,12 @@ export interface WebetteEnv {
       only: boolean;
     };
     readContent: boolean;
+    prettyPrint: boolean;
   };
   templates: {
     root: string;
-    default: string;
+    defaultWrapper: string;
+    defaultLayout: string;
   };
   markdown: {
     remarkPlugins: unknown[];
@@ -71,9 +73,17 @@ type WebetteEnvOverrides = Partial<{
     Pick<WebetteEnv["serve"], "port" | "liveReloadIntervalMs" | "watcherDebounceMs">
   >;
   build: Partial<
-    Pick<WebetteEnv["build"], "outputDirName" | "overwrite" | "exportModel" | "readContent">
+    Pick<
+      WebetteEnv["build"],
+      "outputDirName" | "overwrite" | "exportModel" | "readContent" | "prettyPrint"
+    >
   >;
-  templates: Partial<Pick<WebetteEnv["templates"], "root" | "default">>;
+  templates: Partial<
+    Pick<
+      WebetteEnv["templates"],
+      "root" | "defaultWrapper" | "defaultLayout"
+    >
+  >;
   markdown: Partial<
     Pick<WebetteEnv["markdown"], "remarkPlugins" | "treatTxtAsMarkdown">
   >;
@@ -102,10 +112,12 @@ const defaultEnv: WebetteEnv = {
       only: false,
     },
     readContent: true,
+    prettyPrint: true,
   },
   templates: {
     root: "templates",
-    default: "wrapper.html",
+    defaultWrapper: "wrapper/wrapper.html",
+    defaultLayout: "layout/post.html",
   },
   markdown: {
     remarkPlugins: [],
@@ -195,6 +207,9 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
     ...(typeof overrides.build?.readContent === "boolean"
       ? { readContent: overrides.build.readContent }
       : {}),
+    ...(typeof overrides.build?.prettyPrint === "boolean"
+      ? { prettyPrint: overrides.build.prettyPrint }
+      : {}),
   };
 
   const templates = {
@@ -202,8 +217,13 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
     ...(typeof overrides.templates?.root === "string" && overrides.templates.root
       ? { root: overrides.templates.root }
       : {}),
-    ...(typeof overrides.templates?.default === "string" && overrides.templates.default
-      ? { default: overrides.templates.default }
+    ...(typeof overrides.templates?.defaultWrapper === "string" &&
+    overrides.templates.defaultWrapper
+      ? { defaultWrapper: overrides.templates.defaultWrapper }
+      : {}),
+    ...(typeof overrides.templates?.defaultLayout === "string" &&
+    overrides.templates.defaultLayout
+      ? { defaultLayout: overrides.templates.defaultLayout }
       : {}),
   };
 

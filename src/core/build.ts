@@ -8,6 +8,11 @@ import { resolveBlocks } from "./resolve";
 import { createTemplateRenderer } from "./template";
 import type { Block } from "./model";
 import type { Logger } from "../logging/logger";
+import { unified, type Plugin } from "unified";
+import rehypeParse from "rehype-parse";
+import rehypeFormat from "rehype-format";
+import rehypeStringify from "rehype-stringify";
+import type { Root } from "hast";
 
 export interface BuildOptions {
   verbose: boolean;
@@ -19,6 +24,7 @@ export interface BuildOptions {
     only?: boolean;
   };
   readContent?: boolean; // allow skipping content resolution when requested
+  prettyPrint?: boolean;
 }
 
 function countBlocks(blocks: Block[] = []): number {
@@ -36,6 +42,12 @@ export async function build(
   const scoped = logger.child("build");
   const toolEnv = await getEnv();
   const locale = resolveLocale(toolEnv);
+  const layoutPartialName =
+    path.parse(toolEnv.templates.defaultLayout).name || toolEnv.templates.defaultLayout;
+  const prettyPrint =
+    typeof options.prettyPrint === "boolean"
+      ? options.prettyPrint
+      : toolEnv.build.prettyPrint;
 
   scoped.debug("build.start", { rootDir });
 
@@ -304,7 +316,8 @@ export async function build(
   // Prepare Handlebars template (site overrides take precedence over tool fallback).
   const templateRenderer = await createTemplateRenderer({
     rootDir,
-    defaultTemplateName: toolEnv.templates.default,
+    defaultWrapperName: toolEnv.templates.defaultWrapper,
+    defaultLayoutName: toolEnv.templates.defaultLayout,
     templatesRoot: toolEnv.templates.root,
     logger: scoped.child("templates"),
   });
@@ -313,6 +326,7 @@ export async function build(
     model: resolvedSite,
     site: resolvedSite.site,
     collections: resolvedSite.collections ?? [],
+    layoutName: layoutPartialName,
     liveReloadScript,
   };
 
@@ -337,7 +351,33 @@ export async function build(
 
         await mkdir(entryOutputDir, { recursive: true });
         const entryIndexPath = path.join(entryOutputDir, "index.html");
-        await writeFile(entryIndexPath, html, "utf8");
+        let finalHtml = html;
+        if (prettyPrint) {
+          try {
+            type ParseOptions = Parameters<typeof rehypeParse>[0];
+            type FormatOptions = Parameters<typeof rehypeFormat>[0];
+            type StringifyOptions = Parameters<typeof rehypeStringify>[0];
+
+            const parsePlugin = rehypeParse as Plugin<[ParseOptions?], Root, Root>;
+            const formatPlugin = rehypeFormat as Plugin<[FormatOptions?], Root, Root>;
+            const stringifyPlugin = rehypeStringify as Plugin<[StringifyOptions?], Root, string>;
+
+            const formatted = await unified()
+              .data("settings", { fragment: false })
+              .use(parsePlugin, { fragment: false })
+              .use(formatPlugin, { indent: 2 })
+              .use(stringifyPlugin)
+              .process(html);
+            finalHtml = String(formatted);
+          } catch (err) {
+            scoped.warn("build.prettyPrintFailed", {
+              path: entryIndexPath,
+              error: String(err),
+            });
+          }
+        }
+
+        await writeFile(entryIndexPath, finalHtml, "utf8");
         scoped.debug("build.fileGenerated", { path: entryIndexPath });
         renderedPages += 1;
       }

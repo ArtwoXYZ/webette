@@ -22,8 +22,8 @@ A Webette build runs through these major phases:
 8. Resolve **routes** (site/collection/entry; blocks later, by resolvers when needed)
 9. Parse Markdown into an **AST**
 10. Transform content (AST transforms, block transforms, enrichment plugins), render Markdown to HTML, and enrich block metadata
-11. Render **templates** (layouts + partials)
-12. HTML post-processing
+11. Render **templates** (wrapper + layout + partials)
+12. HTML post-processing (pretty-print, rewrites)
 13. Write output
 14. Run post-build hooks
 
@@ -192,7 +192,42 @@ This is the last opportunity to modify the page before writing it.
 
 ---
 
-## 12. Output
+## 11. Template rendering
+
+Webette combines:
+
+- **entry data** (title, body, blocks, metadata)
+- **collection data** (pagination, neighbors)
+- **site data** (full `site.*` from `webette.config.ts`)
+- **routes**
+
+...and renders them using templates from:
+
+1. The site’s templates folder (e.g. `templates/`)
+2. Tool-level fallback templates (`templates.root` + `templates.defaultWrapper/defaultLayout`)
+
+Structure:
+
+- Wrapper (`wrapper/…`): outer shell; calls `{{{renderLayout layoutName}}}`.
+- Layouts (`layout/…`): registered as partials; actual page body.
+- Partials (`partial/…`): reusable fragments.
+
+Helpers:
+
+- `renderLayout <name>`: pick a layout by name, fallback to `templates.defaultLayout`.
+- `eq`, `neq`, `in`, `safe`, `first`, `firstBlockOfType`, `withCollection`, `withEntry`.
+
+## 12. HTML post-processing
+
+After rendering, plugins or the core may adjust the output:
+
+- pretty-printing (default: on) via rehype format/parse/stringify
+- inject global scripts (analytics, comments, widgets)
+- add metadata tags
+- rewrite markup
+- insert per-entry or global enhancements
+
+## 13. Output
 
 Generated HTML and assets are written to the folder defined by `build.outputDirName` (from `webette.tool.ts`).
 
@@ -205,7 +240,7 @@ Rendering: the template engine (Handlebars) renders **one `index.html` per entry
 
 ---
 
-## 13. Post-build
+## 14. Post-build
 
 Plugins can perform final tasks:
 
