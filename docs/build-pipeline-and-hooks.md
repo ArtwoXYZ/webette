@@ -214,8 +214,8 @@ Structure:
 
 Helpers:
 
-- `renderLayout <name>`: pick a layout by name, fallback to `templates.defaultLayout`.
-- `eq`, `neq`, `in`, `safe`, `first`, `firstBlockOfType`, `withCollection`, `withEntry`.
+  - `renderLayout <name>`: pick a layout by name, fallback to `templates.defaultLayout`.
+  - Helpers: see `docs/helpers.md`.
 
 ## 12. HTML post-processing
 

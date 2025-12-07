@@ -47,6 +47,7 @@ export async function build(
   const locale = resolveLocale(toolEnv);
   const layoutPartialName =
     path.parse(toolEnv.templates.defaultLayout).name || toolEnv.templates.defaultLayout;
+  const buildTime = new Date();
   const prettyPrint =
     typeof options.prettyPrint === "boolean"
       ? options.prettyPrint
@@ -345,6 +346,7 @@ export async function build(
     site: resolvedSite.site,
     collections: resolvedSite.collections ?? [],
     layoutName: layoutPartialName,
+    buildTime,
     liveReloadScript,
   };
 

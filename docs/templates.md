@@ -11,13 +11,7 @@ Webette renders HTML with Handlebars. Each entry gets its own `index.html`; opti
 
 ## Template syntax
 
-- Handlebars with the usual helpers (`if`, `each`, `with`, etc.) plus a few built-ins registered by Webette:
-  - `eq`, `neq`, `in`: simple comparisons/containment for conditions.
-  - `safe`: outputs a string without escaping (use only for trusted HTML like rendered Markdown).
-  - `first`, `firstBlockOfType`: pick the first item in an array, or the first block of a given type.
-  - `withCollection <slugOrId>`: find a collection by slug/id/route and set it as the block context.
-  - `withEntry <slugOrIdOrRoute>`: find an entry across collections and set it as the block context (also exposes `collection` in block data).
-  - `renderLayout <name>`: render a layout partial by name (fallback to `templates.defaultLayout` when missing/empty).
+- Handlebars with the usual helpers (`if`, `each`, `with`, etc.) plus Webette’s built-ins (see `docs/helpers.md`).
 - Variables are HTML-escaped by default; use `{{{...}}}` or `safe` for trusted HTML.
 
 ## Context available in templates
@@ -31,6 +25,7 @@ Every render gets the full model plus handy aliases:
 - `entry`: the current entry
 - `blocks`: `entry.blocks`
 - `liveReloadScript`: raw script injected during `serve` (use `{{{liveReloadScript}}}`)
+- `buildTime`: build timestamp (use with helpers like `formatDate` / `fromNow`)
 
 Routes in the model are root-relative (e.g. `/assets/images/...`), so they work from any entry page.
 

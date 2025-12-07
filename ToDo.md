@@ -2,7 +2,7 @@
 - ~~Fournir des templates par défaut (wrapper + layouts) minimalistes, avec partials header et footer.~~
 - ~~Générer un index minimal (listing) pour racine/collections via `indexLayout`, désactivable.~~
 - ~~Protéger les dossiers d’assets : ajouter un `index.html` placeholder et proposer un `.htaccess` optionnel avec `Options -Indexes` (portée limitée à Apache) ; documenter cette option.~~
-- Ajouter des helpers de templating genre pour tout mettre en lettres capitales, que les premières lettres de chaque mot, tout mettre en minuscule.
+- ~~Ajouter des helpers de templating genre pour tout mettre en lettres capitales, que les premières lettres de chaque mot, tout mettre en minuscule.~~
 - Faire des templates par défaut pour les 404 (et d'autres pages d'erreurs ?)
 - Mettre à jour la doc sur wrapper/layout/partials et la config associée, y compris l’index/placeholder/.htaccess.
 - Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)

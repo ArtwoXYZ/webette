@@ -9,6 +9,7 @@ Lightweight notes about Webette’s direction and internals.
 - [logging.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/logging.md) — structured logging, locales, and persistence.
 - [site-config.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/site-config.md) — how `webette.config.ts` is loaded and which fields are consumed.
 - [templates.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/templates.md) — fallback wrapper, template lookup, index/forbidden layouts, and the minimal template engine.
+- [helpers.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/helpers.md) — built-in Handlebars helpers (strings, dates, math, lookups).
 - [images.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/images.md) — current image metadata handling and planned optimization/variants.
 - [audio.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/audio.md) — audio metadata handling and asset copying.
 - [commit-scopes](https://tangled.org/artwo.xyz/webette/blob/main/docs/commit-scopes) — commit Scopes for Webette.
