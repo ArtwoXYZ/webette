@@ -1,4 +1,11 @@
 <header>
   <h1>{{site.title}}</h1>
-  <p>{{collection.name}}</p>
+  <nav>
+    {{#if collection.route}}
+    <a href="{{collection.route}}">← Back to collection</a>
+    {{else}}
+    <a href="/">← Back to index</a>
+    {{/if}}
+  </nav>
+  <h3>Collection: {{collection.name}}</h3>
 </header>

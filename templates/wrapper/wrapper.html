@@ -2,11 +2,11 @@
 <html lang="{{site.lang}}">
   <head>
     <meta charset="utf-8" />
-    <title>{{entry.name}} · {{site.title}}</title>
+    <title>{{#if entry}}{{entry.name}} — {{site.title}}{{else}}{{site.title}}{{/if}}</title>
   </head>
   <body>
     {{{renderLayout layoutName}}}
-    
+
     {{{liveReloadScript}}}
   </body>
 </html>

@@ -1,6 +1,6 @@
 - ~~Refondre la structure/config des templates : wrapper implicite (`defaultWrapper`), layouts explicites (`defaultLayout`, `indexLayout`), fallback site > tool, logs du wrapper/layout retenus.~~
 - ~~Fournir des templates par défaut (wrapper + layouts) minimalistes, avec partials header et footer.~~
-- Générer un index minimal (listing) pour racine/collections via `indexLayout`, désactivable.
+- ~~Générer un index minimal (listing) pour racine/collections via `indexLayout`, désactivable.~~
 - Protéger les dossiers d’assets : ajouter un `index.html` placeholder et proposer un `.htaccess` optionnel avec `Options -Indexes` (portée limitée à Apache) ; documenter cette option.
 - Mettre à jour la doc sur wrapper/layout/partials et la config associée, y compris l’index/placeholder/.htaccess.
 - Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)

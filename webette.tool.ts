@@ -13,6 +13,7 @@ export default {
   build: {
     outputDirName: "_public", // build output directory
     overwrite: "replace-all", // "none" | "replace-all" | "replace-files"
+    generateIndex: true, // generate root/collection indexes
     readContent: true, // resolve block contents or skip
     exportModel: {
       enabled: true, // export the in-memory model
@@ -24,6 +25,7 @@ export default {
     root: "templates", // default templates folder
     defaultWrapper: "wrapper/wrapper.html", // default wrapper
     defaultLayout: "layout/post.html", // default layout
+    defaultIndexLayout: "layout/index.html", // default index layout
   },
   images: {
     requiresImageEngine: true, // enable variant generation via sharp

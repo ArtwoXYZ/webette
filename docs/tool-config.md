@@ -19,6 +19,7 @@ export default {
     overwrite: "replace-files",
     readContent: true,
     prettyPrint: true,
+    generateIndex: true,
     exportModel: { enabled: false, dir: ".webette/_model", only: false },
   },
   markdown: { remarkPlugins: [], treatTxtAsMarkdown: true },
@@ -26,6 +27,7 @@ export default {
     root: "templates",
     defaultWrapper: "wrapper/wrapper.html",
     defaultLayout: "layout/post.html",
+    defaultIndexLayout: "layout/index.html",
   },
   images: {
     requiresImageEngine: false,
@@ -53,6 +55,7 @@ export default {
 - `build.overwrite`: `none` | `replace-all` | `replace-files`
 - `build.readContent`: whether to read/resolve block contents during build/serve (default `true`; set to `false` to only scan structure)
 - `build.prettyPrint`: pretty-format generated HTML via rehype (default `true`)
+- `build.generateIndex`: generate root/collection index pages (default `true`)
 - `build.exportModel.enabled`: export the in-memory model after scanning
 - `build.exportModel.dir`: folder for the split export (default `.webette/_model`, under the site root if relative)
 - `build.exportModel.only`: if `true`, skip HTML generation (export only)
@@ -61,6 +64,7 @@ export default {
 - `templates.root`: base folder for internal/fallback templates (resolved from `process.cwd()` unless absolute)
 - `templates.defaultWrapper`: wrapper used when the site does not provide its own (relative to `templates.root`)
 - `templates.defaultLayout`: layout partial used when the site does not provide its own (relative to `templates.root`)
+- `templates.defaultIndexLayout`: index layout used for root/collection listings (relative to `templates.root`)
 - `images.*`: defaults for the image pipeline (engine on/off, sizes, format/quality/fit, `outputDir`, `reencodeDefault`); site config (`webette.config.ts`) can override.
 - `video.outputDir`: relative folder under the build output for copied video assets (no transcode in core; plugins handle variants/thumbnails)
 - `audio.*`: defaults for audio handling (`outputDir`); originals are copied to `outputDir`.

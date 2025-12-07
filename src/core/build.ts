@@ -25,6 +25,7 @@ export interface BuildOptions {
   };
   readContent?: boolean; // allow skipping content resolution when requested
   prettyPrint?: boolean;
+  generateIndex?: boolean;
 }
 
 function countBlocks(blocks: Block[] = []): number {
@@ -48,6 +49,10 @@ export async function build(
     typeof options.prettyPrint === "boolean"
       ? options.prettyPrint
       : toolEnv.build.prettyPrint;
+  const generateIndex =
+    typeof options.generateIndex === "boolean"
+      ? options.generateIndex
+      : toolEnv.build.generateIndex;
 
   scoped.debug("build.start", { rootDir });
 
@@ -330,6 +335,33 @@ export async function build(
     liveReloadScript,
   };
 
+  const formatHtml = async (rawHtml: string, targetPath: string): Promise<string> => {
+    if (!prettyPrint) return rawHtml;
+    try {
+      type ParseOptions = Parameters<typeof rehypeParse>[0];
+      type FormatOptions = Parameters<typeof rehypeFormat>[0];
+      type StringifyOptions = Parameters<typeof rehypeStringify>[0];
+
+      const parsePlugin = rehypeParse as Plugin<[ParseOptions?], Root, Root>;
+      const formatPlugin = rehypeFormat as Plugin<[FormatOptions?], Root, Root>;
+      const stringifyPlugin = rehypeStringify as Plugin<[StringifyOptions?], Root, string>;
+
+      const formatted = await unified()
+        .data("settings", { fragment: false })
+        .use(parsePlugin, { fragment: false })
+        .use(formatPlugin, { indent: 2 })
+        .use(stringifyPlugin)
+        .process(rawHtml);
+      return String(formatted);
+    } catch (err) {
+      scoped.warn("build.prettyPrintFailed", {
+        path: targetPath,
+        error: String(err),
+      });
+      return rawHtml;
+    }
+  };
+
   let renderedPages = 0;
 
   if (resolvedSite.collections) {
@@ -351,36 +383,55 @@ export async function build(
 
         await mkdir(entryOutputDir, { recursive: true });
         const entryIndexPath = path.join(entryOutputDir, "index.html");
-        let finalHtml = html;
-        if (prettyPrint) {
-          try {
-            type ParseOptions = Parameters<typeof rehypeParse>[0];
-            type FormatOptions = Parameters<typeof rehypeFormat>[0];
-            type StringifyOptions = Parameters<typeof rehypeStringify>[0];
-
-            const parsePlugin = rehypeParse as Plugin<[ParseOptions?], Root, Root>;
-            const formatPlugin = rehypeFormat as Plugin<[FormatOptions?], Root, Root>;
-            const stringifyPlugin = rehypeStringify as Plugin<[StringifyOptions?], Root, string>;
-
-            const formatted = await unified()
-              .data("settings", { fragment: false })
-              .use(parsePlugin, { fragment: false })
-              .use(formatPlugin, { indent: 2 })
-              .use(stringifyPlugin)
-              .process(html);
-            finalHtml = String(formatted);
-          } catch (err) {
-            scoped.warn("build.prettyPrintFailed", {
-              path: entryIndexPath,
-              error: String(err),
-            });
-          }
-        }
+        const finalHtml = await formatHtml(html, entryIndexPath);
 
         await writeFile(entryIndexPath, finalHtml, "utf8");
         scoped.debug("build.fileGenerated", { path: entryIndexPath });
         renderedPages += 1;
       }
+    }
+  }
+
+  if (generateIndex) {
+    // Root index (collections listing)
+    const indexLayoutPartialName =
+      path.parse(toolEnv.templates.defaultIndexLayout).name ||
+      toolEnv.templates.defaultIndexLayout;
+
+    const rootContext = {
+      ...renderBaseContext,
+      layoutName: indexLayoutPartialName,
+      entry: { name: "Index", route: "/" },
+    };
+    const rootHtml = templateRenderer.render(rootContext);
+    const rootIndexPath = path.join(outputDir, "index.html");
+    await mkdir(path.dirname(rootIndexPath), { recursive: true });
+    const finalRootHtml = await formatHtml(rootHtml, rootIndexPath);
+    await writeFile(rootIndexPath, finalRootHtml, "utf8");
+    scoped.debug("build.fileGenerated", { path: rootIndexPath });
+
+    // Collection indexes
+    for (const collection of resolvedSite.collections ?? []) {
+      const routeRelative = collection.route
+        ? collection.route.replace(/^\/+/, "").replace(/\/+$/, "")
+        : collection.slug || collection.id;
+      const collectionIndexDir = routeRelative
+        ? path.join(outputDir, routeRelative)
+        : outputDir;
+      const collectionIndexPath = path.join(collectionIndexDir, "index.html");
+
+      const ctx = {
+        ...renderBaseContext,
+        layoutName: indexLayoutPartialName,
+        entry: { name: collection.name, route: collection.route },
+        collection,
+        entries: collection.entries,
+      };
+      const colHtml = templateRenderer.render(ctx);
+      await mkdir(collectionIndexDir, { recursive: true });
+      const finalColHtml = await formatHtml(colHtml, collectionIndexPath);
+      await writeFile(collectionIndexPath, finalColHtml, "utf8");
+      scoped.debug("build.fileGenerated", { path: collectionIndexPath });
     }
   }
 

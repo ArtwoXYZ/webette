@@ -45,6 +45,7 @@ export interface WebetteEnv {
   build: {
     outputDirName: string;
     overwrite: OverwritePolicy;
+    generateIndex: boolean;
     exportModel: {
       enabled: boolean;
       dir: string;
@@ -57,6 +58,7 @@ export interface WebetteEnv {
     root: string;
     defaultWrapper: string;
     defaultLayout: string;
+    defaultIndexLayout: string;
   };
   markdown: {
     remarkPlugins: unknown[];
@@ -75,13 +77,13 @@ type WebetteEnvOverrides = Partial<{
   build: Partial<
     Pick<
       WebetteEnv["build"],
-      "outputDirName" | "overwrite" | "exportModel" | "readContent" | "prettyPrint"
+      "outputDirName" | "overwrite" | "exportModel" | "readContent" | "prettyPrint" | "generateIndex"
     >
   >;
   templates: Partial<
     Pick<
       WebetteEnv["templates"],
-      "root" | "defaultWrapper" | "defaultLayout"
+      "root" | "defaultWrapper" | "defaultLayout" | "defaultIndexLayout"
     >
   >;
   markdown: Partial<
@@ -106,6 +108,7 @@ const defaultEnv: WebetteEnv = {
   build: {
     outputDirName: "_public",
     overwrite: "replace-files",
+    generateIndex: true,
     exportModel: {
       enabled: false,
       dir: ".webette/_model",
@@ -118,6 +121,7 @@ const defaultEnv: WebetteEnv = {
     root: "templates",
     defaultWrapper: "wrapper/wrapper.html",
     defaultLayout: "layout/post.html",
+    defaultIndexLayout: "layout/index.html",
   },
   markdown: {
     remarkPlugins: [],
@@ -210,6 +214,9 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
     ...(typeof overrides.build?.prettyPrint === "boolean"
       ? { prettyPrint: overrides.build.prettyPrint }
       : {}),
+    ...(typeof overrides.build?.generateIndex === "boolean"
+      ? { generateIndex: overrides.build.generateIndex }
+      : {}),
   };
 
   const templates = {
@@ -224,6 +231,10 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
     ...(typeof overrides.templates?.defaultLayout === "string" &&
     overrides.templates.defaultLayout
       ? { defaultLayout: overrides.templates.defaultLayout }
+      : {}),
+    ...(typeof overrides.templates?.defaultIndexLayout === "string" &&
+    overrides.templates.defaultIndexLayout
+      ? { defaultIndexLayout: overrides.templates.defaultIndexLayout }
       : {}),
   };
 
