@@ -1,6 +1,6 @@
 # webette
 
-![Bluesky followers](https://img.shields.io/bluesky/followers/artwo.xyz?style=plastic&logo=bluesky&label=bluesky&labelColor=000&color=0e73ff)
+[![Bluesky followers](https://img.shields.io/bluesky/followers/artwo.xyz?style=plastic&logo=bluesky&label=bluesky&labelColor=000&color=0e73ff)](https://bsky.app/profile/artwo.xyz)
 
 ![Banner](./.tangled/assets/Webette_GitBanner.png)
 
