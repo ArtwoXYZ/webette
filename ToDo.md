@@ -4,4 +4,6 @@
 - ~~Protéger les dossiers d’assets : ajouter un `index.html` placeholder et proposer un `.htaccess` optionnel avec `Options -Indexes` (portée limitée à Apache) ; documenter cette option.~~
 - ~~Ajouter des helpers de templating genre pour tout mettre en lettres capitales, que les premières lettres de chaque mot, tout mettre en minuscule.~~
 - ~~Faire des templates par défaut pour les 404 (et d'autres pages d'erreurs ?)~~
+- ~~rendre l'export du modèle obligatoir : ça servira aussi comme une base de donnée interne, notamment pour les dates~~
+- ~~Mettre en place un système de date : quand on build on stock dans le fichier du model les dates de créa (1er build) et update des entries, blocks et collections. On fait les comparaisons grâce à un hash qu'on créer en même temps pour chaque objet ?~~
 - Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)

@@ -93,7 +93,7 @@ Think of it as a working foundation with a lot still to build on top of it.
 * Video copying
 * Template rendering via Handlebars
 * A `serve` mode that watches changes and rebuilds the site
-* A browsable internal model (can be exported)
+* A browsable internal model automatically exported on build
 
 It’s a foundation — but an intentionally simple and flexible one.
 

@@ -60,11 +60,11 @@ The folder where generated HTML and copied/generated assets are written.
 
 ## Model export directory (`exportDir`)
 
-Optional debug export of the in-memory model (no HTML).
+Export of the in-memory model.
 
 - Absolute path: `<site root>/<build.exportModel.dir>` (default `.webette/_model`)
-- Contains: `site.json` (site/config + collections + entry summaries) and `entries/<collection>/<entry>.json`
-- Only written when `build.exportModel.enabled` (tool config) or CLI export flags are set
+- Contains: `site.json` (site/config + collections + entry summaries) and `entries/<collection>/<entry>.json`, each carrying `createdAt`, `updatedAt`, and a `fingerprint` on site/collections/entries/blocks
+- Written on every build; `--export-model-only` skips HTML generation but still writes the export
 
 ---
 

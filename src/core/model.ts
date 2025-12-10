@@ -8,6 +8,9 @@ export interface Block {
   path: string;        // path relative to the site root
   route?: string;      // route relative to site root (includes ext when present)
   subBlocks?: Block[]; // nested blocks (e.g., subfolder for galleries)
+  createdAt?: string;  // ISO timestamp of first appearance in the model
+  updatedAt?: string;  // ISO timestamp of last change in the model
+  fingerprint?: string; // stable hash of the block content/structure
   content?: ResolvedBlockContent; // resolved payload (text/data/meta) for rendering/plugins
 }
 
@@ -19,6 +22,9 @@ export interface Entry {
   path: string;        // path relative to the site root
   route?: string;      // route relative to site root (trailing slash)
   blocks: Block[];     // files/blocks contained in the entry
+  createdAt?: string;  // ISO timestamp of first appearance in the model
+  updatedAt?: string;  // ISO timestamp of last change in the model
+  fingerprint?: string; // stable hash of the entry content/structure
 }
 
 export interface Collection {
@@ -29,6 +35,9 @@ export interface Collection {
   path: string;        // path relative to the site root
   route?: string;      // route relative to site root (trailing slash)
   entries: Entry[];    // entries inside the collection
+  createdAt?: string;  // ISO timestamp of first appearance in the model
+  updatedAt?: string;  // ISO timestamp of last change in the model
+  fingerprint?: string; // stable hash of the collection content/structure
 }
 
 export interface Site {
@@ -39,6 +48,9 @@ export interface Site {
   };
   collections?: Collection[];       // discovered collections with their entries/blocks
   route?: string;                   // root route, usually "/"
+  createdAt?: string;               // ISO timestamp of first appearance in the model
+  updatedAt?: string;               // ISO timestamp of last change in the model
+  fingerprint?: string;             // stable hash of the site content/structure
 }
 
 export type ImageVariantName = "default" | "small" | "medium" | "large";

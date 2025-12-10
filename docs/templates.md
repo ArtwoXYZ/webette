@@ -41,9 +41,9 @@ Sites can override wrapper and layouts by dropping their files under `<site>/<te
 
 ## Inspecting the model (debug)
 
-To inspect the in-memory model before rendering templates, enable the export:
+The model export is always written after scan/resolution:
 
-- Tool config: set `build.exportModel.enabled` (and optionally `dir`, `only`) in `webette.tool.ts`.
-- CLI: `--export-model-dir [path]` or `--export-model-only` (overrides the tool config for this run).
+- CLI: `--export-model-dir [path]` changes the destination for this run; `--export-model-only` skips HTML generation but still writes the export.
+- Default path: `.webette/_model` at the site root.
 
-When enabled, the model is serialized right after scanning/resolution into a folder (default `.webette/_model` at the site root). Export is split: `site.json` plus one file per entry under `entries/<collection>/<entry>.json`. With the `only` option, HTML generation is skipped.
+Files: `site.json` plus one file per entry under `entries/<collection>/<entry>.json`, each carrying `createdAt`, `updatedAt`, and `fingerprint` for site/collections/entries/blocks. Use this to audit the data passed to templates or to track changes across builds.

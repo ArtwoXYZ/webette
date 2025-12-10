@@ -8,6 +8,7 @@ import { resolveBlocks } from "./resolve";
 import { createTemplateRenderer } from "./template";
 import type { Block } from "./model";
 import type { Logger } from "../logging/logger";
+import { applyHistory, loadPreviousState } from "./export/history";
 import { unified, type Plugin } from "unified";
 import rehypeParse from "rehype-parse";
 import rehypeFormat from "rehype-format";
@@ -136,10 +137,21 @@ export async function build(
   const envExport = toolEnv.build.exportModel;
 
   const exportModel = {
-    enabled: options.exportModel?.enabled ?? envExport.enabled,
+    enabled: true,
     dir: options.exportModel?.dir ?? envExport.dir,
     only: options.exportModel?.only ?? envExport.only,
   };
+
+  const exportDir = path.isAbsolute(exportModel.dir)
+    ? exportModel.dir
+    : path.join(rootDir, exportModel.dir);
+
+  // Pull the previous exported model to carry over timestamps when hashes match
+  const previousState = await loadPreviousState(exportDir).catch(() => ({
+    collections: {},
+    entries: {},
+    blocks: {},
+  }));
 
   // Handle existing output directory according to policy
   let outputDirExists = false;
@@ -225,118 +237,123 @@ export async function build(
   </script>`
     : "";
 
-  // Optional model export (debug)
-  if (exportModel.enabled) {
-    const exportDir = path.isAbsolute(exportModel.dir)
-      ? exportModel.dir
-      : path.join(rootDir, exportModel.dir);
+  const resolvedSiteWithHistory = await applyHistory(resolvedSite, {
+    previous: previousState,
+    rootDir,
+    readContent,
+  });
 
-    scoped.debug("build.exportModel.start", { path: exportDir });
+  scoped.debug("build.exportModel.start", { path: exportDir });
 
-    const orderKeys = (value: unknown): unknown => {
-      if (Array.isArray(value)) return value.map(orderKeys);
-      if (!value || typeof value !== "object") return value;
+  const orderKeys = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(orderKeys);
+    if (!value || typeof value !== "object") return value;
 
-      const obj = value as Record<string, unknown>;
-      const ordered: Record<string, unknown> = {};
-      const preferred = [
-        "rootDir",
-        "site",
-        "config",
-        "collections",
-        "id",
-        "rawName",
-        "path",
-        "name",
-        "type",
-        "ext",
-        "slug",
-        "route",
-        "entries",
-        "blocks",
-        "subBlocks",
-      ];
+    const obj = value as Record<string, unknown>;
+    const ordered: Record<string, unknown> = {};
+    const preferred = [
+      "rootDir",
+      "site",
+      "config",
+      "collections",
+      "id",
+      "rawName",
+      "path",
+      "name",
+      "type",
+      "ext",
+      "slug",
+      "route",
+      "createdAt",
+      "updatedAt",
+      "fingerprint",
+      "entries",
+      "blocks",
+      "subBlocks",
+    ];
 
-      for (const key of preferred) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-          ordered[key] = orderKeys(obj[key]);
-        }
-      }
-
-      for (const key of Object.keys(obj)) {
-        if (preferred.includes(key)) continue;
+    for (const key of preferred) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         ordered[key] = orderKeys(obj[key]);
       }
+    }
 
-      return ordered;
-    };
+    for (const key of Object.keys(obj)) {
+      if (preferred.includes(key)) continue;
+      ordered[key] = orderKeys(obj[key]);
+    }
 
-    const siteSummary = {
-      ...resolvedSite,
-      collections: resolvedSite.collections?.map((collection) => {
-        const { entries, ...rest } = collection;
-        const entrySummaries = entries.map((entry) => ({
-          id: entry.id,
-          rawName: entry.rawName,
-          path: entry.path,
-          name: entry.name,
-          slug: entry.slug,
-          route: entry.route,
-        }));
-        return {
-          ...rest,
-          entries: entrySummaries,
-        };
-      }),
-    };
+    return ordered;
+  };
 
-    try {
-      await rm(exportDir, { recursive: true, force: true });
-      await mkdir(exportDir, { recursive: true });
-      await writeFile(
-        path.join(exportDir, "site.json"),
-        JSON.stringify(orderKeys(siteSummary), null, 2),
-        "utf8"
-      );
+  const siteSummary = {
+    ...resolvedSiteWithHistory,
+    collections: resolvedSiteWithHistory.collections?.map((collection) => {
+      const { entries, ...rest } = collection;
+      const entrySummaries = entries.map((entry) => ({
+        id: entry.id,
+        rawName: entry.rawName,
+        path: entry.path,
+        name: entry.name,
+        slug: entry.slug,
+        route: entry.route,
+        createdAt: entry.createdAt,
+        updatedAt: entry.updatedAt,
+        fingerprint: entry.fingerprint,
+      }));
+      return {
+        ...rest,
+        entries: entrySummaries,
+      };
+    }),
+  };
 
-      const entriesDir = path.join(exportDir, "entries");
-      await mkdir(entriesDir, { recursive: true });
+  try {
+    await rm(exportDir, { recursive: true, force: true });
+    await mkdir(exportDir, { recursive: true });
+    await writeFile(
+      path.join(exportDir, "site.json"),
+      JSON.stringify(orderKeys(siteSummary), null, 2),
+      "utf8"
+    );
 
-      if (resolvedSite.collections) {
-        for (const collection of resolvedSite.collections) {
-          const collectionDirName = collection.slug || collection.id;
-          const collectionDir = path.join(entriesDir, collectionDirName);
-          await mkdir(collectionDir, { recursive: true });
+    const entriesDir = path.join(exportDir, "entries");
+    await mkdir(entriesDir, { recursive: true });
 
-          for (const entry of collection.entries) {
-            const entryFileName = `${entry.slug || entry.id}.json`;
-            const entryPath = path.join(collectionDir, entryFileName);
-            await writeFile(
-              entryPath,
-              JSON.stringify(orderKeys(entry), null, 2),
-              "utf8"
-            );
-          }
+    if (resolvedSiteWithHistory.collections) {
+      for (const collection of resolvedSiteWithHistory.collections) {
+        const collectionDirName = collection.slug || collection.id;
+        const collectionDir = path.join(entriesDir, collectionDirName);
+        await mkdir(collectionDir, { recursive: true });
+
+        for (const entry of collection.entries) {
+          const entryFileName = `${entry.slug || entry.id}.json`;
+          const entryPath = path.join(collectionDir, entryFileName);
+          await writeFile(
+            entryPath,
+            JSON.stringify(orderKeys(entry), null, 2),
+            "utf8"
+          );
         }
       }
-
-      scoped.info("build.exportModel.success", { path: exportDir });
-    } catch (err: any) {
-      scoped.error("build.exportModel.error", {
-        path: exportDir,
-        error: String(err),
-      });
-      throw err;
     }
 
-    if (exportModel.only) {
-      if (options.quiet) {
-        scoped.debug("build.exportOnly.success", { path: exportDir });
-      } else {
-        scoped.info("build.exportOnly.success", { path: exportDir });
-      }
-      return;
+    scoped.info("build.exportModel.success", { path: exportDir });
+  } catch (err: any) {
+    scoped.error("build.exportModel.error", {
+      path: exportDir,
+      error: String(err),
+    });
+    throw err;
+  }
+
+  if (exportModel.only) {
+    if (options.quiet) {
+      scoped.debug("build.exportOnly.success", { path: exportDir });
+    } else {
+      scoped.info("build.exportOnly.success", { path: exportDir });
     }
+    return;
   }
 
   // Prepare Handlebars template (site overrides take precedence over tool fallback).
@@ -349,9 +366,15 @@ export async function build(
   });
 
   const renderBaseContext = {
-    model: resolvedSite,
-    site: resolvedSite.site,
-    collections: resolvedSite.collections ?? [],
+    model: resolvedSiteWithHistory,
+    // Expose site timestamps/fingerprint directly on `site` for templates
+    site: {
+      ...resolvedSiteWithHistory.site,
+      createdAt: resolvedSiteWithHistory.createdAt,
+      updatedAt: resolvedSiteWithHistory.updatedAt,
+      fingerprint: resolvedSiteWithHistory.fingerprint,
+    },
+    collections: resolvedSiteWithHistory.collections ?? [],
     layoutName: layoutPartialName,
     buildTime,
     liveReloadScript,
@@ -489,8 +512,8 @@ export async function build(
 
   let renderedPages = 0;
 
-  if (resolvedSite.collections) {
-    for (const collection of resolvedSite.collections) {
+  if (resolvedSiteWithHistory.collections) {
+    for (const collection of resolvedSiteWithHistory.collections) {
       for (const entry of collection.entries) {
         const entryRouteRelative = entry.route
           ? entry.route.replace(/^\/+/, "")
@@ -536,7 +559,7 @@ export async function build(
     scoped.debug("build.fileGenerated", { path: rootIndexPath });
 
     // Collection indexes
-    for (const collection of resolvedSite.collections ?? []) {
+    for (const collection of resolvedSiteWithHistory.collections ?? []) {
       const routeRelative = collection.route
         ? collection.route.replace(/^\/+/, "").replace(/\/+$/, "")
         : collection.slug || collection.id;
