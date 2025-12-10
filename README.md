@@ -1,147 +1,189 @@
-# Webette
+# webette
 
-Webette is a tiny experiment aiming to become a simple, folder-driven static-site engine.
-Right now, it's basically a skeleton. A promising skeleton, but still a skeleton.
+![Bluesky followers](https://img.shields.io/bluesky/followers/artwo.xyz?style=plastic&logo=bluesky&label=bluesky&labelColor=000&color=0e73ff)
 
-> ⚠️ **Important:** Webette is in a very early prototype stage.
-> You should absolutely **not** use it for anything real yet — it barely does anything.
-> The current version is mainly here to express a direction, not to deliver features.
+![Banner](./.tangled/assets/Webette_GitBanner.png)
+
+**Static sites from your folders. A tiny framework with big dreams.**
+
+webette is a filesystem-first static site generator.
+Place your content in folders, give it a few templates, and let it weave your site for you.
+
+webette is especially friendly for personal sites, Neocities-style projects, Nekoweb pages, artists’ portfolios, and all sorts of small, playful experiments — but because it’s hackable, it can also scale into much more ambitious creations.
+
+It is still **not ready for real deployment** — but it is already a living, evolving project with a clear direction. This README explains what webette is today, what it wants to become, and why it exists.
 
 ---
 
-## 🎯 What Webette _wants_ to become
+## ✨ The spirit of webette
 
-Webette's goal is simple:
+webette is built on a simple idea:
 
-👉 **Make websites by just organizing files and folders on your computer.**
+> **Your folders already know what your website wants to be.**
+> Let a tool respect that, not fight it.
 
-Yes. That’s it.
-No complicated build systems. No frameworks. No thousand-line configs.
+Instead of inventing a new mental model, webette leans on the one you already use every day: the filesystem.
 
-Just a structure like:
+* Collections are folders.
+* Entries are subfolders.
+* Blocks are just files.
+* Structure is something you see, not something you configure.
+
+webette’s job is to observe, understand, and weave that structure into a coherent website — a quiet, invisible helper doing sensible things.
+
+---
+
+## 🧭 What webette aims to become
+
+webette is early in its journey, but its goals are clear:
+
+### **A static site generator shaped by your folders**
+
+Not an abstract CMS, not an opaque pipeline — visible, intuitive structure.
+
+### **A modular tool you can grow with**
+
+webette will eventually support:
+
+* **plugins** (new block types, processors, enrichers),
+* **transform pipelines** you can enable or disable,
+* **custom behaviors** on any folder or file type.
+
+### **Starters you can trust**
+
+Starters will come in two families:
+
+* **Skeleton starters**: minimal, no CSS, just enough to get you going.
+* **Full starters**: polished templates, layouts, structure, components.
+
+The goal is to make starting a new site feel effortless, whether you want simplicity or something production-ready later.
+
+### **Themes without ceremony**
+
+A handful of handlebars templates can define a site’s entire look.
+webette wants to make theme creation feel like sketching — light, creative, playful.
+
+### **A tool that stays out of the way**
+
+webette doesn’t want to be “clever.”
+It wants to be *predictable*, inspectable, and simple to debug.
+
+It should always feel like you’re in control — because you are.
+
+---
+
+## ⚠️ Current state
+
+webette is under active development.
+It can scan folders, generate routes, resolve content types, and render templates…
+…but **it is not ready for publishing real websites yet**.
+
+Think of it as a working foundation with a lot still to build on top of it.
+
+---
+
+## 🧩 What exists today
+
+* Folder → collection / entry / block detection
+* Slug generation, ordering via numeric prefixes
+* Markdown rendering (with unified / remark / rehype)
+* Optional plain text mode for `.txt`
+* Image support with metadata + variants (sharp if available)
+* Audio support with optional metadata
+* Video copying
+* Template rendering via Handlebars
+* A `serve` mode that watches changes and rebuilds the site
+* A browsable internal model (can be exported)
+
+It’s a foundation — but an intentionally simple and flexible one.
+
+---
+
+## 📦 Installation (current workflow)
+
+webette is not on npm yet.
+To experiment:
+
+```bash
+git clone https://tangled.org/artwo.xyz/webette.git
+cd webette
+bun install
+bun webette build
+```
+
+When webette becomes official, the goal is to ship a precompiled bun binary so you can just download it and run `webette`.
+
+---
+
+## 🚀 Project layout (how webette sees your folders)
+
+webette expects a structure like this:
 
 ```
-posts/
-pages/
-images/
-videos/
+my-site/
+  posts/               ← a collection
+    my-first-post/    ← an entry
+      index.md
+      photo.jpg
+    another-post/
+      index.md
+  pages/               ← another collection
+    about/
+      index.md
+  _templates/           ← your templates
 ```
 
-…and Webette understands what your site should look like.
+Then:
 
-(One day. Not today.)
+```bash
+bun webette build
+bun webette serve
+```
 
----
-
-## 🧪 What Webette can do _right now_
-
-Honestly? Not much.
-
-- CLI (run today with `bun run build <path>` / `bun run serve <path>`; target is global `webette build` / `webette serve`)
-  - Options: `-v/--verbose`, `--export-model-dir [path]`, `--export-model-only`, `--skip-content` (skip block content/asset resolution)
-- Disk scan: collections → entries → blocks with types/extensions, ids/slugs/routes
-- Minimal block resolution: markdown (raw + AST + HTML), text (raw), images/videos (meta size/mime/dimensions), audio (meta size/mime + duration/bitrate/tags + asset copy/route) — controlled by `readContent` or `--skip-content` (when skipped, no file is read and no asset is copied)
-- Export the full model to a split debug folder (`.webette/_model/` at the site root, with `site.json` + `entries/...`) right after scan+resolve
-- Render one `index.html` per entry using a Handlebars wrapper (site templates can override; no global index is generated by default)
-- Basic dev server with live reload + watchers
-- Structured logging with i18n (en/fr) persisted in `.webette/logs.jsonl`
-- Early site config (`webette.config.ts`) and docs starter: [docs/](https://tangled.org/artwo.xyz/webette/tree/main/docs)
-  -- And… that's about it
-
-There is still no multi-page rendering, no site templates, no plugins, and absolutely no reason to use Webette for a real site.
-
-Yet.
+The output appears in `_public/`.
 
 ---
 
-## 🧭 Where the project is heading
+## 📚 About the documentation
 
-Webette wants to grow into a tool that makes websites effortless:
+The [docs](https://tangled.org/artwo.xyz/webette/tree/main/docs) intentionally mix:
 
-### 📁 1. **Your folders = your website**
+* what works today,
+* what is being built,
+* and things webette intends to support.
 
-Your folders _are_ your content structure.
-Place a Markdown file, an image, or a video somewhere → Webette knows what to do with it.
-
-### 🧩 2. **Tiny plugins for everything**
-
-Future plugins might add:
-
-- content blocks (galleries, code blocks, embeds)
-- text enrichments (YouTube, Spotify…)
-- useful stuff (comments, likes, reactions)
-
-All optional.
-Webette stays small unless you ask it to be big.
-
-### 🧠 3. **Zero configuration brain-cell usage**
-
-You shouldn't need to "learn a system".
-You should be able to drop Webette into a folder and have a site instantly.
-
-### ⚡ 4. **Fast iterations**
-
-Because it runs on Bun, build and serve should stay incredibly fast.
+For now, the documentation acts both as reference and roadmap.
+It will be clarified as the tool approaches a first public release.
 
 ---
 
-## 🚧 Current Roadmap (or "Webette’s To-Do List")
+## 🤝 Contributing
 
-### Short-term
-
-- Scan `/posts` and `/pages` automatically
-- Generate basic site structure from folders
-- Add first content blocks
-- Allow custom folder templates (e.g. `videos/`, `gallery/`)
-
-### Mid-term
-
-- Simple template/layout system
-- File-based routing
-- Developer tooling (preview, error pages)
-- Web UI to browse logs and that can run Webette commands (build, serve, etc.) without touching a terminal
-  (yes, Webette wants buttons one day)
-
-### Long-term vision
-
-A static-site tool that feels like:
-
-> “I just organized my files and Webette made a website out of it.
-> And updating it later is just as easy.”
+webette is not officially open to contributions yet — the foundations are still shifting.
+If you want to follow along, share ideas, or discuss features, feel free to contact me on Bluesky.
+Pull requests will open once the API stabilizes.
 
 ---
 
-## 🤔 Should you use Webette now?
+## 🪱 bebette
 
-**No. Really, no.**
-It is not ready and not intended for production or personal use yet.
-
-If you clone it today, it serves more as a **proof of intent** than a functioning tool.
-
-But if you’re curious about the philosophy, architecture, or direction — welcome aboard.
+bebette is the official spider mascot of webette.
+Designed by me, **@artwo.xyz**, she wears a cap, has eight legs, and a strong opinion on folder hierarchies.
 
 ---
 
-## ❤️ Why Webette Exists
+## 📜 License
 
-Because making small websites should be simple.
-
-Because everyone gives up on updating their website the second it asks for more effort than dragging a file into a folder (my last portfolio update was five years ago).
-
-Because file systems are underrated.
-
-Because tools should help you, not drain your soul.
-
-And because it’s fun to build.
+webette is free and open source.
+For now the LICENSE is intentionally simple:
+use it, explore it, be respectful.
+A more formal statement will come later (?).
 
 ---
 
-## Dependencies (what we use and why)
+## 🌱 Final note
 
-- Bun (runtime/CLI) — required to run the tool.
-- TypeScript 5 (peer dep) — types only, no emit.
-- Handlebars (required) — templating engine for per-entry pages.
-- Markdown pipeline (required) — unified + remark/rehype (remark-parse, remark-gfm, remark-rehype, rehype-stringify) to turn Markdown into HTML/AST.
-- image-size (required) — read dimensions for images.
-- sharp (optional) — generate image variants (small/medium/large); if missing, originals are copied.
-- music-metadata (optional) — read audio metadata (duration/bitrate/tags); if missing, only size/mime are recorded.
+webette is still young, but it already has a personality.
+It grows quietly, one thread at a time, toward a tool that feels light, intuitive, and joyful to use.
+
+Thank you for being early. The web is better with curious people in it.
