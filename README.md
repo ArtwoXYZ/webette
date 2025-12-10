@@ -15,7 +15,7 @@ It is still **not ready for real deployment**, but it is already a living, evolv
 
 ---
 
-## ✨ The spirit of webette
+## 🔮 The spirit of webette
 
 webette is built on a simple idea:
 
@@ -33,7 +33,7 @@ webette’s job is to observe, understand, and weave that structure into a coher
 
 ---
 
-## 🧭 What webette aims to become
+## ✨ What webette aims to become
 
 webette is early in its journey, but its goals are clear:
 
@@ -82,7 +82,7 @@ Think of it as a working foundation with a lot still to build on top of it.
 
 ---
 
-## 🧩 What exists today
+## ⚙️ What exists today
 
 * Folder → collection / entry / block detection
 * Slug generation, ordering via numeric prefixes
@@ -115,7 +115,7 @@ When webette becomes official, the goal is to ship a precompiled bun binary so y
 
 ---
 
-## 🚀 Project layout (how webette sees your folders)
+## 🗂️ Project layout (how webette sees your folders)
 
 webette expects a structure like this:
 
@@ -165,7 +165,7 @@ Pull requests will open once the API stabilizes.
 
 ---
 
-## 🪱 bebette
+## 🕷️ bebette
 
 bebette is the official spider mascot of webette.
 Designed by me, **@artwo.xyz**, she wears a cap, has eight legs, and a strong opinion on folder hierarchies.
