@@ -9,9 +9,9 @@
 webette is a filesystem-first static site generator.
 Place your content in folders, give it a few templates, and let it weave your site for you.
 
-webette is especially friendly for personal sites, Neocities-style projects, Nekoweb pages, artists’ portfolios, and all sorts of small, playful experiments — but because it’s hackable, it can also scale into much more ambitious creations.
+webette is especially friendly for personal sites, Neocities-style projects, Nekoweb pages, artists’ portfolios, and all sorts of small, playful experiments. But because it’s hackable, it can also scale into much more ambitious creations.
 
-It is still **not ready for real deployment** — but it is already a living, evolving project with a clear direction. This README explains what webette is today, what it wants to become, and why it exists.
+It is still **not ready for real deployment**, but it is already a living, evolving project with a clear direction. This README explains what webette is today, what it wants to become, and why it exists.
 
 ---
 
@@ -29,7 +29,7 @@ Instead of inventing a new mental model, webette leans on the one you already us
 * Blocks are just files.
 * Structure is something you see, not something you configure.
 
-webette’s job is to observe, understand, and weave that structure into a coherent website — a quiet, invisible helper doing sensible things.
+webette’s job is to observe, understand, and weave that structure into a coherent website. It's a quiet, invisible helper doing sensible things.
 
 ---
 
@@ -39,7 +39,7 @@ webette is early in its journey, but its goals are clear:
 
 ### **A static site generator shaped by your folders**
 
-Not an abstract CMS, not an opaque pipeline — visible, intuitive structure.
+Not an abstract CMS, not an opaque pipeline: visible, intuitive structure.
 
 ### **A modular tool you can grow with**
 
@@ -53,7 +53,7 @@ webette will eventually support:
 
 Starters will come in two families:
 
-* **Skeleton starters**: minimal, no CSS, just enough to get you going.
+* **Skelette starters**: minimal, no CSS, just enough to get you going.
 * **Full starters**: polished templates, layouts, structure, components.
 
 The goal is to make starting a new site feel effortless, whether you want simplicity or something production-ready later.
@@ -61,14 +61,14 @@ The goal is to make starting a new site feel effortless, whether you want simpli
 ### **Themes without ceremony**
 
 A handful of handlebars templates can define a site’s entire look.
-webette wants to make theme creation feel like sketching — light, creative, playful.
+webette wants to make theme creation feel like sketching: light, creative, playful.
 
 ### **A tool that stays out of the way**
 
 webette doesn’t want to be “clever.”
 It wants to be *predictable*, inspectable, and simple to debug.
 
-It should always feel like you’re in control — because you are.
+It should always feel like you’re in control, because you are.
 
 ---
 
@@ -95,7 +95,7 @@ Think of it as a working foundation with a lot still to build on top of it.
 * A `serve` mode that watches changes and rebuilds the site
 * A browsable internal model automatically exported on build
 
-It’s a foundation — but an intentionally simple and flexible one.
+It’s a foundation, but an intentionally simple and flexible one.
 
 ---
 
@@ -159,7 +159,7 @@ It will be clarified as the tool approaches a first public release.
 
 ## 🤝 Contributing
 
-webette is not officially open to contributions yet — the foundations are still shifting.
+webette is not officially open to contributions yet, the foundations are still shifting.
 If you want to follow along, share ideas, or discuss features, feel free to contact me on Bluesky.
 Pull requests will open once the API stabilizes.
 

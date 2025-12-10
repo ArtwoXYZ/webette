@@ -6,4 +6,25 @@
 - ~~Faire des templates par défaut pour les 404 (et d'autres pages d'erreurs ?)~~
 - ~~rendre l'export du modèle obligatoir : ça servira aussi comme une base de donnée interne, notamment pour les dates~~
 - ~~Mettre en place un système de date : quand on build on stock dans le fichier du model les dates de créa (1er build) et update des entries, blocks et collections. On fait les comparaisons grâce à un hash qu'on créer en même temps pour chaque objet ?~~
+- Intégrer les hooks pour *l'API des plugins*
 - Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)
+- Plugin : Ajouter un moyen à l'utilisateur de changer la date de son entrée grâce à un fichier created.webt et un autre fichier updated.webt si le user veux contrôlé ça. Je ne vois cette feature utile que dans les entrées
+
+## API des plugins : 6 hooks simples
+
+Chaque plugin peut implémenter zéro ou plusieurs de ces hooks :
+
+- onInit(ctx)
+Après chargement de l’environnement, avant création du site.
+- onScan(site, ctx)
+Après le scan du projet (collections/entries/blocks), avant résolution des contenus.
+- onResolved(site, ctx)
+Après résolution des blocks (markdown, images, audio, vidéo).
+- transformEntry(entryCtx, ctx)
+Juste avant le rendu d’une entry (pour ajouter metadata, modifier titres, etc.).
+- transformBlock(blockCtx, ctx)
+Permet d’agir sur chaque block d’une entry.
+- extendTemplates(registry, ctx)
+Pour ajouter des helpers Handlebars, des partials, des layouts, etc.
+
+Cette interface est volontairement simple, stable, professionnelle.
