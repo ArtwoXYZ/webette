@@ -2,7 +2,7 @@
 
 [![Bluesky followers](https://img.shields.io/bluesky/followers/artwo.xyz?style=plastic&logo=bluesky&label=bluesky&labelColor=000&color=0e73ff)](https://bsky.app/profile/artwo.xyz)
 
-![Banner](./.tangled/assets/webette_GitBanner.png)
+![Banner](https://camo.tangled.sh/933bf21c3ef87a27e231ba55f6596530cb3c4431584d7e7c172a583ed2fa9cf7/68747470733a2f2f6b6e6f74312e74616e676c65642e73682f787270632f73682e74616e676c65642e7265706f2e626c6f623f706174683d2e74616e676c6564253246617373657473253246576562657474655f47697442616e6e65722e706e67267261773d74727565267265663d6d61696e267265706f3d646964253341706c632533417073747135686e72726a6a32797a3335727a6e697a6d6b6125324677656265747465)
 
 **Static sites from your folders. A tiny framework with big dreams.**
 
