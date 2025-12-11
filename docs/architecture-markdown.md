@@ -102,6 +102,24 @@ interface MarkdownBlockContext {
 
 ---
 
+## Internal links (collection:/entry:/block:)
+
+After the site model is resolved, Webette rewrites custom internal URLs in Markdown to real routes:
+
+- Collection index: `[All posts](collection: posts)`
+- Entry (collection implied): `[My first post](entry: my first post)`
+- Entry with explicit collection: `[My first post](collection: posts, entry: my first post)`
+- Image block in the same entry: `![Nebula](block: The GREAT NEBULA in ORION.jpg)`
+- Image block in another entry: `![Stars](post: my second post, block: Stars Whose Distances Are Best Known.jpg)`
+
+Rules:
+- Prefixes accepted: `collection:`/`coll:`, `entry:`/`post:`, `block:`/`image:`/`file:`.
+- Names match slug, id, name, or raw filename without numeric prefixes; spaces are normalized/decoded.
+- If an image block is referenced inline, its block gets `content.meta.renderedInline = true` so templates can skip duplicate rendering.
+- Unresolved targets emit warning `markdown.internalLink.unresolved`.
+
+---
+
 ## One-sentence summary
 
 **Webette uses remark/unified internally for Markdown, but exposes a clean, unified Webette API and a clearly separated plugin architecture so developers never need to interact with unified unless they explicitly want to.**

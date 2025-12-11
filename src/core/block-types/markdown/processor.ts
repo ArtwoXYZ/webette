@@ -36,9 +36,37 @@ export async function parseMarkdownToAst(
   source: string,
   remarkPlugins: unknown[] = []
 ): Promise<MarkdownAst> {
+  // Normalize internal-link URLs so Markdown parses them as real links:
+  // - remove spaces around separators
+  // - percent-encode spaces inside values (collection/entry/block names)
+  const sanitized = source.replace(
+    /\(\s*(collection|entry|post|block|image|file)\s*:\s*([^)\n]+)\)/gi,
+    (_, kind, rest) => {
+      const encodeValue = (val: string) => val.trim().replace(/\s+/g, "%20");
+      const pieces = rest.split(",").map((s) => s.trim()).filter(Boolean);
+      const normalized: string[] = [];
+
+      if (pieces.length === 0) {
+        return `(${kind.toLowerCase()}:)`;
+      }
+
+      // The first segment belongs to the first key captured in the regex.
+      normalized.push(`${kind.toLowerCase()}:${encodeValue(pieces[0])}`);
+
+      // The remaining segments can declare other keys (entry, block, etc.).
+      for (const piece of pieces.slice(1)) {
+        const [k, ...vParts] = piece.split(":");
+        if (!k || vParts.length === 0) continue;
+        const value = encodeValue(vParts.join(":"));
+        normalized.push(`${k.trim().toLowerCase()}:${value}`);
+      }
+
+      return `(${normalized.join(",")})`;
+    }
+  );
   // Parse Markdown source into mdast and run remark plugins
   const processor = createMarkdownProcessor(remarkPlugins);
-  const tree = processor.parse(source);
+  const tree = processor.parse(sanitized);
   const processed = await processor.run(tree);
   return processed as MarkdownAst;
 }

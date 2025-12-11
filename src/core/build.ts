@@ -24,6 +24,7 @@ import {
   runTransformEntry,
 } from "../plugins/runner";
 import type { PluginContext } from "../plugins/types";
+import { rewriteInternalLinks } from "./postprocess/internal-links";
 
 export interface BuildOptions {
   verbose: boolean;
@@ -308,7 +309,13 @@ export async function build(
   </script>`
     : "";
 
-  const resolvedSiteWithHistory = await applyHistory(resolvedSiteWithPlugins, {
+  const siteWithInternalLinks = await rewriteInternalLinks({
+    site: resolvedSiteWithPlugins,
+    remarkPlugins: toolEnv.markdown.remarkPlugins,
+    logger: scoped,
+  });
+
+  const resolvedSiteWithHistory = await applyHistory(siteWithInternalLinks, {
     previous: previousState,
     rootDir,
     readContent,

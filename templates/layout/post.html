@@ -9,10 +9,12 @@
       {{else if (eq type "text")}}
         <pre>{{content.raw}}</pre>
       {{else if (eq type "image")}}
+        {{#unless content.meta.renderedInline}}
         <figure>
           <img src="{{route}}" alt="{{name}}" />
           <figcaption>{{name}}</figcaption>
         </figure>
+        {{/unless}}
       {{else if (eq type "audio")}}
         <audio controls src="{{route}}"></audio>
       {{else if (eq type "video")}}

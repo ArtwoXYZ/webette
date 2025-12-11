@@ -11,3 +11,15 @@ Dans la galerie oblique, les cadres penchés murmurent des syllabes brisées, **
 ## Reliquaires et Poussières
 
 Plus loin, derrière les reliquaires de verre, les pigments anciens se délient en poussières d’or, **_fragmenta luxis_**, glissant sur les tapis usés. Des anges sans visage oscillent encore dans les niches creusées par le temps, _corpus fictum_, créatures d’un monde qui n’a jamais su finir. Et chaque pas, lent, hésitant, réveille une rumeur d’époques emmêlées, un souffle composite : faux latin, faux souvenir, vraie mélancolie. Pour une analyse incomplète mais touchante, voir **[ce commentaire apocryphe](#)**.
+
+## Test internal links :
+
+Link to post : [Voir les posts](collection: posts)
+
+Link to another entry from another collection : [Mon premier post](collection: custom, entry: my first post)
+
+image in this entry :  
+![Nebula](block: The GREAT NEBULA in ORION.jpg)
+
+image in another entry :  
+![Nebula](post: my second post, block: Stars Whose Distances Are Best Known.jpg)
