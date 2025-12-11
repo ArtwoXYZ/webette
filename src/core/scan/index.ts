@@ -1,4 +1,4 @@
-import { readdir } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import * as path from "node:path";
 import { getEnv } from "../../config/env";
 import { detectBlockType } from "./detect-block-type";
@@ -6,6 +6,7 @@ import { toPosix } from "../../utils/path";
 import { cleanName, limitSlugWords, orderKey, slugify } from "../../utils/naming";
 import { resolveRoutes } from "../routes";
 import type { Block, Collection, Entry, Site } from "../model";
+import type { Logger } from "../../logging/logger";
 
 // Three-pass pipeline:
 // 1) Raw scan: read filesystem shape with minimal data (rawName/path/type/ext).
@@ -17,6 +18,7 @@ type RawBlock = {
   path: string; // POSIX
   type: string;
   ext?: string;
+  skipRender?: boolean;
   subBlocks?: RawBlock[];
 };
 
@@ -48,9 +50,11 @@ function normalizePath(value: string): string {
 async function listBlocksRaw(
   rootDir: string,
   entryRelPath: string,
-  options: { treatTxtAsMarkdown: boolean }
+  options: { treatTxtAsMarkdown: boolean },
+  logger?: Logger
 ): Promise<RawBlock[]> {
   const absoluteEntry = path.join(rootDir, entryRelPath);
+  const ignoreSet = await readIgnoreFile(absoluteEntry);
   const dirEntries = await readdir(absoluteEntry, { withFileTypes: true });
   const blocks: RawBlock[] = [];
 
@@ -61,10 +65,17 @@ async function listBlocksRaw(
     const relPath = toPosix(path.join(entryRelPath, rawName));
     const isDirectory = fsEntry.isDirectory();
     const ext = isDirectory ? undefined : path.extname(rawName) || undefined;
+    if (!isDirectory && ext?.toLowerCase() === ".webt") continue; // skip webette meta files
     const type = detectBlockType(ext, isDirectory, options);
 
+    // Files listed in ignore.webt: keep them in the model but mark for skip-render.
+    const shouldSkipRender = ignoreSet.has(rawName);
+    if (shouldSkipRender) {
+      logger?.info("scan.blockIgnored", { block: rawName, entry: entryRelPath });
+    }
+
     const subBlocks = isDirectory
-      ? await listBlocksRaw(rootDir, relPath, options)
+      ? await listBlocksRaw(rootDir, relPath, options, logger)
       : undefined;
 
     blocks.push({
@@ -72,6 +83,7 @@ async function listBlocksRaw(
       type,
       ext,
       path: relPath,
+      ...(shouldSkipRender ? { skipRender: true } : {}),
       ...(subBlocks && subBlocks.length > 0 ? { subBlocks } : {}),
     });
   }
@@ -89,7 +101,8 @@ async function listBlocksRaw(
 async function listEntriesRaw(
   rootDir: string,
   collectionPath: string,
-  options: { treatTxtAsMarkdown: boolean }
+  options: { treatTxtAsMarkdown: boolean },
+  logger?: Logger
 ): Promise<RawEntry[]> {
   const absolute = path.join(rootDir, collectionPath);
   const dirEntries = await readdir(absolute, { withFileTypes: true });
@@ -102,7 +115,7 @@ async function listEntriesRaw(
     if (!rawName || rawName.startsWith(".") || rawName.startsWith("_")) continue;
 
     const relPath = toPosix(path.join(collectionPath, rawName));
-    const blocks = await listBlocksRaw(rootDir, relPath, options);
+    const blocks = await listBlocksRaw(rootDir, relPath, options, logger);
 
     entries.push({
       rawName,
@@ -197,6 +210,7 @@ function enrichBlocks(rawBlocks: RawBlock[]): Block[] {
         type: blk.type,
         ext: blk.ext,
         path: blk.path,
+        ...(blk.skipRender ? { skipRender: true } : {}),
         ...(subBlocks ? { subBlocks } : {}),
       };
     });
@@ -276,7 +290,21 @@ function enrichCollections(
   });
 }
 
-export async function scanSite(site: Site): Promise<Site> {
+async function readIgnoreFile(dir: string): Promise<Set<string>> {
+  const ignorePath = path.join(dir, "ignore.webt");
+  try {
+    const content = await readFile(ignorePath, "utf8");
+    const lines = content
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line && !line.startsWith("#"));
+    return new Set(lines);
+  } catch {
+    return new Set();
+  }
+}
+
+export async function scanSite(site: Site, logger?: Logger): Promise<Site> {
   const toolEnv = await getEnv();
   const siteMarkdownConfig =
     site?.site && typeof site.site === "object"
@@ -304,7 +332,7 @@ export async function scanSite(site: Site): Promise<Site> {
     rawCollections.map(async (collection) => {
       const entries = await listEntriesRaw(site.rootDir, collection.path, {
         treatTxtAsMarkdown,
-      });
+      }, logger);
       return { ...collection, entries };
     })
   );

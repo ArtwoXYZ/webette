@@ -120,6 +120,12 @@ Rules:
 
 ---
 
+## Ignoring blocks during scan (ignore.webt)
+
+Skip auto-rendering of specific files by adding `ignore.webt` in an entry (or subfolder) with one filename per line (exact filename on disk, with extension). Empty lines and lines starting with `#` are ignored. Listed blocks are still scanned, resolved, exported, and copied, but are marked `skipRender` and removed from the default `blocks` array passed to templates. They remain available in the model (e.g., via `entry.blocks` or internal links). A `scan.blockIgnored` log is emitted when a block is marked.
+
+---
+
 ## One-sentence summary
 
 **Webette uses remark/unified internally for Markdown, but exposes a clean, unified Webette API and a clearly separated plugin architecture so developers never need to interact with unified unless they explicitly want to.**

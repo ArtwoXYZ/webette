@@ -120,7 +120,7 @@ const defaultEnv: WebetteEnv = {
   },
   build: {
     outputDirName: "_public",
-    overwrite: "replace-files",
+    overwrite: "replace-all",
     protectAssets: true,
     writeHtaccess: false,
     writeNginxSample: false,

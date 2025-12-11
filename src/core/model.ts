@@ -8,6 +8,7 @@ export interface Block {
   path: string;        // path relative to the site root
   route?: string;      // route relative to site root (includes ext when present)
   subBlocks?: Block[]; // nested blocks (e.g., subfolder for galleries)
+  skipRender?: boolean; // marked to be excluded from automatic rendering
   createdAt?: string;  // ISO timestamp of first appearance in the model
   updatedAt?: string;  // ISO timestamp of last change in the model
   fingerprint?: string; // stable hash of the block content/structure

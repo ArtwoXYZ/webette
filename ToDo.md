@@ -10,7 +10,10 @@
 - ~~Déplacer le model dans _public et forcer ce chemin car il servira pour certains plugins. Il faudra mettre un index du coup et config apache/ngnix pour pas lister ce dossier~~
 - ~~créer un moyen d'appeler des images ou de faire des liens qui concernent le site même~~
 - ~~Changer le comportement des images : si une image d'une entrée est dans un markdown, alors on ne rend pas 2 fois l'image dans le html.~~
-- ajouter un moyen d'exclure un block du rendu automatique
+- ~~ajouter un moyen d'exclure un block du rendu automatique~~
+- ~~ignorer les .webt du scan et ne pas les copier~~
+- si un fichier est supprimé, même sans le replace-all il doit disparaitre des blocks copiés
+- ajouter un mode brouillon
 - Plugin de flux RSS
 - Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)
 - Plugin : Ajouter un moyen à l'utilisateur de changer la date de son entrée grâce à un fichier created.webt et un autre fichier updated.webt si le user veux contrôlé ça. Je ne vois cette feature utile que dans les entrées

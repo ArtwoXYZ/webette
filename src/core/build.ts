@@ -92,7 +92,8 @@ export async function build(
   const site = await createSite(rootDir);
   scoped.debug("build.siteLoaded", { title: site.site.title });
 
-  const scannedSite = await scanSite(site);
+  const scanLogger = scoped.child("scan");
+  const scannedSite = await scanSite(site, scanLogger);
   const plugins = await loadPlugins({
     rootDir,
     pluginPaths: Array.isArray(site.config?.plugins)
@@ -191,6 +192,27 @@ export async function build(
     });
   }
   // Handle existing output directory according to policy
+  if (overwrite === "replace-all") {
+    try {
+      await rm(outputDir, { recursive: true, force: true });
+      const stillThere = await stat(outputDir).then(() => true).catch(() => false);
+      if (stillThere) {
+        scoped.error("build.cleanOutputDirFailed", {
+          outputDir,
+          error: "Directory still exists after removal attempt",
+        });
+        throw new Error(`Could not remove output directory ${outputDir}`);
+      }
+      scoped.info("build.cleanOutputDir", { outputDir });
+    } catch (err: any) {
+      scoped.error("build.cleanOutputDirFailed", {
+        outputDir,
+        error: String(err),
+      });
+      throw err;
+    }
+  }
+
   let outputDirExists = false;
   try {
     const dirStat = await stat(outputDir);
@@ -606,16 +628,30 @@ export async function build(
   if (resolvedSiteWithHistory.collections) {
     for (const collection of resolvedSiteWithHistory.collections) {
       for (const entry of collection.entries) {
-        const entryRouteRelative = entry.route
-          ? entry.route.replace(/^\/+/, "")
-          : path.join(collection.slug || collection.id, entry.slug || entry.id);
+    const entryRouteRelative = entry.route
+      ? entry.route.replace(/^\/+/, "")
+      : path.join(collection.slug || collection.id, entry.slug || entry.id);
 
-        const context = {
-          ...renderBaseContext,
-          collection,
-          entry,
-          blocks: entry.blocks,
-        };
+    // Filter out blocks marked skipRender (e.g., listed in ignore.webt) for the automatic rendering path.
+    const filterRenderableBlocks = (blocks: Block[]): Block[] =>
+      blocks
+        .filter((b) => !b.skipRender)
+        .map((b) => ({
+          ...b,
+          ...(b.subBlocks ? { subBlocks: filterRenderableBlocks(b.subBlocks) } : {}),
+        }));
+
+    const entryForRender: Entry = {
+      ...entry,
+      blocks: filterRenderableBlocks(entry.blocks),
+    };
+
+    const context = {
+      ...renderBaseContext,
+      collection,
+      entry: entryForRender,
+      blocks: entryForRender.blocks,
+    };
 
         const html = templateRenderer.render(context);
         const entryOutputDir = path.join(outputDir, entryRouteRelative);
