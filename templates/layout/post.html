@@ -19,6 +19,9 @@
         <video controls src="{{route}}"></video>
       {{/if}}
     {{/each}}
+    {{#if (pluginNote entry)}}
+      <p>Plugin: <em>{{pluginNote entry}}</em></p>
+    {{/if}}
   </article>
 </main>
 

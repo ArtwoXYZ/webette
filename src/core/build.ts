@@ -6,7 +6,7 @@ import { createSite } from "./config";
 import { scanSite } from "./scan";
 import { resolveBlocks } from "./resolve";
 import { createTemplateRenderer } from "./template";
-import type { Block } from "./model";
+import type { Block, Entry } from "./model";
 import type { Logger } from "../logging/logger";
 import { applyHistory, loadPreviousState } from "./export/history";
 import { unified, type Plugin } from "unified";
@@ -14,6 +14,16 @@ import rehypeParse from "rehype-parse";
 import rehypeFormat from "rehype-format";
 import rehypeStringify from "rehype-stringify";
 import type { Root } from "hast";
+import { loadPlugins } from "../plugins/loader";
+import {
+  runExtendTemplates,
+  runOnInit,
+  runOnResolved,
+  runOnScan,
+  runTransformBlocks,
+  runTransformEntry,
+} from "../plugins/runner";
+import type { PluginContext } from "../plugins/types";
 
 export interface BuildOptions {
   verbose: boolean;
@@ -82,11 +92,58 @@ export async function build(
   scoped.debug("build.siteLoaded", { title: site.site.title });
 
   const scannedSite = await scanSite(site);
+  const plugins = await loadPlugins({
+    rootDir,
+    pluginPaths: Array.isArray(site.config?.plugins)
+      ? (site.config?.plugins as string[])
+      : [],
+  });
+  scoped.debug("build.pluginsLoaded", { count: plugins.length, ids: plugins.map((p) => p.pluginId) });
   const readContent =
     typeof options.readContent === "boolean"
       ? options.readContent
       : toolEnv.build.readContent;
-  const collectionsList = scannedSite.collections ?? [];
+
+  const outputDir = path.join(rootDir, toolEnv.build.outputDirName);
+  const overwrite = toolEnv.build.overwrite;
+
+  const exportModel = {
+    enabled: true,
+    dir: path.join(outputDir, "_model"),
+    only: options.exportModel?.only ?? toolEnv.build.exportModel.only,
+  };
+  const exportDir = exportModel.dir;
+
+  // Pull the previous exported model to carry over timestamps when hashes match
+  const previousState = await loadPreviousState(exportDir).catch(() => ({
+    collections: {},
+    entries: {},
+    blocks: {},
+  }));
+
+  const pluginContextBase: PluginContext = {
+    rootDir,
+    env: toolEnv,
+    logger: scoped,
+    readContent,
+    exportDir,
+    pluginId: "",
+  };
+  await runOnInit(
+    plugins.map((p, idx) => ({ ...p, pluginId: p.pluginId ?? `plugin_${idx + 1}` })),
+    pluginContextBase
+  );
+
+  let scannedSiteWithPlugins = scannedSite;
+  if (plugins.length) {
+    scannedSiteWithPlugins = await runOnScan(
+      plugins,
+      scannedSite,
+      pluginContextBase
+    );
+  }
+
+  const collectionsList = scannedSiteWithPlugins.collections ?? [];
   const entriesCount = collectionsList.reduce(
     (acc, collection) => acc + collection.entries.length,
     0
@@ -132,22 +189,6 @@ export async function build(
       blocks: blocksCount,
     });
   }
-  const outputDir = path.join(rootDir, toolEnv.build.outputDirName);
-  const overwrite = toolEnv.build.overwrite;
-
-  const exportModel = {
-    enabled: true,
-    dir: path.join(outputDir, "_model"),
-    only: options.exportModel?.only ?? toolEnv.build.exportModel.only,
-  };
-
-  // Pull the previous exported model to carry over timestamps when hashes match
-  const previousState = await loadPreviousState(exportModel.dir).catch(() => ({
-    collections: {},
-    entries: {},
-    blocks: {},
-  }));
-
   // Handle existing output directory according to policy
   let outputDirExists = false;
   try {
@@ -199,13 +240,48 @@ export async function build(
     scoped.debug("build.outputDirExists", { outputDir });
   }
 
-  const resolvedSite = await resolveBlocks(scannedSite, {
+  const resolvedSite = await resolveBlocks(scannedSiteWithPlugins, {
     rootDir,
     readContent,
     logger: scoped.child("resolve"),
     remarkPlugins: toolEnv.markdown.remarkPlugins,
     toolEnv,
   });
+
+  let resolvedSiteWithPlugins = resolvedSite;
+  if (plugins.length) {
+    // Run post-resolution site hooks
+    resolvedSiteWithPlugins = await runOnResolved(
+      plugins,
+      resolvedSite,
+      pluginContextBase
+    );
+    // Transform blocks then entries so hooks can mutate before timestamps
+    if (resolvedSiteWithPlugins.collections) {
+      const updatedCollections = [] as typeof resolvedSiteWithPlugins.collections;
+      for (const collection of resolvedSiteWithPlugins.collections) {
+        const updatedEntries = [] as typeof collection.entries;
+        for (const entry of collection.entries) {
+          const updatedBlocks = await runTransformBlocks(
+            plugins,
+            collection,
+            entry,
+            pluginContextBase
+          );
+          const entryWithBlocks: Entry = { ...entry, blocks: updatedBlocks };
+          const updatedEntry = await runTransformEntry(
+            plugins,
+            collection,
+            entryWithBlocks,
+            pluginContextBase
+          );
+          updatedEntries.push(updatedEntry);
+        }
+        updatedCollections.push({ ...collection, entries: updatedEntries });
+      }
+      resolvedSiteWithPlugins = { ...resolvedSiteWithPlugins, collections: updatedCollections };
+    }
+  }
 
   const liveReloadScript = options.liveReload
     ? `
@@ -232,13 +308,11 @@ export async function build(
   </script>`
     : "";
 
-  const resolvedSiteWithHistory = await applyHistory(resolvedSite, {
+  const resolvedSiteWithHistory = await applyHistory(resolvedSiteWithPlugins, {
     previous: previousState,
     rootDir,
     readContent,
   });
-
-  const exportDir = exportModel.dir;
 
   scoped.debug("build.exportModel.start", { path: exportDir });
 
@@ -360,6 +434,8 @@ export async function build(
     defaultLayoutName: toolEnv.templates.defaultLayout,
     templatesRoot: toolEnv.templates.root,
     logger: scoped.child("templates"),
+    plugins,
+    pluginContext: pluginContextBase,
   });
 
   const renderBaseContext = {

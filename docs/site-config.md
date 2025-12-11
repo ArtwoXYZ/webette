@@ -17,6 +17,9 @@ export default {
     lang: "en",
     // any other site-level fields (author, theme, etc.)
   },
+  plugins: [
+    // Optional: paths (relative to site root) to .js/.mjs plugins, e.g. "_plugins/my-plugin.js"
+  ],
   // optional markdown overrides (applies to .txt handling and shared remark plugins)
   // markdown: { treatTxtAsMarkdown: false },
   // optional media overrides

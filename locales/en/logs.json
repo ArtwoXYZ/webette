@@ -23,6 +23,7 @@
   "build.exportModel.success": "Model exported to {path}.",
   "build.exportModel.error": "Failed to export model to {path}: {error}",
   "build.exportOnly.success": "Export-only build completed (model: {path}).",
+  "build.pluginsLoaded": "Loaded {count} plugins: {ids}",
   "resolve.image.dimensionsFailed": "Could not read dimensions for {path}: {error}",
   "resolve.image.sharpMissing": "Image engine (sharp) not available: {error}",
   "resolve.image.defaultReencodeSkipped": "Default variant left untouched for {path} (sharp missing).",

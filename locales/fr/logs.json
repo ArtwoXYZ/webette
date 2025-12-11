@@ -23,6 +23,7 @@
   "build.exportModel.success": "Modèle exporté vers {path}.",
   "build.exportModel.error": "Échec de l'export du modèle vers {path} : {error}",
   "build.exportOnly.success": "Export seul terminé (modèle : {path}).",
+  "build.pluginsLoaded": "{count} plugin(s) chargé(s) : {ids}",
   "resolve.image.dimensionsFailed": "Impossible de lire les dimensions pour {path} : {error}",
   "resolve.image.sharpMissing": "Moteur d'images (sharp) indisponible : {error}",
   "resolve.image.defaultReencodeSkipped": "Variante default laissée intacte pour {path} (sharp absent).",

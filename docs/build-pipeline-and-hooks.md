@@ -259,94 +259,28 @@ Logs (in both console and JSONL format) reflect what happened during the build.
 
 ---
 
-# Plugin Hooks
+# Plugin Hooks (current)
 
-Here are the conceptual hooks available to plugins. Names may evolve but the stages are stable.
+Plugins are plain ESM modules (`.js`/`.mjs`) listed in `webette.config.ts` under `plugins: []` (paths relative to the site root, e.g. `"_plugins/my-plugin.js"`). Supported hooks:
 
-## Configuration
+- `onInit(ctx)` — after env/site load, before scan.
+- `onScan(site, ctx)` — after scan/routes, before content resolution. Return a new `site` or mutate in-place.
+- `onResolved(site, ctx)` — after content resolution, before timestamps/export. Return a new `site` or mutate in-place.
+- `transformBlock(block, ctx)` — per-block mutation (depth-first). Return a new block or mutate.
+- `transformEntry(entry, ctx)` — per-entry mutation after blocks. Return a new entry or mutate.
+- `extendTemplates(handlebars, ctx)` — register helpers/partials/layouts before templates are compiled.
 
-### `onLoadSiteConfig(siteConfig, env)`
+Context (`ctx`) includes: `rootDir`, tool `env`, `logger`, `readContent`, `exportDir`, and `pluginId`. For `transformBlock` you also get `entry` and `collection`; for `transformEntry` you get `collection`.
 
-Triggered after site config and environment are resolved.
+Order of execution:
+1) `onInit`
+2) `onScan`
+3) resolve blocks
+4) `onResolved`
+5) `transformBlock` (with recursion on subBlocks)
+6) `transformEntry`
+7) `extendTemplates` (during template setup)
 
-Use cases:
-
-- validate config
-- inject defaults
-- extend the site schema
-
----
-
-## Collections & entries
-
-### `onCollectionsDiscovered(collections, ctx)`
-
-Adjust collections after scanning folders.
-
-### `onEntriesDiscovered(entries, ctx)`
-
-Modify or augment entries before block loading.
-
----
-
-## Blocks & content
-
-### `registerBlocks()`
-
-Declare support for new block types or file formats.
-
-### `onBlocksLoaded(entry, blocks, ctx)`
-
-Called once all blocks for an entry are parsed.
-
-### `transformContent(entryContent, ctx)`
-
-Operate on:
-
-- **AST** (Markdown blocks)
-- block-derived data
-- entry-level computed values
-
-Future versions may add a more precise hook like `transformAst(ast, ctx)` for AST-specific operations.
-
----
-
-## Routes & templates
-
-### `onRoutesResolved(routes, ctx)`
-
-Modify or augment final routes.
-
-### `onRenderEntry(entry, html, ctx)`
-
-Per-entry HTML adjustments.
-
-### `onRenderHTML(html, ctx)`
-
-Global HTML post-processing.
-
----
-
-## Build completion
-
-### `onBuildComplete(result, ctx)`
-
-Final stage for generating extra files or exporting data.
-
----
-
-# Plugin categories (from the glossary)
-
-- **Block plugins** -> `registerBlocks()`, `onBlocksLoaded()`
-- **Enrichment plugins** -> `transformContent()` (AST-focused)
-- **Functional plugins** -> `onRoutesResolved()`, `onRenderHTML()`, `onBuildComplete()`
-
-Plugins may implement any mix of these.
-
----
-
-# Notes
-
-- AST is central to Webette's content pipeline.
-- Collections, entries, blocks, templates, and routes follow the definitions in the glossary.
-- Site configuration and tool configuration remain strictly separated by design.
+Notes:
+- Plugins run locally with full access; no sandboxing.
+- Changes made in transform hooks affect timestamps/fingerprints in the exported model.

@@ -98,7 +98,8 @@ export default {
   },
 
   plugins: [
-    // Optional plugin references
+    // Optional plugin references (JS/ESM), relative to the site root
+    // Example: "_plugins/my-plugin.js"
   ],
 };
 ```

@@ -18,8 +18,7 @@ export default {
   },
 
   plugins: [
-    // Optional plugin references
-    // root: "_plugins",
+    "_plugins/test-hooks.js",
   ],
 
   markdown: {

@@ -104,7 +104,23 @@ export async function serve(
 
   const shouldIgnore = (name: string) => {
     const parts = name.split(/[\\/]/).filter(Boolean);
-    return parts.some((part) => ignoreNames.has(part));
+    if (parts.some((part) => ignoreNames.has(part))) return true;
+
+    // Also ignore anything inside the absolute output or logging directories
+    const fullPath = path.join(rootDir, name);
+    const normalized = path.normalize(fullPath);
+    const outputNormalized = path.normalize(outputDir);
+    const loggingNormalized = path.normalize(path.join(rootDir, toolEnv.logging.dirName));
+    const exportNormalized = path.normalize(path.join(outputDir, "_model"));
+
+    return (
+      normalized.startsWith(outputNormalized + path.sep) ||
+      normalized === outputNormalized ||
+      normalized.startsWith(exportNormalized + path.sep) ||
+      normalized === exportNormalized ||
+      normalized.startsWith(loggingNormalized + path.sep) ||
+      normalized === loggingNormalized
+    );
   };
 
   let rebuildTimer: ReturnType<typeof setTimeout> | null = null;
@@ -138,15 +154,29 @@ export async function serve(
     watchPaths.add(templatesRoot);
   }
 
+  const lastMtime = new Map<string, number>();
+
   // 3. File watchers (site root + fallback templates)
   for (const watchPath of watchPaths) {
     watch(
       watchPath,
       { recursive: true },
-      (eventType, filename) => {
+      async (eventType, filename) => {
         const name = filename?.toString() ?? "";
 
         if (!name || shouldIgnore(name)) return;
+
+        const fullPath = path.join(watchPath, name);
+        try {
+          const s = await stat(fullPath);
+          const prev = lastMtime.get(fullPath);
+          lastMtime.set(fullPath, s.mtimeMs);
+          if (prev != null && prev === s.mtimeMs) {
+            return; // ignore pure atime changes
+          }
+        } catch {
+          // ignore stat errors (deleted files etc.)
+        }
 
         watchLogger.debug("serve.watchEvent", {
           eventType,

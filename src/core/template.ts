@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 import Handlebars from "handlebars";
 import { registerDefaultHelpers } from "./templates/helpers";
 import type { Logger } from "../logging/logger";
+import { runExtendTemplates } from "../plugins/runner";
+import type { LoadedPlugin, PluginContext } from "../plugins/types";
 
 type TemplateResolution = {
   templatePath: string; // resolved wrapper path
@@ -85,6 +87,8 @@ export async function createTemplateRenderer(options: {
   defaultLayoutName: string;
   templatesRoot: string; // from tool config
   logger?: Logger;
+  plugins?: LoadedPlugin[];
+  pluginContext?: PluginContext;
 }): Promise<TemplateResolution> {
   const layoutPartialName = path.parse(options.defaultLayoutName).name || options.defaultLayoutName;
   registerDefaultHelpers({ defaultLayoutName: layoutPartialName });
@@ -107,6 +111,10 @@ export async function createTemplateRenderer(options: {
   await registerPartials(toolTemplatesRoot, options.logger);
   await registerLayouts(siteTemplatesRoot, options.logger);
   await registerPartials(siteTemplatesRoot, options.logger);
+
+  if (options.plugins && options.plugins.length && options.pluginContext) {
+    await runExtendTemplates(options.plugins, options.pluginContext);
+  }
 
   // Resolve default wrapper (site > tool)
   const wrapperCandidates = [
