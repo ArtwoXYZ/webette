@@ -160,7 +160,7 @@ export async function rewriteInternalLinks(options: {
         site.collections.map(async (collection) => {
           const entries = await Promise.all(
             collection.entries.map(async (entry) => {
-              const inlineImageIds = new Set<string>();
+              const inlineBlockIds = new Set<string>();
               const blocks = await Promise.all(
                 entry.blocks.map(async (blk) => {
                   if (blk.type !== "markdown" || !blk.content?.ast) return blk;
@@ -193,9 +193,7 @@ export async function rewriteInternalLinks(options: {
                           const blockTarget = ent ? matchBlock(ent, parsed.blockName) : undefined;
                           if (blockTarget?.route) {
                             targetRoute = blockTarget.route;
-                            if (node.type === "image" && blockTarget.type === "image") {
-                              inlineImageIds.add(blockTarget.id);
-                            }
+                            inlineBlockIds.add(blockTarget.id);
                           }
                         }
 
@@ -232,10 +230,9 @@ export async function rewriteInternalLinks(options: {
                 })
               );
 
-              // Mark image blocks used inline
+              // Mark blocks referenced inline so templates can skip duplicate rendering
               const updatedBlocks = blocks.map((blk) => {
-                if (blk.type !== "image") return blk;
-                if (!inlineImageIds.has(blk.id)) return blk;
+                if (!inlineBlockIds.has(blk.id)) return blk;
                 const meta = {
                   ...(blk.content?.meta ?? {}),
                   renderedInline: true,
