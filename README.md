@@ -15,7 +15,7 @@ But because it’s hackable, it can also scale into much more ambitious creation
 It is still **not ready for real deployment**, but it is already a living, evolving project with a clear direction.
 This README explains what webette is today, what it wants to become, and why it exists.
 
----
+ 
 
 ## 🎯 Who is webette for?
 
@@ -29,9 +29,9 @@ webette is aimed at people who want a simple, transparent way to build and maint
 
 If you can manage files and folders, you can manage a webette site.
 
-And above all, webette exists to encourage more people to have their own personal space on the web — something simple and truly theirs.
+And above all, webette exists to encourage more people to have their own personal space on the web, something simple and truly theirs.
 
----
+ 
 
 ## 🔮 The spirit of webette
 
@@ -50,7 +50,7 @@ Instead of inventing a new mental model, webette leans on the one you already us
 webette’s job is to observe, understand, and weave that structure into a coherent website.
 It's a quiet, invisible helper doing sensible things.
 
----
+ 
 
 ## ✨ What webette aims to become
 
@@ -85,7 +85,7 @@ webette wants theme creation to feel like sketching: light, creative, playful.
 webette doesn’t want to be “clever.”
 It wants to be predictable, inspectable, and simple to debug.
 
----
+ 
 
 ## ⚠️ Current state
 
@@ -95,7 +95,7 @@ but **it is not ready for publishing real websites yet**.
 
 Think of it as a working foundation with a lot still to build on top of it.
 
----
+ 
 
 ## ⚙️ What exists today
 
@@ -108,9 +108,9 @@ Think of it as a working foundation with a lot still to build on top of it.
 * Video copying
 * Template rendering via Handlebars
 * A `serve` mode with rebuild + live watch
-* A browsable internal model exported on build
+* A browsable internal model exported on build to `_public/_model` (site/collections/entries/blocks carry `createdAt`/`updatedAt` plus a fingerprint)
 
----
+ 
 
 ## 📦 Installation (current workflow)
 
@@ -126,7 +126,7 @@ bun webette build
 
 Later, webette will ship as a standalone bun binary.
 
----
+ 
 
 ## 🗂️ Project layout (how webette sees your folders)
 
@@ -153,7 +153,7 @@ bun webette serve
 
 Output appears in `_public/`.
 
----
+ 
 
 ## 📚 About the documentation
 
@@ -165,29 +165,29 @@ The [docs](https://tangled.org/artwo.xyz/webette/tree/main/docs) intentionally m
 
 They currently act as both reference and roadmap.
 
----
+ 
 
 ## 🤝 Contributing
 
-webette is not officially open to contributions yet — the foundations are still shifting.
+webette is not officially open to contributions yet, the foundations are still shifting.
 You can follow development and discuss ideas on Bluesky.
 PRs will open once the API stabilizes.
 
----
+ 
 
 ## 🕷️ bebette
 
 bebette is the official spider mascot of webette.
 Designed by me, **@artwo.xyz**, she wears a cap, has eight legs, and a strong opinion on folder hierarchies.
 
----
+ 
 
 ## 📜 License
 
 webette is free and open source.
 The LICENSE is intentionally simple for now. A more formal version will come later.
 
----
+ 
 
 ## 🤔 Why choose webette instead of another static site generator?
 
@@ -209,7 +209,7 @@ Once the initial setup is done, maintaining the site becomes nearly frictionless
 ### **Friendly to non-developers and creative users**
 
 webette doesn’t assume knowledge of pipelines, templating engines, or complex configs.
-It’s suitable for personal sites, portfolios, small archives, Neocities/Nekoweb projects — places where the filesystem is already the most intuitive UI.
+It’s suitable for personal sites, portfolios, small archives, Neocities/Nekoweb projects: places where the filesystem is already the most intuitive UI.
 
 ### **A focused tool for a specific niche**
 
@@ -221,7 +221,7 @@ It exists for people who want a transparent, filesystem-driven way to create and
 If you like making small tools, experimenting with templates, or building plugins, webette gives you a simple API to explore.
 It’s a lightweight playground for people who enjoy customizing their tools without fighting them.
 
----
+ 
 
 ## 🌱 Final note
 

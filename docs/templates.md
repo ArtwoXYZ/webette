@@ -43,7 +43,7 @@ Sites can override wrapper and layouts by dropping their files under `<site>/<te
 
 The model export is always written after scan/resolution:
 
-- CLI: `--export-model-dir [path]` changes the destination for this run; `--export-model-only` skips HTML generation but still writes the export.
-- Default path: `.webette/_model` at the site root.
+- Path: `<outputDir>/_model` (e.g., `_public/_model`); `--export-model-dir` is ignored.
+- `--export-model-only` skips HTML generation but still writes the export.
 
 Files: `site.json` plus one file per entry under `entries/<collection>/<entry>.json`, each carrying `createdAt`, `updatedAt`, and `fingerprint` for site/collections/entries/blocks. Use this to audit the data passed to templates or to track changes across builds.

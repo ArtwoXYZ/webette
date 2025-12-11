@@ -16,7 +16,7 @@ This file configures the tool (not the site). It is a TS module (`export default
 - `outputDirName`: output folder name (default `_public`).
 - `overwrite`: `"none" | "replace-all" | "replace-files"` (overwrite policy).
 - `readContent`: `true|false` (skip content resolution).
-- `exportModel`: object with `dir` (dump folder) and `only` (`bool` to export model only). The export always runs; `only` just skips HTML generation.
+- `exportModel`: object with `only` (`bool` to export model only). The export always runs and is written to `<outputDir>/_model`; `only` just skips HTML generation.
 
 ## templates
 - `root`: templates folder (relative to the project).

@@ -127,7 +127,7 @@ const defaultEnv: WebetteEnv = {
     generateIndex: true,
     exportModel: {
       enabled: false,
-      dir: ".webette/_model",
+      dir: "_model",
       only: false,
     },
     readContent: true,

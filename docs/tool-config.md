@@ -23,7 +23,7 @@ export default {
     protectAssets: true,
     writeHtaccess: false,
     writeNginxSample: false,
-    exportModel: { dir: ".webette/_model", only: false },
+    exportModel: { only: false },
   },
   markdown: { remarkPlugins: [], treatTxtAsMarkdown: true },
   templates: {
@@ -64,8 +64,7 @@ export default {
 - `build.protectAssets`: write a forbidden `index.html` in asset folders (default `true`)
 - `build.writeHtaccess`: write a root `.htaccess` with `ErrorDocument 404 /404.html` and `Options -Indexes` (Apache only, default `false`)
 - `build.writeNginxSample`: write a sample `nginx.conf` in the build output (default `false`)
-- `build.exportModel.dir`: folder for the split export (default `.webette/_model`, under the site root if relative). The export always runs.
-- `build.exportModel.only`: if `true`, skip HTML generation (export only)
+- `build.exportModel.only`: if `true`, skip HTML generation (export only). Export path is fixed to `<outputDir>/_model`.
 - `markdown.remarkPlugins`: list of remark plugins applied during Markdown parsing/rendering (e.g. `["remark-gfm", ["remark-footnotes", { inlineNotes: true }]]`)
 - `markdown.treatTxtAsMarkdown`: when `true`, `.txt` files use the Markdown pipeline; set to `false` to keep plain text blocks
 - `templates.root`: base folder for internal/fallback templates (resolved from `process.cwd()` unless absolute)
