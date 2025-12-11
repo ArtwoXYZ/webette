@@ -12,8 +12,8 @@
 - ~~Changer le comportement des images : si une image d'une entrée est dans un markdown, alors on ne rend pas 2 fois l'image dans le html.~~
 - ~~ajouter un moyen d'exclure un block du rendu automatique~~
 - ~~ignorer les .webt du scan et ne pas les copier~~
-- si un fichier est supprimé, même sans le replace-all il doit disparaitre des blocks copiés
-- ajouter un mode brouillon
+- ~~si un fichier est supprimé, même sans le replace-all il doit disparaitre des blocks copiés~~
+- ajouter un mode brouillon : ajoute un parametre isDraft sur les entrée. Si serve : rendu (ajouté dans le template une info "brouillon"), si Build ignoré complétement, même pas dans le model ou quoi.
 - Plugin de flux RSS
 - Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)
 - Plugin : Ajouter un moyen à l'utilisateur de changer la date de son entrée grâce à un fichier created.webt et un autre fichier updated.webt si le user veux contrôlé ça. Je ne vois cette feature utile que dans les entrées
