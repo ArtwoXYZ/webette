@@ -2,16 +2,34 @@
 
 [![Bluesky followers](https://img.shields.io/bluesky/followers/artwo.xyz?style=plastic&logo=bluesky&label=bluesky&labelColor=000&color=0e73ff)](https://bsky.app/profile/artwo.xyz)
 
-![Banner](./.tangled/assets/Webette_GitBanner.png)
+![Banner](./.tangled/assets/webette_GitBanner.png)
 
 **Static sites from your folders. A tiny framework with big dreams.**
 
 webette is a filesystem-first static site generator.
 Place your content in folders, give it a few templates, and let it weave your site for you.
 
-webette is especially friendly for personal sites, Neocities-style projects, Nekoweb pages, artists’ portfolios, and all sorts of small, playful experiments. But because it’s hackable, it can also scale into much more ambitious creations.
+webette is designed to feel intuitive and lightweight, especially for small personal and creative websites.
+But because it’s hackable, it can also scale into much more ambitious creations.
 
-It is still **not ready for real deployment**, but it is already a living, evolving project with a clear direction. This README explains what webette is today, what it wants to become, and why it exists.
+It is still **not ready for real deployment**, but it is already a living, evolving project with a clear direction.
+This README explains what webette is today, what it wants to become, and why it exists.
+
+---
+
+## 🎯 Who is webette for?
+
+webette is aimed at people who want a simple, transparent way to build and maintain a website without learning a complex toolchain. It is especially suitable for:
+
+* people making personal sites,
+* artists building lightweight portfolios,
+* non-developers who prefer folders over frameworks,
+* Neocities and Nekoweb-style projects,
+* small archives and creative experiments.
+
+If you can manage files and folders, you can manage a webette site.
+
+And above all, webette exists to encourage more people to have their own personal space on the web — something simple and truly theirs.
 
 ---
 
@@ -29,7 +47,8 @@ Instead of inventing a new mental model, webette leans on the one you already us
 * Blocks are just files.
 * Structure is something you see, not something you configure.
 
-webette’s job is to observe, understand, and weave that structure into a coherent website. It's a quiet, invisible helper doing sensible things.
+webette’s job is to observe, understand, and weave that structure into a coherent website.
+It's a quiet, invisible helper doing sensible things.
 
 ---
 
@@ -45,30 +64,26 @@ Not an abstract CMS, not an opaque pipeline: visible, intuitive structure.
 
 webette will eventually support:
 
-* **plugins** (new block types, processors, enrichers),
-* **transform pipelines** you can enable or disable,
-* **custom behaviors** on any folder or file type.
+* plugins (new block types, processors, enrichers),
+* transform pipelines you can enable or disable,
+* custom behaviors on any folder or file type.
 
 ### **Starters you can trust**
 
-Starters will come in two families:
+Two families of starters:
 
-* **Skelette starters**: minimal, no CSS, just enough to get you going.
+* **Skelette starters**: minimal, no CSS, just enough to get going.
 * **Full starters**: polished templates, layouts, structure, components.
-
-The goal is to make starting a new site feel effortless, whether you want simplicity or something production-ready later.
 
 ### **Themes without ceremony**
 
-A handful of handlebars templates can define a site’s entire look.
-webette wants to make theme creation feel like sketching: light, creative, playful.
+A handful of Handlebars templates can define an entire site.
+webette wants theme creation to feel like sketching: light, creative, playful.
 
 ### **A tool that stays out of the way**
 
 webette doesn’t want to be “clever.”
-It wants to be *predictable*, inspectable, and simple to debug.
-
-It should always feel like you’re in control, because you are.
+It wants to be predictable, inspectable, and simple to debug.
 
 ---
 
@@ -76,7 +91,7 @@ It should always feel like you’re in control, because you are.
 
 webette is under active development.
 It can scan folders, generate routes, resolve content types, and render templates…
-…but **it is not ready for publishing real websites yet**.
+but **it is not ready for publishing real websites yet**.
 
 Think of it as a working foundation with a lot still to build on top of it.
 
@@ -86,16 +101,14 @@ Think of it as a working foundation with a lot still to build on top of it.
 
 * Folder → collection / entry / block detection
 * Slug generation, ordering via numeric prefixes
-* Markdown rendering (with unified / remark / rehype)
+* Markdown rendering (unified / remark / rehype)
 * Optional plain text mode for `.txt`
-* Image support with metadata + variants (sharp if available)
-* Audio support with optional metadata
+* Image support + metadata + variants (sharp if available)
+* Audio support with metadata
 * Video copying
 * Template rendering via Handlebars
-* A `serve` mode that watches changes and rebuilds the site
-* A browsable internal model automatically exported on build
-
-It’s a foundation, but an intentionally simple and flexible one.
+* A `serve` mode with rebuild + live watch
+* A browsable internal model exported on build
 
 ---
 
@@ -111,26 +124,24 @@ bun install
 bun webette build
 ```
 
-When webette becomes official, the goal is to ship a precompiled bun binary so you can just download it and run `webette`.
+Later, webette will ship as a standalone bun binary.
 
 ---
 
 ## 🗂️ Project layout (how webette sees your folders)
 
-webette expects a structure like this:
-
 ```
 my-site/
-  posts/               ← a collection
-    my-first-post/    ← an entry
-      index.md
-      photo.jpg
-    another-post/
-      index.md
-  pages/               ← another collection
+  posts/                 ← a collection
+    01 my first post/    ← an entry
+      01 index.md
+      02 photo.jpg
+    02 another post/
+      1 index.md
+  pages/                 ← another collection
     about/
       index.md
-  _templates/           ← your templates
+  _templates/            ← your templates
 ```
 
 Then:
@@ -140,7 +151,7 @@ bun webette build
 bun webette serve
 ```
 
-The output appears in `_public/`.
+Output appears in `_public/`.
 
 ---
 
@@ -150,18 +161,17 @@ The [docs](https://tangled.org/artwo.xyz/webette/tree/main/docs) intentionally m
 
 * what works today,
 * what is being built,
-* and things webette intends to support.
+* what webette intends to support later.
 
-For now, the documentation acts both as reference and roadmap.
-It will be clarified as the tool approaches a first public release.
+They currently act as both reference and roadmap.
 
 ---
 
 ## 🤝 Contributing
 
-webette is not officially open to contributions yet, the foundations are still shifting.
-If you want to follow along, share ideas, or discuss features, feel free to contact me on Bluesky.
-Pull requests will open once the API stabilizes.
+webette is not officially open to contributions yet — the foundations are still shifting.
+You can follow development and discuss ideas on Bluesky.
+PRs will open once the API stabilizes.
 
 ---
 
@@ -175,9 +185,41 @@ Designed by me, **@artwo.xyz**, she wears a cap, has eight legs, and a strong op
 ## 📜 License
 
 webette is free and open source.
-For now the LICENSE is intentionally simple:
-use it, explore it, be respectful.
-A more formal statement will come later (?).
+The LICENSE is intentionally simple for now. A more formal version will come later.
+
+---
+
+## 🤔 Why choose webette instead of another static site generator?
+
+webette isn’t here to reinvent the wheel, and its author knows the existing SSG landscape well.
+Tools like Hugo, Eleventy, or Astro are powerful and battle-tested.
+webette simply aims at a different goal.
+
+### **A filesystem-first approach you don’t have to learn**
+
+Most SSGs build an internal model (routes, taxonomies, collections).
+webette doesn’t. The directory tree *is* the structure.
+If you can use folders, you can use webette.
+
+### **Designed for people who want maintenance to be effortless**
+
+Updating a webette site is deliberately simple: drop a file, edit a folder.
+Once the initial setup is done, maintaining the site becomes nearly frictionless.
+
+### **Friendly to non-developers and creative users**
+
+webette doesn’t assume knowledge of pipelines, templating engines, or complex configs.
+It’s suitable for personal sites, portfolios, small archives, Neocities/Nekoweb projects — places where the filesystem is already the most intuitive UI.
+
+### **A focused tool for a specific niche**
+
+webette isn’t trying to replace larger SSGs.
+It exists for people who want a transparent, filesystem-driven way to create and maintain a simple personal space on the web.
+
+### **Fun for tinkerers and wannabe hackers**
+
+If you like making small tools, experimenting with templates, or building plugins, webette gives you a simple API to explore.
+It’s a lightweight playground for people who enjoy customizing their tools without fighting them.
 
 ---
 
