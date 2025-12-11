@@ -57,7 +57,9 @@ export default {
 - `serve.liveReloadIntervalMs`: polling interval for live reload
 - `serve.watcherDebounceMs`: debounce for file watcher rebuilds
 - `build.outputDirName`: output folder name (default `_public`)
-- `build.overwrite`: `none` | `replace-all` | `replace-files`
+- `build.overwrite`: `none` | `replace-all` | `replace-files`  
+  - `replace-all`: purge the output dir before build.  
+  - other modes keep the folder but prune orphaned outputs (pages/assets/model) that no longer exist in the current model, so deleted blocks/entries/collections disappear even sans clean. If plugins write custom files outside the model, they should register or manage those files to avoid deletion.
 - `build.readContent`: whether to read/resolve block contents during build/serve (default `true`; set to `false` to only scan structure)
 - `build.prettyPrint`: pretty-format generated HTML via rehype (default `true`)
 - `build.generateIndex`: generate root/collection index pages (default `true`)

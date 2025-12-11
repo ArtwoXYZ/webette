@@ -15,6 +15,8 @@ This file configures the tool (not the site). It is a TS module (`export default
 ## build
 - `outputDirName`: output folder name (default `_public`).
 - `overwrite`: `"none" | "replace-all" | "replace-files"` (overwrite policy).
+  - `replace-all`: purge the output dir before each build.
+  - Otherwise, Webette prunes orphaned outputs (pages/assets/model) that no longer exist in the current model, so deleted blocks/entries/collections disappear without a full clean; plugins should register custom outputs to avoid unintended deletion.
 - `readContent`: `true|false` (skip content resolution).
 - `exportModel`: object with `only` (`bool` to export model only). The export always runs and is written to `<outputDir>/_model`; `only` just skips HTML generation.
 

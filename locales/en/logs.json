@@ -18,6 +18,8 @@
   "build.outputNotDirectory": "Output path exists and is not a directory: {outputDir}",
   "build.cleanOutputDir": "Removed existing output directory {outputDir} (overwrite=replace-all).",
   "build.cleanOutputDirFailed": "Failed to clean output directory {outputDir}: {error}",
+  "build.outputPruned": "Removed orphaned output file: {path}",
+  "build.outputPruneStarted": "Pruning orphaned output files (overwrite != replace-all)…",
   "scan.summary": "Scanned {collections} collections, {entries} entries, {blocks} blocks.",
   "scan.collectionEmpty": "Collection {collection} has no entries (path: {path}).",
   "scan.entryEmpty": "Entry {entry} in collection {collection} has no blocks (path: {path}).",

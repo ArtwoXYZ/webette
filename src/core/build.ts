@@ -6,7 +6,7 @@ import { createSite } from "./config";
 import { scanSite } from "./scan";
 import { resolveBlocks } from "./resolve";
 import { createTemplateRenderer } from "./template";
-import type { Block, Entry } from "./model";
+import type { Block, Entry, Collection } from "./model";
 import type { Logger } from "../logging/logger";
 import { applyHistory, loadPreviousState } from "./export/history";
 import { unified, type Plugin } from "unified";
@@ -622,6 +622,104 @@ export async function build(
     await writeFile(nginxPath, serverBlock, "utf8");
     scoped.debug("build.fileGenerated", { path: nginxPath });
   };
+
+  // Prune orphaned outputs when not wiping everything (overwrite !== replace-all)
+  const pruneOrphans = async () => {
+    if (overwrite === "replace-all") return;
+
+    scoped.info("build.outputPruneStarted");
+
+    const expectedOutputs = new Set<string>();
+    const addOutput = (relPath: string | undefined) => {
+      if (!relPath) return;
+      const normalized = relPath.replace(/^[/\\]+/, "");
+      if (normalized) expectedOutputs.add(path.normalize(normalized));
+    };
+
+    // Export model files
+    const exportRel = path.relative(outputDir, exportDir);
+    addOutput(path.join(exportRel, "site.json"));
+    for (const collection of resolvedSiteWithHistory.collections ?? []) {
+      const colDir = path.join(exportRel, "entries", collection.slug || collection.id);
+      for (const entry of collection.entries) {
+        addOutput(path.join(colDir, `${entry.slug || entry.id}.json`));
+      }
+    }
+
+    // Entry pages
+    const addEntryPage = (entry: Entry, collection: Collection) => {
+      const routeRelative = entry.route
+        ? entry.route.replace(/^\/+/, "")
+        : path.join(collection.slug || collection.id, entry.slug || entry.id);
+      addOutput(path.join(routeRelative, "index.html"));
+    };
+
+    // Collection indexes + root + 404
+    if (generateIndex) {
+      addOutput("index.html");
+      for (const collection of resolvedSiteWithHistory.collections ?? []) {
+        const routeRelative = collection.route
+          ? collection.route.replace(/^\/+/, "").replace(/\/+$/, "")
+          : collection.slug || collection.id;
+        const collectionIndex = routeRelative ? path.join(routeRelative, "index.html") : "index.html";
+        addOutput(collectionIndex);
+      }
+    }
+    addOutput("404.html");
+    if (writeHtaccess) addOutput(".htaccess");
+    if (shouldWriteNginxSample) addOutput("nginx.conf");
+
+    // Assets from blocks (routes + variants)
+    const collectBlocks = (blocks: Block[]) => {
+      for (const blk of blocks) {
+        if (blk.route) addOutput(blk.route);
+        if (blk.content?.variants) {
+          for (const variant of blk.content.variants) {
+            if (variant.route) addOutput(variant.route);
+          }
+        }
+        if (blk.subBlocks) collectBlocks(blk.subBlocks);
+      }
+    };
+
+    for (const collection of resolvedSiteWithHistory.collections ?? []) {
+      for (const entry of collection.entries) {
+        collectBlocks(entry.blocks);
+        addEntryPage(entry, collection);
+      }
+    }
+
+    const listFilesRecursive = async (dir: string): Promise<string[]> => {
+      const results: string[] = [];
+      const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+      for (const item of entries) {
+        const rel = path.join(path.relative(outputDir, dir), item.name);
+        if (item.isDirectory()) {
+          results.push(...(await listFilesRecursive(path.join(dir, item.name))));
+        } else {
+          results.push(path.normalize(rel));
+        }
+      }
+      return results;
+    };
+
+    const existingFiles = await listFilesRecursive(outputDir);
+    const toDelete = existingFiles.filter(
+      (file) => !expectedOutputs.has(file.replace(/^[/\\]+/, ""))
+    );
+
+    for (const rel of toDelete) {
+      const abs = path.join(outputDir, rel);
+      try {
+        await rm(abs, { force: true });
+        scoped.info("build.outputPruned", { path: abs });
+      } catch {
+        // ignore failures silently
+      }
+    }
+  };
+
+  await pruneOrphans();
 
   let renderedPages = 0;
 
