@@ -366,6 +366,8 @@ function resolveConfigPath(toolRoot?: string): string | null {
 
 export const env: WebetteEnv = defaultEnv;
 
+let warnedConfigLoadError = false;
+
 export async function getEnv(toolRoot?: string): Promise<WebetteEnv> {
   const configPath = resolveConfigPath(toolRoot);
 
@@ -381,8 +383,13 @@ export async function getEnv(toolRoot?: string): Promise<WebetteEnv> {
       const mod = await import(dataUrl);
       const parsed = mod?.default ?? mod;
       overrides = parsed && typeof parsed === "object" ? (parsed as WebetteEnvOverrides) : {};
-    } catch {
-      // ignore and fall back to defaults
+    } catch (err) {
+      if (!warnedConfigLoadError) {
+        warnedConfigLoadError = true;
+        const message = `webette: failed to load tool config at ${configPath}: ${String(err)}`;
+        // eslint-disable-next-line no-console
+        console.warn(message);
+      }
     }
   }
 
