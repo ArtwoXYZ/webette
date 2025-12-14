@@ -6,6 +6,7 @@ import { getEnv } from "../config/env";
 import { build } from "./build";
 import type { BuildOptions } from "./build";
 import type { Logger } from "../logging/logger";
+import { resolveTemplatesRoots } from "./template";
 
 export interface ServeOptions extends BuildOptions {}
 
@@ -23,13 +24,12 @@ export async function serve(
   const port = toolEnv.serve.port;
   let buildVersion = Date.now().toString();
   const outputDir = path.join(rootDir, toolEnv.build.outputDirName);
-  const templatesRootCandidate = path.isAbsolute(toolEnv.templates.root)
-    ? toolEnv.templates.root
-    : path.join(rootDir, toolEnv.templates.root);
-  const toolTemplatesRoot = path.isAbsolute(toolEnv.templates.root)
-    ? toolEnv.templates.root
-    : path.join(process.cwd(), toolEnv.templates.root);
-  const templatesRoot = await stat(templatesRootCandidate).then(() => templatesRootCandidate).catch(() => toolTemplatesRoot);
+  const { effectiveRoot: templatesRoot } =
+    await resolveTemplatesRoots({
+      rootDir,
+      templatesRoot: toolEnv.templates.root,
+      logger: scoped,
+    });
   const notFoundPath = path.join(outputDir, "404.html");
 
   // 1. Initial build with liveReload = true, in quiet mode

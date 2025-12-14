@@ -13,6 +13,15 @@ type TemplateResolution = {
   render: (context: Record<string, unknown>) => string;
 };
 
+export type TemplatesRoots = {
+  siteTemplatesRoot: string;
+  toolTemplatesRoot: string;
+  effectiveRoot: string; // chosen root (site if present, else tool)
+  source: "site" | "tool";
+  hasSiteTemplates: boolean;
+  toolRoot: string;
+};
+
 async function pathExists(filePath: string): Promise<boolean> {
   try {
     await stat(filePath);
@@ -34,6 +43,39 @@ async function resolveTemplatePath(
   const tried = candidates.map((c) => path.normalize(c)).join(", ");
   logger?.error("template.notFound", { paths: tried });
   throw new Error(`No template found. Looked for: ${tried}`);
+}
+
+export async function resolveTemplatesRoots(options: {
+  rootDir: string;
+  templatesRoot: string; // value from config (can be relative)
+  logger?: Logger;
+}): Promise<TemplatesRoots> {
+  const toolRoot = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "..",
+    ".."
+  );
+
+  const siteTemplatesRoot = path.isAbsolute(options.templatesRoot)
+    ? options.templatesRoot
+    : path.join(options.rootDir, options.templatesRoot);
+
+  const toolTemplatesRoot = path.isAbsolute(options.templatesRoot)
+    ? options.templatesRoot
+    : path.join(toolRoot, options.templatesRoot);
+
+  const hasSiteTemplates = await pathExists(siteTemplatesRoot);
+  const source: TemplatesRoots["source"] = hasSiteTemplates ? "site" : "tool";
+  const effectiveRoot = hasSiteTemplates ? siteTemplatesRoot : toolTemplatesRoot;
+
+  return {
+    siteTemplatesRoot,
+    toolTemplatesRoot,
+    effectiveRoot,
+    source,
+    hasSiteTemplates,
+    toolRoot,
+  };
 }
 
 async function registerPartials(templatesRoot: string, logger?: Logger) {
@@ -93,18 +135,15 @@ export async function createTemplateRenderer(options: {
   const layoutPartialName = path.parse(options.defaultLayoutName).name || options.defaultLayoutName;
   registerDefaultHelpers({ defaultLayoutName: layoutPartialName });
 
-  const toolRoot = path.join(
-    path.dirname(fileURLToPath(import.meta.url)),
-    "..",
-    ".."
-  );
-  const siteTemplatesRoot = path.isAbsolute(options.templatesRoot)
-    ? options.templatesRoot
-    : path.join(options.rootDir, options.templatesRoot);
-
-  const toolTemplatesRoot = path.isAbsolute(options.templatesRoot)
-    ? options.templatesRoot
-    : path.join(toolRoot, options.templatesRoot);
+  const {
+    siteTemplatesRoot,
+    toolTemplatesRoot,
+    toolRoot,
+  } = await resolveTemplatesRoots({
+    rootDir: options.rootDir,
+    templatesRoot: options.templatesRoot,
+    logger: options.logger,
+  });
 
   // Register shared partials and layouts: tool first, then site overrides.
   await registerLayouts(toolTemplatesRoot, options.logger);
