@@ -6,14 +6,14 @@
 - ~~Faire des templates par défaut pour les 404 (et d'autres pages d'erreurs ?)~~
 - ~~rendre l'export du modèle obligatoir : ça servira aussi comme une base de donnée interne, notamment pour les dates~~
 - ~~Mettre en place un système de date : quand on build on stock dans le fichier du model les dates de créa (1er build) et update des entries, blocks et collections. On fait les comparaisons grâce à un hash qu'on créer en même temps pour chaque objet ?~~
-- ~~Intégrer les hooks pour *l'API des plugins* ~~
-- ~~Déplacer le model dans _public et forcer ce chemin car il servira pour certains plugins. Il faudra mettre un index du coup et config apache/ngnix pour pas lister ce dossier~~
+- ~~Intégrer les hooks pour _l'API des plugins_ ~~
+- ~~Déplacer le model dans \_public et forcer ce chemin car il servira pour certains plugins. Il faudra mettre un index du coup et config apache/ngnix pour pas lister ce dossier~~
 - ~~créer un moyen d'appeler des images ou de faire des liens qui concernent le site même~~
 - ~~Changer le comportement des images : si une image d'une entrée est dans un markdown, alors on ne rend pas 2 fois l'image dans le html.~~
 - ~~ajouter un moyen d'exclure un block du rendu automatique~~
 - ~~ignorer les .webt du scan et ne pas les copier~~
 - ~~si un fichier est supprimé, même sans le replace-all il doit disparaitre des blocks copiés~~
-- ajouter un mode brouillon : ajoute un parametre isDraft sur les entrée. Si serve : rendu (ajouté dans le template une info "brouillon"), si Build ignoré complétement, même pas dans le model ou quoi.
+- ~~ajouter un mode brouillon : ajoute un parametre isDraft sur les entrée. Si serve : rendu (ajouté dans le template une info "brouillon"), si Build ignoré complétement, même pas dans le model ou quoi.~~
 - Sitemap generator
 - Vérifier sir le Code block highlighter fonctionne dans le markdown
 - Plugin de flux RSS

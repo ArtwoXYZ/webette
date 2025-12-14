@@ -24,6 +24,7 @@ Every render gets the full model plus handy aliases:
 - `collection`: the current entry’s collection (when rendering an entry)
 - `entry`: the current entry
 - `blocks`: `entry.blocks`
+- `entry.isDraft`: `true` when the entry folder contains `draft.webt` (visible in `serve` by default; stripped from `build` output)
 - `liveReloadScript`: raw script injected during `serve` (use `{{{liveReloadScript}}}`)
 - `buildTime`: build timestamp (use with helpers like `formatDate` / `fromNow`)
 
@@ -32,7 +33,7 @@ Routes in the model are root-relative (e.g. `/assets/images/...`), so they work 
 ## Default wrapper + layout
 
 - The fallback wrapper (`templates/wrapper/wrapper.html`) envelopes the page and delegates the body to a layout via `renderLayout`.
-- The fallback layout (`templates/layout/post.html`) renders an entry (title, markdown/text/image/audio/video blocks).
+- The fallback layout (`templates/layout/post.html`) renders an entry (title, markdown/text/image/audio/video blocks) and shows a simple draft badge when `entry.isDraft` is `true`.
 - The fallback index layout (`templates/layout/index.html`) renders the root or collection listings (simple links + counters).
 - The fallback access-forbidden layout (`templates/layout/access-forbidden.html`) renders minimal "Access forbidden" pages in asset folders.
 - The fallback not-found layout (`templates/layout/not-found.html`) renders the static `404.html` page.

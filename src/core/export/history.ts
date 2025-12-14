@@ -267,6 +267,7 @@ async function computeEntryHistory(
     slug: entry.slug,
     route: entry.route,
     path: entry.path,
+    isDraft: entry.isDraft,
     blocks: blocks.map((b) => b.fingerprint),
   });
 

@@ -3,6 +3,9 @@
 <main>
   <article>
     <h2>{{entry.name}}</h2>
+    {{#if entry.isDraft}}
+      <p class="draft-badge">Brouillon (non publié)</p>
+    {{/if}}
     {{#each entry.blocks}}
       {{#if (eq type "markdown")}}
         {{{safe content.html}}}

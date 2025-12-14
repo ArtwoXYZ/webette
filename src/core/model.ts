@@ -23,6 +23,7 @@ export interface Entry {
   path: string;        // path relative to the site root
   route?: string;      // route relative to site root (trailing slash)
   blocks: Block[];     // files/blocks contained in the entry
+  isDraft?: boolean;   // flagged when draft.webt is present in the entry folder
   createdAt?: string;  // ISO timestamp of first appearance in the model
   updatedAt?: string;  // ISO timestamp of last change in the model
   fingerprint?: string; // stable hash of the entry content/structure

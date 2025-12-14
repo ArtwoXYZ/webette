@@ -76,6 +76,9 @@ Raw scan keeps minimal data:
 - block `type`/`ext` hints (markdown, text, image, audio, video, folder; everything else becomes `unclassified` so plugins can opt in)
 - `.txt` files are treated as Markdown by default; set `markdown.treatTxtAsMarkdown = false` in the tool config or the site config to keep them as plain text blocks
 - deterministic ordering (numeric prefix, then alpha)
+- Special control files:
+  - `ignore.webt` inside an entry folder marks listed files/folders as `skipRender` (still present in the model).
+  - `draft.webt` inside an entry folder marks the entry as a **draft**. Drafts are shown in `serve` (unless `--no-include-drafts` or `build.includeDrafts=false`), but are **removed** from the model/output during `build` (HTML, assets, export).
 
 IDs, slugs, and routes are **not** set during the raw scan.
 

@@ -38,5 +38,8 @@
   "template.notFound": "Aucun template trouvé. Chemins testés : {paths}",
   "template.resolved": "Template choisi : {templatePath} (racine : {templatesRoot}, source : {source})",
   "template.layoutsLoadFailed": "Chargement des layouts impossible depuis {layoutsDir} : {error}",
-  "build.prettyPrintFailed": "Échec du pretty-print HTML pour {path} : {error}"
+  "build.prettyPrintFailed": "Échec du pretty-print HTML pour {path} : {error}",
+  "build.drafts.included": "Brouillons conservés (serveur) : {count}",
+  "build.drafts.excluded": "Brouillons exclus du modèle : {count}",
+  "build.draft.entrySkipped": "Entrée brouillon ignorée : {collection}/{entry} (chemin : {path})"
 }

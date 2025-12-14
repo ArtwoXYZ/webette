@@ -56,6 +56,7 @@ export interface WebetteEnv {
     };
     readContent: boolean;
     prettyPrint: boolean;
+    includeDrafts: boolean;
   };
   templates: {
     root: string;
@@ -88,6 +89,7 @@ type WebetteEnvOverrides = Partial<{
       | "readContent"
       | "prettyPrint"
       | "generateIndex"
+      | "includeDrafts"
       | "protectAssets"
       | "writeHtaccess"
       | "writeNginxSample"
@@ -132,6 +134,7 @@ const defaultEnv: WebetteEnv = {
     },
     readContent: true,
     prettyPrint: true,
+    includeDrafts: true,
   },
   templates: {
     root: "templates",
@@ -231,6 +234,9 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
       : {}),
     ...(typeof overrides.build?.prettyPrint === "boolean"
       ? { prettyPrint: overrides.build.prettyPrint }
+      : {}),
+    ...(typeof overrides.build?.includeDrafts === "boolean"
+      ? { includeDrafts: overrides.build.includeDrafts }
       : {}),
     ...(typeof overrides.build?.generateIndex === "boolean"
       ? { generateIndex: overrides.build.generateIndex }

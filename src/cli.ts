@@ -12,6 +12,7 @@ type CliOptions = {
     only?: boolean;
   };
   readContent?: boolean;
+  includeDrafts?: boolean; // serve-only flag to show/hide draft entries
 };
 
 function parseArgs(argv: string[]) {
@@ -21,6 +22,7 @@ function parseArgs(argv: string[]) {
   let verbose = false;
   const exportModel: CliOptions["exportModel"] = {};
   let readContent: boolean | undefined = undefined;
+  let includeDrafts: boolean | undefined = undefined;
 
   const filtered: string[] = [];
 
@@ -60,6 +62,16 @@ function parseArgs(argv: string[]) {
       continue;
     }
 
+    if (arg === "--include-drafts") {
+      includeDrafts = true;
+      continue;
+    }
+
+    if (arg === "--no-include-drafts") {
+      includeDrafts = false;
+      continue;
+    }
+
     filtered.push(arg);
   }
 
@@ -72,6 +84,7 @@ function parseArgs(argv: string[]) {
     verbose,
     exportModel: Object.keys(exportModel).length ? exportModel : undefined,
     readContent,
+    includeDrafts,
   };
 
   return { command, sitePath, options };
@@ -93,6 +106,8 @@ async function main() {
     console.log("  --export-model-dir [path] Export the in-memory model to a folder (split files)");
     console.log("  --export-model-only       Export the model and skip HTML generation");
     console.log("  --skip-content            Do not read/resolve block contents");
+    console.log("  --include-drafts          Serve draft entries (default in serve)");
+    console.log("  --no-include-drafts       Hide draft entries even in serve");
     return;
   }
 
@@ -123,6 +138,8 @@ async function main() {
         console.log("  --export-model-dir [path] Export the in-memory model to a folder (split files)");
         console.log("  --export-model-only       Export the model and skip HTML generation");
         console.log("  --skip-content            Do not read/resolve block contents");
+        console.log("  --include-drafts          Serve draft entries (default in serve)");
+        console.log("  --no-include-drafts       Hide draft entries even in serve");
         break;
     }
   } catch (error) {

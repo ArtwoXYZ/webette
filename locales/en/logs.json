@@ -38,5 +38,8 @@
   "template.notFound": "No template found. Looked for: {paths}",
   "template.resolved": "Using template at {templatePath} (root: {templatesRoot}, source: {source})",
   "template.layoutsLoadFailed": "Failed to load layouts from {layoutsDir}: {error}",
-  "build.prettyPrintFailed": "HTML pretty-print failed for {path}: {error}"
+  "build.prettyPrintFailed": "HTML pretty-print failed for {path}: {error}",
+  "build.drafts.included": "Draft entries kept (serve): {count}",
+  "build.drafts.excluded": "Draft entries removed from model: {count}",
+  "build.draft.entrySkipped": "Draft entry skipped: {collection}/{entry} (path: {path})"
 }

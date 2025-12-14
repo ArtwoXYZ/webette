@@ -1,4 +1,4 @@
-import { readdir, readFile } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 import * as path from "node:path";
 import { getEnv } from "../../config/env";
 import { detectBlockType } from "./detect-block-type";
@@ -26,6 +26,7 @@ type RawEntry = {
   rawName: string;
   path: string; // POSIX
   blocks: RawBlock[];
+  isDraft?: boolean;
 };
 
 type RawCollection = {
@@ -116,11 +117,14 @@ async function listEntriesRaw(
 
     const relPath = toPosix(path.join(collectionPath, rawName));
     const blocks = await listBlocksRaw(rootDir, relPath, options, logger);
+    const absoluteEntry = path.join(rootDir, relPath);
+    const isDraft = await isDraftEntry(absoluteEntry);
 
     entries.push({
       rawName,
       path: relPath,
       blocks,
+      ...(isDraft ? { isDraft: true } : {}),
     });
   }
 
@@ -242,6 +246,7 @@ function enrichEntries(rawEntries: RawEntry[]): Entry[] {
       slug,
       path: raw.path,
       blocks,
+      ...(raw.isDraft ? { isDraft: true } : {}),
     };
   });
 }
@@ -301,6 +306,16 @@ async function readIgnoreFile(dir: string): Promise<Set<string>> {
     return new Set(lines);
   } catch {
     return new Set();
+  }
+}
+
+async function isDraftEntry(dir: string): Promise<boolean> {
+  const draftPath = path.join(dir, "draft.webt");
+  try {
+    const fileStat = await stat(draftPath);
+    return fileStat.isFile();
+  } catch {
+    return false;
   }
 }
 

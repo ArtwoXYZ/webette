@@ -6,7 +6,7 @@ import { createSite } from "./config";
 import { scanSite } from "./scan";
 import { resolveBlocks } from "./resolve";
 import { createTemplateRenderer } from "./template";
-import type { Block, Entry, Collection } from "./model";
+import type { Block, Entry, Collection, Site } from "./model";
 import type { Logger } from "../logging/logger";
 import { applyHistory, loadPreviousState } from "./export/history";
 import { unified, type Plugin } from "unified";
@@ -30,6 +30,7 @@ export interface BuildOptions {
   verbose: boolean;
   liveReload?: boolean; // enabled only in "serve" mode
   quiet?: boolean;      // new: fewer logs when true
+  includeDrafts?: boolean; // keep draft entries (serve); ignored in build
   exportModel?: {
     enabled?: boolean;
     dir?: string;
@@ -50,6 +51,59 @@ function countBlocks(blocks: Block[] = []): number {
   );
 }
 
+function filterDraftEntries(site: Site, includeDrafts: boolean): Site {
+  if (includeDrafts) return site;
+  const collections = site.collections
+    ? site.collections.map((collection) => {
+        const entries = collection.entries.filter((entry) => !entry.isDraft);
+        return { ...collection, entries };
+      })
+    : undefined;
+
+  return { ...site, ...(collections ? { collections } : {}) };
+}
+
+function countDraftEntries(site: Site): number {
+  return (site.collections ?? []).reduce(
+    (acc, collection) =>
+      acc + collection.entries.filter((entry) => entry.isDraft).length,
+    0
+  );
+}
+
+function listDraftEntries(site: Site): { collection: string; entry: string; path: string }[] {
+  const drafts: { collection: string; entry: string; path: string }[] = [];
+  for (const collection of site.collections ?? []) {
+    for (const entry of collection.entries) {
+      if (!entry.isDraft) continue;
+      drafts.push({
+        collection: collection.slug || collection.id,
+        entry: entry.slug || entry.id,
+        path: entry.path,
+      });
+    }
+  }
+  return drafts;
+}
+
+// Recursively remove empty directories under `root`, excluding `root` itself.
+async function removeEmptyDirectories(dir: string, root: string): Promise<void> {
+  const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const child = path.join(dir, entry.name);
+    await removeEmptyDirectories(child, root);
+  }
+  const after = await readdir(dir).catch(() => []);
+  if (dir !== root && after.length === 0) {
+    try {
+      await rm(dir, { force: true, recursive: true });
+    } catch {
+      // ignore
+    }
+  }
+}
+
 export async function build(
   rootDir: string,
   options: BuildOptions,
@@ -65,6 +119,10 @@ export async function build(
     typeof options.prettyPrint === "boolean"
       ? options.prettyPrint
       : toolEnv.build.prettyPrint;
+  // Serve shows drafts by default; build always strips them.
+  const includeDrafts = options.liveReload
+    ? options.includeDrafts ?? toolEnv.build.includeDrafts
+    : false;
   const generateIndex =
     typeof options.generateIndex === "boolean"
       ? options.generateIndex
@@ -93,7 +151,19 @@ export async function build(
   scoped.debug("build.siteLoaded", { title: site.site.title });
 
   const scanLogger = scoped.child("scan");
-  const scannedSite = await scanSite(site, scanLogger);
+  const scannedSiteRaw = await scanSite(site, scanLogger);
+  const draftCount = countDraftEntries(scannedSiteRaw);
+  if (draftCount > 0) {
+    const logKey = includeDrafts ? "build.drafts.included" : "build.drafts.excluded";
+    const logFn = includeDrafts ? scoped.info.bind(scoped) : scoped.warn.bind(scoped);
+    logFn(logKey, { count: draftCount });
+    if (!includeDrafts) {
+      for (const draft of listDraftEntries(scannedSiteRaw)) {
+        scoped.warn("build.draft.entrySkipped", draft);
+      }
+    }
+  }
+  const scannedSite = filterDraftEntries(scannedSiteRaw, includeDrafts);
   const plugins = await loadPlugins({
     rootDir,
     pluginPaths: Array.isArray(site.config?.plugins)
@@ -364,6 +434,7 @@ export async function build(
       "ext",
       "slug",
       "route",
+      "isDraft",
       "createdAt",
       "updatedAt",
       "fingerprint",
@@ -509,13 +580,10 @@ export async function build(
     }
   };
 
-  const protectAssetDirs = async () => {
+  const protectAssetDirs = async (siteModel: typeof resolvedSiteWithHistory) => {
     if (!protectAssets) return;
 
-    const exportSegment = path
-      .relative(outputDir, exportDir)
-      .replace(/^[/\\]+/, "");
-
+    const exportSegment = path.relative(outputDir, exportDir).replace(/^[/\\]+/, "");
     const assetSegments = [
       toolEnv.images.outputDir,
       toolEnv.audio.outputDir,
@@ -528,24 +596,11 @@ export async function build(
     const dirsToCover = new Set<string>();
     const addDir = (dirPath: string) => dirsToCover.add(path.normalize(dirPath));
 
-    const walkDirs = async (base: string): Promise<string[]> => {
-      const dirs: string[] = [];
-      const entries = await readdir(base, { withFileTypes: true }).catch(() => []);
-      for (const entry of entries) {
-        if (!entry.isDirectory()) continue;
-        const child = path.join(base, entry.name);
-        dirs.push(child);
-        dirs.push(...(await walkDirs(child)));
-      }
-      return dirs;
-    };
-
+    // Always cover base asset dirs and their ancestors
     for (const seg of assetSegments) {
       const baseDir = path.join(outputDir, seg);
       await mkdir(baseDir, { recursive: true });
       addDir(baseDir);
-
-      // add ancestors between outputDir and baseDir (e.g., assets/)
       const normalizedOutput = path.normalize(outputDir);
       let parent = path.dirname(baseDir);
       while (parent && path.normalize(parent) !== normalizedOutput) {
@@ -554,9 +609,39 @@ export async function build(
         if (nextParent === parent) break;
         parent = nextParent;
       }
+    }
 
-      for (const dirPath of await walkDirs(baseDir)) {
-        addDir(dirPath);
+    // Add directories implied by generated asset routes
+    const collectDirForRoute = (route?: string) => {
+      if (!route) return;
+      const rel = route.replace(/^[/\\]+/, "");
+      if (!rel) return;
+      const abs = path.join(outputDir, rel);
+      let dir = path.dirname(abs);
+      const normalizedOutput = path.normalize(outputDir);
+      while (dir && path.normalize(dir).startsWith(normalizedOutput)) {
+        addDir(dir);
+        const next = path.dirname(dir);
+        if (next === dir || path.normalize(next) === normalizedOutput) break;
+        dir = next;
+      }
+    };
+
+    for (const collection of siteModel.collections ?? []) {
+      for (const entry of collection.entries) {
+        if (entry.isDraft) continue;
+        const visitBlocks = (blocks: Block[]) => {
+          for (const blk of blocks) {
+            collectDirForRoute(blk.route);
+            if (blk.content?.variants) {
+              for (const variant of blk.content.variants) {
+                collectDirForRoute(variant.route);
+              }
+            }
+            if (blk.subBlocks) visitBlocks(blk.subBlocks);
+          }
+        };
+        visitBlocks(entry.blocks);
       }
     }
 
@@ -642,6 +727,7 @@ export async function build(
     for (const collection of resolvedSiteWithHistory.collections ?? []) {
       const colDir = path.join(exportRel, "entries", collection.slug || collection.id);
       for (const entry of collection.entries) {
+        if (entry.isDraft) continue;
         addOutput(path.join(colDir, `${entry.slug || entry.id}.json`));
       }
     }
@@ -684,6 +770,7 @@ export async function build(
 
     for (const collection of resolvedSiteWithHistory.collections ?? []) {
       for (const entry of collection.entries) {
+        if (entry.isDraft) continue;
         collectBlocks(entry.blocks);
         addEntryPage(entry, collection);
       }
@@ -717,6 +804,8 @@ export async function build(
         // ignore failures silently
       }
     }
+
+    await removeEmptyDirectories(outputDir, outputDir);
   };
 
   await pruneOrphans();
@@ -825,7 +914,8 @@ export async function build(
 
   await writeRootHtaccessFile();
   await writeNginxSampleFile();
-  await protectAssetDirs();
+  await protectAssetDirs(resolvedSiteWithHistory);
+  await removeEmptyDirectories(outputDir, outputDir);
 
   if (options.quiet) {
     scoped.debug("build.success", { path: outputDir, pages: renderedPages });
