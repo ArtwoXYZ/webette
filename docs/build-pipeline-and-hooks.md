@@ -267,12 +267,13 @@ Logs (in both console and JSONL format) reflect what happened during the build.
 
 Plugins are plain ESM modules (`.js`/`.mjs`) listed in `webette.config.ts` under `plugins: []` (paths relative to the site root, e.g. `"_plugins/my-plugin.js"`). Supported hooks:
 
-- `onInit(ctx)` — after env/site load, before scan.
-- `onScan(site, ctx)` — after scan/routes, before content resolution. Return a new `site` or mutate in-place.
-- `onResolved(site, ctx)` — after content resolution, before timestamps/export. Return a new `site` or mutate in-place.
-- `transformBlock(block, ctx)` — per-block mutation (depth-first). Return a new block or mutate.
-- `transformEntry(entry, ctx)` — per-entry mutation after blocks. Return a new entry or mutate.
-- `extendTemplates(handlebars, ctx)` — register helpers/partials/layouts before templates are compiled.
+- `onInit(ctx)` – after env/site load, before scan.
+- `onScan(site, ctx)` – after scan/routes, before content resolution. Return a new `site` or mutate in-place.
+- `onResolved(site, ctx)` – after content resolution, before timestamps/export. Return a new `site` or mutate in-place.
+- `transformBlock(block, ctx)` – per-block mutation (depth-first). Return a new block or mutate.
+- `transformEntry(entry, ctx)` – per-entry mutation after blocks. Return a new entry or mutate.
+- `extendTemplates(handlebars, ctx)` – register helpers/partials/layouts before templates are compiled.
+- `ctx.addExpectedOutput(relativePath)` — register extra files/assets you generate outside the model (paths relative to the build output dir) so the prune step (`overwrite=replace-files`) does not delete them.
 
 Context (`ctx`) includes: `rootDir`, tool `env`, `logger`, `readContent`, `exportDir`, and `pluginId`. For `transformBlock` you also get `entry` and `collection`; for `transformEntry` you get `collection`.
 

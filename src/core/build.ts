@@ -107,6 +107,17 @@ export async function build(
   options: BuildOptions,
   logger: Logger
 ): Promise<void> {
+  const pluginExpectedOutputs = new Set<string>();
+  const registerExpectedOutput = (relativePath: string) => {
+    if (typeof relativePath !== "string") return;
+    const normalized = path
+      .normalize(relativePath)
+      .replace(/^[/\\]+/, "")
+      .trim();
+    if (!normalized) return;
+    pluginExpectedOutputs.add(normalized);
+  };
+
   const scoped = logger.child("build");
   const toolEnv = await getEnv();
   const locale = resolveLocale(toolEnv);
@@ -197,6 +208,7 @@ export async function build(
     readContent,
     exportDir,
     pluginId: "",
+    addExpectedOutput: registerExpectedOutput,
   };
   await runOnInit(
     plugins.map((p, idx) => ({ ...p, pluginId: p.pluginId ?? `plugin_${idx + 1}` })),
@@ -717,6 +729,9 @@ export async function build(
       const normalized = relPath.replace(/^[/\\]+/, "");
       if (normalized) expectedOutputs.add(path.normalize(normalized));
     };
+    for (const extra of pluginExpectedOutputs) {
+      addOutput(extra);
+    }
 
     // Export model files
     const exportRel = path.relative(outputDir, exportDir);

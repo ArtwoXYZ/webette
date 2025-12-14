@@ -10,6 +10,7 @@ export type PluginContext = {
   readContent: boolean;
   exportDir: string;
   pluginId: string;
+  addExpectedOutput: (relativePath: string) => void;
 };
 
 export interface Plugin {
