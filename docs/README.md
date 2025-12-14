@@ -12,5 +12,6 @@ Lightweight notes about Webette’s direction and internals.
 - [helpers.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/helpers.md) — built-in Handlebars helpers (strings, dates, math, lookups).
 - [images.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/images.md) — current image metadata handling and planned optimization/variants.
 - [audio.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/audio.md) — audio metadata handling and asset copying.
+- [plugins.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/plugins.md) — how to write and register a plugin, available hooks, and prune helpers.
 - [commit-scopes](https://tangled.org/artwo.xyz/webette/blob/main/docs/commit-scopes) — commit Scopes for Webette.
 - [versioning.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/versioning.md) — version format and release cadence.

@@ -11,6 +11,7 @@ export type PluginContext = {
   exportDir: string;
   pluginId: string;
   addExpectedOutput: (relativePath: string) => void;
+  addExpectedDir: (relativeDir: string) => void;
 };
 
 export interface Plugin {

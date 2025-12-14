@@ -238,7 +238,7 @@ Generated HTML and assets are written to the folder defined by `build.outputDirN
 
 - **Build output (`outputDir`)**: `<site root>/<build.outputDirName>` (default `_public`). Contains generated `index.html` per entry and media assets under `assets/images|audio|video`. Ignored names (e.g. `.webette`, `_public`, custom patterns) follow tool configuration rules. When `readContent=false` (e.g., `--skip-content`), resolvers are short-circuited: no file is read, no asset is copied or generated, pages are rendered with empty blocks.
 - **Model export (`exportDir`)**: fixed to `<outputDir>/_model` (e.g., `_public/_model`). Always written on build. Contains `site.json` (site/config + collection summaries) and split entry files under `entries/<collection>/<entry>.json`, each carrying `createdAt`/`updatedAt`/`fingerprint` for site/collections/entries/blocks. With `build.exportModel.only` or `--export-model-only`, HTML generation is skipped but the export still runs.
-- **Prune (`overwrite=replace-files`)**: the output directory is kept, but any file not expected from the current model (pages/assets/export) is removed. Plugins can whitelist extra files via `ctx.addExpectedOutput(relativePath)`. Draft entries are excluded from prune only when drafts are hidden (`includeDrafts=false`).
+- **Prune (`overwrite=replace-files`)**: the output directory is kept, but any file not expected from the current model (pages/assets/export) is removed. Plugins can whitelist extra files via `ctx.addExpectedOutput(relativePath)` or whole folders/prefixes via `ctx.addExpectedDir(relativeDir)`. Draft entries are excluded from prune only when drafts are hidden (`includeDrafts=false`).
 
 Media handling (core defaults): images optionally generate variants (if the engine is on) and always copy a default; audio and video are copied as-is to their configured output dirs with lightweight metadata (size/mime). Plugins handle transcodes or thumbnails.
 
@@ -278,6 +278,7 @@ Plugins are plain ESM modules (`.js`/`.mjs`) listed in `webette.config.ts` under
 - `transformEntry(entry, ctx)` – per-entry mutation after blocks. Return a new entry or mutate.
 - `extendTemplates(handlebars, ctx)` – register helpers/partials/layouts before templates are compiled.
 - `ctx.addExpectedOutput(relativePath)` — register extra files/assets you generate outside the model (paths relative to the build output dir) so the prune step (`overwrite=replace-files`) does not delete them.
+- `ctx.addExpectedDir(relativeDir)` — whitelist an entire directory/prefix under the build output so prune keeps everything inside (useful for plugins that emit many assets).
 
 Context (`ctx`) includes: `rootDir`, tool `env`, `logger`, `readContent`, `exportDir`, and `pluginId`. For `transformBlock` you also get `entry` and `collection`; for `transformEntry` you get `collection`.
 

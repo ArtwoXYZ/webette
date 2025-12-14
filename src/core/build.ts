@@ -127,6 +127,7 @@ export async function build(
   };
 
   const pluginExpectedOutputs = new Set<string>();
+  const pluginExpectedPrefixes = new Set<string>();
   const registerExpectedOutput = (relativePath: string) => {
     if (typeof relativePath !== "string") return;
     const normalized = path
@@ -135,6 +136,16 @@ export async function build(
       .trim();
     if (!normalized) return;
     pluginExpectedOutputs.add(normalized);
+  };
+  const registerExpectedDir = (relativeDir: string) => {
+    if (typeof relativeDir !== "string") return;
+    const normalized = path
+      .normalize(relativeDir)
+      .replace(/^[/\\]+/, "")
+      .replace(/[/\\]+$/, "")
+      .trim();
+    if (!normalized) return;
+    pluginExpectedPrefixes.add(normalized + path.sep);
   };
 
   const toolEnv = await getEnv();
@@ -227,6 +238,7 @@ export async function build(
     exportDir,
     pluginId: "",
     addExpectedOutput: registerExpectedOutput,
+    addExpectedDir: registerExpectedDir,
   };
   await runOnInit(
     plugins.map((p, idx) => ({ ...p, pluginId: p.pluginId ?? `plugin_${idx + 1}` })),
@@ -748,6 +760,7 @@ export async function build(
     scoped.info("build.outputPruneStarted");
 
     const expectedOutputs = new Set<string>();
+    const expectedPrefixes = new Set<string>(pluginExpectedPrefixes);
     const addOutput = (relPath: string | undefined) => {
       if (!relPath) return;
       const normalized = relPath.replace(/^[/\\]+/, "");
@@ -833,9 +846,14 @@ export async function build(
     };
 
     const existingFiles = await listFilesRecursive(outputDir);
-    const toDelete = existingFiles.filter(
-      (file) => !expectedOutputs.has(file.replace(/^[/\\]+/, ""))
-    );
+    const toDelete = existingFiles.filter((file) => {
+      const normalizedFile = file.replace(/^[/\\]+/, "");
+      const keepByFile = expectedOutputs.has(normalizedFile);
+      const keepByPrefix = Array.from(expectedPrefixes).some((prefix) =>
+        normalizedFile.startsWith(prefix)
+      );
+      return !(keepByFile || keepByPrefix);
+    });
 
     for (const rel of toDelete) {
       const abs = path.join(outputDir, rel);
