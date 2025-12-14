@@ -99,7 +99,7 @@ export async function serve(
   const ignoreNames = new Set<string>([
     ...collectSegments(toolEnv.build.outputDirName),
     ...collectSegments(toolEnv.logging.dirName),
-    ...collectSegments(toolEnv.build.exportModel.dir),
+    ...collectSegments(path.join(toolEnv.build.outputDirName, "_model")),
   ]);
 
   const shouldIgnore = (name: string) => {

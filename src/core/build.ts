@@ -32,8 +32,6 @@ export interface BuildOptions {
   quiet?: boolean;      // new: fewer logs when true
   includeDrafts?: boolean; // keep draft entries (serve); ignored in build
   exportModel?: {
-    enabled?: boolean;
-    dir?: string;
     only?: boolean;
   };
   readContent?: boolean; // allow skipping content resolution when requested
@@ -180,7 +178,6 @@ export async function build(
   const overwrite = toolEnv.build.overwrite;
 
   const exportModel = {
-    enabled: true,
     dir: path.join(outputDir, "_model"),
     only: options.exportModel?.only ?? toolEnv.build.exportModel.only,
   };

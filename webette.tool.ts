@@ -19,8 +19,6 @@ export default {
     generateIndex: true, // generate root/collection indexes
     readContent: true, // resolve block contents or skip
     exportModel: {
-      enabled: true, // export the in-memory model
-      dir: ".webette/_model", // target folder for export
       only: false, // if true, only write the model
     },
   },

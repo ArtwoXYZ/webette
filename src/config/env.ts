@@ -50,8 +50,6 @@ export interface WebetteEnv {
     writeNginxSample: boolean;
     generateIndex: boolean;
     exportModel: {
-      enabled: boolean;
-      dir: string;
       only: boolean;
     };
     readContent: boolean;
@@ -128,8 +126,6 @@ const defaultEnv: WebetteEnv = {
     writeNginxSample: false,
     generateIndex: true,
     exportModel: {
-      enabled: false,
-      dir: "_model",
       only: false,
     },
     readContent: true,
@@ -216,13 +212,6 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
       ? {
           exportModel: {
             ...defaults.build.exportModel,
-            ...(typeof overrides.build.exportModel.enabled === "boolean"
-              ? { enabled: overrides.build.exportModel.enabled }
-              : {}),
-            ...(typeof overrides.build.exportModel.dir === "string" &&
-            overrides.build.exportModel.dir
-              ? { dir: overrides.build.exportModel.dir }
-              : {}),
             ...(typeof overrides.build.exportModel.only === "boolean"
               ? { only: overrides.build.exportModel.only }
               : {}),

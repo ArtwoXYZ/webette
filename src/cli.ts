@@ -7,8 +7,6 @@ import { createProjectLogger } from "./logging/logger";
 type CliOptions = {
   verbose: boolean;
   exportModel?: {
-    enabled?: boolean;
-    dir?: string;
     only?: boolean;
   };
   readContent?: boolean;
@@ -35,24 +33,7 @@ function parseArgs(argv: string[]) {
       continue;
     }
 
-    if (arg === "--export-model-dir") {
-      exportModel.enabled = true;
-      const next = rawArgs[i + 1];
-      if (next && !next.startsWith("-")) {
-        exportModel.dir = next;
-        i++; // skip path value
-      }
-      continue;
-    }
-
-    if (arg.startsWith("--export-model-dir=")) {
-      exportModel.enabled = true;
-      exportModel.dir = arg.substring("--export-model-dir=".length);
-      continue;
-    }
-
     if (arg === "--export-model-only") {
-      exportModel.enabled = true;
       exportModel.only = true;
       continue;
     }
@@ -103,7 +84,6 @@ async function main() {
     console.log("");
     console.log("Options:");
     console.log("  -v, --verbose             Show debug logs");
-    console.log("  --export-model-dir [path] Export the in-memory model to a folder (split files)");
     console.log("  --export-model-only       Export the model and skip HTML generation");
     console.log("  --skip-content            Do not read/resolve block contents");
     console.log("  --include-drafts          Serve draft entries (default in serve)");
@@ -135,7 +115,6 @@ async function main() {
         console.log("Available commands: build, serve");
         console.log("Options:");
         console.log("  -v, --verbose             Show debug logs");
-        console.log("  --export-model-dir [path] Export the in-memory model to a folder (split files)");
         console.log("  --export-model-only       Export the model and skip HTML generation");
         console.log("  --skip-content            Do not read/resolve block contents");
         console.log("  --include-drafts          Serve draft entries (default in serve)");

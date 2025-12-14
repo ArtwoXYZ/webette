@@ -78,7 +78,7 @@ Raw scan keeps minimal data:
 - deterministic ordering (numeric prefix, then alpha)
 - Special control files:
   - `ignore.webt` inside an entry folder marks listed files/folders as `skipRender` (still present in the model).
-  - `draft.webt` inside an entry folder marks the entry as a **draft**. Drafts are shown in `serve` (unless `--no-include-drafts` or `build.includeDrafts=false`), but are **removed** from the model/output during `build` (HTML, assets, export).
+  - `draft.webt` inside an entry folder marks the entry as a **draft**. Drafts are shown in `serve` (unless `--no-include-drafts` or `build.includeDrafts=false`), but are **removed** from the model/output during `build` (HTML, assets, export). The exported model is always written under `<outputDir>/_model`, even in serve.
 
 IDs, slugs, and routes are **not** set during the raw scan.
 
@@ -217,8 +217,8 @@ Structure:
 
 Helpers:
 
-  - `renderLayout <name>`: pick a layout by name, fallback to `templates.defaultLayout`.
-  - Helpers: see `docs/helpers.md`.
+- `renderLayout <name>`: pick a layout by name, fallback to `templates.defaultLayout`.
+- Helpers: see `docs/helpers.md`.
 
 ## 12. HTML post-processing
 
@@ -242,6 +242,7 @@ Media handling (core defaults): images optionally generate variants (if the engi
 Rendering: the template engine (Handlebars) renders **one `index.html` per entry** at its route. Minimal root/collection indexes are generated when `build.generateIndex` is enabled (default on) using the index layout. A static `404.html` is always generated via the not-found layout + wrapper. When `build.protectAssets` is enabled (default on), “access forbidden” placeholders (wrapper + dedicated layout) are rendered in all asset folders/subfolders.
 
 Optional server helpers:
+
 - `build.writeHtaccess` (off by default) writes a root `.htaccess` with `ErrorDocument 404 /404.html` and `Options -Indexes`.
 - `build.writeNginxSample` (off by default) writes a `nginx.conf` example in the build output.
 
@@ -276,14 +277,16 @@ Plugins are plain ESM modules (`.js`/`.mjs`) listed in `webette.config.ts` under
 Context (`ctx`) includes: `rootDir`, tool `env`, `logger`, `readContent`, `exportDir`, and `pluginId`. For `transformBlock` you also get `entry` and `collection`; for `transformEntry` you get `collection`.
 
 Order of execution:
-1) `onInit`
-2) `onScan`
-3) resolve blocks
-4) `onResolved`
-5) `transformBlock` (with recursion on subBlocks)
-6) `transformEntry`
-7) `extendTemplates` (during template setup)
+
+1. `onInit`
+2. `onScan`
+3. resolve blocks
+4. `onResolved`
+5. `transformBlock` (with recursion on subBlocks)
+6. `transformEntry`
+7. `extendTemplates` (during template setup)
 
 Notes:
+
 - Plugins run locally with full access; no sandboxing.
 - Changes made in transform hooks affect timestamps/fingerprints in the exported model.
