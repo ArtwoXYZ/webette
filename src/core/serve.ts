@@ -23,9 +23,13 @@ export async function serve(
   const port = toolEnv.serve.port;
   let buildVersion = Date.now().toString();
   const outputDir = path.join(rootDir, toolEnv.build.outputDirName);
-  const templatesRoot = path.isAbsolute(toolEnv.templates.root)
+  const templatesRootCandidate = path.isAbsolute(toolEnv.templates.root)
+    ? toolEnv.templates.root
+    : path.join(rootDir, toolEnv.templates.root);
+  const toolTemplatesRoot = path.isAbsolute(toolEnv.templates.root)
     ? toolEnv.templates.root
     : path.join(process.cwd(), toolEnv.templates.root);
+  const templatesRoot = await stat(templatesRootCandidate).then(() => templatesRootCandidate).catch(() => toolTemplatesRoot);
   const notFoundPath = path.join(outputDir, "404.html");
 
   // 1. Initial build with liveReload = true, in quiet mode
