@@ -605,9 +605,7 @@ export async function build(
     }
   };
 
-  const protectAssetDirs = async (siteModel: typeof resolvedSiteWithHistory) => {
-    if (!protectAssets) return;
-
+  const collectProtectedDirs = (siteModel: typeof resolvedSiteWithHistory): Set<string> => {
     const exportSegment = path.relative(outputDir, exportDir).replace(/^[/\\]+/, "");
     const assetSegments = [
       toolEnv.images.outputDir,
@@ -624,7 +622,6 @@ export async function build(
     // Always cover base asset dirs and their ancestors
     for (const seg of assetSegments) {
       const baseDir = path.join(outputDir, seg);
-      await mkdir(baseDir, { recursive: true });
       addDir(baseDir);
       const normalizedOutput = path.normalize(outputDir);
       let parent = path.dirname(baseDir);
@@ -670,19 +667,33 @@ export async function build(
       }
     }
 
-    for (const dirPath of Array.from(dirsToCover)) {
-      const rel = path.relative(outputDir, dirPath).replace(/\\+/g, "/");
-      const route = `/${rel}`;
-      const ctx = {
-        ...renderBaseContext,
-        layoutName: accessForbiddenLayoutName,
-        entry: { name: "Access forbidden", route },
-      };
+    return dirsToCover;
+  };
 
-      const html = templateRenderer.render(ctx);
+  const getForbiddenHtml = async (): Promise<string> => {
+    // Render once with a fully stable context so protect files stop rewriting.
+    const ctx = {
+      site: {
+        title: resolvedSiteWithHistory.site.title,
+        lang: resolvedSiteWithHistory.site.lang,
+      },
+      layoutName: accessForbiddenLayoutName,
+      entry: { name: "Access forbidden", route: "/" },
+      liveReloadScript: "",
+    };
+    const html = templateRenderer.render(ctx);
+    const targetPath = path.join(outputDir, "_forbidden_index.html");
+    return formatHtml(html, targetPath);
+  };
+
+  const protectAssetDirs = async (dirsToCover: Set<string>) => {
+    if (!protectAssets) return;
+    const forbiddenHtml = await getForbiddenHtml();
+
+    for (const dirPath of Array.from(dirsToCover)) {
+      await mkdir(dirPath, { recursive: true });
       const targetPath = path.join(dirPath, "index.html");
-      const finalHtml = await formatHtml(html, targetPath);
-      await writeIfChanged(targetPath, finalHtml);
+      await writeIfChanged(targetPath, forbiddenHtml);
     }
   };
 
@@ -731,7 +742,7 @@ export async function build(
   };
 
   // Prune orphaned outputs when not wiping everything (overwrite !== replace-all)
-  const pruneOrphans = async () => {
+  const pruneOrphans = async (protectedDirs?: Set<string>) => {
     if (overwrite === "replace-all") return;
 
     scoped.info("build.outputPruneStarted");
@@ -744,6 +755,12 @@ export async function build(
     };
     for (const extra of pluginExpectedOutputs) {
       addOutput(extra);
+    }
+    if (protectedDirs && protectedDirs.size) {
+      for (const dirPath of protectedDirs) {
+        const rel = path.relative(outputDir, dirPath).replace(/\\+/g, "/");
+        addOutput(path.join(rel, "index.html"));
+      }
     }
 
     // Export model files
@@ -832,8 +849,6 @@ export async function build(
 
     await removeEmptyDirectories(outputDir, outputDir);
   };
-
-  await pruneOrphans();
 
   let renderedPages = 0;
 
@@ -935,9 +950,11 @@ export async function build(
     await writeIfChanged(notFoundPath, finalNotFoundHtml);
   }
 
+  const protectedDirs = collectProtectedDirs(resolvedSiteWithHistory);
+  await pruneOrphans(protectedDirs);
   await writeRootHtaccessFile();
   await writeNginxSampleFile();
-  await protectAssetDirs(resolvedSiteWithHistory);
+  await protectAssetDirs(protectedDirs);
   await removeEmptyDirectories(outputDir, outputDir);
 
   if (options.quiet) {
