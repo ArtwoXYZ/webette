@@ -1,6 +1,6 @@
 # Build Pipeline and Plugin Hooks
 
-> ⚠️ This document is aspirational. The current prototype stops after scanning and resolving basic block content, exports the model, and renders a single fallback wrapper. The phases and hooks below describe the intended direction, not the implemented behavior today.
+This document describes how the current Webette build/serve pipeline works (today’s implementation).
 
 This document explains how Webette processes a **site root**, how it discovers **collections**, **entries**, and **blocks**, how it transforms **content** using an **AST**, and how **plugins** can hook into each stage.
 
@@ -145,8 +145,10 @@ Webette combines:
 
 ... and renders them using templates from:
 
-1. The site’s templates folder (e.g. `_templates/`)
-2. Tool-level fallback templates (`templates.root` + `templates.default`)
+1. The site’s templates folder (e.g. `templates/` under the site root when `templates.root` is relative)
+2. Tool-level fallback templates (`templates.root` + `templates.defaultWrapper/defaultLayout`)
+
+Site templates win over the tool fallback. In serve mode, Webette watches the site templates when present, otherwise it watches the tool fallback.
 
 The internal templating engine supports:
 
@@ -158,7 +160,7 @@ Layouts wrap full pages; partials build reusable fragments (header, footer, navi
 
 AST nodes become HTML here – Markdown paragraphs -> `<p>`, headings -> `<h1>`, custom blocks -> plugin-generated HTML, etc.
 
-Markdown is parsed to an AST (remark/unified) then rendered to HTML; frontmatter headers (YAML/TOML/JSON at the top of the file) are ignored and not planned for now. Markdown blocks keep `raw`, `ast`, `html`, and lightweight metadata (e.g., `format`, `renderedWith`) in the model for templates/plugins.
+Markdown is parsed to an AST (remark/unified) then rendered to HTML; frontmatter headers (YAML/TOML/JSON at the top of the file) are ignored and not planned for now. Markdown blocks keep `raw`, `ast`, `html`, and lightweight metadata (e.g., `format`, `renderedWith`) in the model for templates/plugins. The remark plugins currently come from `webette.tool.ts` (`markdown.remarkPlugins`); site-level remark plugins are not yet supported.
 
 ---
 
@@ -236,6 +238,7 @@ Generated HTML and assets are written to the folder defined by `build.outputDirN
 
 - **Build output (`outputDir`)**: `<site root>/<build.outputDirName>` (default `_public`). Contains generated `index.html` per entry and media assets under `assets/images|audio|video`. Ignored names (e.g. `.webette`, `_public`, custom patterns) follow tool configuration rules. When `readContent=false` (e.g., `--skip-content`), resolvers are short-circuited: no file is read, no asset is copied or generated, pages are rendered with empty blocks.
 - **Model export (`exportDir`)**: fixed to `<outputDir>/_model` (e.g., `_public/_model`). Always written on build. Contains `site.json` (site/config + collection summaries) and split entry files under `entries/<collection>/<entry>.json`, each carrying `createdAt`/`updatedAt`/`fingerprint` for site/collections/entries/blocks. With `build.exportModel.only` or `--export-model-only`, HTML generation is skipped but the export still runs.
+- **Prune (`overwrite=replace-files`)**: the output directory is kept, but any file not expected from the current model (pages/assets/export) is removed. Plugins can whitelist extra files via `ctx.addExpectedOutput(relativePath)`. Draft entries are excluded from prune only when drafts are hidden (`includeDrafts=false`).
 
 Media handling (core defaults): images optionally generate variants (if the engine is on) and always copy a default; audio and video are copied as-is to their configured output dirs with lightweight metadata (size/mime). Plugins handle transcodes or thumbnails.
 
@@ -245,6 +248,7 @@ Optional server helpers:
 
 - `build.writeHtaccess` (off by default) writes a root `.htaccess` with `ErrorDocument 404 /404.html` and `Options -Indexes`.
 - `build.writeNginxSample` (off by default) writes a `nginx.conf` example in the build output.
+- Serve mode reuses the same build pipeline (with live reload) and watches the site root plus the site templates when present (fallback to tool templates otherwise).
 
 ---
 
