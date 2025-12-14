@@ -41,5 +41,6 @@
   "build.prettyPrintFailed": "HTML pretty-print failed for {path}: {error}",
   "build.drafts.included": "Draft entries kept (serve): {count}",
   "build.drafts.excluded": "Draft entries removed from model: {count}",
-  "build.draft.entrySkipped": "Draft entry skipped: {collection}/{entry} (path: {path})"
+  "build.draft.entrySkipped": "Draft entry skipped: {collection}/{entry} (path: {path})",
+  "build.fileUnchanged": "File unchanged, skip write: {path}"
 }

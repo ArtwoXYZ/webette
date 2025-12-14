@@ -41,5 +41,6 @@
   "build.prettyPrintFailed": "Échec du pretty-print HTML pour {path} : {error}",
   "build.drafts.included": "Brouillons conservés (serveur) : {count}",
   "build.drafts.excluded": "Brouillons exclus du modèle : {count}",
-  "build.draft.entrySkipped": "Entrée brouillon ignorée : {collection}/{entry} (chemin : {path})"
+  "build.draft.entrySkipped": "Entrée brouillon ignorée : {collection}/{entry} (chemin : {path})",
+  "build.fileUnchanged": "Fichier inchangé, écriture ignorée : {path}"
 }

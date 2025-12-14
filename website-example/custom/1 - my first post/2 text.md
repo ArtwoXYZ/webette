@@ -1,6 +1,6 @@
 [The GREAT NEBULA in ORION](https://pdimagearchive.org/images/9df7008f-34eb-4c6d-98cb-3a65f51db2f5/)
 
-## Visites aux Ombres 2
+## Visites aux Ombres
 
 Sous les couloirs pâles où tremble la poussière, les statues semblent soupirer, **_lumen fractum_** dans leurs yeux de pierre. Une aile manquante frémit sans vent, et les ombres, longues comme des prières mortes, dérivent entre les vitraux éteints. _Aeterno murmuris_, dit la fissure qui traverse le marbre, sans que personne ne l’écoute vraiment. Pour en savoir plus, voir **[ce fragment conservé](#)**.
 

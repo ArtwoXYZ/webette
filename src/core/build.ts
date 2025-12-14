@@ -1,4 +1,4 @@
-import { mkdir, rm, stat, writeFile, readdir } from "node:fs/promises";
+import { mkdir, rm, stat, writeFile, readdir, readFile } from "node:fs/promises";
 import * as path from "node:path";
 import { getEnv, resolveLocale } from "../config/env";
 import { t } from "../logging/i18n";
@@ -107,6 +107,25 @@ export async function build(
   options: BuildOptions,
   logger: Logger
 ): Promise<void> {
+  const scoped = logger.child("build");
+
+  const writeIfChanged = async (targetPath: string, content: string): Promise<boolean> => {
+    const nextBuffer = Buffer.from(content, "utf8");
+    let current: Buffer | null = null;
+    try {
+      current = await readFile(targetPath);
+    } catch {
+      // file missing or unreadable -> treat as different
+    }
+    if (current && Buffer.compare(current, nextBuffer) === 0) {
+      scoped.debug("build.fileUnchanged", { path: targetPath });
+      return false;
+    }
+    await writeFile(targetPath, nextBuffer, "utf8");
+    scoped.debug("build.fileGenerated", { path: targetPath });
+    return true;
+  };
+
   const pluginExpectedOutputs = new Set<string>();
   const registerExpectedOutput = (relativePath: string) => {
     if (typeof relativePath !== "string") return;
@@ -118,7 +137,6 @@ export async function build(
     pluginExpectedOutputs.add(normalized);
   };
 
-  const scoped = logger.child("build");
   const toolEnv = await getEnv();
   const locale = resolveLocale(toolEnv);
   const layoutPartialName =
@@ -491,10 +509,9 @@ export async function build(
   try {
     await rm(exportDir, { recursive: true, force: true });
     await mkdir(exportDir, { recursive: true });
-    await writeFile(
+    await writeIfChanged(
       path.join(exportDir, "site.json"),
-      JSON.stringify(orderKeys(siteSummary), null, 2),
-      "utf8"
+      JSON.stringify(orderKeys(siteSummary), null, 2)
     );
 
     const entriesDir = path.join(exportDir, "entries");
@@ -509,10 +526,9 @@ export async function build(
         for (const entry of collection.entries) {
           const entryFileName = `${entry.slug || entry.id}.json`;
           const entryPath = path.join(collectionDir, entryFileName);
-          await writeFile(
+          await writeIfChanged(
             entryPath,
-            JSON.stringify(orderKeys(entry), null, 2),
-            "utf8"
+            JSON.stringify(orderKeys(entry), null, 2)
           );
         }
       }
@@ -638,7 +654,7 @@ export async function build(
 
     for (const collection of siteModel.collections ?? []) {
       for (const entry of collection.entries) {
-        if (entry.isDraft) continue;
+        if (!includeDrafts && entry.isDraft) continue;
         const visitBlocks = (blocks: Block[]) => {
           for (const blk of blocks) {
             collectDirForRoute(blk.route);
@@ -666,8 +682,7 @@ export async function build(
       const html = templateRenderer.render(ctx);
       const targetPath = path.join(dirPath, "index.html");
       const finalHtml = await formatHtml(html, targetPath);
-      await writeFile(targetPath, finalHtml, "utf8");
-      scoped.debug("build.fileGenerated", { path: targetPath });
+      await writeIfChanged(targetPath, finalHtml);
     }
   };
 
@@ -682,8 +697,7 @@ export async function build(
       "RedirectMatch 403 ^/_model(/|$)",
       "",
     ].join("\n");
-    await writeFile(htaccessPath, lines, "utf8");
-    scoped.debug("build.fileGenerated", { path: htaccessPath });
+    await writeIfChanged(htaccessPath, lines);
   };
 
   const writeNginxSampleFile = async () => {
@@ -713,8 +727,7 @@ export async function build(
       "}",
       "",
     ].join("\n");
-    await writeFile(nginxPath, serverBlock, "utf8");
-    scoped.debug("build.fileGenerated", { path: nginxPath });
+    await writeIfChanged(nginxPath, serverBlock);
   };
 
   // Prune orphaned outputs when not wiping everything (overwrite !== replace-all)
@@ -739,7 +752,7 @@ export async function build(
     for (const collection of resolvedSiteWithHistory.collections ?? []) {
       const colDir = path.join(exportRel, "entries", collection.slug || collection.id);
       for (const entry of collection.entries) {
-        if (entry.isDraft) continue;
+        if (!includeDrafts && entry.isDraft) continue;
         addOutput(path.join(colDir, `${entry.slug || entry.id}.json`));
       }
     }
@@ -782,7 +795,7 @@ export async function build(
 
     for (const collection of resolvedSiteWithHistory.collections ?? []) {
       for (const entry of collection.entries) {
-        if (entry.isDraft) continue;
+        if (!includeDrafts && entry.isDraft) continue;
         collectBlocks(entry.blocks);
         addEntryPage(entry, collection);
       }
@@ -859,9 +872,10 @@ export async function build(
         const entryIndexPath = path.join(entryOutputDir, "index.html");
         const finalHtml = await formatHtml(html, entryIndexPath);
 
-        await writeFile(entryIndexPath, finalHtml, "utf8");
-        scoped.debug("build.fileGenerated", { path: entryIndexPath });
-        renderedPages += 1;
+        const wrote = await writeIfChanged(entryIndexPath, finalHtml);
+        if (wrote) {
+          renderedPages += 1;
+        }
       }
     }
   }
@@ -881,8 +895,7 @@ export async function build(
     const rootIndexPath = path.join(outputDir, "index.html");
     await mkdir(path.dirname(rootIndexPath), { recursive: true });
     const finalRootHtml = await formatHtml(rootHtml, rootIndexPath);
-    await writeFile(rootIndexPath, finalRootHtml, "utf8");
-    scoped.debug("build.fileGenerated", { path: rootIndexPath });
+    await writeIfChanged(rootIndexPath, finalRootHtml);
 
     // Collection indexes
     for (const collection of resolvedSiteWithHistory.collections ?? []) {
@@ -904,8 +917,7 @@ export async function build(
       const colHtml = templateRenderer.render(ctx);
       await mkdir(collectionIndexDir, { recursive: true });
       const finalColHtml = await formatHtml(colHtml, collectionIndexPath);
-      await writeFile(collectionIndexPath, finalColHtml, "utf8");
-      scoped.debug("build.fileGenerated", { path: collectionIndexPath });
+      await writeIfChanged(collectionIndexPath, finalColHtml);
     }
   }
 
@@ -920,8 +932,7 @@ export async function build(
     const notFoundPath = path.join(outputDir, "404.html");
     await mkdir(path.dirname(notFoundPath), { recursive: true });
     const finalNotFoundHtml = await formatHtml(notFoundHtml, notFoundPath);
-    await writeFile(notFoundPath, finalNotFoundHtml, "utf8");
-    scoped.debug("build.fileGenerated", { path: notFoundPath });
+    await writeIfChanged(notFoundPath, finalNotFoundHtml);
   }
 
   await writeRootHtaccessFile();
