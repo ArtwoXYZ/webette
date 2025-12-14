@@ -14,7 +14,7 @@
 - ~~ignorer les .webt du scan et ne pas les copier~~
 - ~~si un fichier est supprimé, même sans le replace-all il doit disparaitre des blocks copiés~~
 - ~~ajouter un mode brouillon : ajoute un parametre isDraft sur les entrée. Si serve : rendu (ajouté dans le template une info "brouillon"), si Build ignoré complétement, même pas dans le model ou quoi.~~
-- Sitemap generator
+- ~~Sitemap generator~~
 - Vérifier sir le Code block highlighter fonctionne dans le markdown
 - Plugin de flux RSS
 - Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)

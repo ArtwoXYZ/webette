@@ -25,6 +25,7 @@ import {
 } from "../plugins/runner";
 import type { PluginContext } from "../plugins/types";
 import { rewriteInternalLinks } from "./postprocess/internal-links";
+import { writeSitemap } from "./sitemap";
 
 export interface BuildOptions {
   verbose: boolean;
@@ -807,6 +808,7 @@ export async function build(
       }
     }
     addOutput("404.html");
+    addOutput("sitemap.xml");
     if (writeHtaccess) addOutput(".htaccess");
     if (shouldWriteNginxSample) addOutput("nginx.conf");
 
@@ -968,6 +970,13 @@ export async function build(
     await writeIfChanged(notFoundPath, finalNotFoundHtml);
   }
 
+  await writeSitemap({
+    outputDir,
+    site: resolvedSiteWithHistory,
+    generateIndex,
+    includeDrafts,
+    logger: scoped,
+  });
   const protectedDirs = collectProtectedDirs(resolvedSiteWithHistory);
   await pruneOrphans(protectedDirs);
   await writeRootHtaccessFile();

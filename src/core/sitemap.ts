@@ -1,0 +1,104 @@
+import { readFile, writeFile } from "node:fs/promises";
+import * as path from "node:path";
+import type { Logger } from "../logging/logger";
+import type { Site } from "./model";
+
+type SitemapUrl = {
+  loc: string;
+  lastmod?: string;
+  source: "entry" | "collection" | "root";
+};
+
+const writeIfChanged = async (targetPath: string, content: string, logger: Logger) => {
+  const nextBuffer = Buffer.from(content, "utf8");
+  let current: Buffer | null = null;
+  try {
+    current = await readFile(targetPath);
+  } catch {
+    // file missing or unreadable -> treat as different
+  }
+  if (current && Buffer.compare(current, nextBuffer) === 0) {
+    logger.debug("build.fileUnchanged", { path: targetPath });
+    return false;
+  }
+  await writeFile(targetPath, nextBuffer, "utf8");
+  logger.debug("build.fileGenerated", { path: targetPath });
+  return true;
+};
+
+export async function writeSitemap(options: {
+  outputDir: string;
+  site: Site;
+  generateIndex: boolean;
+  includeDrafts: boolean;
+  logger: Logger;
+}): Promise<void> {
+  const { outputDir, site: siteModel, generateIndex, includeDrafts, logger } = options;
+  const urls = new Map<string, SitemapUrl>();
+
+  const buildLoc = (route: string | undefined) => {
+    const normalized = (route ?? "/").replace(/\/{2,}/g, "/") || "/";
+    const absoluteBase = (siteModel.site as any)?.url;
+    if (absoluteBase && typeof absoluteBase === "string") {
+      try {
+        const loc = new URL(normalized.replace(/^\//, ""), absoluteBase).toString();
+        return loc;
+      } catch {
+        // fall through to relative
+      }
+    }
+    return normalized;
+  };
+
+  const addUrl = (route: string | undefined, lastmod: string | undefined, source: SitemapUrl["source"]) => {
+    if (!route && source !== "root") return;
+    const loc = buildLoc(route);
+    if (!loc) return;
+    const prev = urls.get(loc);
+    if (!prev) {
+      urls.set(loc, { loc, lastmod, source });
+    } else if (!prev.lastmod && lastmod) {
+      urls.set(loc, { ...prev, lastmod });
+    }
+  };
+
+  if (generateIndex) {
+    addUrl("/", siteModel.updatedAt ?? siteModel.createdAt, "root");
+    for (const collection of siteModel.collections ?? []) {
+      const colLastmod = collection.updatedAt ?? collection.createdAt;
+      addUrl(collection.route ?? `/${collection.slug || collection.id}`, colLastmod, "collection");
+    }
+  }
+
+  for (const collection of siteModel.collections ?? []) {
+    for (const entry of collection.entries) {
+      if (!includeDrafts && entry.isDraft) continue;
+      const lastmod = entry.updatedAt ?? entry.createdAt;
+      addUrl(entry.route, lastmod, "entry");
+    }
+  }
+
+  const encode = (val: string) =>
+    val.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+  const lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'];
+  for (const { loc, lastmod } of urls.values()) {
+    lines.push("  <url>");
+    lines.push(`    <loc>${encode(loc)}</loc>`);
+    if (lastmod) {
+      lines.push(`    <lastmod>${encode(lastmod)}</lastmod>`);
+    }
+    lines.push("  </url>");
+  }
+  lines.push("</urlset>", "");
+
+  const sitemapPath = path.join(outputDir, "sitemap.xml");
+  const wrote = await writeIfChanged(sitemapPath, lines.join("\n"), logger);
+  const logFn = wrote ? logger.info.bind(logger) : logger.debug.bind(logger);
+  logFn("build.sitemap", {
+    path: sitemapPath,
+    count: urls.size,
+    includeDrafts,
+    absolute: !!(siteModel.site as any)?.url,
+  });
+}
