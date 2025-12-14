@@ -17,8 +17,8 @@
     <audio controls src="{{route}}"></audio>
     {{else if (eq type "video")}}
     <video controls src="{{route}}"></video>
-    {{/if}} {{/each}} {{#if (pluginNote entry)}}
-    <p>Plugin: <em>{{pluginNote entry}}</em></p>
+    {{/if}} {{/each}} {{#if entry.pluginNote}}
+    <p>Plugin: <em>{{entry.pluginNote}}</em></p>
     {{/if}}
   </article>
 </main>

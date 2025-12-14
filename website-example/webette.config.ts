@@ -1,15 +1,26 @@
 export default {
   site: {
-    title: "Website example",
+    title: "Webette showcase",
     lang: "en",
-    author: "Artwo"
+    author: "Artwo",
+    url: "https://example.webette.local",
   },
 
   collections: {
-    custom: {
-      path: "custom",
-      name: "My custom name",
-      slug: "custom_slug"
+    posts: {
+      path: "01 posts",
+      name: "Posts",
+      slug: "posts",
+    },
+    lab: {
+      path: "02 lab",
+      name: "Lab",
+      slug: "lab",
+    },
+    "another-one": {
+      path: "03 another one",
+      name: "Another one!",
+      slug: "another-one",
     },
   },
 
@@ -18,11 +29,11 @@ export default {
   },
 
   plugins: [
-    "_plugins/test-hooks.js",
+    "_plugins/demo.js",
   ],
 
   markdown: {
-    treatTxtAsMarkdown: true, // set to false to keep .txt blocks as plain text
+    treatTxtAsMarkdown: false, // keep .txt blocks as plain text in this showcase
   },
 
   images: {

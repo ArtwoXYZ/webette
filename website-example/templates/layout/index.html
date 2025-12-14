@@ -1,0 +1,18 @@
+﻿<h1>Webette showcase</h1>
+
+<h2>Site index (custom template)</h2>
+<p>You can browse all collections and entries of this demo site.</p>
+<ul>
+  {{#each collections}}
+  <li>
+    <strong>{{name}}</strong>
+    <ul>
+      {{#each entries}}
+      <li><a href="{{route}}">{{name}}</a></li>
+      {{/each}}
+    </ul>
+  </li>
+  {{/each}}
+</ul>
+
+{{> footer}}

@@ -1,0 +1,3 @@
+﻿Plain text block #4
+
+This block uses a .text extension to stay as plain text. Useful for raw dumps or data snippets.
