@@ -13,3 +13,4 @@ Lightweight notes about Webette’s direction and internals.
 - [images.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/images.md) — current image metadata handling and planned optimization/variants.
 - [audio.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/audio.md) — audio metadata handling and asset copying.
 - [commit-scopes](https://tangled.org/artwo.xyz/webette/blob/main/docs/commit-scopes) — commit Scopes for Webette.
+- [versioning.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/versioning.md) — version format and release cadence.

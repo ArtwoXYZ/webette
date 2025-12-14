@@ -3,6 +3,7 @@
 import { build } from "./core/build";
 import { serve } from "./core/serve";
 import { createProjectLogger } from "./logging/logger";
+import { getVersion } from "./version";
 
 type CliOptions = {
   verbose: boolean;
@@ -75,7 +76,7 @@ async function main() {
   const { command, sitePath, options } = parseArgs(Bun.argv);
 
   if (!command) {
-    console.log("Webette v0.0.1");
+    console.log(`webette ${getVersion()}`);
     console.log("Usage:");
     console.log("  webette build [site-folder]");
     console.log("  webette serve [site-folder]");
