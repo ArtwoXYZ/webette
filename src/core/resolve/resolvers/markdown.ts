@@ -15,8 +15,16 @@ export const resolveMarkdown: Resolver = async (block, ctx) => {
 
   try {
     const remarkPlugins = ctx.remarkPlugins ?? [];
+    const enableExternalLinks =
+      ctx.toolEnv?.markdown &&
+      typeof ctx.toolEnv.markdown === "object" &&
+      (ctx.toolEnv.markdown as any).externalLinks === false
+        ? false
+        : true;
     const ast = await parseMarkdownToAst(raw, remarkPlugins);
-    const html = await renderMarkdownToHtml(ast, remarkPlugins);
+    const html = await renderMarkdownToHtml(ast, remarkPlugins, {
+      enableExternalLinks,
+    });
 
     return {
       raw,

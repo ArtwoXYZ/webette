@@ -32,6 +32,8 @@ export default {
 - The entire `site` section is loaded as-is and available in the model and templating via `site.*` (e.g. `{{site.author}}`). `title` and `lang` default if missing.
 - You can override `.txt` handling per site by setting `markdown.treatTxtAsMarkdown` (`true` => use Markdown pipeline; `false` => keep as plain text).
 - You can override media output paths per site by setting `video.outputDir` / `audio.outputDir` (relative to the build output).
+- You can override image behavior via `images.*` (engine on/off, sizes, format, outputDir) and pick a preferred rendered variant with `images.defaultVariant` (`default|small|medium|large`).
+- Markdown rendering adds a `webt-md` CSS class on every element for easy scoping, and (when `rehype-external-links` is installed) external links get `target="_blank"` + `rel="noopener noreferrer"` by default.
 - Collections are discovered automatically from folders at the site root (ignoring output/logs/templates/hidden/underscore prefixes). The exported model includes `collections`, their `entries`, and `blocks` with IDs, slugs, POSIX paths, and type hints.
 
 ## `collections` section (per collection overrides)

@@ -7,6 +7,8 @@ import { type MarkdownAst } from "./types";
 
 type RemarkPlugin = Plugin<any[], any>;
 type RemarkPluginLike = RemarkPlugin | [RemarkPlugin, ...any[]];
+const DEFAULT_MARKDOWN_CLASS = "webt-md";
+type AddClassOptions = { className?: string };
 
 function applyPlugins<P extends Processor<any, any, any, any, any>>(
   processor: P,
@@ -43,7 +45,7 @@ export async function parseMarkdownToAst(
     /\(\s*(collection|entry|post|block|image|file)\s*:\s*([^)\n]+)\)/gi,
     (_, kind, rest) => {
       const encodeValue = (val: string) => val.trim().replace(/\s+/g, "%20");
-      const pieces = rest.split(",").map((s) => s.trim()).filter(Boolean);
+      const pieces = rest.split(",").map((s: string) => s.trim()).filter(Boolean);
       const normalized: string[] = [];
 
       if (pieces.length === 0) {
@@ -73,13 +75,64 @@ export async function parseMarkdownToAst(
 
 export async function renderMarkdownToHtml(
   ast: MarkdownAst,
-  remarkPlugins: unknown[] = []
+  remarkPlugins: unknown[] = [],
+  options?: { enableExternalLinks?: boolean }
 ): Promise<string> {
   // Convert mdast to HTML using the same remark plugins + rehype stringify
-  const processor = createMarkdownProcessor(remarkPlugins)
-    .use(remarkRehype)
+  const processor = createMarkdownProcessor(remarkPlugins).use(remarkRehype);
+
+  if (options?.enableExternalLinks !== false) {
+    try {
+      const mod = await import("rehype-external-links");
+      const externalLinks = (mod as any).default ?? mod;
+      processor.use(externalLinks as any, {
+        target: "_blank",
+        rel: ["noopener", "noreferrer"],
+      });
+    } catch {
+      // plugin not installed or failed to load; skip silently
+    }
+  }
+
+  processor
+    .use(addClassToAllElements as any, { className: DEFAULT_MARKDOWN_CLASS })
     .use(rehypeStringify);
 
   const hast = await processor.run(ast as any);
   return processor.stringify(hast) as string;
+}
+
+// Rehype plugin: add a CSS class to every element without overwriting existing classes.
+function addClassToAllElements(options: AddClassOptions = {}) {
+  const className =
+    typeof options.className === "string" && options.className.trim()
+      ? options.className.trim()
+      : DEFAULT_MARKDOWN_CLASS;
+
+  return (tree: any) => {
+    const walk = (node: any) => {
+      if (node && node.type === "element") {
+        const props = node.properties ?? {};
+        const existing = props.className;
+        const list: string[] = Array.isArray(existing)
+          ? existing.map(String)
+          : typeof existing === "string"
+            ? existing.split(/\s+/).filter(Boolean)
+            : [];
+
+        if (!list.includes(className)) {
+          list.push(className);
+        }
+
+        props.className = list;
+        node.properties = props;
+      }
+
+      if (node && Array.isArray(node.children)) {
+        node.children.forEach((child: any) => walk(child));
+      }
+    };
+
+    walk(tree);
+  };
 }

@@ -4,21 +4,27 @@
   <article>
     <h2>{{entry.name}}</h2>
     {{#if entry.isDraft}}
-    <p class="draft-badge">Draft (unpublished)</p>
-    {{/if}} {{#each entry.blocks}} {{#if (eq type "markdown")}} {{{safe
-    content.html}}} {{else if (eq type "text")}}
-    <pre>{{content.raw}}</pre>
-    {{else if (eq type "image")}} {{#unless content.meta.renderedInline}}
-    <figure>
-      <img src="{{route}}" alt="{{name}}" />
-      <figcaption>{{name}}</figcaption>
-    </figure>
-    {{/unless}} {{else if (eq type "audio")}}
-    <audio controls src="{{route}}"></audio>
-    {{else if (eq type "video")}}
-    <video controls src="{{route}}"></video>
-    {{/if}} {{/each}} {{#if entry.pluginNote}}
-    <p>Plugin: <em>{{entry.pluginNote}}</em></p>
+      <p class="draft-badge">Draft (unpublished)</p>
+    {{/if}}
+
+    {{#each entry.blocks}}
+      {{#if (eq type "markdown")}}
+        {{{safe content.html}}}
+      {{else if (eq type "text")}}
+        <pre>{{content.raw}}</pre>
+      {{else if (eq type "image")}}
+        {{#unless content.meta.renderedInline}}
+          {{image this figure=true caption=name class="my-class"}}
+        {{/unless}}
+      {{else if (eq type "audio")}}
+        <audio controls src="{{route}}"></audio>
+      {{else if (eq type "video")}}
+        <video controls src="{{route}}"></video>
+      {{/if}}
+    {{/each}}
+
+    {{#if entry.pluginNote}}
+      <p>Plugin: <em>{{entry.pluginNote}}</em></p>
     {{/if}}
   </article>
 </main>

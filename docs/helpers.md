@@ -82,6 +82,19 @@ Examples:
 {{/withEntry}}
 ```
 
+## Images
+- `imageSrc block [variant="small|medium|large|default"]`: returns the best URL for the requested variant if it exists on the block, otherwise falls back to the configured `images.defaultVariant`, then the original route.
+- `image block [...]`: renders an `<img>` (or `<figure>` when `figure=true`) using the same variant selection. Supports common HTML attributes via hash:
+  - `variant`, `class`, `id`, `alt` (fallback: block name/rawName), `title`, `loading` (defaults to `lazy`), `decoding`, `sizes`, `data-*` passthrough.
+  - `figure=true` wraps in `<figure>` and `caption` (defaults to `alt/name`); `figureClass` applies to the `<figure>`.
+  - Width/height and `srcset` are filled from available variants when present.
+
+Examples:
+```hbs
+{{imageSrc myImage variant="small"}}                      {{!-- URL only --}}
+{{image myImage variant="medium" class="hero" figure=true caption="Cover photo"}}
+```
+
 ## Context hints
 - `buildTime` is available in the render context (use with `formatDate`/`fromNow`).
 

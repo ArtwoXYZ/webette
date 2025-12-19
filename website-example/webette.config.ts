@@ -48,6 +48,7 @@ export default {
     fit: "cover",
     outputDir: "assets/images",
     reencodeDefault: false,
+    defaultVariant: "medium",
   },
 
   audio: {

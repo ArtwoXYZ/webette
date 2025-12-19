@@ -100,6 +100,11 @@ interface MarkdownBlockContext {
 5. Inject HTML into templates and render pages
 6. Store `raw`, `ast`, `html`, and lightweight metadata (`meta.format`, `meta.renderedWith`) in the model for templates/plugins
 
+### Rendering defaults (HTML)
+
+- All rendered Markdown elements receive the CSS class `webt-md`, applied at rehype stage; no wrapper needed. Use it to scope your typography/styles: `.webt-md { ... }` or `.webt-md :where(h1, p, a) { ... }`.
+- External links are decorated to open in a new tab with safe `rel` attributes (`target="_blank"`, `rel="noopener noreferrer"`) via `rehype-external-links` (optionalDependency). If the plugin is missing, Markdown rendering continues without altering links.
+
 ---
 
 ## Internal links (collection:/entry:/block:)

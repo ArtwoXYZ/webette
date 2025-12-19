@@ -85,6 +85,12 @@ export async function createSite(rootDir: string): Promise<Site> {
       ...(siteSection.images as Record<string, unknown> | undefined),
       ...config.images,
     };
+    const img = siteSection.images as Record<string, unknown>;
+    if (typeof img.defaultVariant !== "string" || !img.defaultVariant.trim()) {
+      img.defaultVariant = "default";
+    } else {
+      img.defaultVariant = img.defaultVariant.toLowerCase();
+    }
   }
   if (config.audio && typeof config.audio === "object") {
     siteSection.audio = {

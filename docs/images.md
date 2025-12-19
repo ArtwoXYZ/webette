@@ -30,6 +30,7 @@
 - Missing sharp: warn once, copy only the `default` variant, alias `small/medium/large` to `default` with `reason: "sharp-missing"`.
 - Variant errors are non-fatal: warn and fall back to `aliasOf: "default"`.
 - Routes: block routes are only set by resolvers when needed; for images, the block route mirrors the default asset route (or the copied original when the engine is off), and variants always carry their own `route`. The scanned `path` remains the source reference.
+- Default pick for templates: `images.defaultVariant` (default: `"default"`) lets you prefer a generated variant when rendering images via helpers; if the requested variant is missing, rendering falls back to the original route.
 
 ## Example config (site override)
 
@@ -44,6 +45,7 @@ export default {
     fit: "cover",
     outputDir: "assets/images",
     reencodeDefault: false,
+    defaultVariant: "medium",
   },
 };
 ```

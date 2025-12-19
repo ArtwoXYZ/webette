@@ -165,6 +165,13 @@ async function listCollectionsRaw(
     });
   }
 
+  collections.sort((a, b) => {
+    const orderA = orderKey(a.rawName);
+    const orderB = orderKey(b.rawName);
+    if (orderA !== orderB) return orderA - orderB;
+    return a.rawName.localeCompare(b.rawName, undefined, { sensitivity: "base" });
+  });
+
   return collections;
 }
 

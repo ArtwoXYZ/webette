@@ -8,6 +8,7 @@ export type LogLevel = "debug" | "info" | "warn" | "error";
 export type OverwritePolicy = "none" | "replace-all" | "replace-files";
 export type ImageFormat = "webp" | "avif" | "jpeg" | "png";
 export type ImageFit = "cover" | "contain" | "fill" | "inside" | "outside";
+export type ImageVariantChoice = "default" | "small" | "medium" | "large";
 
 export interface ImagesEnv {
   requiresImageEngine: boolean;
@@ -21,6 +22,7 @@ export interface ImagesEnv {
   fit: ImageFit;
   outputDir: string; // relative to the output directory (e.g. "assets/images")
   reencodeDefault: boolean;
+  defaultVariant: ImageVariantChoice;
 }
 
 export interface AudioEnv {
@@ -67,6 +69,7 @@ export interface WebetteEnv {
   markdown: {
     remarkPlugins: unknown[];
     treatTxtAsMarkdown: boolean;
+    externalLinks: boolean;
   };
   images: ImagesEnv;
   audio: AudioEnv;
@@ -100,7 +103,7 @@ type WebetteEnvOverrides = Partial<{
     >
   >;
   markdown: Partial<
-    Pick<WebetteEnv["markdown"], "remarkPlugins" | "treatTxtAsMarkdown">
+    Pick<WebetteEnv["markdown"], "remarkPlugins" | "treatTxtAsMarkdown" | "externalLinks">
   >;
   images: Partial<ImagesEnv>;
   audio: Partial<AudioEnv>;
@@ -143,6 +146,7 @@ const defaultEnv: WebetteEnv = {
   markdown: {
     remarkPlugins: [],
     treatTxtAsMarkdown: true,
+    externalLinks: true,
   },
   images: {
     requiresImageEngine: false,
@@ -156,6 +160,7 @@ const defaultEnv: WebetteEnv = {
     fit: "cover",
     outputDir: "assets/images",
     reencodeDefault: false,
+    defaultVariant: "default",
   },
   audio: {
     outputDir: "assets/audio",
@@ -276,6 +281,9 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
     ...(typeof overrides.markdown?.treatTxtAsMarkdown === "boolean"
       ? { treatTxtAsMarkdown: overrides.markdown.treatTxtAsMarkdown }
       : {}),
+    ...(typeof overrides.markdown?.externalLinks === "boolean"
+      ? { externalLinks: overrides.markdown.externalLinks }
+      : {}),
   };
 
   const images = {
@@ -313,6 +321,9 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
       : {}),
     ...(typeof overrides.images?.reencodeDefault === "boolean"
       ? { reencodeDefault: overrides.images.reencodeDefault }
+      : {}),
+    ...(typeof overrides.images?.defaultVariant === "string" && overrides.images.defaultVariant
+      ? { defaultVariant: overrides.images.defaultVariant as ImageVariantChoice }
       : {}),
   };
 
