@@ -5,6 +5,7 @@ import type { Site } from "./model";
 interface WebetteConfigFile {
   site?: Record<string, unknown>;
   collections?: Record<string, unknown>;
+  templates?: Record<string, unknown>;
   images?: Record<string, unknown>;
   audio?: Record<string, unknown>;
   markdown?: Record<string, unknown>;
@@ -37,6 +38,10 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
       raw.collections && typeof raw.collections === "object"
         ? { ...raw.collections }
         : undefined;
+    const templates =
+      raw.templates && typeof raw.templates === "object"
+        ? { ...raw.templates }
+        : undefined;
     const images =
       raw.images && typeof raw.images === "object"
         ? { ...raw.images }
@@ -61,6 +66,7 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
     return {
       site: site as Record<string, unknown> | undefined,
       collections: collections as Record<string, unknown> | undefined,
+      templates: templates as Record<string, unknown> | undefined,
       images: images as Record<string, unknown> | undefined,
       audio: audio as Record<string, unknown> | undefined,
       video: video as Record<string, unknown> | undefined,
@@ -118,6 +124,10 @@ export async function createSite(rootDir: string): Promise<Site> {
     config.collections && typeof config.collections === "object"
       ? { ...config.collections }
       : undefined;
+  const templatesConfig: Record<string, unknown> | undefined =
+    config.templates && typeof config.templates === "object"
+      ? { ...config.templates }
+      : undefined;
 
   // Apply minimal defaults for expected fields if absent
   if (typeof siteSection.title !== "string") {
@@ -133,6 +143,7 @@ export async function createSite(rootDir: string): Promise<Site> {
     config: {
       collections: collectionsConfig,
       ...(plugins ? { plugins } : {}),
+      ...(templatesConfig ? { templates: templatesConfig } : {}),
     },
   };
 

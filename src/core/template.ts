@@ -48,6 +48,7 @@ async function resolveTemplatePath(
 export async function resolveTemplatesRoots(options: {
   rootDir: string;
   templatesRoot: string; // value from config (can be relative)
+  siteTemplatesRoot?: string; // optional override for site templates root
   logger?: Logger;
 }): Promise<TemplatesRoots> {
   const toolRoot = path.join(
@@ -56,9 +57,13 @@ export async function resolveTemplatesRoots(options: {
     ".."
   );
 
-  const siteTemplatesRoot = path.isAbsolute(options.templatesRoot)
-    ? options.templatesRoot
-    : path.join(options.rootDir, options.templatesRoot);
+  const siteRootValue =
+    typeof options.siteTemplatesRoot === "string" && options.siteTemplatesRoot.trim()
+      ? options.siteTemplatesRoot.trim()
+      : options.templatesRoot;
+  const siteTemplatesRoot = path.isAbsolute(siteRootValue)
+    ? siteRootValue
+    : path.join(options.rootDir, siteRootValue);
 
   const toolTemplatesRoot = path.isAbsolute(options.templatesRoot)
     ? options.templatesRoot
@@ -128,6 +133,7 @@ export async function createTemplateRenderer(options: {
   defaultWrapperName: string;
   defaultLayoutName: string;
   templatesRoot: string; // from tool config
+  siteTemplatesRoot?: string; // optional site templates root
   logger?: Logger;
   plugins?: LoadedPlugin[];
   pluginContext?: PluginContext;
@@ -142,6 +148,7 @@ export async function createTemplateRenderer(options: {
   } = await resolveTemplatesRoots({
     rootDir: options.rootDir,
     templatesRoot: options.templatesRoot,
+    siteTemplatesRoot: options.siteTemplatesRoot,
     logger: options.logger,
   });
 

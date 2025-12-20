@@ -146,7 +146,7 @@ Webette combines:
 ... and renders them using templates from:
 
 1. The site’s templates folder (e.g. `templates/` under the site root when `templates.root` is relative)
-2. Tool-level fallback templates (`templates.root` + `templates.defaultWrapper/defaultLayout`)
+2. Tool-level fallback templates (`templates.root` + `templates.default.wrapper/default.layout`)
 
 Site templates win over the tool fallback. In serve mode, Webette watches the site templates when present, otherwise it watches the tool fallback.
 
@@ -209,7 +209,7 @@ Webette combines:
 ...and renders them using templates from:
 
 1. The site’s templates folder (e.g. `templates/`)
-2. Tool-level fallback templates (`templates.root` + `templates.defaultWrapper/defaultLayout`)
+2. Tool-level fallback templates (`templates.root` + `templates.default.wrapper/default.layout`)
 
 Structure:
 
@@ -219,7 +219,7 @@ Structure:
 
 Helpers:
 
-- `renderLayout <name>`: pick a layout by name, fallback to `templates.defaultLayout`.
+- `renderLayout <name>`: pick a layout by name, fallback to `templates.default.layout`.
 - Helpers: see `docs/helpers.md`.
 
 ## 12. HTML post-processing

@@ -25,7 +25,14 @@ export default {
   },
 
   templates: {
-    // root: "_templates",
+    root: "_templates",
+    default: {
+      wrapper: "wrapper/wrapper.html",
+      layout: "layout/post.html",
+      index: "layout/index.html",
+      notFound: "layout/not-found.html",
+      accessForbidden: "layout/access-forbidden.html",
+    },
   },
 
   plugins: [

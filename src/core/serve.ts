@@ -7,6 +7,8 @@ import { build } from "./build";
 import type { BuildOptions } from "./build";
 import type { Logger } from "../logging/logger";
 import { resolveTemplatesRoots } from "./template";
+import { createSite } from "./config";
+import { resolveTemplatesConfig } from "./templates/config";
 
 export interface ServeOptions extends BuildOptions {}
 
@@ -21,6 +23,11 @@ export async function serve(
 ): Promise<void> {
   const scoped = logger.child("serve");
   const toolEnv = await getEnv();
+  const site = await createSite(rootDir);
+  const { siteTemplatesRoot } = resolveTemplatesConfig(
+    toolEnv.templates,
+    site.config?.templates
+  );
   const port = toolEnv.serve.port;
   let buildVersion = Date.now().toString();
   const outputDir = path.join(rootDir, toolEnv.build.outputDirName);
@@ -28,6 +35,7 @@ export async function serve(
     await resolveTemplatesRoots({
       rootDir,
       templatesRoot: toolEnv.templates.root,
+      siteTemplatesRoot,
       logger: scoped,
     });
   const notFoundPath = path.join(outputDir, "404.html");

@@ -26,6 +26,7 @@ import {
 import type { PluginContext } from "../plugins/types";
 import { rewriteInternalLinks } from "./postprocess/internal-links";
 import { writeSitemap } from "./sitemap";
+import { resolveTemplatesConfig } from "./templates/config";
 
 export interface BuildOptions {
   verbose: boolean;
@@ -151,8 +152,6 @@ export async function build(
 
   const toolEnv = await getEnv();
   const locale = resolveLocale(toolEnv);
-  const layoutPartialName =
-    path.parse(toolEnv.templates.defaultLayout).name || toolEnv.templates.defaultLayout;
   const buildTime = new Date();
   const prettyPrint =
     typeof options.prettyPrint === "boolean"
@@ -166,11 +165,6 @@ export async function build(
     typeof options.generateIndex === "boolean"
       ? options.generateIndex
       : toolEnv.build.generateIndex;
-  const notFoundLayoutName =
-    path.parse(toolEnv.templates.notFoundLayout).name || toolEnv.templates.notFoundLayout;
-  const accessForbiddenLayoutName =
-    path.parse(toolEnv.templates.accessForbiddenLayout).name ||
-    toolEnv.templates.accessForbiddenLayout;
   const protectAssets =
     typeof options.protectAssets === "boolean"
       ? options.protectAssets
@@ -187,6 +181,81 @@ export async function build(
   scoped.debug("build.start", { rootDir });
 
   const site = await createSite(rootDir);
+  const { templates, siteTemplatesRoot } = resolveTemplatesConfig(
+    toolEnv.templates,
+    site.config?.templates
+  );
+  const rawTemplates =
+    site.config?.templates && typeof site.config.templates === "object"
+      ? (site.config.templates as Record<string, unknown>)
+      : undefined;
+  const configuredRoot =
+    typeof rawTemplates?.root === "string" && rawTemplates.root.trim()
+      ? rawTemplates.root.trim()
+      : undefined;
+  let siteTemplatesDir: string | undefined;
+  let siteRootExists = false;
+  if (configuredRoot) {
+    siteTemplatesDir = path.isAbsolute(configuredRoot)
+      ? configuredRoot
+      : path.join(rootDir, configuredRoot);
+    try {
+      const rootStat = await stat(siteTemplatesDir);
+      siteRootExists = rootStat.isDirectory();
+      if (!siteRootExists) {
+        scoped.warn("template.siteRootMissing", { path: siteTemplatesDir });
+      }
+    } catch {
+      scoped.warn("template.siteRootMissing", { path: siteTemplatesDir });
+    }
+  } else {
+    scoped.warn("template.siteRootNotConfigured", {});
+  }
+
+  const defaultConfig =
+    rawTemplates?.default && typeof rawTemplates.default === "object"
+      ? (rawTemplates.default as Record<string, unknown>)
+      : undefined;
+  const defaultKeys = Object.keys(templates.default) as Array<
+    keyof typeof templates.default
+  >;
+  const missingDefaults: string[] = [];
+  const missingFiles: string[] = [];
+  for (const key of defaultKeys) {
+    const configuredValue = defaultConfig?.[key];
+    if (typeof configuredValue !== "string" || !configuredValue.trim()) {
+      missingDefaults.push(key);
+      continue;
+    }
+    if (siteRootExists && siteTemplatesDir) {
+      const filePath = path.join(siteTemplatesDir, configuredValue);
+      try {
+        const fileStat = await stat(filePath);
+        if (!fileStat.isFile()) {
+          missingFiles.push(`${key}:${filePath}`);
+        }
+      } catch {
+        missingFiles.push(`${key}:${filePath}`);
+      }
+    }
+  }
+  if (missingDefaults.length) {
+    scoped.warn("template.siteDefaultsMissing", {
+      missing: missingDefaults.join(", "),
+    });
+  }
+  if (missingFiles.length) {
+    scoped.warn("template.siteDefaultsNotFound", {
+      missing: missingFiles.join(", "),
+    });
+  }
+  const layoutPartialName =
+    path.parse(templates.default.layout).name || templates.default.layout;
+  const notFoundLayoutName =
+    path.parse(templates.default.notFound).name || templates.default.notFound;
+  const accessForbiddenLayoutName =
+    path.parse(templates.default.accessForbidden).name ||
+    templates.default.accessForbidden;
   scoped.debug("build.siteLoaded", { title: site.site.title });
 
   const scanLogger = scoped.child("scan");
@@ -568,9 +637,10 @@ export async function build(
   // Prepare Handlebars template (site overrides take precedence over tool fallback).
   const templateRenderer = await createTemplateRenderer({
     rootDir,
-    defaultWrapperName: toolEnv.templates.defaultWrapper,
-    defaultLayoutName: toolEnv.templates.defaultLayout,
+    defaultWrapperName: templates.default.wrapper,
+    defaultLayoutName: templates.default.layout,
     templatesRoot: toolEnv.templates.root,
+    siteTemplatesRoot,
     logger: scoped.child("templates"),
     plugins,
     pluginContext: pluginContextBase,
@@ -918,8 +988,8 @@ export async function build(
   if (generateIndex) {
     // Root index (collections listing)
     const indexLayoutPartialName =
-      path.parse(toolEnv.templates.defaultIndexLayout).name ||
-      toolEnv.templates.defaultIndexLayout;
+      path.parse(templates.default.index).name ||
+      templates.default.index;
 
     const rootContext = {
       ...renderBaseContext,

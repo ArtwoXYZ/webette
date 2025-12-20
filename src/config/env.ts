@@ -60,11 +60,13 @@ export interface WebetteEnv {
   };
   templates: {
     root: string;
-    defaultWrapper: string;
-    defaultLayout: string;
-    defaultIndexLayout: string;
-    notFoundLayout: string;
-    accessForbiddenLayout: string;
+    default: {
+      wrapper: string;
+      layout: string;
+      index: string;
+      notFound: string;
+      accessForbidden: string;
+    };
   };
   markdown: {
     remarkPlugins: unknown[];
@@ -97,10 +99,15 @@ type WebetteEnvOverrides = Partial<{
     >
   >;
   templates: Partial<
-    Pick<
-      WebetteEnv["templates"],
-      "root" | "defaultWrapper" | "defaultLayout" | "defaultIndexLayout" | "notFoundLayout" | "accessForbiddenLayout"
-    >
+    {
+      root: string;
+      default: Partial<
+        Pick<
+          WebetteEnv["templates"]["default"],
+          "wrapper" | "layout" | "index" | "notFound" | "accessForbidden"
+        >
+      >;
+    }
   >;
   markdown: Partial<
     Pick<WebetteEnv["markdown"], "remarkPlugins" | "treatTxtAsMarkdown" | "externalLinks">
@@ -137,11 +144,13 @@ const defaultEnv: WebetteEnv = {
   },
   templates: {
     root: "templates",
-    defaultWrapper: "wrapper/wrapper.html",
-    defaultLayout: "layout/post.html",
-    defaultIndexLayout: "layout/index.html",
-    notFoundLayout: "layout/not-found.html",
-    accessForbiddenLayout: "layout/access-forbidden.html",
+    default: {
+      wrapper: "wrapper/wrapper.html",
+      layout: "layout/post.html",
+      index: "layout/index.html",
+      notFound: "layout/not-found.html",
+      accessForbidden: "layout/access-forbidden.html",
+    },
   },
   markdown: {
     remarkPlugins: [],
@@ -246,31 +255,35 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
       : {}),
   };
 
+  const defaultOverrides =
+    overrides.templates?.default && typeof overrides.templates.default === "object"
+      ? overrides.templates.default
+      : {};
+
   const templates = {
     ...defaults.templates,
     ...(typeof overrides.templates?.root === "string" && overrides.templates.root
       ? { root: overrides.templates.root }
       : {}),
-    ...(typeof overrides.templates?.defaultWrapper === "string" &&
-    overrides.templates.defaultWrapper
-      ? { defaultWrapper: overrides.templates.defaultWrapper }
-      : {}),
-    ...(typeof overrides.templates?.defaultLayout === "string" &&
-    overrides.templates.defaultLayout
-      ? { defaultLayout: overrides.templates.defaultLayout }
-      : {}),
-    ...(typeof overrides.templates?.defaultIndexLayout === "string" &&
-    overrides.templates.defaultIndexLayout
-      ? { defaultIndexLayout: overrides.templates.defaultIndexLayout }
-      : {}),
-    ...(typeof overrides.templates?.notFoundLayout === "string" &&
-    overrides.templates.notFoundLayout
-      ? { notFoundLayout: overrides.templates.notFoundLayout }
-      : {}),
-    ...(typeof overrides.templates?.accessForbiddenLayout === "string" &&
-    overrides.templates.accessForbiddenLayout
-      ? { accessForbiddenLayout: overrides.templates.accessForbiddenLayout }
-      : {}),
+    default: {
+      ...defaults.templates.default,
+      ...(typeof defaultOverrides.wrapper === "string" && defaultOverrides.wrapper
+        ? { wrapper: defaultOverrides.wrapper }
+        : {}),
+      ...(typeof defaultOverrides.layout === "string" && defaultOverrides.layout
+        ? { layout: defaultOverrides.layout }
+        : {}),
+      ...(typeof defaultOverrides.index === "string" && defaultOverrides.index
+        ? { index: defaultOverrides.index }
+        : {}),
+      ...(typeof defaultOverrides.notFound === "string" && defaultOverrides.notFound
+        ? { notFound: defaultOverrides.notFound }
+        : {}),
+      ...(typeof defaultOverrides.accessForbidden === "string" &&
+      defaultOverrides.accessForbidden
+        ? { accessForbidden: defaultOverrides.accessForbidden }
+        : {}),
+    },
   };
 
   const markdown = {

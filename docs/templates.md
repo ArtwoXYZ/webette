@@ -4,10 +4,10 @@ Webette renders HTML with Handlebars. Each entry gets its own `index.html`; opti
 
 ## Where templates come from
 
-- Tool defaults are configured in `webette.tool.ts` (`templates.root`, `templates.defaultWrapper`, `templates.defaultLayout`, `templates.defaultIndexLayout`, `templates.notFoundLayout`, `templates.accessForbiddenLayout`).
+- Tool defaults are configured in `webette.tool.ts` (`templates.root` and `templates.default.*`).
 - The renderer looks first under the site root (`<site>/<templates.root>/...`), then falls back to the tool (`process.cwd()` + `templates.root`).
 - Folder structure: `wrapper/` for the wrapper, `layout/` for layouts (registered as partials), `partial/` for classic partials (e.g. `templates/partial/header.hbs` -> `{{> header}}`). `layout/index.html` is the default index layout used for root/collection listings when index generation is enabled. `layout/access-forbidden.html` is the default layout used to render forbidden placeholders in asset folders. `layout/not-found.html` is the default layout used to render the static `404.html`.
-- Helper: the wrapper calls `{{{renderLayout layoutName}}}` which resolves the layout (partial) by name; `layoutName` defaults to `templates.defaultLayout`.
+- Helper: the wrapper calls `{{{renderLayout layoutName}}}` which resolves the layout (partial) by name; `layoutName` defaults to `templates.default.layout`.
 
 ## Template syntax
 
@@ -39,6 +39,7 @@ Routes in the model are root-relative (e.g. `/assets/images/...`), so they work 
 - The fallback not-found layout (`templates/layout/not-found.html`) renders the static `404.html` page.
 
 Sites can override wrapper and layouts by dropping their files under `<site>/<templates.root>/wrapper/...` and `<site>/<templates.root>/layout/...`; resolution order is site > tool.
+If the site config does not declare `templates.root`, or if the directory is missing, Webette logs a warning and falls back to tool templates. If a site omits any `templates.default.*` key, Webette logs a warning and falls back to the tool defaults for that key.
 
 ## Inspecting the model (debug)
 

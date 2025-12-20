@@ -7,6 +7,7 @@ import { cleanName, limitSlugWords, orderKey, slugify } from "../../utils/naming
 import { resolveRoutes } from "../routes";
 import type { Block, Collection, Entry, Site } from "../model";
 import type { Logger } from "../../logging/logger";
+import { resolveTemplatesConfig } from "../templates/config";
 
 // Three-pass pipeline:
 // 1) Raw scan: read filesystem shape with minimal data (rawName/path/type/ext).
@@ -342,10 +343,16 @@ export async function scanSite(site: Site, logger?: Logger): Promise<Site> {
       ? siteTreatTxtAsMarkdown
       : toolEnv.markdown.treatTxtAsMarkdown;
 
+  const { siteTemplatesRoot } = resolveTemplatesConfig(
+    toolEnv.templates,
+    site.config?.templates
+  );
+  const templatesRoot = siteTemplatesRoot ?? toolEnv.templates.root;
+
   // Pass 1: raw structure
   const rawCollections = await listCollectionsRaw(
     site.rootDir,
-    toolEnv.templates.root,
+    templatesRoot,
     toolEnv.build.outputDirName,
     toolEnv.logging.dirName
   );

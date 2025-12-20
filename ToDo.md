@@ -18,7 +18,7 @@
 - ~~prévoire un helper pour les images~~
 - refaire entièrement le website-example pour montrer toutes les capacités actuelles de webette et faire un truc propre
   - virer les layouts inutiles et vérifier si ça prend encore les templates par défaut si on en enlève
-  - refaire le webette.config.ts pour que ça prenne bien en compte les paramètres de template avec le dossier \_templates
+  - ~~refaire le webette.config.ts pour que ça prenne bien en compte les paramètres de template avec le dossier \_templates~~
 - dans "\_templates", prévoir l'ajout d'un dossier "assets" pour les images, video, audio... et aussi le css et le js par exemple
 - ~~Prévoir des classes pour les rendus markdown "md image", "md link", etc.~~
 - ~~Liens vers sites extérieurs des markdown vers nouvel onglet (prévoir une option à paramétrer dans la config du site)~~

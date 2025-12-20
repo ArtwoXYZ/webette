@@ -24,11 +24,13 @@ export default {
   },
   templates: {
     root: "templates", // default templates folder
-    defaultWrapper: "wrapper/wrapper.html", // default wrapper
-    defaultLayout: "layout/post.html", // default layout
-    defaultIndexLayout: "layout/index.html", // default index layout
-    notFoundLayout: "layout/not-found.html", // default 404 layout
-    accessForbiddenLayout: "layout/access-forbidden.html", // default forbidden layout
+    default: {
+      wrapper: "wrapper/wrapper.html", // default wrapper
+      layout: "layout/post.html", // default layout
+      index: "layout/index.html", // default index layout
+      notFound: "layout/not-found.html", // default 404 layout
+      accessForbidden: "layout/access-forbidden.html", // default forbidden layout
+    },
   },
   images: {
     requiresImageEngine: true, // enable variant generation via sharp

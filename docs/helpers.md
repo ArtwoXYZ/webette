@@ -9,7 +9,7 @@ Helpers to branch logic or pick items inside templates.
 - `in value list`: true if `value` is in an array.
 - `first array`: first element of an array.
 - `firstBlockOfType blocks type`: first block whose `type` matches.
-- `renderLayout name`: render another layout partial (defaults to `templates.defaultLayout` when no name is provided).
+- `renderLayout name`: render another layout partial (defaults to `templates.default.layout` when no name is provided).
 
 Example:
 ```hbs

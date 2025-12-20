@@ -48,6 +48,7 @@ export interface Site {
   config?: {
     collections?: Record<string, unknown>; // raw collections config from webette.config.ts
     plugins?: string[];             // plugin paths from webette.config.ts
+    templates?: Record<string, unknown>; // raw templates config from webette.config.ts
   };
   collections?: Collection[];       // discovered collections with their entries/blocks
   route?: string;                   // root route, usually "/"

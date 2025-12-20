@@ -28,11 +28,13 @@ export default {
   markdown: { remarkPlugins: [], treatTxtAsMarkdown: true },
   templates: {
     root: "templates",
-    defaultWrapper: "wrapper/wrapper.html",
-    defaultLayout: "layout/post.html",
-    defaultIndexLayout: "layout/index.html",
-    notFoundLayout: "layout/not-found.html",
-    accessForbiddenLayout: "layout/access-forbidden.html",
+    default: {
+      wrapper: "wrapper/wrapper.html",
+      layout: "layout/post.html",
+      index: "layout/index.html",
+      notFound: "layout/not-found.html",
+      accessForbidden: "layout/access-forbidden.html",
+    },
   },
   images: {
     requiresImageEngine: false,
@@ -71,11 +73,11 @@ export default {
 - `markdown.remarkPlugins`: list of remark plugins applied during Markdown parsing/rendering (e.g. `["remark-gfm", ["remark-footnotes", { inlineNotes: true }]]`)
 - `markdown.treatTxtAsMarkdown`: when `true`, `.txt` files use the Markdown pipeline; set to `false` to keep plain text blocks
 - `templates.root`: base folder for internal/fallback templates (resolved from `process.cwd()` unless absolute)
-- `templates.defaultWrapper`: wrapper used when the site does not provide its own (relative to `templates.root`)
-- `templates.defaultLayout`: layout partial used when the site does not provide its own (relative to `templates.root`)
-- `templates.defaultIndexLayout`: index layout used for root/collection listings (relative to `templates.root`)
-- `templates.notFoundLayout`: layout used to render the static `404.html` page (relative to `templates.root`)
-- `templates.accessForbiddenLayout`: layout used for asset-folder forbidden pages (relative to `templates.root`)
+- `templates.default.wrapper`: wrapper used when the site does not provide its own (relative to `templates.root`)
+- `templates.default.layout`: layout partial used when the site does not provide its own (relative to `templates.root`)
+- `templates.default.index`: index layout used for root/collection listings (relative to `templates.root`)
+- `templates.default.notFound`: layout used to render the static `404.html` page (relative to `templates.root`)
+- `templates.default.accessForbidden`: layout used for asset-folder forbidden pages (relative to `templates.root`)
 - `images.*`: defaults for the image pipeline (engine on/off, sizes, format/quality/fit, `outputDir`, `reencodeDefault`); site config (`webette.config.ts`) can override.
 - `video.outputDir`: relative folder under the build output for copied video assets (no transcode in core; plugins handle variants/thumbnails)
 - `audio.*`: defaults for audio handling (`outputDir`); originals are copied to `outputDir`.
@@ -85,6 +87,6 @@ export default {
 - Loaded via `getEnv()` in `src/config/env.ts`.
 - Locale resolution is centralized with `resolveLocale(config)`.
 - Consumers (`build`, `serve`, `logger`) do **not** embed defaults; they rely on `getEnv()`.
-- `build` resolves the default wrapper at `path.join(templates.root, templates.default)`; this is only used as fallback when the site has no explicit layout.
+- `build` resolves the default wrapper at `path.join(templates.root, templates.default.wrapper)`; this is only used as fallback when the site has no explicit layout.
 - Markdown parsing/rendering uses `markdown.remarkPlugins` when converting `.md` blocks to AST/HTML.
 - CLI override: `--skip-content` sets `readContent` to `false` for that run.
