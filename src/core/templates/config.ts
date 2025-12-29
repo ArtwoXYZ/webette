@@ -5,6 +5,10 @@ type TemplateKey = keyof WebetteEnv["templates"]["default"];
 export type TemplatesOverrides = Partial<{
   root: string;
   default: Partial<Record<TemplateKey, string>>;
+  assets: {
+    dir: string;
+    publicBase: string;
+  };
 }>;
 
 const DEFAULT_KEYS: TemplateKey[] = [
@@ -40,6 +44,23 @@ export function parseTemplatesOverrides(
     }
   }
 
+  const rawAssets = (raw as Record<string, unknown>).assets;
+  if (rawAssets && typeof rawAssets === "object") {
+    const dir = (rawAssets as Record<string, unknown>).dir;
+    const publicBase = (rawAssets as Record<string, unknown>).publicBase;
+    if (
+      typeof dir === "string" &&
+      dir.trim() &&
+      typeof publicBase === "string" &&
+      publicBase.trim()
+    ) {
+      overrides.assets = {
+        dir: dir.trim(),
+        publicBase: publicBase.trim(),
+      };
+    }
+  }
+
   return overrides;
 }
 
@@ -49,6 +70,7 @@ export function resolveTemplatesConfig(
 ): {
   templates: WebetteEnv["templates"];
   siteTemplatesRoot?: string;
+  assets?: TemplatesOverrides["assets"];
 } {
   const overrides = parseTemplatesOverrides(raw);
   return {
@@ -60,5 +82,6 @@ export function resolveTemplatesConfig(
       },
     },
     siteTemplatesRoot: overrides.root,
+    ...(overrides.assets ? { assets: overrides.assets } : {}),
   };
 }

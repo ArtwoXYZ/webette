@@ -1,4 +1,4 @@
-import { mkdir, rm, stat, writeFile, readdir, readFile } from "node:fs/promises";
+import { mkdir, rm, stat, writeFile, readdir, readFile, copyFile } from "node:fs/promises";
 import * as path from "node:path";
 import { getEnv, resolveLocale } from "../config/env";
 import { t } from "../logging/i18n";
@@ -105,6 +105,26 @@ async function removeEmptyDirectories(dir: string, root: string): Promise<void> 
   }
 }
 
+function normalizeAssetsBase(raw: string): string {
+  const trimmed = raw.trim();
+  const withLeading = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  return withLeading.replace(/\/+$/, "");
+}
+
+async function copyDirectory(sourceDir: string, targetDir: string): Promise<void> {
+  const entries = await readdir(sourceDir, { withFileTypes: true }).catch(() => []);
+  await mkdir(targetDir, { recursive: true });
+  for (const entry of entries) {
+    const srcPath = path.join(sourceDir, entry.name);
+    const dstPath = path.join(targetDir, entry.name);
+    if (entry.isDirectory()) {
+      await copyDirectory(srcPath, dstPath);
+    } else if (entry.isFile()) {
+      await copyFile(srcPath, dstPath);
+    }
+  }
+}
+
 export async function build(
   rootDir: string,
   options: BuildOptions,
@@ -182,7 +202,7 @@ export async function build(
   scoped.debug("build.start", { rootDir });
 
   const site = await createSite(rootDir);
-  const { templates, siteTemplatesRoot } = resolveTemplatesConfig(
+  const { templates, siteTemplatesRoot, assets: templatesAssets } = resolveTemplatesConfig(
     toolEnv.templates,
     site.config?.templates
   );
@@ -258,6 +278,14 @@ export async function build(
     path.parse(templates.default.accessForbidden).name ||
     templates.default.accessForbidden;
   scoped.debug("build.siteLoaded", { title: site.site.title });
+
+  const assetsBase = templatesAssets
+    ? normalizeAssetsBase(templatesAssets.publicBase)
+    : undefined;
+  const assetsBaseRelative = assetsBase ? assetsBase.replace(/^\/+/, "") : undefined;
+  if (assetsBaseRelative) {
+    registerExpectedDir(assetsBaseRelative);
+  }
 
   const scanLogger = scoped.child("scan");
   const scannedSiteRaw = await scanSite(site, scanLogger);
@@ -441,6 +469,24 @@ export async function build(
     }
     // Directory already exists: not fatal when recursive, continue
     scoped.debug("build.outputDirExists", { outputDir });
+  }
+
+  if (templatesAssets && assetsBaseRelative) {
+    const rootValue = siteTemplatesRoot ?? toolEnv.templates.root;
+    const templatesRoot = path.isAbsolute(rootValue)
+      ? rootValue
+      : path.join(rootDir, rootValue);
+    const assetsSourceDir = path.isAbsolute(templatesAssets.dir)
+      ? templatesAssets.dir
+      : path.join(templatesRoot, templatesAssets.dir);
+    const assetsTargetDir = path.join(outputDir, assetsBaseRelative);
+    const assetsSourceExists = await stat(assetsSourceDir)
+      .then((s) => s.isDirectory())
+      .catch(() => false);
+    if (assetsSourceExists) {
+      await rm(assetsTargetDir, { recursive: true, force: true });
+      await copyDirectory(assetsSourceDir, assetsTargetDir);
+    }
   }
 
   const resolvedSite = await resolveBlocks(scannedSiteWithPlugins, {
@@ -665,6 +711,7 @@ export async function build(
     layoutName: layoutPartialName,
     buildTime,
     liveReloadScript,
+    ...(assetsBase ? { templates: { assetsBase } } : {}),
   };
 
   const formatHtml = async (rawHtml: string, targetPath: string): Promise<string> => {

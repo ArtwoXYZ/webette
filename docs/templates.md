@@ -28,6 +28,7 @@ Every render gets the full model plus handy aliases:
 - `block.content.meta.renderedInline`: `true` when a block is rendered inline in Markdown (e.g. internal image targets)
 - `liveReloadScript`: raw script injected during `serve` (use `{{{liveReloadScript}}}`)
 - `buildTime`: build timestamp (use with helpers like `formatDate` / `fromNow`)
+- `templates.assetsBase`: base public path for template assets (only when `templates.assets` is configured)
 
 Routes in the model are root-relative (e.g. `/assets/images/...`), so they work from any entry page.
 
@@ -41,6 +42,25 @@ Routes in the model are root-relative (e.g. `/assets/images/...`), so they work 
 
 Sites can override wrapper and layouts by dropping their files under `<site>/<templates.root>/wrapper/...` and `<site>/<templates.root>/layout/...`; resolution order is site > tool.
 If the site config does not declare `templates.root`, or if the directory is missing, Webette logs a warning and falls back to tool templates. If a site omits any `templates.default.*` key, Webette logs a warning and falls back to the tool defaults for that key.
+
+## Template assets
+
+Sites can expose a templates assets folder (CSS/JS/images) via `templates.assets` in `webette.config.ts`:
+
+```ts
+templates: {
+  root: "_templates",
+  assets: {
+    dir: "assets",
+    publicBase: "/assets/theme"
+  }
+}
+```
+
+- `assets.dir` is relative to `templates.root` (or absolute if you pass an absolute path).
+- `assets.publicBase` is the public URL prefix used in the build output.
+- When configured, Webette copies the assets folder into the build output at `publicBase`.
+- Use the `asset` helper in templates: `{{asset "css/init.css"}}`.
 
 ## Inspecting the model (debug)
 

@@ -54,6 +54,14 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     return resolveDefaultVariant(site);
   };
 
+  const resolveAssetsBaseFromContext = (options: any): string | undefined => {
+    const root = options?.data?.root ?? {};
+    const templates = (root as any).templates;
+    const base = templates?.assetsBase;
+    if (typeof base === "string" && base.trim()) return base.trim();
+    return undefined;
+  };
+
   const truncate = (value: string, length: number) => {
     if (length <= 0) return "";
     if (value.length <= length) return value;
@@ -100,6 +108,14 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     });
 
     return new Handlebars.SafeString(html);
+  });
+
+  Handlebars.registerHelper("asset", function (value: unknown, options) {
+    const raw = value == null ? "" : String(value);
+    const base = resolveAssetsBaseFromContext(options);
+    if (!base) return raw;
+    const clean = raw.replace(/^\/+/, "");
+    return clean ? `${base}/${clean}` : base;
   });
 
   Handlebars.registerHelper("eq", (a: unknown, b: unknown) => a === b);

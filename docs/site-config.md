@@ -36,6 +36,28 @@ export default {
 - Markdown rendering adds a `webt-md` CSS class on every element for easy scoping, and (when `rehype-external-links` is installed) external links get `target="_blank"` + `rel="noopener noreferrer"` by default.
 - Collections are discovered automatically from folders at the site root (ignoring output/logs/templates/hidden/underscore prefixes). The exported model includes `collections`, their `entries`, and `blocks` with IDs, slugs, POSIX paths, and type hints.
 
+## `templates` section (site templates + assets)
+
+You can override the templates root and declare a templates assets folder:
+
+```ts
+export default {
+  templates: {
+    root: "_templates",
+    assets: {
+      dir: "assets",
+      publicBase: "/assets/theme"
+    }
+  }
+};
+```
+
+Notes:
+- `templates.root` is relative to the site root.
+- `templates.assets.dir` is relative to `templates.root` (or absolute if you pass an absolute path).
+- `templates.assets.publicBase` is the public URL prefix used in the build output.
+- Use the `asset` helper in templates to link to these files.
+
 ## `collections` section (per collection overrides)
 
 Keys match collection folders by `path` (or the key itself if `path` is omitted). Recognized fields today:

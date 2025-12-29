@@ -26,6 +26,10 @@ export default {
 
   templates: {
     root: "_templates",
+    assets: {
+      dir: "assets",
+      publicBase: "/assets",
+    },
     default: {
       wrapper: "wrapper/wrapper.html",
       layout: "layout/post.html",

@@ -108,6 +108,15 @@ Notes:
 - Accepted prefixes for internal targets: `collection:`/`coll:`, `entry:`, `block:`.
 - Options align with the `image` helper; `variant` must be one of `default|small|medium|large`.
 
+## Assets
+- `asset path`: build a URL to the configured templates assets base.
+
+Examples:
+```hbs
+<link rel="stylesheet" href="{{asset "css/init.css"}}">
+<script src="{{asset "js/app.js"}}" defer></script>
+```
+
 ## Context hints
 - `buildTime` is available in the render context (use with `formatDate`/`fromNow`).
 
