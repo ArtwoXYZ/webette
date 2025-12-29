@@ -16,6 +16,6 @@ function greet(name) {
 ## 2. Quotes & links
 
 > Webette turns Markdown into HTML, keeps raw/ast/html in the model.
-> Internal link example: [/posts/draft](../draft/) or [Draft](post: draft)
+> Internal link example: [/posts/draft](../draft/) or [Draft](entry: draft)
 
 ## 3. Media follows: image, audio, video, then a plain text block.

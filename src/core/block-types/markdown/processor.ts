@@ -42,7 +42,7 @@ export async function parseMarkdownToAst(
   // - remove spaces around separators
   // - percent-encode spaces inside values (collection/entry/block names)
   const sanitized = source.replace(
-    /\(\s*(collection|entry|post|block|image|file)\s*:\s*([^)\n]+)\)/gi,
+    /\(\s*(collection|coll|entry|block)\s*:\s*([^)\n]+)\)/gi,
     (_, kind, rest) => {
       const encodeValue = (val: string) => val.trim().replace(/\s+/g, "%20");
       const pieces = rest.split(",").map((s: string) => s.trim()).filter(Boolean);
@@ -53,7 +53,8 @@ export async function parseMarkdownToAst(
       }
 
       // The first segment belongs to the first key captured in the regex.
-      normalized.push(`${kind.toLowerCase()}:${encodeValue(pieces[0])}`);
+      const mainKey = kind.toLowerCase() === "coll" ? "collection" : kind.toLowerCase();
+      normalized.push(`${mainKey}:${encodeValue(pieces[0])}`);
 
       // The remaining segments can declare other keys (entry, block, etc.).
       for (const piece of pieces.slice(1)) {
@@ -79,7 +80,10 @@ export async function renderMarkdownToHtml(
   options?: { enableExternalLinks?: boolean }
 ): Promise<string> {
   // Convert mdast to HTML using the same remark plugins + rehype stringify
-  const processor = createMarkdownProcessor(remarkPlugins).use(remarkRehype);
+  // Allow raw HTML nodes in markdown (used by internal image rendering).
+  const processor = createMarkdownProcessor(remarkPlugins).use(remarkRehype, {
+    allowDangerousHtml: true,
+  });
 
   if (options?.enableExternalLinks !== false) {
     try {
@@ -96,7 +100,7 @@ export async function renderMarkdownToHtml(
 
   processor
     .use(addClassToAllElements as any, { className: DEFAULT_MARKDOWN_CLASS })
-    .use(rehypeStringify);
+    .use(rehypeStringify, { allowDangerousHtml: true });
 
   const hast = await processor.run(ast as any);
   return processor.stringify(hast) as string;

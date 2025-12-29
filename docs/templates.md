@@ -25,6 +25,7 @@ Every render gets the full model plus handy aliases:
 - `entry`: the current entry
 - `blocks`: `entry.blocks`
 - `entry.isDraft`: `true` when the entry folder contains `draft.webt` (visible in `serve` by default; stripped from `build` output)
+- `block.content.meta.renderedInline`: `true` when a block is rendered inline in Markdown (e.g. internal image targets)
 - `liveReloadScript`: raw script injected during `serve` (use `{{{liveReloadScript}}}`)
 - `buildTime`: build timestamp (use with helpers like `formatDate` / `fromNow`)
 

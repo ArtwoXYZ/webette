@@ -25,6 +25,7 @@ import {
 } from "../plugins/runner";
 import type { PluginContext } from "../plugins/types";
 import { rewriteInternalLinks } from "./postprocess/internal-links";
+import { rewriteInternalImages } from "./postprocess/internal-images";
 import { writeSitemap } from "./sitemap";
 import { resolveTemplatesConfig } from "./templates/config";
 
@@ -515,8 +516,13 @@ export async function build(
     remarkPlugins: toolEnv.markdown.remarkPlugins,
     logger: scoped,
   });
+  const siteWithInternalImages = await rewriteInternalImages({
+    site: siteWithInternalLinks,
+    remarkPlugins: toolEnv.markdown.remarkPlugins,
+    logger: scoped,
+  });
 
-  const resolvedSiteWithHistory = await applyHistory(siteWithInternalLinks, {
+  const resolvedSiteWithHistory = await applyHistory(siteWithInternalImages, {
     previous: previousState,
     rootDir,
     readContent,

@@ -16,13 +16,13 @@
 - ~~ajouter un mode brouillon : ajoute un parametre isDraft sur les entrée. Si serve : rendu (ajouté dans le template une info "brouillon"), si Build ignoré complétement, même pas dans le model ou quoi.~~
 - ~~Sitemap generator~~
 - ~~prévoire un helper pour les images~~
-- refaire entièrement le website-example pour montrer toutes les capacités actuelles de webette et faire un truc propre
-  - virer les layouts inutiles et vérifier si ça prend encore les templates par défaut si on en enlève
+- EN COURS - refaire entièrement le website-example pour montrer toutes les capacités actuelles de webette et faire un truc propre
+  - ~~virer les layouts inutiles et vérifier si ça prend encore les templates par défaut si on en enlève~~
   - ~~refaire le webette.config.ts pour que ça prenne bien en compte les paramètres de template avec le dossier \_templates~~
 - dans "\_templates", prévoir l'ajout d'un dossier "assets" pour les images, video, audio... et aussi le css et le js par exemple
 - ~~Prévoir des classes pour les rendus markdown "md image", "md link", etc.~~
 - ~~Liens vers sites extérieurs des markdown vers nouvel onglet (prévoir une option à paramétrer dans la config du site)~~
-- Pour les images internes rendues par le markdown, prévoir une option du site pour choisir le format par défaut à afficher et prévoir aussi de pouvoir le faire inline (genre ![mon image](block: image.png, size: small))
+- ~~Pour les images internes rendues par le markdown, prévoir une option du site pour choisir le format par défaut à afficher et prévoir aussi de pouvoir le faire inline (genre ![mon image](block: image.png, size: small))~~
 - Plugin de flux RSS
 - Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)
 - Plugin : Ajouter un moyen à l'utilisateur de changer la date de son entrée grâce à un fichier created.webt et un autre fichier updated.webt si le user veux contrôlé ça. Je ne vois cette feature utile que dans les entrées

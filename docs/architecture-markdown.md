@@ -115,13 +115,24 @@ After the site model is resolved, Webette rewrites custom internal URLs in Markd
 - Entry (collection implied): `[My first post](entry: my first post)`
 - Entry with explicit collection: `[My first post](collection: posts, entry: my first post)`
 - Image block in the same entry: `![Nebula](block: The GREAT NEBULA in ORION.jpg)`
-- Image block in another entry: `![Stars](post: my second post, block: Stars Whose Distances Are Best Known.jpg)`
+- Image block in another entry: `![Stars](collection: posts, entry: my second post, block: Stars Whose Distances Are Best Known.jpg)`
 
 Rules:
-- Prefixes accepted: `collection:`/`coll:`, `entry:`/`post:`, `block:`/`image:`/`file:`.
+- Prefixes accepted: `collection:`/`coll:`, `entry:`, `block:`.
 - Names match slug, id, name, or raw filename without numeric prefixes; spaces are normalized/decoded.
-- If an image block is referenced inline, its block gets `content.meta.renderedInline = true` so templates can skip duplicate rendering.
 - Unresolved targets emit warning `markdown.internalLink.unresolved`.
+
+## Internal images (block: in Markdown)
+
+Image nodes in Markdown can resolve `block:` targets and render full HTML:
+
+- `![Nebula](block: The GREAT NEBULA in ORION.jpg, variant: small)`
+- `![Hero](block: cover.jpg, figure: true, caption: "Cover")`
+
+Notes:
+- Image options align with the template helper (`variant`, `class`, `id`, `sizes`, `loading`, `figure`, etc.).
+- When an image block is rendered inline, its block gets `content.meta.renderedInline = true` so templates can skip duplicate rendering.
+- Raw HTML output is enabled in the Markdown pipeline to allow `<img>/<figure>` injection.
 
 ---
 

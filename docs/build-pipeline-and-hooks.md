@@ -22,10 +22,11 @@ A Webette build runs through these major phases:
 8. Resolve **routes** (site/collection/entry; blocks later, by resolvers when needed)
 9. Parse Markdown into an **AST**
 10. Transform content (AST transforms, block transforms, enrichment plugins), render Markdown to HTML, and enrich block metadata
-11. Render **templates** (wrapper + layout + partials)
-12. HTML post-processing (pretty-print, rewrites)
-13. Write output
-14. Run post-build hooks
+11. Post-process Markdown AST (internal links, internal images)
+12. Render **templates** (wrapper + layout + partials)
+13. HTML post-processing (pretty-print, rewrites)
+14. Write output
+15. Run post-build hooks
 
 Each step exposes hooks plugins can use to extend or alter the behavior.
 
@@ -184,20 +185,16 @@ All transformations happen **before rendering**, ensuring templates receive clea
 
 ---
 
-## 11. HTML post-processing
+## 11. Markdown post-processing (internal links/images)
 
-After rendering, plugins may adjust the output:
+After Markdown is parsed and rendered, Webette rewrites internal targets:
 
-- inject global scripts (analytics, comments, client-side widgets)
-- add metadata tags
-- rewrite markup
-- insert per-entry or global enhancements
-
-This is the last opportunity to modify the page before writing it.
+- Internal links (`collection:`/`entry:`/`block:`) resolve to real routes.
+- Markdown image targets (`block:`) can render full `<img>/<figure>` HTML and mark `renderedInline`.
 
 ---
 
-## 11. Template rendering
+## 12. Template rendering
 
 Webette combines:
 
@@ -222,7 +219,7 @@ Helpers:
 - `renderLayout <name>`: pick a layout by name, fallback to `templates.default.layout`.
 - Helpers: see `docs/helpers.md`.
 
-## 12. HTML post-processing
+## 13. HTML post-processing
 
 After rendering, plugins or the core may adjust the output:
 
@@ -232,7 +229,7 @@ After rendering, plugins or the core may adjust the output:
 - rewrite markup
 - insert per-entry or global enhancements
 
-## 13. Output
+## 14. Output
 
 Generated HTML and assets are written to the folder defined by `build.outputDirName` (from `webette.tool.ts`).
 
@@ -253,7 +250,7 @@ Optional server helpers:
 
 ---
 
-## 14. Post-build
+## 15. Post-build
 
 Plugins can perform final tasks:
 

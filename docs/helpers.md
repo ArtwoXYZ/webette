@@ -95,6 +95,19 @@ Examples:
 {{image myImage variant="medium" class="hero" figure=true caption="Cover photo"}}
 ```
 
+## Images in Markdown (block:)
+
+Markdown image URLs can target internal blocks and reuse the same options:
+
+```
+![Nebula](block: The GREAT NEBULA in ORION.jpg, variant: small)
+![Hero](block: cover.jpg, figure: true, caption: "Cover", class: hero)
+```
+
+Notes:
+- Accepted prefixes for internal targets: `collection:`/`coll:`, `entry:`, `block:`.
+- Options align with the `image` helper; `variant` must be one of `default|small|medium|large`.
+
 ## Context hints
 - `buildTime` is available in the render context (use with `formatDate`/`fromNow`).
 

@@ -1,13 +1,11 @@
 ﻿import Handlebars from "handlebars";
 import type { Collection, Entry } from "../model";
-
-type ImageVariantName = "default" | "small" | "medium" | "large";
-type ImagePick = {
-  src?: string;
-  width?: number;
-  height?: number;
-  srcset?: string;
-};
+import {
+  buildImageHtml,
+  normalizeVariantName,
+  pickImageSource,
+  resolveDefaultVariant,
+} from "./image-utils";
 
 let helpersRegistered = false;
 
@@ -50,85 +48,22 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     return undefined;
   };
 
+  const resolveDefaultVariantFromContext = (options: any) => {
+    const root = options?.data?.root ?? {};
+    const site = (root as any).site ?? (root as any).model?.site;
+    return resolveDefaultVariant(site);
+  };
+
   const truncate = (value: string, length: number) => {
     if (length <= 0) return "";
     if (value.length <= length) return value;
-    return `${value.slice(0, length)}…`;
-  };
-
-  const normalizeVariantName = (raw: unknown): ImageVariantName | undefined => {
-    if (raw === "default" || raw === "small" || raw === "medium" || raw === "large") {
-      return raw;
-    }
-    if (typeof raw === "string" && raw.trim()) {
-      const val = raw.trim().toLowerCase();
-      if (val === "default" || val === "small" || val === "medium" || val === "large") {
-        return val as ImageVariantName;
-      }
-    }
-    return undefined;
-  };
-
-  const pickImageSource = (
-    block: any,
-    requested: ImageVariantName | undefined,
-    fallback: ImageVariantName
-  ): ImagePick => {
-    const variants: any[] = Array.isArray(block?.content?.variants)
-      ? (block.content.variants as any[])
-      : [];
-
-    const findVariant = (name: ImageVariantName | undefined) =>
-      name
-        ? variants.find(
-            (v: any) => typeof v?.name === "string" && v.name.toLowerCase() === name
-          )
-        : undefined;
-
-    const chosenVariant = findVariant(requested) ?? findVariant(fallback);
-
-    const srcset = variants
-      .map((v) => {
-        const r = (v as any).route;
-        const w = (v as any).width;
-        if (typeof r === "string" && typeof w === "number" && Number.isFinite(w)) {
-          return `${r} ${w}w`;
-        }
-        return null;
-      })
-      .filter(Boolean)
-      .join(", ");
-
-    return {
-      src: (chosenVariant as any)?.route ?? block?.route,
-      width: (chosenVariant as any)?.width ?? block?.content?.meta?.width,
-      height: (chosenVariant as any)?.height ?? block?.content?.meta?.height,
-      srcset: srcset || undefined,
-    };
-  };
-
-  const resolveDefaultVariant = (options: any): ImageVariantName => {
-    const root = options?.data?.root ?? {};
-    const site = (root as any).site ?? (root as any).model?.site;
-    const images = site?.images;
-    const configured = normalizeVariantName(images?.defaultVariant);
-    return configured ?? "default";
-  };
-
-  const buildAttributes = (attrs: Record<string, unknown>): string => {
-    const pairs: string[] = [];
-    for (const [key, value] of Object.entries(attrs)) {
-      if (value === undefined || value === null || value === false) continue;
-      const escaped = Handlebars.escapeExpression(String(value));
-      pairs.push(`${key}="${escaped}"`);
-    }
-    return pairs.join(" ");
+    return `${value.slice(0, length)}.`;
   };
 
   Handlebars.registerHelper("imageSrc", function (block: any, options) {
     if (!block || block.type !== "image") return "";
     const variant = normalizeVariantName(options?.hash?.variant);
-    const defaultVariant = resolveDefaultVariant(options);
+    const defaultVariant = resolveDefaultVariantFromContext(options);
     const picked = pickImageSource(block, variant, defaultVariant);
     return picked.src ?? "";
   });
@@ -138,51 +73,33 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     const hash = options?.hash ?? {};
 
     const variant = normalizeVariantName(hash.variant);
-    const defaultVariant = resolveDefaultVariant(options);
-    const picked = pickImageSource(block, variant, defaultVariant);
+    const root = options?.data?.root ?? {};
+    const site = (root as any).site ?? (root as any).model?.site;
 
-    if (!picked.src) return "";
-
-    const alt =
-      hash.alt ??
-      block?.name ??
-      block?.rawName ??
-      "";
-
-    const attrs: Record<string, unknown> = {
-      src: picked.src,
-      alt,
-      ...(hash.title ? { title: hash.title } : {}),
-      ...(hash.class ? { class: hash.class } : {}),
-      ...(hash.id ? { id: hash.id } : {}),
-      ...(hash.loading ? { loading: hash.loading } : { loading: "lazy" }),
-      ...(hash.decoding ? { decoding: hash.decoding } : {}),
-      ...(picked.width ? { width: picked.width } : {}),
-      ...(picked.height ? { height: picked.height } : {}),
-      ...(picked.srcset ? { srcset: picked.srcset } : {}),
-      ...(hash.sizes ? { sizes: hash.sizes } : {}),
-    };
-
+    const dataAttrs: Record<string, string> = {};
     for (const [key, value] of Object.entries(hash)) {
       if (key.startsWith("data-")) {
-        attrs[key] = value;
+        dataAttrs[key] = String(value);
       }
     }
 
-    const imgTag = `<img ${buildAttributes(attrs)} />`;
+    const html = buildImageHtml(block, {
+      variant,
+      alt: hash.alt,
+      title: hash.title,
+      className: hash.class,
+      id: hash.id,
+      loading: hash.loading,
+      decoding: hash.decoding,
+      sizes: hash.sizes,
+      figure: Boolean(hash.figure),
+      caption: hash.caption,
+      figureClass: hash.figureClass,
+      data: Object.keys(dataAttrs).length ? dataAttrs : undefined,
+      site,
+    });
 
-    if (hash.figure) {
-      const figAttrs: Record<string, unknown> = {};
-      if (hash.figureClass) figAttrs.class = hash.figureClass;
-      const captionText =
-        hash.caption ?? alt ?? block?.name ?? "";
-      const figure = `<figure ${buildAttributes(figAttrs)}>${imgTag}<figcaption>${Handlebars.escapeExpression(
-        captionText
-      )}</figcaption></figure>`;
-      return new Handlebars.SafeString(figure);
-    }
-
-    return new Handlebars.SafeString(imgTag);
+    return new Handlebars.SafeString(html);
   });
 
   Handlebars.registerHelper("eq", (a: unknown, b: unknown) => a === b);
