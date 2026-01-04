@@ -1,6 +1,6 @@
 import * as path from "node:path";
 import type { Collection, Entry, Site, Block } from "../model";
-import { cleanName } from "../../utils/naming";
+import { cleanName, slugify } from "../../utils/naming";
 
 export type ParsedTarget =
   | { kind: "collection"; collectionName: string }
@@ -11,6 +11,7 @@ export type ParsedTarget =
 export type ParsedInternal = {
   target: ParsedTarget | null;
   options: Record<string, string>;
+  anchor?: string;
 };
 
 function decodeValue(value: string): string {
@@ -39,9 +40,48 @@ export function parseInternalReference(rawUrl: string): ParsedInternal | null {
   const trimmed = rawUrl.trim();
   if (!trimmed) return null;
 
-  const segments = trimmed.split(/\s*,\s*/).filter(Boolean);
+  const splitSegments = (raw: string): string[] => {
+    const keys = ["collection", "coll", "entry", "block"];
+    const result: string[] = [];
+    let start = 0;
+    for (let i = 0; i < raw.length; i += 1) {
+      if (raw[i] !== ",") continue;
+      let j = i + 1;
+      while (j < raw.length && /\s/.test(raw[j] ?? "")) j += 1;
+      let matched = false;
+      for (const key of keys) {
+        const slice = raw.slice(j, j + key.length);
+        const after = raw[j + key.length];
+        if (slice.toLowerCase() === key && after === ":") {
+          const segment = raw.slice(start, i).trim();
+          if (segment) result.push(segment);
+          start = j;
+          matched = true;
+          break;
+        }
+      }
+      if (matched) {
+        i = j - 1;
+      }
+    }
+    const tail = raw.slice(start).trim();
+    if (tail) result.push(tail);
+    return result;
+  };
+
+  const segments = splitSegments(trimmed);
   const data: Record<string, string> = {};
   const options: Record<string, string> = {};
+  let anchor: string | undefined;
+
+  const splitAnchor = (value: string): { value: string; anchor?: string } => {
+    const idx = value.indexOf("#");
+    if (idx <= 0) return { value };
+    const base = value.slice(0, idx).trim();
+    const hash = value.slice(idx + 1).trim();
+    const anchor = hash ? slugify(hash) : undefined;
+    return { value: base, anchor };
+  };
 
   for (const seg of segments) {
     const [rawKey, ...rest] = seg.split(":");
@@ -51,7 +91,13 @@ export function parseInternalReference(rawUrl: string): ParsedInternal | null {
     if (!value) continue;
     const targetKey = normalizeTargetKey(key);
     if (targetKey) {
-      data[targetKey] = value;
+      if (targetKey === "entry") {
+        const split = splitAnchor(value);
+        data[targetKey] = split.value;
+        anchor = split.anchor ?? anchor;
+      } else {
+        data[targetKey] = value;
+      }
     } else {
       options[key] = value;
     }
@@ -65,7 +111,13 @@ export function parseInternalReference(rawUrl: string): ParsedInternal | null {
       const key = normalizeTargetKey(match.replace(":", ""))!;
       const value = decodeValue(trimmed.slice(match.length).trim());
       if (value) {
-        data[key] = value;
+        if (key === "entry") {
+          const split = splitAnchor(value);
+          data[key] = split.value;
+          anchor = split.anchor ?? anchor;
+        } else {
+          data[key] = value;
+        }
       }
     }
   }
@@ -90,7 +142,7 @@ export function parseInternalReference(rawUrl: string): ParsedInternal | null {
 
   if (!target) return null;
 
-  return { target, options };
+  return { target, options, ...(anchor ? { anchor } : {}) };
 }
 
 export function matchCollection(site: Site, name: string): Collection | undefined {

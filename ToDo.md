@@ -23,7 +23,7 @@
 - ~~Prévoir des classes pour les rendus markdown "md image", "md link", etc.~~
 - ~~Liens vers sites extérieurs des markdown vers nouvel onglet (prévoir une option à paramétrer dans la config du site)~~
 - ~~Pour les images internes rendues par le markdown, prévoir une option du site pour choisir le format par défaut à afficher et prévoir aussi de pouvoir le faire inline (genre ![mon image](block: image.png, size: small))~~
-- Mises à jour sur les index :
+- ~~Mises à jour sur les index :~~
   - ~~permettre de définir : templates.default.index, templates.custom.index.root, templates.custom.index.collection, templates.custom.index.collection("collection name")~~
   - ~~permettre de pouvoir délister une collection unlisted.webt (exemple : collection "pages") => ça retire l'indexation automatique pour cette collection et ces entries mais elles existent quand même (est-ce qu'on les sorts quand même dans le Sitemap ?)~~
   - ~~créer un block index-list.webt qui permet de lister des collections et des entrées. Ce block peut être utilisé dans le templating pour afficher des liens et référencer tout ce dont on a besoin pour créer des aperçus des entries ou des collections~~
@@ -31,8 +31,10 @@
   - ~~ajouter un dossier \_assets à la racine d'une collection peut permettre d'ajouter des fichiers exploitables par le templating (de manière simple) mais pas listés comme une entrées ; par exemple, pour créer une image spécifique d'aperçus pour la collection~~
   - ~~permettre de définir une page spécifique dans le webette.config pour remplacer l'index root ou l'index d'une collection spécifique par une autre entrée venant d'une collection unlisted (l'entrée devient alors réellement la page /index.html en gros)~~
   - ~~faire en sorte que index-list.webt vide = index général (collection, toutes les entry dedans, collection, etc.)~~
-  - faire une page de doc complète qui explique tous les moyens de créer des index avec webette
-- Réécrire tous les logs pour les rendre plus lisibles
+  - ~~faire une page de doc complète qui explique tous les moyens de créer des index avec webette~~
+- ~~Ajouter les ancres pour liens md et Handlebars~~
+- Ajouter un sommaire pour le markdown
+- **EN COURS** - commencer un site webette pour la documentation webette
 - Refaire tout le système de sitemap pour essayer de refléter parfaitement les liens entre les pages dans le site exportés (par exemple, si une entry est unlisted mais qu'un lien pointe vers elle sur le site, il faut que la page soit visible dans le sitemap)
 - Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)
 - Peut-être retirer complétement les templates du tool (pas utiles, il faut créer des templates pour son site et puis c'est tout) ?

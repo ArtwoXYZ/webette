@@ -91,6 +91,7 @@ Rules:
 - Values can be collection/entry names or slugs.
 - The list keeps the order defined in the file.
 - If the file is empty, Webette expands it into a full index (each collection followed by its entries).
+- You can append an anchor to entry items: `entry: slug#anchor` or `entry: slug#Heading text`.
 
 The block does not auto-render. Use it in templates via `content.data.items`:
 

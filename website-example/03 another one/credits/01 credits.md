@@ -1,11 +1,17 @@
 ﻿# Credits
 
+## General
+
 Thanks for checking the Webette showcase. Media reused in this demo:
+
 - 3 Herschel.webp (image)
 - artwo - marche (remastered).mp3 (audio)
 - 044586339-automatic-data-processing-mach.mp4 (video)
 
+## Images
+
 Credits sources (public domain):
+
 - https://pdimagearchive.org/images/0347f0a1-a134-484f-b919-d29bae3c2683/
 - https://pdimagearchive.org/images/b153230c-b7e5-4127-bdf8-63910a675f67/
 - https://pdimagearchive.org/images/24f8932b-6a98-4c48-b6e0-582eda84aa92/
@@ -14,6 +20,10 @@ Credits sources (public domain):
 
 ![Credits image](block: 3 Herschel.webp)
 
+## Audio
+
 Audio: `artwo - marche (remastered).mp3`
+
+## Video
 
 Video: `044586339-automatic-data-processing-mach.mp4`

@@ -4,6 +4,8 @@ Welcome! This page showcases various block types and behaviors in Webette. Each 
 
 ## 1. Markdown basics
 
+- [Jump to section 3](entry: webette demonstration#3. Media follows: image, audio, video, then a plain text block)
+
 - Headings, lists, emphasis **bold** and _italic_.
 - Inline code `console.log("Hello")` and a code block:
 

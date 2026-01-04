@@ -58,6 +58,9 @@ export async function rewriteInternalLinks(options: {
                             : collection;
                           const ent = col ? matchEntry(col, parsed.target.entryName) : undefined;
                           targetRoute = ent?.route;
+                          if (targetRoute && parsed.anchor) {
+                            targetRoute = `${targetRoute.replace(/#.*$/, "")}#${parsed.anchor}`;
+                          }
                         } else if (parsed.target.kind === "block") {
                           const col = parsed.target.collectionName
                             ? matchCollection(site, parsed.target.collectionName)

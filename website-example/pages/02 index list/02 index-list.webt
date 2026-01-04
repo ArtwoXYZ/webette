@@ -1,4 +1,4 @@
 - collection: posts
 - collection: posts, entry: draft
 - collection: lab
-- collection: another-one, entry: credits
+- collection: another-one, entry: credits#Audio

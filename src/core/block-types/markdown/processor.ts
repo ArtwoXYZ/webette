@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import { type MarkdownAst } from "./types";
+import { slugify } from "../../../utils/naming";
 
 type RemarkPlugin = Plugin<any[], any>;
 type RemarkPluginLike = RemarkPlugin | [RemarkPlugin, ...any[]];
@@ -38,6 +39,35 @@ export async function parseMarkdownToAst(
   source: string,
   remarkPlugins: unknown[] = []
 ): Promise<MarkdownAst> {
+  const splitInternalSegments = (raw: string): string[] => {
+    const keys = ["collection", "coll", "entry", "block"];
+    const result: string[] = [];
+    let start = 0;
+    for (let i = 0; i < raw.length; i += 1) {
+      if (raw[i] !== ",") continue;
+      let j = i + 1;
+      while (j < raw.length && /\s/.test(raw[j] ?? "")) j += 1;
+      let matched = false;
+      for (const key of keys) {
+        const slice = raw.slice(j, j + key.length);
+        const after = raw[j + key.length];
+        if (slice.toLowerCase() === key && after === ":") {
+          const segment = raw.slice(start, i).trim();
+          if (segment) result.push(segment);
+          start = j;
+          matched = true;
+          break;
+        }
+      }
+      if (matched) {
+        i = j - 1;
+      }
+    }
+    const tail = raw.slice(start).trim();
+    if (tail) result.push(tail);
+    return result;
+  };
+
   // Normalize internal-link URLs so Markdown parses them as real links:
   // - remove spaces around separators
   // - percent-encode spaces inside values (collection/entry/block names)
@@ -45,7 +75,7 @@ export async function parseMarkdownToAst(
     /\(\s*(collection|coll|entry|block)\s*:\s*([^)\n]+)\)/gi,
     (_, kind, rest) => {
       const encodeValue = (val: string) => val.trim().replace(/\s+/g, "%20");
-      const pieces = rest.split(",").map((s: string) => s.trim()).filter(Boolean);
+      const pieces = splitInternalSegments(rest);
       const normalized: string[] = [];
 
       if (pieces.length === 0) {
@@ -54,7 +84,7 @@ export async function parseMarkdownToAst(
 
       // The first segment belongs to the first key captured in the regex.
       const mainKey = kind.toLowerCase() === "coll" ? "collection" : kind.toLowerCase();
-      normalized.push(`${mainKey}:${encodeValue(pieces[0])}`);
+      normalized.push(`${mainKey}:${encodeValue(pieces[0] ?? "")}`);
 
       // The remaining segments can declare other keys (entry, block, etc.).
       for (const piece of pieces.slice(1)) {
@@ -99,11 +129,56 @@ export async function renderMarkdownToHtml(
   }
 
   processor
+    .use(addIdsToHeadings as any)
     .use(addClassToAllElements as any, { className: DEFAULT_MARKDOWN_CLASS })
     .use(rehypeStringify, { allowDangerousHtml: true });
 
   const hast = await processor.run(ast as any);
   return processor.stringify(hast) as string;
+}
+
+// Rehype plugin: add stable ids to heading tags when missing.
+function addIdsToHeadings() {
+  return (tree: any) => {
+    const counts = new Map<string, number>();
+
+    const extractText = (node: any): string => {
+      if (!node) return "";
+      if (node.type === "text" && typeof node.value === "string") {
+        return node.value;
+      }
+      if (Array.isArray(node.children)) {
+        return node.children.map(extractText).join("");
+      }
+      return "";
+    };
+
+    const walk = (node: any) => {
+      if (!node) return;
+      if (node.type === "element") {
+        const tag = node.tagName;
+        if (typeof tag === "string" && /^h[1-6]$/.test(tag)) {
+          const props = node.properties ?? {};
+          const existingId = props.id;
+          if (!existingId) {
+            const text = extractText(node).trim();
+            const base = slugify(text || "section");
+            const seen = counts.get(base) ?? 0;
+            const next = seen + 1;
+            counts.set(base, next);
+            const id = next === 1 ? base : `${base}-${next}`;
+            props.id = id;
+            node.properties = props;
+          }
+        }
+      }
+      if (Array.isArray(node.children)) {
+        node.children.forEach(walk);
+      }
+    };
+
+    walk(tree);
+  };
 }
 
 // Rehype plugin: add a CSS class to every element without overwriting existing classes.

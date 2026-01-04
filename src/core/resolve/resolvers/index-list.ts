@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import * as path from "node:path";
 import type { Resolver } from "../registry";
 import type { Block } from "../../model";
+import { slugify } from "../../../utils/naming";
 import {
   matchCollection,
   matchEntry,
@@ -59,7 +60,36 @@ function parseLine(rawLine: string): ParsedLine | null {
   }
   if (!line) return null;
 
-  const parts = line.split(",").map((part) => part.trim()).filter(Boolean);
+  const splitSegments = (raw: string): string[] => {
+    const keys = ["collection", "entry"];
+    const result: string[] = [];
+    let start = 0;
+    for (let i = 0; i < raw.length; i += 1) {
+      if (raw[i] !== ",") continue;
+      let j = i + 1;
+      while (j < raw.length && /\s/.test(raw[j] ?? "")) j += 1;
+      let matched = false;
+      for (const key of keys) {
+        const slice = raw.slice(j, j + key.length);
+        const after = raw[j + key.length];
+        if (slice.toLowerCase() === key && after === ":") {
+          const segment = raw.slice(start, i).trim();
+          if (segment) result.push(segment);
+          start = j;
+          matched = true;
+          break;
+        }
+      }
+      if (matched) {
+        i = j - 1;
+      }
+    }
+    const tail = raw.slice(start).trim();
+    if (tail) result.push(tail);
+    return result;
+  };
+
+  const parts = splitSegments(line);
   const result: ParsedLine = {};
 
   for (const part of parts) {
@@ -191,15 +221,19 @@ export const resolveIndexList: Resolver = async (block, ctx) => {
       continue;
     }
 
-      const entry = matchEntry(collection, parsed.entry);
-      if (!entry) {
-        ctx.logger?.warn("indexList.entryMissing", {
-          path: block.path,
-          collection: parsed.collection,
-          entry: parsed.entry,
-        });
-        continue;
-      }
+    const [entryValue, entryAnchor] = parsed.entry.split("#");
+    const entryName = (entryValue ?? "").trim();
+    const anchorRaw = entryAnchor?.trim() || undefined;
+    const anchor = anchorRaw ? slugify(anchorRaw) : undefined;
+    const entry = matchEntry(collection, entryName);
+    if (!entry) {
+      ctx.logger?.warn("indexList.entryMissing", {
+        path: block.path,
+        collection: parsed.collection,
+        entry: entryName || parsed.entry,
+      });
+      continue;
+    }
 
       items.push({
         kind: "entry",
@@ -212,16 +246,16 @@ export const resolveIndexList: Resolver = async (block, ctx) => {
           assets: collection.assets,
           isUnlisted: collection.isUnlisted,
         },
-        entry: {
-          id: entry.id,
-          name: entry.name,
-          slug: entry.slug,
-          route: entry.route,
-          isDraft: entry.isDraft,
-          isUnlisted: entry.isUnlisted,
-          createdAt: entry.createdAt,
-          updatedAt: entry.updatedAt,
-        },
+      entry: {
+        id: entry.id,
+        name: entry.name,
+        slug: entry.slug,
+        route: anchor ? `${entry.route ?? ""}#${anchor}` : entry.route,
+        isDraft: entry.isDraft,
+        isUnlisted: entry.isUnlisted,
+        createdAt: entry.createdAt,
+        updatedAt: entry.updatedAt,
+      },
       });
     }
   }
