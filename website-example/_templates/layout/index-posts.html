@@ -1,0 +1,13 @@
+{{> header}}
+
+<main>
+  <h2>Posts index (custom)</h2>
+  <p>Specific layout for the posts collection.</p>
+  <ol>
+    {{#each entries}}
+    <li><a href="{{route}}">{{name}}</a></li>
+    {{/each}}
+  </ol>
+</main>
+
+{{> footer}}

@@ -44,6 +44,15 @@ You can override the templates root and declare a templates assets folder:
 export default {
   templates: {
     root: "_templates",
+    custom: {
+      index: {
+        root: "layout/index-root.html",
+        collections: "layout/index-collection.html",
+        collection: {
+          posts: "layout/index-posts.html"
+        }
+      }
+    },
     assets: {
       dir: "assets",
       publicBase: "/assets/theme"
@@ -54,6 +63,9 @@ export default {
 
 Notes:
 - `templates.root` is relative to the site root.
+- `templates.custom.index.root` overrides the root index layout.
+- `templates.custom.index.collections` overrides the layout for all collection indexes.
+- `templates.custom.index.collection` maps collection slugs to per-collection index layouts.
 - `templates.assets.dir` is relative to `templates.root` (or absolute if you pass an absolute path).
 - `templates.assets.publicBase` is the public URL prefix used in the build output.
 - Use the `asset` helper in templates to link to these files.

@@ -1,6 +1,6 @@
 export default {
   site: {
-    title: "Webette showcase",
+    title: "webette",
     lang: "en",
     author: "Artwo",
     url: "https://example.webette.local",
@@ -36,6 +36,15 @@ export default {
       index: "layout/index.html",
       notFound: "layout/not-found.html",
       accessForbidden: "layout/access-forbidden.html",
+    },
+    custom: {
+      index: {
+        root: "layout/index-root.html",
+        collections: "layout/index-collection.html",
+        collection: {
+          posts: "layout/index-posts.html",
+        },
+      },
     },
   },
 

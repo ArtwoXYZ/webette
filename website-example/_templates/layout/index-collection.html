@@ -1,0 +1,13 @@
+{{> header}}
+
+<main>
+  <h2>Collection index (custom)</h2>
+  <p>{{collection.name}}</p>
+  <ul>
+    {{#each entries}}
+    <li><a href="{{route}}">{{name}}</a></li>
+    {{/each}}
+  </ul>
+</main>
+
+{{> footer}}

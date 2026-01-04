@@ -43,6 +43,32 @@ Routes in the model are root-relative (e.g. `/assets/images/...`), so they work 
 Sites can override wrapper and layouts by dropping their files under `<site>/<templates.root>/wrapper/...` and `<site>/<templates.root>/layout/...`; resolution order is site > tool.
 If the site config does not declare `templates.root`, or if the directory is missing, Webette logs a warning and falls back to tool templates. If a site omits any `templates.default.*` key, Webette logs a warning and falls back to the tool defaults for that key.
 
+## Custom index layouts
+
+You can override index layouts separately from the default index layout:
+
+```ts
+templates: {
+  root: "_templates",
+  default: {
+    index: "layout/index.html"
+  },
+  custom: {
+    index: {
+      root: "layout/index-root.html",
+      collections: "layout/index-collection.html",
+      collection: {
+        posts: "layout/index-posts.html"
+      }
+    }
+  }
+}
+```
+
+Resolution order:
+- Root index (`/index.html`): `custom.index.root` -> `default.index`
+- Collection indexes: `custom.index.collection[slug]` -> `custom.index.collections` -> `default.index`
+
 ## Template assets
 
 Sites can expose a templates assets folder (CSS/JS/images) via `templates.assets` in `webette.config.ts`:

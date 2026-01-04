@@ -1,6 +1,7 @@
 import type { WebetteEnv } from "../../config/env";
 
 type TemplateKey = keyof WebetteEnv["templates"]["default"];
+type CustomIndexOverrides = NonNullable<TemplatesOverrides["custom"]>["index"];
 
 export type TemplatesOverrides = Partial<{
   root: string;
@@ -8,6 +9,13 @@ export type TemplatesOverrides = Partial<{
   assets: {
     dir: string;
     publicBase: string;
+  };
+  custom: {
+    index: {
+      root?: string;
+      collections?: string;
+      collection?: Record<string, string>;
+    };
   };
 }>;
 
@@ -61,6 +69,40 @@ export function parseTemplatesOverrides(
     }
   }
 
+  const rawCustom = (raw as Record<string, unknown>).custom;
+  if (rawCustom && typeof rawCustom === "object") {
+    const rawIndex = (rawCustom as Record<string, unknown>).index;
+    if (rawIndex && typeof rawIndex === "object") {
+      const indexOverrides: CustomIndexOverrides = {};
+      const root = (rawIndex as Record<string, unknown>).root;
+      if (typeof root === "string" && root.trim()) {
+        indexOverrides.root = root.trim();
+      }
+      const collections = (rawIndex as Record<string, unknown>).collections;
+      if (typeof collections === "string" && collections.trim()) {
+        indexOverrides.collections = collections.trim();
+      }
+      const collection = (rawIndex as Record<string, unknown>).collection;
+      if (collection && typeof collection === "object") {
+        const entries = Object.entries(collection as Record<string, unknown>)
+          .filter(([, value]) => typeof value === "string" && String(value).trim());
+        if (entries.length) {
+          indexOverrides.collection = entries.reduce((acc, [key, value]) => {
+            acc[key] = String(value).trim();
+            return acc;
+          }, {} as Record<string, string>);
+        }
+      }
+      if (
+        indexOverrides.root ||
+        indexOverrides.collections ||
+        indexOverrides.collection
+      ) {
+        overrides.custom = { index: indexOverrides };
+      }
+    }
+  }
+
   return overrides;
 }
 
@@ -71,6 +113,7 @@ export function resolveTemplatesConfig(
   templates: WebetteEnv["templates"];
   siteTemplatesRoot?: string;
   assets?: TemplatesOverrides["assets"];
+  custom?: TemplatesOverrides["custom"];
 } {
   const overrides = parseTemplatesOverrides(raw);
   return {
@@ -83,5 +126,6 @@ export function resolveTemplatesConfig(
     },
     siteTemplatesRoot: overrides.root,
     ...(overrides.assets ? { assets: overrides.assets } : {}),
+    ...(overrides.custom ? { custom: overrides.custom } : {}),
   };
 }

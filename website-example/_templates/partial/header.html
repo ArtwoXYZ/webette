@@ -1,11 +1,17 @@
-<header>
-  <h1>{{site.title}}</h1>
-  <nav>
-    {{#if collection.route}}
-    <a href="{{collection.route}}">← Back to collection</a>
-    {{else}}
+<header class="site-header">
+  <div class="brand">
+    <img class="logo" src="{{asset "images/bebette.svg"}}" alt="Bebette logo"
+    width="48" height="48" />
+    <div class="brand-text">
+      <h1>{{site.title}}</h1>
+      <p class="tagline">Some examples of webette capabilities</p>
+    </div>
+  </div>
+  {{#if collection}}
+  <nav class="site-nav">
     <a href="/">← Back to index</a>
-    {{/if}}
   </nav>
-  <h3>Collection: {{collection.name}}</h3>
+
+  <h3 class="collection-name">Collection: {{collection.name}}</h3>
+  {{/if}}
 </header>

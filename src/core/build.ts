@@ -5,7 +5,7 @@ import { t } from "../logging/i18n";
 import { createSite } from "./config";
 import { scanSite } from "./scan";
 import { resolveBlocks } from "./resolve";
-import { createTemplateRenderer } from "./template";
+import { createTemplateRenderer, resolveTemplatesRoots } from "./template";
 import type { Block, Entry, Collection, Site } from "./model";
 import type { Logger } from "../logging/logger";
 import { applyHistory, loadPreviousState } from "./export/history";
@@ -202,7 +202,12 @@ export async function build(
   scoped.debug("build.start", { rootDir });
 
   const site = await createSite(rootDir);
-  const { templates, siteTemplatesRoot, assets: templatesAssets } = resolveTemplatesConfig(
+  const {
+    templates,
+    siteTemplatesRoot,
+    assets: templatesAssets,
+    custom: templatesCustom,
+  } = resolveTemplatesConfig(
     toolEnv.templates,
     site.config?.templates
   );
@@ -1039,14 +1044,100 @@ export async function build(
   }
 
   if (generateIndex) {
+    const templatesRoots = await resolveTemplatesRoots({
+      rootDir,
+      templatesRoot: toolEnv.templates.root,
+      siteTemplatesRoot,
+      logger: scoped,
+    });
+
+    const layoutNameFor = (value: string): string =>
+      path.parse(value).name || value;
+
+    const customIndex = templatesCustom?.index;
+
+    const templatesCache = new Map<
+      string,
+      { templatePath: string; templatesRoot: string; source: "site" | "tool" } | null
+    >();
+
+    const resolveIndexTemplate = async (relPath: string) => {
+      if (templatesCache.has(relPath)) {
+        return templatesCache.get(relPath) ?? null;
+      }
+      const candidates: { root: string; source: "site" | "tool" }[] = [
+        { root: templatesRoots.siteTemplatesRoot, source: "site" },
+        { root: templatesRoots.toolTemplatesRoot, source: "tool" },
+      ];
+      for (const candidate of candidates) {
+        const fullPath = path.join(candidate.root, relPath);
+        try {
+          const s = await stat(fullPath);
+          if (s.isFile()) {
+            const resolved = {
+              templatePath: fullPath,
+              templatesRoot: candidate.root,
+              source: candidate.source,
+            };
+            templatesCache.set(relPath, resolved);
+            return resolved;
+          }
+        } catch {
+          // try next candidate
+        }
+      }
+      templatesCache.set(relPath, null);
+      return null;
+    };
+
+    const logIndexTemplate = async (kind: string, relPath: string) => {
+      const resolved = await resolveIndexTemplate(relPath);
+      if (resolved) {
+        const logBase =
+          resolved.source === "site" ? rootDir : templatesRoots.toolRoot;
+        const templatePathForLog =
+          path.relative(logBase, resolved.templatePath) || resolved.templatePath;
+        const templatesRootForLog =
+          path.relative(logBase, resolved.templatesRoot) || resolved.templatesRoot;
+        scoped.debug("template.resolved", {
+          kind,
+          templatePath: templatePathForLog,
+          templatesRoot: templatesRootForLog,
+          source: resolved.source,
+        });
+        return true;
+      }
+      return false;
+    };
+
+    const pickIndexLayout = async (kind: string, candidates: string[]) => {
+      const triedPaths: string[] = [];
+      for (const candidate of candidates) {
+        if (!candidate) continue;
+        triedPaths.push(
+          path.normalize(path.join(templatesRoots.siteTemplatesRoot, candidate)),
+          path.normalize(path.join(templatesRoots.toolTemplatesRoot, candidate))
+        );
+        const ok = await logIndexTemplate(kind, candidate);
+        if (ok) {
+          return layoutNameFor(candidate);
+        }
+      }
+      if (triedPaths.length) {
+        scoped.warn("template.notFound", { paths: triedPaths.join(", ") });
+      }
+      return layoutNameFor(templates.default.index);
+    };
+
     // Root index (collections listing)
-    const indexLayoutPartialName =
-      path.parse(templates.default.index).name ||
-      templates.default.index;
+    const rootIndexLayoutName = await pickIndexLayout("index.root", [
+      customIndex?.root ?? "",
+      templates.default.index,
+    ]);
 
     const rootContext = {
       ...renderBaseContext,
-      layoutName: indexLayoutPartialName,
+      layoutName: rootIndexLayoutName,
       entry: { name: "Index", route: "/" },
     };
     const rootHtml = templateRenderer.render(rootContext);
@@ -1057,6 +1148,14 @@ export async function build(
 
     // Collection indexes
     for (const collection of resolvedSiteWithHistory.collections ?? []) {
+      const collectionIndexLayoutName = await pickIndexLayout(
+        `index.collection.${collection.slug || collection.id}`,
+        [
+          customIndex?.collection?.[collection.slug || collection.id] ?? "",
+          customIndex?.collections ?? "",
+          templates.default.index,
+        ]
+      );
       const routeRelative = collection.route
         ? collection.route.replace(/^\/+/, "").replace(/\/+$/, "")
         : collection.slug || collection.id;
@@ -1067,7 +1166,7 @@ export async function build(
 
       const ctx = {
         ...renderBaseContext,
-        layoutName: indexLayoutPartialName,
+        layoutName: collectionIndexLayoutName,
         entry: { name: collection.name, route: collection.route },
         collection,
         entries: collection.entries,
