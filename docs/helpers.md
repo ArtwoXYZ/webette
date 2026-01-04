@@ -1,4 +1,4 @@
-# Template Helpers
+﻿# Template Helpers
 
 Webette registers a set of Handlebars helpers available in all templates and layouts.
 
@@ -25,7 +25,8 @@ Example:
 - `lower value`: lowercase.
 - `capitalize value`: first letter uppercase.
 - `title value`: capitalize each word.
-- `truncate value len [suffix]`: shorten to `len` chars; suffix defaults to `…`.
+- `truncate value len [suffix]`: shorten to `len` chars; suffix defaults to `â€¦`.
+- `nl2br value`: convert newlines to `<br>`.
 - `safe value`: mark string as SafeString (no escaping).
 
 Examples:
@@ -35,13 +36,14 @@ Examples:
 {{capitalize entry.name}}                  {{!-- My first post --}}
 {{title "hello world"}}                    {{!-- Hello World --}}
 {{truncate entry.name 12 "..."}}           {{!-- My first po... --}}
-{{truncate "hello world" 8}}               {{!-- hello wo… --}}
+{{truncate "hello world" 8}}               {{!-- hello woâ€¦ --}}
+{{{nl2br collection.description}}}         {{!-- keep line breaks --}}
 {{{safe content.html}}}                    {{!-- inserts HTML as-is --}}
 ```
 
 ## Dates / time
 - `formatDate value [hash options]`: uses `Intl.DateTimeFormat`; defaults to `site.lang` (if present) and can be overridden with `locale`; hash supports `dateStyle`, `timeStyle`, `locale` (e.g. `{{formatDate entry.date dateStyle="long"}}`); falls back to ISO on error.
-- `fromNow value [locale?]`: uses `Intl.RelativeTimeFormat`; defaults to `site.lang` and accepts a `locale` override; returns human “X seconds/minutes/hours/days/months/years ago/from now”.
+- `fromNow value [locale?]`: uses `Intl.RelativeTimeFormat`; defaults to `site.lang` and accepts a `locale` override; returns human â€œX seconds/minutes/hours/days/months/years ago/from nowâ€.
 
 Examples:
 ```hbs

@@ -120,6 +120,7 @@ export const resolveIndexList: Resolver = async (block, ctx) => {
           slug: collection.slug,
           route: collection.route,
           entriesCount: collection.entries.length,
+          description: collection.description,
           isUnlisted: collection.isUnlisted,
           createdAt: collection.createdAt,
           updatedAt: collection.updatedAt,
@@ -145,6 +146,7 @@ export const resolveIndexList: Resolver = async (block, ctx) => {
         name: collection.name,
         slug: collection.slug,
         route: collection.route,
+        description: collection.description,
         isUnlisted: collection.isUnlisted,
       },
       entry: {

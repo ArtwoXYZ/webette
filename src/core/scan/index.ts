@@ -36,6 +36,7 @@ type RawCollection = {
   path: string; // POSIX
   entries: RawEntry[];
   isUnlisted?: boolean;
+  description?: string;
 };
 
 type CollectionConfig = {
@@ -168,11 +169,13 @@ async function listCollectionsRaw(
     const relPath = toPosix(rawName);
     const absoluteCollection = path.join(rootDir, rawName);
     const isUnlisted = await isUnlistedCollection(absoluteCollection);
+    const description = await readCollectionDescription(absoluteCollection);
     collections.push({
       rawName,
       path: relPath,
       entries: [],
       ...(isUnlisted ? { isUnlisted: true } : {}),
+      ...(description ? { description } : {}),
     });
   }
 
@@ -314,6 +317,7 @@ function enrichCollections(
       slug,
       path: raw.path,
       entries: entriesWithUnlisted,
+      ...(raw.description ? { description: raw.description } : {}),
       ...(isUnlisted ? { isUnlisted: true } : {}),
     };
   });
@@ -355,6 +359,17 @@ async function isUnlistedEntry(dir: string): Promise<boolean> {
 
 async function isUnlistedCollection(dir: string): Promise<boolean> {
   return isUnlistedEntry(dir);
+}
+
+async function readCollectionDescription(dir: string): Promise<string | undefined> {
+  const descriptionPath = path.join(dir, "collection-description.webt");
+  try {
+    const content = await readFile(descriptionPath, "utf8");
+    const trimmed = content.trimEnd();
+    return trimmed.length ? trimmed : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export async function scanSite(site: Site, logger?: Logger): Promise<Site> {

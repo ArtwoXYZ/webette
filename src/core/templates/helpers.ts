@@ -148,6 +148,12 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     const length = typeof len === "number" ? len : parseInt(String(len), 10);
     return Number.isFinite(length) ? truncate(s, length) : s;
   });
+  Handlebars.registerHelper("nl2br", (value: unknown) => {
+    const s = safeString(value);
+    if (!s) return "";
+    const html = s.replace(/\r?\n/g, "<br>");
+    return new Handlebars.SafeString(html);
+  });
   Handlebars.registerHelper("formatDate", function (value: unknown, options) {
     const date = toDate(value);
     if (!date) return "";

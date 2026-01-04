@@ -94,6 +94,13 @@ Behavior:
 - Unlisted collections and entries are excluded from the sitemap.
 - Pages are still generated and available at their routes.
 
+## Collection description
+
+Add `collection-description.webt` at the root of a collection to attach a raw description:
+
+- Stored on the collection as `collection.description`.
+- Preserves line breaks; use `nl2br` in templates to display them.
+
 ## Error handling
 
 - Missing or invalid config: falls back to defaults (`title`: "My Webette site", `lang`: "en").

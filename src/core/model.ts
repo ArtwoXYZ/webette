@@ -38,6 +38,7 @@ export interface Collection {
   path: string;        // path relative to the site root
   route?: string;      // route relative to site root (trailing slash)
   entries: Entry[];    // entries inside the collection
+  description?: string; // raw description from collection-description.webt
   isUnlisted?: boolean; // flagged when unlisted.webt is present in the collection root
   createdAt?: string;  // ISO timestamp of first appearance in the model
   updatedAt?: string;  // ISO timestamp of last change in the model

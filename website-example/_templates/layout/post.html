@@ -30,7 +30,12 @@
           <ul>
             {{#each content.data.items}}
               {{#if (eq kind "collection")}}
-                <li><a href="{{collection.route}}">{{collection.name}}</a></li>
+                <li>
+                  <a href="{{collection.route}}">{{collection.name}}</a>
+                  {{#if collection.description}}
+                    <div class="collection-description">{{{nl2br collection.description}}}</div>
+                  {{/if}}
+                </li>
               {{else if (eq kind "entry")}}
                 <li>
                   <a href="{{entry.route}}">{{entry.name}}</a>

@@ -98,6 +98,9 @@ The block does not auto-render. Use it in templates via `content.data.items`:
   {{#each content.data.items}}
     {{#if (eq kind "collection")}}
       <a href="{{collection.route}}">{{collection.name}}</a>
+      {{#if collection.description}}
+        <div>{{{nl2br collection.description}}}</div>
+      {{/if}}
     {{else if (eq kind "entry")}}
       <a href="{{entry.route}}">{{entry.name}}</a>
     {{/if}}

@@ -302,6 +302,7 @@ async function computeCollectionHistory(
     route: collection.route,
     path: collection.path,
     isUnlisted: collection.isUnlisted,
+    description: collection.description,
     entries: entries.map((ent) => ent.fingerprint),
   });
 
