@@ -110,6 +110,24 @@ Rules:
 - Files are copied/generated through the media pipelines and exposed as `collection.assets`.
 - Output routes follow the collection slug, e.g. `assets/images/posts/...`.
 
+## Index overrides (entry-based)
+
+You can replace the root index or a collection index with a specific entry (must be unlisted):
+
+```ts
+index: {
+  root: { collection: "pages", entry: "index-list" },
+  collections: {
+    posts: { collection: "pages", entry: "posts-index" }
+  }
+}
+```
+
+Rules:
+- Target entries must be `unlisted.webt` (or belong to an unlisted collection).
+- The entry is rendered as `/index.html` or `/collection/index.html`.
+- The entry’s original page is not generated.
+
 ## Error handling
 
 - Missing or invalid config: falls back to defaults (`title`: "My Webette site", `lang`: "en").

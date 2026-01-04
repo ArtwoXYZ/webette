@@ -48,6 +48,10 @@ export default {
     },
   },
 
+  index: {
+    root: { collection: "pages", entry: "index-list" },
+  },
+
   plugins: [
     "_plugins/demo.js",
   ],

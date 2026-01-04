@@ -29,7 +29,11 @@
   - ~~créer un block index-list.webt qui permet de lister des collections et des entrées. Ce block peut être utilisé dans le templating pour afficher des liens et référencer tout ce dont on a besoin pour créer des aperçus des entries ou des collections~~
   - ~~ajouter un collection-description.webt à la racine des collections peut permettre d'ajouter une description aux metadata d'une collection~~
   - ~~ajouter un dossier \_assets à la racine d'une collection peut permettre d'ajouter des fichiers exploitables par le templating (de manière simple) mais pas listés comme une entrées ; par exemple, pour créer une image spécifique d'aperçus pour la collection~~
-  - permettre de définir une page spécifique dans le webette.config pour remplacer l'index root ou l'index d'une collection spécifique par une autre entrée venant d'une collection unlisted (l'entrée devient alors réellement la page /index.html en gros)
+  - ~~permettre de définir une page spécifique dans le webette.config pour remplacer l'index root ou l'index d'une collection spécifique par une autre entrée venant d'une collection unlisted (l'entrée devient alors réellement la page /index.html en gros)~~
+  - faire en sorte que index-list.webt vide = index général (collection, toutes les entry dedans, collection, etc.)
+  - faire une page de doc complète qui explique tous les moyens de créer des index avec webette
+- Réécrire tous les logs pour les rendre plus lisibles
+- Refaire tout le système de sitemap pour essayer de refléter parfaitement les liens entre les pages dans le site exportés (par exemple, si une entry est unlisted mais qu'un lien pointe vers elle sur le site, il faut que la page soit visible dans le sitemap)
 - Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)
 - Peut-être retirer complétement les templates du tool (pas utiles, il faut créer des templates pour son site et puis c'est tout) ?
 - Plugin de flux RSS

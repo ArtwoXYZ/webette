@@ -33,6 +33,7 @@ import { getResolver } from "./resolve/registry";
 import { resolveImageConfig } from "./block-types/image/config";
 import { resolveAudioConfig } from "./block-types/audio/config";
 import { resolveVideoConfig } from "./block-types/video/config";
+import { matchCollection, matchEntry } from "./postprocess/internal-targets";
 
 export interface BuildOptions {
   verbose: boolean;
@@ -196,6 +197,77 @@ export async function build(
       ...site,
       ...(collections ? { collections } : {}),
     };
+  };
+
+  type IndexEntryRef = { collection: string; entry: string };
+  type IndexOverrides = {
+    root?: IndexEntryRef;
+    collections?: Record<string, IndexEntryRef>;
+  };
+
+  const parseIndexOverrides = (raw: unknown): IndexOverrides => {
+    if (!raw || typeof raw !== "object") return {};
+    const obj = raw as Record<string, unknown>;
+
+    const parseRef = (value: unknown): IndexEntryRef | undefined => {
+      if (!value || typeof value !== "object") return undefined;
+      const ref = value as Record<string, unknown>;
+      const collection =
+        typeof ref.collection === "string" ? ref.collection.trim() : "";
+      const entry = typeof ref.entry === "string" ? ref.entry.trim() : "";
+      if (!collection || !entry) return undefined;
+      return { collection, entry };
+    };
+
+    const root = parseRef(obj.root);
+    const collectionsRaw = obj.collections;
+    const collections: Record<string, IndexEntryRef> = {};
+    if (collectionsRaw && typeof collectionsRaw === "object") {
+      for (const [key, value] of Object.entries(
+        collectionsRaw as Record<string, unknown>
+      )) {
+        if (typeof key !== "string" || !key.trim()) continue;
+        const parsed = parseRef(value);
+        if (parsed) {
+          collections[key.trim()] = parsed;
+        }
+      }
+    }
+
+    return {
+      ...(root ? { root } : {}),
+      ...(Object.keys(collections).length ? { collections } : {}),
+    };
+  };
+
+  const resolveIndexEntry = (
+    site: Site,
+    ref: IndexEntryRef | undefined
+  ): { collection: Collection; entry: Entry } | undefined => {
+    if (!ref) return undefined;
+    const collection = matchCollection(site, ref.collection);
+    if (!collection) {
+      scoped.warn("index.override.collectionMissing", {
+        collection: ref.collection,
+      });
+      return undefined;
+    }
+    const entry = matchEntry(collection, ref.entry);
+    if (!entry) {
+      scoped.warn("index.override.entryMissing", {
+        collection: ref.collection,
+        entry: ref.entry,
+      });
+      return undefined;
+    }
+    if (!entry.isUnlisted) {
+      scoped.warn("index.override.entryNotUnlisted", {
+        collection: ref.collection,
+        entry: ref.entry,
+      });
+      return undefined;
+    }
+    return { collection, entry };
   };
 
   const writeIfChanged = async (targetPath: string, content: string): Promise<boolean> => {
@@ -651,6 +723,45 @@ export async function build(
     readContent,
   });
 
+  const indexOverrides = parseIndexOverrides(site.config?.index);
+  const rootIndexTarget = resolveIndexEntry(resolvedSiteWithHistory, indexOverrides.root);
+  const collectionIndexTargets = new Map<
+    string,
+    { target: Collection; entry: Entry; entryCollection: Collection }
+  >();
+  if (indexOverrides.collections) {
+    for (const [collectionSlug, ref] of Object.entries(indexOverrides.collections)) {
+      const targetCollection = matchCollection(resolvedSiteWithHistory, collectionSlug);
+      if (!targetCollection) {
+        scoped.warn("index.override.targetMissing", { collection: collectionSlug });
+        continue;
+      }
+      if (targetCollection.isUnlisted) {
+        scoped.warn("index.override.collectionUnlisted", {
+          collection: targetCollection.slug || targetCollection.id,
+        });
+        continue;
+      }
+      const resolved = resolveIndexEntry(resolvedSiteWithHistory, ref);
+      if (!resolved) continue;
+      collectionIndexTargets.set(targetCollection.slug || targetCollection.id, {
+        target: targetCollection,
+        entry: resolved.entry,
+        entryCollection: resolved.collection,
+      });
+    }
+  }
+
+  const overrideEntryKeys = new Set<string>();
+  const entryKeyFor = (collection: Collection, entry: Entry) =>
+    `${collection.slug || collection.id}::${entry.slug || entry.id}`;
+  if (rootIndexTarget) {
+    overrideEntryKeys.add(entryKeyFor(rootIndexTarget.collection, rootIndexTarget.entry));
+  }
+  for (const target of collectionIndexTargets.values()) {
+    overrideEntryKeys.add(entryKeyFor(target.entryCollection, target.entry));
+  }
+
   scoped.debug("build.exportModel.start", { path: exportDir });
 
   const orderKeys = (value: unknown): unknown => {
@@ -1080,39 +1191,46 @@ export async function build(
 
   let renderedPages = 0;
 
-  if (resolvedSiteWithHistory.collections) {
-    for (const collection of resolvedSiteWithHistory.collections) {
-      for (const entry of collection.entries) {
-    const entryRouteRelative = entry.route
-      ? entry.route.replace(/^\/+/, "")
-      : path.join(collection.slug || collection.id, entry.slug || entry.id);
+  const filterRenderableBlocks = (blocks: Block[]): Block[] =>
+    blocks
+      .filter((b) => !b.skipRender)
+      .map((b) => ({
+        ...b,
+        ...(b.subBlocks ? { subBlocks: filterRenderableBlocks(b.subBlocks) } : {}),
+      }));
 
-    // Filter out blocks marked skipRender (e.g., listed in ignore.webt) for the automatic rendering path.
-    const filterRenderableBlocks = (blocks: Block[]): Block[] =>
-      blocks
-        .filter((b) => !b.skipRender)
-        .map((b) => ({
-          ...b,
-          ...(b.subBlocks ? { subBlocks: filterRenderableBlocks(b.subBlocks) } : {}),
-        }));
-
+  const renderEntryTo = async (
+    entry: Entry,
+    collection: Collection | undefined,
+    targetDir: string
+  ): Promise<boolean> => {
     const renderableBlocks = filterRenderableBlocks(entry.blocks);
-
     const context = {
       ...renderBaseContext,
-      collection,
+      ...(collection ? { collection } : {}),
       entry,
       blocks: renderableBlocks,
     };
 
-        const html = templateRenderer.render(context);
+    const html = templateRenderer.render(context);
+    await mkdir(targetDir, { recursive: true });
+    const entryIndexPath = path.join(targetDir, "index.html");
+    const finalHtml = await formatHtml(html, entryIndexPath);
+    return writeIfChanged(entryIndexPath, finalHtml);
+  };
+
+  if (resolvedSiteWithHistory.collections) {
+    for (const collection of resolvedSiteWithHistory.collections) {
+      for (const entry of collection.entries) {
+        const entryKey = entryKeyFor(collection, entry);
+        if (overrideEntryKeys.has(entryKey)) continue;
+
+        const entryRouteRelative = entry.route
+          ? entry.route.replace(/^\/+/, "")
+          : path.join(collection.slug || collection.id, entry.slug || entry.id);
         const entryOutputDir = path.join(outputDir, entryRouteRelative);
 
-        await mkdir(entryOutputDir, { recursive: true });
-        const entryIndexPath = path.join(entryOutputDir, "index.html");
-        const finalHtml = await formatHtml(html, entryIndexPath);
-
-        const wrote = await writeIfChanged(entryIndexPath, finalHtml);
+        const wrote = await renderEntryTo(entry, collection, entryOutputDir);
         if (wrote) {
           renderedPages += 1;
         }
@@ -1207,29 +1325,42 @@ export async function build(
     };
 
     // Root index (collections listing)
-    const rootIndexLayoutName = await pickIndexLayout("index.root", [
-      customIndex?.root ?? "",
-      templates.default.index,
-    ]);
+    if (rootIndexTarget) {
+      const entryForIndex: Entry = { ...rootIndexTarget.entry, route: "/" };
+      const rootIndexDir = outputDir;
+      const wrote = await renderEntryTo(
+        entryForIndex,
+        undefined,
+        rootIndexDir
+      );
+      if (wrote) {
+        renderedPages += 1;
+      }
+    } else {
+      const rootIndexLayoutName = await pickIndexLayout("index.root", [
+        customIndex?.root ?? "",
+        templates.default.index,
+      ]);
 
-    const visibleCollections = (resolvedSiteWithHistory.collections ?? [])
-      .filter((collection) => !collection.isUnlisted)
-      .map((collection) => ({
-        ...collection,
-        entries: collection.entries.filter((entry) => !entry.isUnlisted),
-      }));
+      const visibleCollections = (resolvedSiteWithHistory.collections ?? [])
+        .filter((collection) => !collection.isUnlisted)
+        .map((collection) => ({
+          ...collection,
+          entries: collection.entries.filter((entry) => !entry.isUnlisted),
+        }));
 
-    const rootContext = {
-      ...renderBaseContext,
-      layoutName: rootIndexLayoutName,
-      entry: { name: "Index", route: "/" },
-      collections: visibleCollections,
-    };
-    const rootHtml = templateRenderer.render(rootContext);
-    const rootIndexPath = path.join(outputDir, "index.html");
-    await mkdir(path.dirname(rootIndexPath), { recursive: true });
-    const finalRootHtml = await formatHtml(rootHtml, rootIndexPath);
-    await writeIfChanged(rootIndexPath, finalRootHtml);
+      const rootContext = {
+        ...renderBaseContext,
+        layoutName: rootIndexLayoutName,
+        entry: { name: "Index", route: "/" },
+        collections: visibleCollections,
+      };
+      const rootHtml = templateRenderer.render(rootContext);
+      const rootIndexPath = path.join(outputDir, "index.html");
+      await mkdir(path.dirname(rootIndexPath), { recursive: true });
+      const finalRootHtml = await formatHtml(rootHtml, rootIndexPath);
+      await writeIfChanged(rootIndexPath, finalRootHtml);
+    }
 
     // Collection indexes
     for (const collection of resolvedSiteWithHistory.collections ?? []) {
@@ -1259,6 +1390,29 @@ export async function build(
       }
       const visibleEntries = collection.entries.filter((entry) => !entry.isUnlisted);
       const collectionForIndex = { ...collection, entries: visibleEntries };
+      const override = collectionIndexTargets.get(collection.slug || collection.id);
+      if (override) {
+        const routeRelative = collection.route
+          ? collection.route.replace(/^\/+/, "").replace(/\/+$/, "")
+          : collection.slug || collection.id;
+        const collectionIndexDir = routeRelative
+          ? path.join(outputDir, routeRelative)
+          : outputDir;
+        const entryForIndex: Entry = {
+          ...override.entry,
+          route: collection.route ?? `/${collection.slug || collection.id}/`,
+        };
+        const wrote = await renderEntryTo(
+          entryForIndex,
+          override.target,
+          collectionIndexDir
+        );
+        if (wrote) {
+          renderedPages += 1;
+        }
+        continue;
+      }
+
       const collectionIndexLayoutName = await pickIndexLayout(
         `index.collection.${collection.slug || collection.id}`,
         [
