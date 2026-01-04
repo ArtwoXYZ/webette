@@ -101,6 +101,13 @@ The block does not auto-render. Use it in templates via `content.data.items`:
       {{#if collection.description}}
         <div>{{{nl2br collection.description}}}</div>
       {{/if}}
+      {{#if collection.assets}}
+        {{#each collection.assets}}
+          {{#if (eq type "image")}}
+            {{image this}}
+          {{/if}}
+        {{/each}}
+      {{/if}}
     {{else if (eq kind "entry")}}
       <a href="{{entry.route}}">{{entry.name}}</a>
     {{/if}}

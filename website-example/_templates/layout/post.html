@@ -4,52 +4,50 @@
   <article>
     <h2>{{entry.name}}</h2>
     {{#if entry.isDraft}}
-      <p class="draft-badge">Draft (unpublished)</p>
-    {{/if}}
-
-    {{#each entry.blocks}}
-      {{#if (eq type "markdown")}}
-        {{{safe content.html}}}
-      {{else if (eq type "text")}}
-        <pre>{{content.raw}}</pre>
-      {{else if (eq type "image")}}
-        {{#unless content.meta.renderedInline}}
-          {{image this figure=true caption=name class="my-class"}}
-        {{/unless}}
-      {{else if (eq type "audio")}}
-        <audio controls src="{{route}}"></audio>
-      {{else if (eq type "video")}}
-        <video controls src="{{route}}"></video>
-      {{/if}}
-    {{/each}}
-
-    {{#with (firstBlockOfType entry.blocks "index-list")}}
-      {{#if content.data.items}}
-        <section class="index-list">
-          <h3>Index list</h3>
-          <ul>
-            {{#each content.data.items}}
-              {{#if (eq kind "collection")}}
-                <li>
-                  <a href="{{collection.route}}">{{collection.name}}</a>
-                  {{#if collection.description}}
-                    <div class="collection-description">{{{nl2br collection.description}}}</div>
-                  {{/if}}
-                </li>
-              {{else if (eq kind "entry")}}
-                <li>
-                  <a href="{{entry.route}}">{{entry.name}}</a>
-                  <span>({{collection.name}})</span>
-                </li>
-              {{/if}}
-            {{/each}}
-          </ul>
-        </section>
-      {{/if}}
-    {{/with}}
-
-    {{#if entry.pluginNote}}
-      <p>Plugin: <em>{{entry.pluginNote}}</em></p>
+    <p class="draft-badge">Draft (unpublished)</p>
+    {{/if}} {{#each entry.blocks}} {{#if (eq type "markdown")}} {{{safe
+    content.html}}} {{else if (eq type "text")}}
+    <pre>{{content.raw}}</pre>
+    {{else if (eq type "image")}} {{#unless content.meta.renderedInline}}
+    {{image this figure=true caption=name class="my-class"}} {{/unless}} {{else
+    if (eq type "audio")}}
+    <audio controls src="{{route}}"></audio>
+    {{else if (eq type "video")}}
+    <video controls src="{{route}}"></video>
+    {{/if}} {{/each}} {{#with (firstBlockOfType entry.blocks "index-list")}}
+    {{#if content.data.items}}
+    <section class="index-list">
+      <h3>Index list</h3>
+      <ul>
+        {{#each content.data.items}} {{#if (eq kind "collection")}}
+        <li>
+          <a href="{{collection.route}}">{{collection.name}}</a>
+          {{#if collection.description}}
+          <div class="collection-description">
+            {{{nl2br collection.description}}}
+          </div>
+          {{/if}} {{#if collection.assets}}
+          <div class="collection-assets">
+            {{#each collection.assets}} {{#if (eq type "image")}} {{image this
+            class="collection-asset" variant="small"}} {{else if (eq type
+            "audio")}}
+            <audio controls src="{{route}}"></audio>
+            {{else if (eq type "video")}}
+            <video controls src="{{route}}"></video>
+            {{/if}} {{/each}}
+          </div>
+          {{/if}}
+        </li>
+        {{else if (eq kind "entry")}}
+        <li>
+          <a href="{{entry.route}}">{{entry.name}}</a>
+          <span>({{collection.name}})</span>
+        </li>
+        {{/if}} {{/each}}
+      </ul>
+    </section>
+    {{/if}} {{/with}} {{#if entry.pluginNote}}
+    <p>Plugin: <em>{{entry.pluginNote}}</em></p>
     {{/if}}
   </article>
 </main>

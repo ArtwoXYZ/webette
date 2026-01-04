@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import * as path from "node:path";
 import type { Resolver } from "../registry";
+import type { Block } from "../../model";
 import {
   matchCollection,
   matchEntry,
@@ -15,7 +16,9 @@ type IndexListItem =
         slug: string;
         route?: string;
         entriesCount: number;
+        description?: string;
         isUnlisted?: boolean;
+        assets?: Block[];
         createdAt?: string;
         updatedAt?: string;
       };
@@ -27,7 +30,9 @@ type IndexListItem =
         name: string;
         slug: string;
         route?: string;
+        description?: string;
         isUnlisted?: boolean;
+        assets?: Block[];
       };
       entry: {
         id: string;
@@ -121,6 +126,7 @@ export const resolveIndexList: Resolver = async (block, ctx) => {
           route: collection.route,
           entriesCount: collection.entries.length,
           description: collection.description,
+          assets: collection.assets,
           isUnlisted: collection.isUnlisted,
           createdAt: collection.createdAt,
           updatedAt: collection.updatedAt,
@@ -147,6 +153,7 @@ export const resolveIndexList: Resolver = async (block, ctx) => {
         slug: collection.slug,
         route: collection.route,
         description: collection.description,
+        assets: collection.assets,
         isUnlisted: collection.isUnlisted,
       },
       entry: {

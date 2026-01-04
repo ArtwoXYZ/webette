@@ -37,6 +37,7 @@ type RawCollection = {
   entries: RawEntry[];
   isUnlisted?: boolean;
   description?: string;
+  assets?: RawBlock[];
 };
 
 type CollectionConfig = {
@@ -170,12 +171,14 @@ async function listCollectionsRaw(
     const absoluteCollection = path.join(rootDir, rawName);
     const isUnlisted = await isUnlistedCollection(absoluteCollection);
     const description = await readCollectionDescription(absoluteCollection);
+    const assets = await listCollectionAssetsRaw(rootDir, relPath);
     collections.push({
       rawName,
       path: relPath,
       entries: [],
       ...(isUnlisted ? { isUnlisted: true } : {}),
       ...(description ? { description } : {}),
+      ...(assets.length ? { assets } : {}),
     });
   }
 
@@ -309,6 +312,7 @@ function enrichCollections(
     const entriesWithUnlisted = isUnlisted
       ? entries.map((entry) => ({ ...entry, isUnlisted: true }))
       : entries;
+    const assets = raw.assets ? enrichBlocks(raw.assets) : undefined;
 
     return {
       id,
@@ -317,6 +321,7 @@ function enrichCollections(
       slug,
       path: raw.path,
       entries: entriesWithUnlisted,
+      ...(assets ? { assets } : {}),
       ...(raw.description ? { description: raw.description } : {}),
       ...(isUnlisted ? { isUnlisted: true } : {}),
     };
@@ -370,6 +375,40 @@ async function readCollectionDescription(dir: string): Promise<string | undefine
   } catch {
     return undefined;
   }
+}
+
+async function listCollectionAssetsRaw(
+  rootDir: string,
+  collectionPath: string
+): Promise<RawBlock[]> {
+  const assetsDir = path.join(rootDir, collectionPath, "_assets");
+  const entries = await readdir(assetsDir, { withFileTypes: true }).catch(() => []);
+  const assets: RawBlock[] = [];
+
+  for (const entry of entries) {
+    if (!entry.isFile()) continue;
+    const rawName = entry.name;
+    if (!rawName || rawName.startsWith(".") || rawName.startsWith("_")) continue;
+    const relPath = toPosix(path.join(collectionPath, "_assets", rawName));
+    const ext = path.extname(rawName) || undefined;
+    const type = detectBlockType(ext, false, { treatTxtAsMarkdown: false });
+    if (type !== "image" && type !== "audio" && type !== "video") continue;
+    assets.push({
+      rawName,
+      type,
+      ext,
+      path: relPath,
+    });
+  }
+
+  assets.sort((a, b) => {
+    const orderA = orderKey(a.rawName);
+    const orderB = orderKey(b.rawName);
+    if (orderA !== orderB) return orderA - orderB;
+    return a.rawName.localeCompare(b.rawName, undefined, { sensitivity: "base" });
+  });
+
+  return assets;
 }
 
 export async function scanSite(site: Site, logger?: Logger): Promise<Site> {

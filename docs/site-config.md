@@ -101,6 +101,15 @@ Add `collection-description.webt` at the root of a collection to attach a raw de
 - Stored on the collection as `collection.description`.
 - Preserves line breaks; use `nl2br` in templates to display them.
 
+## Collection assets
+
+Add a `_assets/` folder at the root of a collection to attach media assets to that collection.
+
+Rules:
+- Only image/audio/video files are processed.
+- Files are copied/generated through the media pipelines and exposed as `collection.assets`.
+- Output routes follow the collection slug, e.g. `assets/images/posts/...`.
+
 ## Error handling
 
 - Missing or invalid config: falls back to defaults (`title`: "My Webette site", `lang`: "en").
