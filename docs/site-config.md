@@ -81,6 +81,19 @@ Keys match collection folders by `path` (or the key itself if `path` is omitted)
 
 If absent, Webette derives `name`/`slug` from the folder name and `route` from the slug.
 
+## Unlisted collections and entries
+
+Place a `unlisted.webt` file:
+
+- In a collection folder to mark the entire collection as unlisted.
+- In an entry folder to mark that entry as unlisted.
+
+Behavior:
+- Unlisted collections and entries are excluded from the root/collection indexes.
+- Collection indexes are not generated for unlisted collections; instead, a forbidden index is written using `templates.default.accessForbidden`.
+- Unlisted collections and entries are excluded from the sitemap.
+- Pages are still generated and available at their routes.
+
 ## Error handling
 
 - Missing or invalid config: falls back to defaults (`title`: "My Webette site", `lang`: "en").

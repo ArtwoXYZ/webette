@@ -69,6 +69,11 @@ Resolution order:
 - Root index (`/index.html`): `custom.index.root` -> `default.index`
 - Collection indexes: `custom.index.collection[slug]` -> `custom.index.collections` -> `default.index`
 
+## Unlisted collections and entries
+
+Add `unlisted.webt` to a collection or entry folder to remove it from index generation.
+Unlisted collections and entries are excluded from the root/collection indexes and from the sitemap, but their pages are still generated. For unlisted collections, the collection folder receives a forbidden index rendered with `templates.default.accessForbidden`.
+
 ## Template assets
 
 Sites can expose a templates assets folder (CSS/JS/images) via `templates.assets` in `webette.config.ts`:

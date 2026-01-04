@@ -65,14 +65,17 @@ export async function writeSitemap(options: {
   if (generateIndex) {
     addUrl("/", siteModel.updatedAt ?? siteModel.createdAt, "root");
     for (const collection of siteModel.collections ?? []) {
+      if (collection.isUnlisted) continue;
       const colLastmod = collection.updatedAt ?? collection.createdAt;
       addUrl(collection.route ?? `/${collection.slug || collection.id}`, colLastmod, "collection");
     }
   }
 
   for (const collection of siteModel.collections ?? []) {
+    if (collection.isUnlisted) continue;
     for (const entry of collection.entries) {
       if (!includeDrafts && entry.isDraft) continue;
+      if (entry.isUnlisted) continue;
       const lastmod = entry.updatedAt ?? entry.createdAt;
       addUrl(entry.route, lastmod, "entry");
     }

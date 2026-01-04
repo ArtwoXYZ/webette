@@ -28,12 +28,14 @@ type RawEntry = {
   path: string; // POSIX
   blocks: RawBlock[];
   isDraft?: boolean;
+  isUnlisted?: boolean;
 };
 
 type RawCollection = {
   rawName: string;
   path: string; // POSIX
   entries: RawEntry[];
+  isUnlisted?: boolean;
 };
 
 type CollectionConfig = {
@@ -120,12 +122,14 @@ async function listEntriesRaw(
     const blocks = await listBlocksRaw(rootDir, relPath, options, logger);
     const absoluteEntry = path.join(rootDir, relPath);
     const isDraft = await isDraftEntry(absoluteEntry);
+    const isUnlisted = await isUnlistedEntry(absoluteEntry);
 
     entries.push({
       rawName,
       path: relPath,
       blocks,
       ...(isDraft ? { isDraft: true } : {}),
+      ...(isUnlisted ? { isUnlisted: true } : {}),
     });
   }
 
@@ -159,10 +163,13 @@ async function listCollectionsRaw(
     if (rawName === templateDirName) continue;
 
     const relPath = toPosix(rawName);
+    const absoluteCollection = path.join(rootDir, rawName);
+    const isUnlisted = await isUnlistedCollection(absoluteCollection);
     collections.push({
       rawName,
       path: relPath,
       entries: [],
+      ...(isUnlisted ? { isUnlisted: true } : {}),
     });
   }
 
@@ -255,6 +262,7 @@ function enrichEntries(rawEntries: RawEntry[]): Entry[] {
       path: raw.path,
       blocks,
       ...(raw.isDraft ? { isDraft: true } : {}),
+      ...(raw.isUnlisted ? { isUnlisted: true } : {}),
     };
   });
 }
@@ -291,6 +299,10 @@ function enrichCollections(
     collectionIdCounts.set(idBase, idCount + 1);
 
     const entries = enrichEntries(raw.entries);
+    const isUnlisted = !!raw.isUnlisted;
+    const entriesWithUnlisted = isUnlisted
+      ? entries.map((entry) => ({ ...entry, isUnlisted: true }))
+      : entries;
 
     return {
       id,
@@ -298,7 +310,8 @@ function enrichCollections(
       name,
       slug,
       path: raw.path,
-      entries,
+      entries: entriesWithUnlisted,
+      ...(isUnlisted ? { isUnlisted: true } : {}),
     };
   });
 }
@@ -325,6 +338,20 @@ async function isDraftEntry(dir: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+async function isUnlistedEntry(dir: string): Promise<boolean> {
+  const unlistedPath = path.join(dir, "unlisted.webt");
+  try {
+    const fileStat = await stat(unlistedPath);
+    return fileStat.isFile();
+  } catch {
+    return false;
+  }
+}
+
+async function isUnlistedCollection(dir: string): Promise<boolean> {
+  return isUnlistedEntry(dir);
 }
 
 export async function scanSite(site: Site, logger?: Logger): Promise<Site> {

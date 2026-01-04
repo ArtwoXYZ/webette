@@ -634,6 +634,8 @@ export async function build(
         name: entry.name,
         slug: entry.slug,
         route: entry.route,
+        isDraft: entry.isDraft,
+        isUnlisted: entry.isUnlisted,
         createdAt: entry.createdAt,
         updatedAt: entry.updatedAt,
         fingerprint: entry.fingerprint,
@@ -1135,10 +1137,18 @@ export async function build(
       templates.default.index,
     ]);
 
+    const visibleCollections = (resolvedSiteWithHistory.collections ?? [])
+      .filter((collection) => !collection.isUnlisted)
+      .map((collection) => ({
+        ...collection,
+        entries: collection.entries.filter((entry) => !entry.isUnlisted),
+      }));
+
     const rootContext = {
       ...renderBaseContext,
       layoutName: rootIndexLayoutName,
       entry: { name: "Index", route: "/" },
+      collections: visibleCollections,
     };
     const rootHtml = templateRenderer.render(rootContext);
     const rootIndexPath = path.join(outputDir, "index.html");
@@ -1148,6 +1158,32 @@ export async function build(
 
     // Collection indexes
     for (const collection of resolvedSiteWithHistory.collections ?? []) {
+      if (collection.isUnlisted) {
+        const routeRelative = collection.route
+          ? collection.route.replace(/^\/+/, "").replace(/\/+$/, "")
+          : collection.slug || collection.id;
+        const collectionIndexDir = routeRelative
+          ? path.join(outputDir, routeRelative)
+          : outputDir;
+        const collectionIndexPath = path.join(collectionIndexDir, "index.html");
+
+        const forbiddenContext = {
+          ...renderBaseContext,
+          layoutName: accessForbiddenLayoutName,
+          entry: {
+            name: "Access forbidden",
+            route: collection.route ?? `/${collection.slug || collection.id}`,
+          },
+          collection,
+        };
+        const forbiddenHtml = templateRenderer.render(forbiddenContext);
+        await mkdir(collectionIndexDir, { recursive: true });
+        const finalForbidden = await formatHtml(forbiddenHtml, collectionIndexPath);
+        await writeIfChanged(collectionIndexPath, finalForbidden);
+        continue;
+      }
+      const visibleEntries = collection.entries.filter((entry) => !entry.isUnlisted);
+      const collectionForIndex = { ...collection, entries: visibleEntries };
       const collectionIndexLayoutName = await pickIndexLayout(
         `index.collection.${collection.slug || collection.id}`,
         [
@@ -1168,8 +1204,8 @@ export async function build(
         ...renderBaseContext,
         layoutName: collectionIndexLayoutName,
         entry: { name: collection.name, route: collection.route },
-        collection,
-        entries: collection.entries,
+        collection: collectionForIndex,
+        entries: visibleEntries,
       };
       const colHtml = templateRenderer.render(ctx);
       await mkdir(collectionIndexDir, { recursive: true });
