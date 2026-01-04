@@ -74,6 +74,37 @@ Resolution order:
 Add `unlisted.webt` to a collection or entry folder to remove it from index generation.
 Unlisted collections and entries are excluded from the root/collection indexes and from the sitemap, but their pages are still generated. For unlisted collections, the collection folder receives a forbidden index rendered with `templates.default.accessForbidden`.
 
+## Index list block
+
+Create an `index-list.webt` file inside an entry to build a custom, ordered list of collections and entries.
+Each line defines one item:
+
+```
+- collection: posts
+- collection: posts, entry: draft
+- collection: lab
+```
+
+Rules:
+- `collection` is required on every line.
+- `entry` is optional; when present, it must belong to the declared collection.
+- Values can be collection/entry names or slugs.
+- The list keeps the order defined in the file.
+
+The block does not auto-render. Use it in templates via `content.data.items`:
+
+```hbs
+{{#with (firstBlockOfType blocks "index-list")}}
+  {{#each content.data.items}}
+    {{#if (eq kind "collection")}}
+      <a href="{{collection.route}}">{{collection.name}}</a>
+    {{else if (eq kind "entry")}}
+      <a href="{{entry.route}}">{{entry.name}}</a>
+    {{/if}}
+  {{/each}}
+{{/with}}
+```
+
 ## Template assets
 
 Sites can expose a templates assets folder (CSS/JS/images) via `templates.assets` in `webette.config.ts`:

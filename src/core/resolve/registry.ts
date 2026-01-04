@@ -7,6 +7,7 @@ import { resolveVideo } from "./resolvers/video";
 import { resolveAudio } from "./resolvers/audio";
 import { resolveFolder } from "./resolvers/folder";
 import { resolveUnclassified } from "./resolvers/unclassified";
+import { resolveIndexList } from "./resolvers/index-list";
 import type { Logger } from "../../logging/logger";
 import type { ImagePipelineConfig } from "../block-types/image/config";
 import type { AudioPipelineConfig } from "../block-types/audio/config";
@@ -68,6 +69,7 @@ const typeResolvers = new Map<string, Resolver>([
   ["image", resolveImage],
   ["video", resolveVideo],
   ["audio", resolveAudio],
+  ["index-list", resolveIndexList],
   ["folder", resolveFolder],
   ["unclassified", resolveUnclassified],
 ]);

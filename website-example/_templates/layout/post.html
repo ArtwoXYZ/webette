@@ -23,6 +23,26 @@
       {{/if}}
     {{/each}}
 
+    {{#with (firstBlockOfType entry.blocks "index-list")}}
+      {{#if content.data.items}}
+        <section class="index-list">
+          <h3>Index list</h3>
+          <ul>
+            {{#each content.data.items}}
+              {{#if (eq kind "collection")}}
+                <li><a href="{{collection.route}}">{{collection.name}}</a></li>
+              {{else if (eq kind "entry")}}
+                <li>
+                  <a href="{{entry.route}}">{{entry.name}}</a>
+                  <span>({{collection.name}})</span>
+                </li>
+              {{/if}}
+            {{/each}}
+          </ul>
+        </section>
+      {{/if}}
+    {{/with}}
+
     {{#if entry.pluginNote}}
       <p>Plugin: <em>{{entry.pluginNote}}</em></p>
     {{/if}}

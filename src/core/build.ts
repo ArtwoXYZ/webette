@@ -1018,16 +1018,13 @@ export async function build(
           ...(b.subBlocks ? { subBlocks: filterRenderableBlocks(b.subBlocks) } : {}),
         }));
 
-    const entryForRender: Entry = {
-      ...entry,
-      blocks: filterRenderableBlocks(entry.blocks),
-    };
+    const renderableBlocks = filterRenderableBlocks(entry.blocks);
 
     const context = {
       ...renderBaseContext,
       collection,
-      entry: entryForRender,
-      blocks: entryForRender.blocks,
+      entry,
+      blocks: renderableBlocks,
     };
 
         const html = templateRenderer.render(context);

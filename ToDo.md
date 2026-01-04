@@ -16,7 +16,7 @@
 - ~~ajouter un mode brouillon : ajoute un parametre isDraft sur les entrée. Si serve : rendu (ajouté dans le template une info "brouillon"), si Build ignoré complétement, même pas dans le model ou quoi.~~
 - ~~Sitemap generator~~
 - ~~prévoire un helper pour les images~~
-- EN COURS - refaire entièrement le website-example pour montrer toutes les capacités actuelles de webette et faire un truc propre
+- **EN COURS** - refaire entièrement le website-example pour montrer toutes les capacités actuelles de webette et faire un truc propre
   - ~~virer les layouts inutiles et vérifier si ça prend encore les templates par défaut si on en enlève~~
   - ~~refaire le webette.config.ts pour que ça prenne bien en compte les paramètres de template avec le dossier \_templates~~
 - ~~dans "\_templates", prévoir l'ajout d'un dossier "assets" pour les images, video, audio... et aussi le css et le js par exemple~~
@@ -26,10 +26,11 @@
 - Mises à jour sur les index :
   - ~~permettre de définir : templates.default.index, templates.custom.index.root, templates.custom.index.collection, templates.custom.index.collection("collection name")~~
   - ~~permettre de pouvoir délister une collection unlisted.webt (exemple : collection "pages") => ça retire l'indexation automatique pour cette collection et ces entries mais elles existent quand même (est-ce qu'on les sorts quand même dans le Sitemap ?)~~
-  - créer un block index-list.webt qui permet de lister des collections et des entrées. Ce block peut être utilisé dans le templating pour afficher des liens et référencer tout ce dont on a besoin pour créer des aperçus des entries ou des collections
+  - ~~créer un block index-list.webt qui permet de lister des collections et des entrées. Ce block peut être utilisé dans le templating pour afficher des liens et référencer tout ce dont on a besoin pour créer des aperçus des entries ou des collections~~
   - ajouter un collection-description.webt à la racine des collections peut permettre d'ajouter une description aux metadata d'une collection
   - ajouter un dossier \_assets à la racine d'une collection peut permettre d'ajouter des fichiers exploitables par le templating (de manière simple) mais pas listés comme une entrées ; par exemple, pour créer une image spécifique d'aperçus pour la collection
   - permettre de définir une page spécifique dans le webette.config pour remplacer l'index root ou l'index d'une collection spécifique par une autre entrée venant d'une collection unlisted (l'entrée devient alors réellement la page /index.html en gros)
+- Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)
 - Peut-être retirer complétement les templates du tool (pas utiles, il faut créer des templates pour son site et puis c'est tout) ?
 - Plugin de flux RSS
 - Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)
