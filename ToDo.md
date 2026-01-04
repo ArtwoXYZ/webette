@@ -30,7 +30,7 @@
   - ~~ajouter un collection-description.webt à la racine des collections peut permettre d'ajouter une description aux metadata d'une collection~~
   - ~~ajouter un dossier \_assets à la racine d'une collection peut permettre d'ajouter des fichiers exploitables par le templating (de manière simple) mais pas listés comme une entrées ; par exemple, pour créer une image spécifique d'aperçus pour la collection~~
   - ~~permettre de définir une page spécifique dans le webette.config pour remplacer l'index root ou l'index d'une collection spécifique par une autre entrée venant d'une collection unlisted (l'entrée devient alors réellement la page /index.html en gros)~~
-  - faire en sorte que index-list.webt vide = index général (collection, toutes les entry dedans, collection, etc.)
+  - ~~faire en sorte que index-list.webt vide = index général (collection, toutes les entry dedans, collection, etc.)~~
   - faire une page de doc complète qui explique tous les moyens de créer des index avec webette
 - Réécrire tous les logs pour les rendre plus lisibles
 - Refaire tout le système de sitemap pour essayer de refléter parfaitement les liens entre les pages dans le site exportés (par exemple, si une entry est unlisted mais qu'un lien pointe vers elle sur le site, il faut que la page soit visible dans le sitemap)

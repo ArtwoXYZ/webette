@@ -72,7 +72,8 @@ async function listBlocksRaw(
     const isDirectory = fsEntry.isDirectory();
     const ext = isDirectory ? undefined : path.extname(rawName) || undefined;
     const isIndexList =
-      !isDirectory && rawName.toLowerCase() === "index-list.webt";
+      !isDirectory &&
+      cleanName(rawName).toLowerCase() === "index-list.webt";
     if (!isDirectory && ext?.toLowerCase() === ".webt" && !isIndexList) continue; // skip webette meta files
     const type = isIndexList ? "index-list" : detectBlockType(ext, isDirectory, options);
 

@@ -91,6 +91,8 @@ export const resolveIndexList: Resolver = async (block, ctx) => {
     .filter((line) => line && !line.startsWith("#"));
 
   const items: IndexListItem[] = [];
+  const parsedLines: ParsedLine[] = [];
+  const parsedRawLines: string[] = [];
 
   for (const line of lines) {
     const parsed = parseLine(line);
@@ -98,14 +100,68 @@ export const resolveIndexList: Resolver = async (block, ctx) => {
       ctx.logger?.warn("indexList.lineInvalid", { path: block.path, line });
       continue;
     }
+    parsedLines.push(parsed);
+    parsedRawLines.push(line);
+  }
 
-    if (!parsed.collection) {
-      ctx.logger?.warn("indexList.entryMissingCollection", {
-        path: block.path,
-        line,
+  if (parsedLines.length === 0) {
+    for (const collection of ctx.site.collections ?? []) {
+      if (collection.isUnlisted) continue;
+      items.push({
+        kind: "collection",
+        collection: {
+          id: collection.id,
+          name: collection.name,
+          slug: collection.slug,
+          route: collection.route,
+          entriesCount: collection.entries.length,
+          description: collection.description,
+          assets: collection.assets,
+          isUnlisted: collection.isUnlisted,
+          createdAt: collection.createdAt,
+          updatedAt: collection.updatedAt,
+        },
       });
-      continue;
+
+      for (const entry of collection.entries) {
+        if (entry.isUnlisted) continue;
+        items.push({
+          kind: "entry",
+          collection: {
+            id: collection.id,
+            name: collection.name,
+            slug: collection.slug,
+            route: collection.route,
+            description: collection.description,
+            assets: collection.assets,
+            isUnlisted: collection.isUnlisted,
+          },
+          entry: {
+            id: entry.id,
+            name: entry.name,
+            slug: entry.slug,
+            route: entry.route,
+            isDraft: entry.isDraft,
+            isUnlisted: entry.isUnlisted,
+            createdAt: entry.createdAt,
+            updatedAt: entry.updatedAt,
+          },
+        });
+      }
     }
+  } else {
+    for (let i = 0; i < parsedLines.length; i += 1) {
+      const parsed = parsedLines[i];
+      if (!parsed) continue;
+      const rawLine = parsedRawLines[i] ?? "";
+
+      if (!parsed.collection) {
+        ctx.logger?.warn("indexList.entryMissingCollection", {
+          path: block.path,
+          line: rawLine,
+        });
+        continue;
+      }
 
     const collection = matchCollection(ctx.site, parsed.collection);
     if (!collection) {
@@ -116,7 +172,7 @@ export const resolveIndexList: Resolver = async (block, ctx) => {
       continue;
     }
 
-    if (!parsed.entry) {
+      if (!parsed.entry) {
       items.push({
         kind: "collection",
         collection: {
@@ -135,38 +191,39 @@ export const resolveIndexList: Resolver = async (block, ctx) => {
       continue;
     }
 
-    const entry = matchEntry(collection, parsed.entry);
-    if (!entry) {
-      ctx.logger?.warn("indexList.entryMissing", {
-        path: block.path,
-        collection: parsed.collection,
-        entry: parsed.entry,
-      });
-      continue;
-    }
+      const entry = matchEntry(collection, parsed.entry);
+      if (!entry) {
+        ctx.logger?.warn("indexList.entryMissing", {
+          path: block.path,
+          collection: parsed.collection,
+          entry: parsed.entry,
+        });
+        continue;
+      }
 
-    items.push({
-      kind: "entry",
-      collection: {
-        id: collection.id,
-        name: collection.name,
-        slug: collection.slug,
-        route: collection.route,
-        description: collection.description,
-        assets: collection.assets,
-        isUnlisted: collection.isUnlisted,
-      },
-      entry: {
-        id: entry.id,
-        name: entry.name,
-        slug: entry.slug,
-        route: entry.route,
-        isDraft: entry.isDraft,
-        isUnlisted: entry.isUnlisted,
-        createdAt: entry.createdAt,
-        updatedAt: entry.updatedAt,
-      },
-    });
+      items.push({
+        kind: "entry",
+        collection: {
+          id: collection.id,
+          name: collection.name,
+          slug: collection.slug,
+          route: collection.route,
+          description: collection.description,
+          assets: collection.assets,
+          isUnlisted: collection.isUnlisted,
+        },
+        entry: {
+          id: entry.id,
+          name: entry.name,
+          slug: entry.slug,
+          route: entry.route,
+          isDraft: entry.isDraft,
+          isUnlisted: entry.isUnlisted,
+          createdAt: entry.createdAt,
+          updatedAt: entry.updatedAt,
+        },
+      });
+    }
   }
 
   return { raw, data: { items } };

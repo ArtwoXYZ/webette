@@ -90,6 +90,7 @@ Rules:
 - `entry` is optional; when present, it must belong to the declared collection.
 - Values can be collection/entry names or slugs.
 - The list keeps the order defined in the file.
+- If the file is empty, Webette expands it into a full index (each collection followed by its entries).
 
 The block does not auto-render. Use it in templates via `content.data.items`:
 

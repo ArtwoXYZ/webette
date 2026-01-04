@@ -14,7 +14,7 @@
     <audio controls src="{{route}}"></audio>
     {{else if (eq type "video")}}
     <video controls src="{{route}}"></video>
-    {{/if}} {{/each}} {{#with (firstBlockOfType entry.blocks "index-list")}}
+    {{else if (eq type "index-list")}}
     {{#if content.data.items}}
     <section class="index-list">
       <h3>Index list</h3>
@@ -46,7 +46,7 @@
         {{/if}} {{/each}}
       </ul>
     </section>
-    {{/if}} {{/with}} {{#if entry.pluginNote}}
+    {{/if}} {{/if}} {{/each}} {{#if entry.pluginNote}}
     <p>Plugin: <em>{{entry.pluginNote}}</em></p>
     {{/if}}
   </article>
