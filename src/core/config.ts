@@ -1,5 +1,5 @@
 import * as path from "node:path";
-import { readFile } from "node:fs/promises";
+import { pathToFileURL } from "node:url";
 import type { Site } from "./model";
 
 interface WebetteConfigFile {
@@ -21,12 +21,8 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
   const configPath = path.join(rootDir, "webette.config.ts");
 
   try {
-    const source = await readFile(configPath, "utf8");
-    const transpiled = new Bun.Transpiler({ loader: "ts" }).transformSync(source);
-    const dataUrl = `data:text/javascript;base64,${Buffer.from(transpiled).toString(
-      "base64"
-    )}?ts-config=${Date.now()}`;
-    const mod = await import(dataUrl);
+    const specifier = `${pathToFileURL(configPath).href}?ts-config=${Date.now()}`;
+    const mod = await import(specifier);
     const raw = mod?.default ?? mod;
 
     if (!raw || typeof raw !== "object") {

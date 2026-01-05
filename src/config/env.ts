@@ -1,6 +1,5 @@
-import { readFile } from "node:fs/promises";
 import * as path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { existsSync } from "node:fs";
 import { normalizeLocale, type Locale } from "../logging/i18n";
 
@@ -399,12 +398,8 @@ export async function getEnv(toolRoot?: string): Promise<WebetteEnv> {
 
   if (configPath) {
     try {
-      const raw = await readFile(configPath, "utf8");
-      const transpiled = new Bun.Transpiler({ loader: "ts" }).transformSync(raw);
-      const dataUrl = `data:text/javascript;base64,${Buffer.from(transpiled).toString(
-        "base64"
-      )}?tool-config=${Date.now()}`;
-      const mod = await import(dataUrl);
+      const specifier = `${pathToFileURL(configPath).href}?tool-config=${Date.now()}`;
+      const mod = await import(specifier);
       const parsed = mod?.default ?? mod;
       overrides = parsed && typeof parsed === "object" ? (parsed as WebetteEnvOverrides) : {};
     } catch (err) {
