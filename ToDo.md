@@ -33,6 +33,9 @@
   - ~~faire en sorte que index-list.webt vide = index général (collection, toutes les entry dedans, collection, etc.)~~
   - ~~faire une page de doc complète qui explique tous les moyens de créer des index avec webette~~
 - ~~Ajouter les ancres pour liens md et Handlebars~~
+- ~~renomer le block index-list.webt en navigation.webt~~
+- Ajouter gestion d'une ligne "name: mon nom" pour le block navigation
+- Ajouter l'indentation des items dans le block navigation
 - **EN COURS** - commencer un site webette pour la documentation webette
 - Plugin webette de TOC (sommaire, table des matières)
 - Refaire tout le système de sitemap pour essayer de refléter parfaitement les liens entre les pages dans le site exportés (par exemple, si une entry est unlisted mais qu'un lien pointe vers elle sur le site, il faut que la page soit visible dans le sitemap)

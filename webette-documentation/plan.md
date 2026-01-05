@@ -36,7 +36,7 @@ Un site de documentation qui soit :
 - 03 your first site (dossiers → collections/entries/blocks + templates minimaux, et “démarrer via un Starter” : concept, utilisation, création)
 - 04 mental model (ordre, slugs/routes, export du modèle, debug)
 - 05 writing content (Markdown, comportement des `.txt`, liens internes `collection:/entry:/block:`, images internes inline)
-- 06 navigation & indexes (indexes automatiques, `unlisted.webt`, overrides d’index, `index-list.webt`, et impacts sur index/sitemap)
+- 06 navigation & indexes (indexes automatiques, `unlisted.webt`, overrides d’index, `navigation.webt`, et impacts sur index/sitemap)
 - 07 templates (wrapper/layout/partials, contexte, helpers, assets de templates, et logique “site vs tool”)
 - 08 plugins (concept + création + utilisation : écrire un plugin, l’activer dans `webette.config.ts`, lifecycle des hooks, expected outputs pour survivre au prune)
 - 09 build & deploy basics (overwrite/prune, sitemap, protectAssets, exemples htaccess/nginx)
@@ -66,7 +66,7 @@ Un site de documentation qui soit :
   - automatic-indexes.md (`build.generateIndex`, layouts, exclusions)
   - unlisted.md (effets exacts : index, sitemap, pages)
   - index-overrides.md (`index.root`, `index.collections`, règle : l’entry doit être unlisted)
-  - index-list.md (format, matching, modèle de données, usage dans les templates)
+  - navigation.md (format, matching, modèle de données, usage dans les templates)
 
 - 04 configuration
 
@@ -106,7 +106,7 @@ Un site de documentation qui soit :
   - audio.md
   - video.md
   - folder.md (subBlocks)
-  - index-list.md
+  - navigation.md
   - unclassified.md (plugin-first)
 
 - 09 model & export
@@ -133,7 +133,7 @@ Un site de documentation qui soit :
 
 - 01 site de documentation avec sidebar
 - 02 home personnalisée via override d’index
-- 03 navigation ordonnée avec index-list
+- 03 navigation ordonnée avec `navigation.webt`
 - 04 plugin générant des assets de manière sûre (expected outputs)
 - 05 désactiver txt-as-markdown
 

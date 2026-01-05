@@ -116,7 +116,7 @@ You can replace the root index or a collection index with a specific entry (must
 
 ```ts
 index: {
-  root: { collection: "pages", entry: "index-list" },
+  root: { collection: "pages", entry: "home" },
   collections: {
     posts: { collection: "pages", entry: "posts-index" }
   }

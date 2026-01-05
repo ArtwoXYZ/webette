@@ -50,7 +50,7 @@ Example:
 
 ```ts
 index: {
-  root: { collection: "pages", entry: "index-list" },
+  root: { collection: "pages", entry: "home" },
   collections: {
     posts: { collection: "pages", entry: "posts-index" }
   }
@@ -63,9 +63,9 @@ Rules:
 - The entry is rendered as `/index.html` or `/<collection>/index.html`.
 - The entry's original page is not generated.
 
-## 4) Custom ordered indexes with index-list.webt
+## 4) Custom ordered indexes with navigation.webt
 
-Place `index-list.webt` inside an entry to define a custom ordered list:
+Place `navigation.webt` inside an entry to define a custom ordered list:
 
 ```
 - collection: posts
@@ -85,7 +85,7 @@ The block does not auto-render. Use it in templates:
 
 ```hbs
 {{#each entry.blocks}}
-  {{#if (eq type "index-list")}}
+  {{#if (eq type "navigation")}}
     {{#each content.data.items}}
       {{#if (eq kind "collection")}}
         <a href="{{collection.route}}">{{collection.name}}</a>
@@ -120,5 +120,5 @@ Routes are scoped to the collection, for example:
 - **Quick site listing**: automatic index + `templates.custom.index.*`
 - **Hide collections or entries**: `unlisted.webt`
 - **Use a custom entry as index**: `index.root` / `index.collections`
-- **Fully ordered index page**: `index-list.webt` in an entry
+- **Fully ordered index page**: `navigation.webt` in an entry
 - **Collection previews**: `collection-description.webt` + `_assets/`

@@ -21,9 +21,9 @@ Every render gets the full model plus handy aliases:
 - `model`: full site model (site + collections + entries + blocks)
 - `site`: `model.site`
 - `collections`: `model.collections`
-- `collection`: the current entry’s collection (when rendering an entry)
+- `collection`: the current entry's collection (when rendering an entry)
 - `entry`: the current entry
-- `blocks`: `entry.blocks`
+- `blocks`: renderable blocks (filters out `skipRender` blocks)
 - `entry.isDraft`: `true` when the entry folder contains `draft.webt` (visible in `serve` by default; stripped from `build` output)
 - `block.content.meta.renderedInline`: `true` when a block is rendered inline in Markdown (e.g. internal image targets)
 - `liveReloadScript`: raw script injected during `serve` (use `{{{liveReloadScript}}}`)
@@ -74,9 +74,9 @@ Resolution order:
 Add `unlisted.webt` to a collection or entry folder to remove it from index generation.
 Unlisted collections and entries are excluded from the root/collection indexes and from the sitemap, but their pages are still generated. For unlisted collections, the collection folder receives a forbidden index rendered with `templates.default.accessForbidden`.
 
-## Index list block
+## Navigation block
 
-Create an `index-list.webt` file inside an entry to build a custom, ordered list of collections and entries.
+Create a `navigation.webt` file inside an entry to build a custom, ordered list of collections and entries.
 Each line defines one item:
 
 ```
@@ -96,7 +96,7 @@ Rules:
 The block does not auto-render. Use it in templates via `content.data.items`:
 
 ```hbs
-{{#with (firstBlockOfType blocks "index-list")}}
+{{#with (firstBlockOfType entry.blocks "navigation")}}
   {{#each content.data.items}}
     {{#if (eq kind "collection")}}
       <a href="{{collection.route}}">{{collection.name}}</a>

@@ -13,8 +13,8 @@
     <audio controls src="{{route}}"></audio>
     {{else if (eq type "video")}}
     <video controls src="{{route}}"></video>
-    {{else if (eq type "index-list")}} {{#if content.data.items}}
-    <section class="index-list">
+    {{else if (eq type "navigation")}} {{#if content.data.items}}
+    <section class="navigation">
       <ul>
         {{#each content.data.items}} {{#if (eq kind "collection")}}
         <li>

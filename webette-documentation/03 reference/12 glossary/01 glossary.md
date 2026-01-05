@@ -43,7 +43,7 @@ A lightweight classification derived from the filesystem:
 - `video`: `.mp4/.mov/.webm/...`
 - `folder`: directories inside entries (nested blocks)
 - `unclassified`: anything else (meant to be handled by plugins)
-- `index-list`: the special `index-list.webt` block
+- `navigation`: the special `navigation.webt` block
 
 ## Resolver
 
@@ -151,7 +151,7 @@ When enabled (`build.generateIndex=true`), webette generates:
 
 A config mechanism (`index.root`, `index.collections`) that renders a specific unlisted entry as the root index or a collection index.
 
-## Index list block (`index-list.webt`)
+## Navigation block (`navigation.webt`)
 
 A special block that defines an ordered list of collections and/or entries. It is not auto-rendered: templates read `content.data.items` to display it.
 
@@ -206,7 +206,7 @@ When `--skip-content` is enabled, webette keeps the structure (collections/entri
 
 A block flag meaning "do not render automatically". Blocks marked `skipRender` stay in the model, but are excluded from the default renderable `blocks` list passed to templates.
 
-`skipRender` is set for files listed in `ignore.webt`, and also for `index-list.webt` (the block is meant to be read by templates, not auto-rendered).
+`skipRender` is set for files listed in `ignore.webt`, and also for `navigation.webt` (the block is meant to be read by templates, not auto-rendered).
 
 ## Nested blocks
 

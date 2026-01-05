@@ -71,11 +71,11 @@ async function listBlocksRaw(
     const relPath = toPosix(path.join(entryRelPath, rawName));
     const isDirectory = fsEntry.isDirectory();
     const ext = isDirectory ? undefined : path.extname(rawName) || undefined;
-    const isIndexList =
+    const isNavigation =
       !isDirectory &&
-      cleanName(rawName).toLowerCase() === "index-list.webt";
-    if (!isDirectory && ext?.toLowerCase() === ".webt" && !isIndexList) continue; // skip webette meta files
-    const type = isIndexList ? "index-list" : detectBlockType(ext, isDirectory, options);
+      cleanName(rawName).toLowerCase() === "navigation.webt";
+    if (!isDirectory && ext?.toLowerCase() === ".webt" && !isNavigation) continue; // skip webette meta files
+    const type = isNavigation ? "navigation" : detectBlockType(ext, isDirectory, options);
 
     // Files listed in ignore.webt: keep them in the model but mark for skip-render.
     const shouldSkipRender = ignoreSet.has(rawName);
@@ -92,7 +92,7 @@ async function listBlocksRaw(
       type,
       ext,
       path: relPath,
-      ...(isIndexList ? { skipRender: true } : {}),
+      ...(isNavigation ? { skipRender: true } : {}),
       ...(shouldSkipRender ? { skipRender: true } : {}),
       ...(subBlocks && subBlocks.length > 0 ? { subBlocks } : {}),
     });

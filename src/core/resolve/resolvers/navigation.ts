@@ -8,7 +8,12 @@ import {
   matchEntry,
 } from "../../postprocess/internal-targets";
 
-type IndexListItem =
+type ParsedLine = {
+  collection?: string;
+  entry?: string;
+};
+
+type NavigationItem =
   | {
       kind: "collection";
       collection: {
@@ -46,11 +51,6 @@ type IndexListItem =
         updatedAt?: string;
       };
     };
-
-type ParsedLine = {
-  collection?: string;
-  entry?: string;
-};
 
 function parseLine(rawLine: string): ParsedLine | null {
   let line = rawLine.trim();
@@ -110,7 +110,7 @@ function parseLine(rawLine: string): ParsedLine | null {
   return result;
 }
 
-export const resolveIndexList: Resolver = async (block, ctx) => {
+export const resolveNavigation: Resolver = async (block, ctx) => {
   if (ctx.readContent === false) return undefined;
 
   const filePath = path.join(ctx.rootDir, block.path);
@@ -120,14 +120,14 @@ export const resolveIndexList: Resolver = async (block, ctx) => {
     .map((line) => line.trim())
     .filter((line) => line && !line.startsWith("#"));
 
-  const items: IndexListItem[] = [];
+  const items: NavigationItem[] = [];
   const parsedLines: ParsedLine[] = [];
   const parsedRawLines: string[] = [];
 
   for (const line of lines) {
     const parsed = parseLine(line);
     if (!parsed) {
-      ctx.logger?.warn("indexList.lineInvalid", { path: block.path, line });
+      ctx.logger?.warn("navigation.lineInvalid", { path: block.path, line });
       continue;
     }
     parsedLines.push(parsed);
@@ -186,54 +186,54 @@ export const resolveIndexList: Resolver = async (block, ctx) => {
       const rawLine = parsedRawLines[i] ?? "";
 
       if (!parsed.collection) {
-        ctx.logger?.warn("indexList.entryMissingCollection", {
+        ctx.logger?.warn("navigation.entryMissingCollection", {
           path: block.path,
           line: rawLine,
         });
         continue;
       }
 
-    const collection = matchCollection(ctx.site, parsed.collection);
-    if (!collection) {
-      ctx.logger?.warn("indexList.collectionMissing", {
-        path: block.path,
-        collection: parsed.collection,
-      });
-      continue;
-    }
+      const collection = matchCollection(ctx.site, parsed.collection);
+      if (!collection) {
+        ctx.logger?.warn("navigation.collectionMissing", {
+          path: block.path,
+          collection: parsed.collection,
+        });
+        continue;
+      }
 
       if (!parsed.entry) {
-      items.push({
-        kind: "collection",
-        collection: {
-          id: collection.id,
-          name: collection.name,
-          slug: collection.slug,
-          route: collection.route,
-          entriesCount: collection.entries.length,
-          description: collection.description,
-          assets: collection.assets,
-          isUnlisted: collection.isUnlisted,
-          createdAt: collection.createdAt,
-          updatedAt: collection.updatedAt,
-        },
-      });
-      continue;
-    }
+        items.push({
+          kind: "collection",
+          collection: {
+            id: collection.id,
+            name: collection.name,
+            slug: collection.slug,
+            route: collection.route,
+            entriesCount: collection.entries.length,
+            description: collection.description,
+            assets: collection.assets,
+            isUnlisted: collection.isUnlisted,
+            createdAt: collection.createdAt,
+            updatedAt: collection.updatedAt,
+          },
+        });
+        continue;
+      }
 
-    const [entryValue, entryAnchor] = parsed.entry.split("#");
-    const entryName = (entryValue ?? "").trim();
-    const anchorRaw = entryAnchor?.trim() || undefined;
-    const anchor = anchorRaw ? slugify(anchorRaw) : undefined;
-    const entry = matchEntry(collection, entryName);
-    if (!entry) {
-      ctx.logger?.warn("indexList.entryMissing", {
-        path: block.path,
-        collection: parsed.collection,
-        entry: entryName || parsed.entry,
-      });
-      continue;
-    }
+      const [entryValue, entryAnchor] = parsed.entry.split("#");
+      const entryName = (entryValue ?? "").trim();
+      const anchorRaw = entryAnchor?.trim() || undefined;
+      const anchor = anchorRaw ? slugify(anchorRaw) : undefined;
+      const entry = matchEntry(collection, entryName);
+      if (!entry) {
+        ctx.logger?.warn("navigation.entryMissing", {
+          path: block.path,
+          collection: parsed.collection,
+          entry: entryName || parsed.entry,
+        });
+        continue;
+      }
 
       items.push({
         kind: "entry",
@@ -246,16 +246,16 @@ export const resolveIndexList: Resolver = async (block, ctx) => {
           assets: collection.assets,
           isUnlisted: collection.isUnlisted,
         },
-      entry: {
-        id: entry.id,
-        name: entry.name,
-        slug: entry.slug,
-        route: anchor ? `${entry.route ?? ""}#${anchor}` : entry.route,
-        isDraft: entry.isDraft,
-        isUnlisted: entry.isUnlisted,
-        createdAt: entry.createdAt,
-        updatedAt: entry.updatedAt,
-      },
+        entry: {
+          id: entry.id,
+          name: entry.name,
+          slug: entry.slug,
+          route: anchor ? `${entry.route ?? ""}#${anchor}` : entry.route,
+          isDraft: entry.isDraft,
+          isUnlisted: entry.isUnlisted,
+          createdAt: entry.createdAt,
+          updatedAt: entry.updatedAt,
+        },
       });
     }
   }
