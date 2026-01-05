@@ -2,7 +2,6 @@
 
 <main>
   <article>
-    <h2>{{entry.name}}</h2>
     {{#if entry.isDraft}}
     <p class="draft-badge">Draft (unpublished)</p>
     {{/if}} {{#each entry.blocks}} {{#if (eq type "markdown")}} {{{safe
@@ -14,10 +13,8 @@
     <audio controls src="{{route}}"></audio>
     {{else if (eq type "video")}}
     <video controls src="{{route}}"></video>
-    {{else if (eq type "index-list")}}
-    {{#if content.data.items}}
+    {{else if (eq type "index-list")}} {{#if content.data.items}}
     <section class="index-list">
-      <h3>Index list</h3>
       <ul>
         {{#each content.data.items}} {{#if (eq kind "collection")}}
         <li>
@@ -40,8 +37,8 @@
         </li>
         {{else if (eq kind "entry")}}
         <li>
-          <a href="{{entry.route}}">{{entry.name}}</a>
-          <span>({{collection.name}})</span>
+          <a href="{{entry.route}}">{{entry.name}}{{#if (match entry.route "#([^#]+)$")}}, #{{match entry.route "#([^#]+)$"}}{{/if}}</a>
+          <span>(collection: {{collection.name}})</span>
         </li>
         {{/if}} {{/each}}
       </ul>

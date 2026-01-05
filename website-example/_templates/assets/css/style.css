@@ -1,230 +1,191 @@
-/* Brutalist proposal C: rigid rails, raw blocks, hostile hierarchy. */
-:root {
-  --bg: #f5f5f5;
-  --ink: #000000;
-  --red: #ff0011;
-  --blue: #002bff;
-  --yellow: #ffe900;
-  --max: 1000px;
-  --pad: 20px;
-  --gap: 12px;
-  --line: 2px solid var(--ink);
-  --title-size: clamp(2.6rem, 5vw, 4.8rem);
+﻿:root {
+  --bg: #ffffff;
+  --ink: #111111;
+  --muted: #666666;
+  --border: #dddddd;
+  --max: 980px;
+  --pad: 16px;
 }
 
-/* Base */
 * {
   box-sizing: border-box;
 }
 
-html {
+html, body {
+  margin: 0;
+  padding: 0;
   background: var(--bg);
   color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  line-height: 1.5;
 }
 
 body {
-  margin: 0;
-  padding: 18px 12px 72px;
-  font-family: "Space Mono", "IBM Plex Mono", "Courier New", monospace;
-  font-size: 17px;
-  line-height: 1.5;
-  letter-spacing: 0.03em;
-  border-left: 8px solid var(--ink);
-  border-right: 2px solid var(--ink);
+  padding: 24px;
 }
 
-/* Links: harsh and flat */
 a {
-  color: var(--ink);
-  text-decoration: none;
-  border-bottom: var(--line);
-  padding-bottom: 2px;
+  color: #0b61ff;
+  text-decoration: underline;
 }
 
 a:hover {
-  background: var(--yellow);
-  color: var(--ink);
+  color: #0848c7;
 }
 
-/* Header: blocks and rails */
-.site-header {
-  margin: 20px 0 16px;
-  padding: var(--pad);
-  background: var(--bg);
+a[target="_blank"]::after {
+  content: "↗";
+  color: var(--muted);
+  font-size: 0.85em;
+  text-decoration: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+a[target="_blank"] {
+  position: relative;
+  padding-right: 0.9em;
+}
+
+.site-header,
+main,
+footer {
   max-width: var(--max);
+  margin: 0 auto 24px;
+}
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
 }
 
 .brand {
-  display: grid;
-  grid-template-columns: var(--title-size) 1fr;
-  gap: var(--gap);
+  display: flex;
+  gap: 12px;
   align-items: center;
-}
-
-.logo {
-  width: var(--title-size);
-  height: var(--title-size);
-  border: none;
-  padding: 0;
-  background: transparent;
 }
 
 .brand-text h1 {
   margin: 0;
-  font-family: "Space Mono", "IBM Plex Mono", "Courier New", monospace;
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
-  font-weight: 700;
-  text-transform: lowercase;
-  letter-spacing: normal;
+  font-size: 20px;
 }
 
 .tagline {
-  margin: var(--gap) 0 0;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  background: var(--red);
-  color: var(--bg);
-  display: inline-block;
-  padding: 4px 6px;
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .site-nav {
-  margin: 16px 0 8px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.site-nav a {
-  padding: 4px 8px;
-  background: var(--bg);
-}
-
-.collection-name {
-  margin: 0;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.28em;
-  padding: 6px 8px;
-  background: var(--blue);
-  color: var(--bg);
-}
-
-/* Content: show structure by rules */
-main,
-article {
-  margin: 0;
-  background: var(--bg);
-  max-width: var(--max);
-}
-
-article {
-  padding: 24px;
-}
-
-article > * {
-  padding-top: 10px;
   margin-top: 12px;
 }
 
-article > *:first-child {
-  padding-top: 0;
-  margin-top: 0;
+.collection-name {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--muted);
 }
 
-h2,
-h3,
-h4 {
-  margin: 10px 0 6px;
-  font-family: "Arial Black", "Helvetica Neue", Arial, sans-serif;
-  font-size: clamp(1.4rem, 3vw, 2.6rem);
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
+article {
+  border: 1px solid var(--border);
+  padding: var(--pad);
 }
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 16px 0 8px;
+  line-height: 1.25;
+}
+
+h1 { font-size: 28px; }
+h2 { font-size: 22px; }
+h3 { font-size: 18px; }
+h4 { font-size: 16px; }
+h5 { font-size: 14px; }
+h6 { font-size: 13px; }
 
 p {
-  margin: 0 0 10px;
-  font-size: 15px;
+  margin: 8px 0;
 }
 
-/* Uneven rhythm: intentional discomfort */
-.webt-md p:nth-of-type(3n) {
-  margin-bottom: 2px;
-  font-size: 13px;
+ul,
+ol {
+  margin: 8px 0 8px 20px;
+  padding: 0;
+  list-style-position: outside;
 }
 
-.webt-md p:nth-of-type(4n) {
-  margin-bottom: 28px;
-  font-size: 19px;
+ul {
+  list-style-type: disc;
 }
 
-blockquote {
-  margin: 12px 0;
-  padding: 10px;
-  border: var(--line);
-  background: #f5f5f5;
+li {
+  margin: 4px 0;
 }
 
-pre,
-code {
-  display: block;
-  padding: 10px;
-  border: var(--line);
-  background: #f0f0f0;
+pre {
+  background: #f7f7f7;
+  border: 1px solid var(--border);
+  padding: 8px;
   overflow-x: auto;
+}
+
+code {
+  background: #f7f7f7;
+  border: 1px solid var(--border);
+  padding: 2px 4px;
+}
+
+pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  display: block;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 figure {
   margin: 12px 0;
-  padding: 8px;
-  border: var(--line);
-  background: #f9f9f9;
-}
-
-figcaption {
-  margin-top: 6px;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.26em;
 }
 
 .draft-badge {
   display: inline-block;
-  padding: 4px 6px;
-  background: var(--yellow);
-  color: var(--ink);
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
+  padding: 2px 6px;
+  background: #fff3cd;
+  border: 1px solid #ffe69c;
+  font-size: 12px;
 }
 
-audio,
-video {
-  width: 100%;
-  border: var(--line);
+.index-list {
+  margin-top: 16px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+}
+
+.collection-description {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 4px 0 8px;
+}
+
+.collection-assets img {
+  border: 1px solid var(--border);
 }
 
 footer {
-  margin: 20px 0 0;
-  padding: 12px var(--pad);
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  max-width: var(--max);
+  color: var(--muted);
+  font-size: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
 }
 
 @media (max-width: 720px) {
   body {
-    border-left-width: 4px;
-    border-right-width: 1px;
-    font-size: 15px;
-  }
-
-  .brand {
-    grid-template-columns: 1fr;
-  }
-
-  .logo {
-    width: clamp(2.2rem, 8vw, 3.4rem);
-    height: clamp(2.2rem, 8vw, 3.4rem);
+    padding: 16px;
   }
 }

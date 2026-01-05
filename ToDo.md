@@ -33,8 +33,8 @@
   - ~~faire en sorte que index-list.webt vide = index général (collection, toutes les entry dedans, collection, etc.)~~
   - ~~faire une page de doc complète qui explique tous les moyens de créer des index avec webette~~
 - ~~Ajouter les ancres pour liens md et Handlebars~~
-- Ajouter un sommaire pour le markdown
 - **EN COURS** - commencer un site webette pour la documentation webette
+- Plugin webette de TOC (sommaire, table des matières)
 - Refaire tout le système de sitemap pour essayer de refléter parfaitement les liens entre les pages dans le site exportés (par exemple, si une entry est unlisted mais qu'un lien pointe vers elle sur le site, il faut que la page soit visible dans le sitemap)
 - Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)
 - Peut-être retirer complétement les templates du tool (pas utiles, il faut créer des templates pour son site et puis c'est tout) ?

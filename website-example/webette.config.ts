@@ -49,7 +49,7 @@ export default {
   },
 
   index: {
-    root: { collection: "pages", entry: "index-list" },
+    root: { collection: "pages", entry: "welcome" },
   },
 
   plugins: [

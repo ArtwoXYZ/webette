@@ -9,9 +9,40 @@ import {
 
 let helpersRegistered = false;
 
+function registerMatchHelper() {
+  if (Handlebars.helpers.match) return;
+  Handlebars.registerHelper(
+    "match",
+    (value: unknown, pattern: unknown, flags?: unknown, options?: unknown) => {
+      const isOptionsObject =
+        flags &&
+        typeof flags === "object" &&
+        ("hash" in (flags as any) || "loc" in (flags as any));
+      const normalizedFlags = isOptionsObject ? undefined : flags;
+      if (value == null || pattern == null) return "";
+      const str = String(value);
+      const source = String(pattern);
+      try {
+        const regex = new RegExp(
+          source,
+          normalizedFlags != null ? String(normalizedFlags) : undefined
+        );
+        const res = str.match(regex);
+        if (!res) return "";
+        return res[1] ?? res[0] ?? "";
+      } catch {
+        return "";
+      }
+    }
+  );
+}
+
 // Register a small set of reusable helpers for templates.
 export function registerDefaultHelpers(options?: { defaultLayoutName?: string }) {
-  if (helpersRegistered) return;
+  if (helpersRegistered) {
+    registerMatchHelper();
+    return;
+  }
   helpersRegistered = true;
 
   const fallbackLayout = options?.defaultLayoutName?.trim() || "layout";
@@ -154,6 +185,7 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     const html = s.replace(/\r?\n/g, "<br>");
     return new Handlebars.SafeString(html);
   });
+  registerMatchHelper();
   Handlebars.registerHelper("formatDate", function (value: unknown, options) {
     const date = toDate(value);
     if (!date) return "";

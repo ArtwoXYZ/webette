@@ -26,6 +26,7 @@ Example:
 - `capitalize value`: first letter uppercase.
 - `title value`: capitalize each word.
 - `truncate value len [suffix]`: shorten to `len` chars; suffix defaults to `â€¦`.
+- `match value pattern [flags]`: return first regex match (or capture group 1).
 - `nl2br value`: convert newlines to `<br>`.
 - `safe value`: mark string as SafeString (no escaping).
 
@@ -37,6 +38,7 @@ Examples:
 {{title "hello world"}}                    {{!-- Hello World --}}
 {{truncate entry.name 12 "..."}}           {{!-- My first po... --}}
 {{truncate "hello world" 8}}               {{!-- hello woâ€¦ --}}
+{{match entry.route "#(.+)$"}}                   {{!-- anchor without # --}}
 {{{nl2br collection.description}}}         {{!-- keep line breaks --}}
 {{{safe content.html}}}                    {{!-- inserts HTML as-is --}}
 ```

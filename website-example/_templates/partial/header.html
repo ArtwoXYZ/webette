@@ -13,5 +13,8 @@
   </nav>
 
   <h3 class="collection-name">Collection: {{collection.name}}</h3>
+    {{#if entry}}
+      <h3 class="entry-name">Entry: {{entry.name}}</h3>
+    {{/if}}
   {{/if}}
 </header>
