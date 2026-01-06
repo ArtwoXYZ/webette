@@ -25,11 +25,11 @@ export default {
   templates: {
     root: "templates", // default templates folder
     default: {
-      wrapper: "wrapper/wrapper.html", // default wrapper
-      layout: "layout/post.html", // default layout
-      index: "layout/index.html", // default index layout
-      notFound: "layout/not-found.html", // default 404 layout
-      accessForbidden: "layout/access-forbidden.html", // default forbidden layout
+      wrapper: "wrapper/wrapper.hbs", // default wrapper
+      layout: "layout/post.hbs", // default layout
+      index: "layout/index.hbs", // default index layout
+      notFound: "layout/not-found.hbs", // default 404 layout
+      accessForbidden: "layout/access-forbidden.hbs", // default forbidden layout
     },
   },
   images: {

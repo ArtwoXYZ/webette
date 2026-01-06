@@ -17,7 +17,7 @@ Example:
 {{#if (in "posts" site.collections)}}...{{/if}}                  {{!-- enters block if "posts" exists --}}
 {{first entry.blocks}}                                           {{!-- first block object --}}
 {{firstBlockOfType entry.blocks "image"}}                        {{!-- first image block or "" --}}
-{{renderLayout "layout/post.html"}}                              {{!-- renders the post layout with current context --}}
+{{renderLayout "post"}}                                          {{!-- renders the post layout with current context --}}
 ```
 
 ## Strings / text

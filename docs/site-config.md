@@ -46,10 +46,10 @@ export default {
     root: "_templates",
     custom: {
       index: {
-        root: "layout/index-root.html",
-        collections: "layout/index-collection.html",
+        root: "layout/index-root.hbs",
+        collections: "layout/index-collection.hbs",
         collection: {
-          posts: "layout/index-posts.html"
+          posts: "layout/index-posts.hbs"
         }
       }
     },

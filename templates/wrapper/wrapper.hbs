@@ -1,8 +1,9 @@
-<!DOCTYPE html>
 <html lang="{{site.lang}}">
   <head>
     <meta charset="utf-8" />
-    <title>{{#if entry}}{{entry.name}} — {{site.title}}{{else}}{{site.title}}{{/if}}</title>
+    <title>
+      {{#if entry}}{{entry.name}} - {{site.title}}{{else}}{{site.title}}{{/if}}
+    </title>
   </head>
   <body>
     {{{renderLayout layoutName}}}

@@ -90,6 +90,7 @@ async function registerPartials(templatesRoot: string, logger?: Logger) {
     const entries = await readdir(partialsDir, { withFileTypes: true });
     for (const entry of entries) {
       if (!entry.isFile()) continue;
+      if (path.extname(entry.name).toLowerCase() !== ".hbs") continue;
       const name = path.parse(entry.name).name;
       const partialPath = path.join(partialsDir, entry.name);
       const source = await readFile(partialPath, "utf8");
@@ -112,6 +113,7 @@ async function registerLayouts(templatesRoot: string, logger?: Logger) {
     const entries = await readdir(layoutsDir, { withFileTypes: true });
     for (const entry of entries) {
       if (!entry.isFile()) continue;
+      if (path.extname(entry.name).toLowerCase() !== ".hbs") continue;
       const name = path.parse(entry.name).name;
       const layoutPath = path.join(layoutsDir, entry.name);
       const source = await readFile(layoutPath, "utf8");

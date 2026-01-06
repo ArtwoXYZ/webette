@@ -31,18 +31,18 @@ export default {
       publicBase: "/assets",
     },
     default: {
-      wrapper: "wrapper/wrapper.html",
-      layout: "layout/post.html",
-      index: "layout/index.html",
-      notFound: "layout/not-found.html",
-      accessForbidden: "layout/access-forbidden.html",
+      wrapper: "wrapper/wrapper.hbs",
+      layout: "layout/post.hbs",
+      index: "layout/index.hbs",
+      notFound: "layout/not-found.hbs",
+      accessForbidden: "layout/access-forbidden.hbs",
     },
     custom: {
       index: {
-        root: "layout/index-root.html",
-        collections: "layout/index-collection.html",
+        root: "layout/index-root.hbs",
+        collections: "layout/index-collection.hbs",
         collection: {
-          posts: "layout/index-posts.html",
+          posts: "layout/index-posts.hbs",
         },
       },
     },

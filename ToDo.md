@@ -36,7 +36,7 @@
 - ~~renomer le block index-list.webt en navigation.webt~~
 - ~~Ajouter gestion d'une ligne "name: mon nom" pour le block navigation~~
 - ~~Ajouter l'indentation des items dans le block navigation~~
-- Pourquoi VSCode me remet les pages de templates en HTML pour le Language Mode alors que je spécifie Handlebars ? Comment forcer Handlebars
+- ~~Pourquoi VSCode me remet les pages de templates en HTML pour le Language Mode alors que je spécifie Handlebars ? Comment forcer Handlebars~~
 - Pouvoir spécifier un template pour une entrée
 - **EN COURS** - commencer un site webette pour la documentation webette
 - Plugin webette de TOC (sommaire, table des matières)

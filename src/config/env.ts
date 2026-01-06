@@ -144,11 +144,11 @@ const defaultEnv: WebetteEnv = {
   templates: {
     root: "templates",
     default: {
-      wrapper: "wrapper/wrapper.html",
-      layout: "layout/post.html",
-      index: "layout/index.html",
-      notFound: "layout/not-found.html",
-      accessForbidden: "layout/access-forbidden.html",
+      wrapper: "wrapper/wrapper.hbs",
+      layout: "layout/post.hbs",
+      index: "layout/index.hbs",
+      notFound: "layout/not-found.hbs",
+      accessForbidden: "layout/access-forbidden.hbs",
     },
   },
   markdown: {

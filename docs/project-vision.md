@@ -34,13 +34,13 @@ my-site/
     index.md
   templates/
     wrapper/
-      wrapper.html
+      wrapper.hbs
     layout/
-      post.html
-      page.html
+      post.hbs
+      page.hbs
     partial/
-      header.html
-      footer.html
+      header.hbs
+      footer.hbs
 ```
 
 Webette must work immediately:
@@ -84,11 +84,11 @@ export default {
 
   collections: {
     posts: {
-      layout: "post.html",
-      listLayout: "blog-index.html",
+      layout: "post.hbs",
+      listLayout: "blog-index.hbs",
     },
     pages: {
-      layout: "page.html",
+      layout: "page.hbs",
       routing: "root", // /pages/index -> /
     },
   },

@@ -6,7 +6,7 @@ Webette renders HTML with Handlebars. Each entry gets its own `index.html`; opti
 
 - Tool defaults are configured in `webette.tool.ts` (`templates.root` and `templates.default.*`).
 - The renderer looks first under the site root (`<site>/<templates.root>/...`), then falls back to the tool (`process.cwd()` + `templates.root`).
-- Folder structure: `wrapper/` for the wrapper, `layout/` for layouts (registered as partials), `partial/` for classic partials (e.g. `templates/partial/header.hbs` -> `{{> header}}`). `layout/index.html` is the default index layout used for root/collection listings when index generation is enabled. `layout/access-forbidden.html` is the default layout used to render forbidden placeholders in asset folders. `layout/not-found.html` is the default layout used to render the static `404.html`.
+- Folder structure: `wrapper/` for the wrapper, `layout/` for layouts (registered as partials), `partial/` for classic partials (e.g. `templates/partial/header.hbs` -> `{{> header}}`). `layout/index.hbs` is the default index layout used for root/collection listings when index generation is enabled. `layout/access-forbidden.hbs` is the default layout used to render forbidden placeholders in asset folders. `layout/not-found.hbs` is the default layout used to render the static `404.html`.
 - Helper: the wrapper calls `{{{renderLayout layoutName}}}` which resolves the layout (partial) by name; `layoutName` defaults to `templates.default.layout`.
 
 ## Template syntax
@@ -34,11 +34,11 @@ Routes in the model are root-relative (e.g. `/assets/images/...`), so they work 
 
 ## Default wrapper + layout
 
-- The fallback wrapper (`templates/wrapper/wrapper.html`) envelopes the page and delegates the body to a layout via `renderLayout`.
-- The fallback layout (`templates/layout/post.html`) renders an entry (title, markdown/text/image/audio/video blocks) and shows a simple draft badge when `entry.isDraft` is `true`.
-- The fallback index layout (`templates/layout/index.html`) renders the root or collection listings (simple links + counters).
-- The fallback access-forbidden layout (`templates/layout/access-forbidden.html`) renders minimal "Access forbidden" pages in asset folders.
-- The fallback not-found layout (`templates/layout/not-found.html`) renders the static `404.html` page.
+- The fallback wrapper (`templates/wrapper/wrapper.hbs`) envelopes the page and delegates the body to a layout via `renderLayout`.
+- The fallback layout (`templates/layout/post.hbs`) renders an entry (title, markdown/text/image/audio/video blocks) and shows a simple draft badge when `entry.isDraft` is `true`.
+- The fallback index layout (`templates/layout/index.hbs`) renders the root or collection listings (simple links + counters).
+- The fallback access-forbidden layout (`templates/layout/access-forbidden.hbs`) renders minimal "Access forbidden" pages in asset folders.
+- The fallback not-found layout (`templates/layout/not-found.hbs`) renders the static `404.html` page.
 
 Sites can override wrapper and layouts by dropping their files under `<site>/<templates.root>/wrapper/...` and `<site>/<templates.root>/layout/...`; resolution order is site > tool.
 If the site config does not declare `templates.root`, or if the directory is missing, Webette logs a warning and falls back to tool templates. If a site omits any `templates.default.*` key, Webette logs a warning and falls back to the tool defaults for that key.
@@ -51,14 +51,14 @@ You can override index layouts separately from the default index layout:
 templates: {
   root: "_templates",
   default: {
-    index: "layout/index.html"
+    index: "layout/index.hbs"
   },
   custom: {
     index: {
-      root: "layout/index-root.html",
-      collections: "layout/index-collection.html",
+      root: "layout/index-root.hbs",
+      collections: "layout/index-collection.hbs",
       collection: {
-        posts: "layout/index-posts.html"
+        posts: "layout/index-posts.hbs"
       }
     }
   }
