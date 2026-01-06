@@ -24,7 +24,7 @@ Example:
 - `upper value`: uppercase.
 - `lower value`: lowercase.
 - `capitalize value`: first letter uppercase.
-- `title value`: capitalize each word.
+- `titleCase value`: capitalize each word.
 - `truncate value len [suffix]`: shorten to `len` chars; suffix defaults to `â€¦`.
 - `match value pattern [flags]`: return first regex match (or capture group 1).
 - `nl2br value`: convert newlines to `<br>`.
@@ -35,7 +35,7 @@ Examples:
 {{upper site.title}}                       {{!-- MY WEBSITE --}}
 {{lower collection.name}}                  {{!-- posts --}}
 {{capitalize entry.name}}                  {{!-- My first post --}}
-{{title "hello world"}}                    {{!-- Hello World --}}
+{{titleCase "hello world"}}                {{!-- Hello World --}}
 {{truncate entry.name 12 "..."}}           {{!-- My first po... --}}
 {{truncate "hello world" 8}}               {{!-- hello woâ€¦ --}}
 {{match entry.route "#(.+)$"}}                   {{!-- anchor without # --}}

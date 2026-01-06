@@ -155,6 +155,20 @@ A config mechanism (`index.root`, `index.collections`) that renders a specific u
 
 A special block that defines an ordered list of collections and/or entries. It is not auto-rendered: templates read `content.data.items` to display it.
 
+It can optionally declare a display name:
+
+- `name: My navigation` sets `content.data.name` (first `name:` wins; empty `name:` lines are ignored).
+- If there are no item lines (empty file, or only `name:`), webette expands it into a full navigation (each collection followed by its entries).
+
+Items are hierarchical:
+
+- Indentation is structural: `0` then `2` spaces per level (unlimited).
+- Nested items are stored under `children` in the parent item.
+- Each item can declare `title`, `collection`, and/or `entry`.
+  - `title` without `collection`/`entry` creates a pure heading item (`kind: "title"`).
+  - `title` with `collection`/`entry` sets the display label for that link.
+  - `entry` items can omit `collection` when indented (they inherit the closest parent collection).
+
 ## Model export (`_public/_model`)
 
 An export of the in-memory model written during build. Useful for debugging what templates/plugins receive.

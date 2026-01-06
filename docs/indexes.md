@@ -68,31 +68,35 @@ Rules:
 Place `navigation.webt` inside an entry to define a custom ordered list:
 
 ```
-- collection: posts
-- collection: posts, entry: draft
-- collection: lab
+name: My navigation
+- title: First section
+  - title: Posts, collection: posts
+    - entry: draft
+- title: Second section
+  - collection: lab
+    - title: Credits (anchored), collection: another-one, entry: credits#Audio
 ```
 
 Rules:
 
-- `collection` is required on every line.
-- `entry` is optional; when present, it must belong to the declared collection.
+- `name` is optional and sets `content.data.name` (first `name:` wins; empty `name:` lines are ignored).
+- Items can declare `title`, `collection`, and/or `entry`.
+- `title` is optional; it sets an item's display label (empty `title:` is ignored).
+- Indentation is structural: `0` then `2` spaces per level (unlimited). Children are nested under `children` in the model.
+- `collection` is required for collection items; `entry` items can omit `collection` when indented (they inherit the closest parent collection).
 - Values can be names or slugs.
 - The order is the order of the file.
-- If the file is empty, webette expands it to a full index (each collection followed by its entries).
+- If there are no items (empty file, or only `name:`), webette expands it to a full index (each collection followed by its entries).
 
-The block does not auto-render. Use it in templates:
+The block does not auto-render. Use it in templates (tree):
 
 ```hbs
 {{#each entry.blocks}}
   {{#if (eq type "navigation")}}
-    {{#each content.data.items}}
-      {{#if (eq kind "collection")}}
-        <a href="{{collection.route}}">{{collection.name}}</a>
-      {{else if (eq kind "entry")}}
-        <a href="{{entry.route}}">{{entry.name}}</a>
-      {{/if}}
-    {{/each}}
+    {{#if content.data.name}}
+      <h2>{{content.data.name}}</h2>
+    {{/if}}
+    {{> navigation-items items=content.data.items}}
   {{/if}}
 {{/each}}
 ```

@@ -15,33 +15,9 @@
     <video controls src="{{route}}"></video>
     {{else if (eq type "navigation")}} {{#if content.data.items}}
     <section class="navigation">
-      <ul>
-        {{#each content.data.items}} {{#if (eq kind "collection")}}
-        <li>
-          <a href="{{collection.route}}">{{collection.name}}</a>
-          {{#if collection.description}}
-          <div class="collection-description">
-            {{{nl2br collection.description}}}
-          </div>
-          {{/if}} {{#if collection.assets}}
-          <div class="collection-assets">
-            {{#each collection.assets}} {{#if (eq type "image")}} {{image this
-            class="collection-asset" variant="small"}} {{else if (eq type
-            "audio")}}
-            <audio controls src="{{route}}"></audio>
-            {{else if (eq type "video")}}
-            <video controls src="{{route}}"></video>
-            {{/if}} {{/each}}
-          </div>
-          {{/if}}
-        </li>
-        {{else if (eq kind "entry")}}
-        <li>
-          <a href="{{entry.route}}">{{entry.name}}{{#if (match entry.route "#([^#]+)$")}}, #{{match entry.route "#([^#]+)$"}}{{/if}}</a>
-          <span>(collection: {{collection.name}})</span>
-        </li>
-        {{/if}} {{/each}}
-      </ul>
+      {{#if content.data.name}}
+      <h2 class="navigation-title">{{content.data.name}}</h2>
+      {{/if}} {{> navigation-items items=content.data.items}}
     </section>
     {{/if}} {{/if}} {{/each}} {{#if entry.pluginNote}}
     <p>Plugin: <em>{{entry.pluginNote}}</em></p>

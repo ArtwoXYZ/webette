@@ -1,4 +1,7 @@
-- collection: posts
-- collection: posts, entry: draft
-- collection: lab
-- collection: another-one, entry: credits#Audio
+name: My super navigation
+- title: First part
+  - title: Posts collection, collection: posts
+    - entry: draft
+- title: Second part
+  - collection: lab
+    - title: Anchored entry label, collection: another-one, entry: credits#Audio

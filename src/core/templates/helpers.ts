@@ -169,7 +169,7 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     const s = safeString(value);
     return s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
   });
-  Handlebars.registerHelper("title", (value: unknown) =>
+  Handlebars.registerHelper("titleCase", (value: unknown) =>
     safeString(value).replace(/\w\S*/g, (word) =>
       word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     )

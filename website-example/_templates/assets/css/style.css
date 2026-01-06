@@ -167,6 +167,30 @@ figure {
   border-top: 1px dashed var(--border);
 }
 
+.navigation-title {
+  margin: 0 0 0.75rem;
+}
+
+.navigation-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.navigation-item--title {
+  list-style: none;
+  margin: 0.75rem 0 0.25rem;
+}
+
+.navigation-heading {
+  font-weight: 600;
+}
+
+.navigation-entry-meta {
+  color: var(--muted);
+  font-size: 12px;
+  margin-left: 6px;
+}
+
 .collection-description {
   color: var(--muted);
   font-size: 13px;

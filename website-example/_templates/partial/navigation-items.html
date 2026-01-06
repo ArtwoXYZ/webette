@@ -1,0 +1,30 @@
+<ul class="navigation-list">
+  {{#each items}}
+  <li class="navigation-item navigation-item--{{kind}}">
+    {{#if (eq kind "title")}}
+    <span class="navigation-heading">{{title}}</span>
+    {{else if (eq kind "collection")}}
+    <a href="{{collection.route}}">{{#if title}}{{title}}{{else}}{{collection.name}}{{/if}}</a>
+    {{#if collection.description}}
+    <div class="collection-description">
+      {{{nl2br collection.description}}}
+    </div>
+    {{/if}} {{#if collection.assets}}
+    <div class="collection-assets">
+      {{#each collection.assets}} {{#if (eq type "image")}} {{image this
+      class="collection-asset" variant="small"}} {{else if (eq type "audio")}}
+      <audio controls src="{{route}}"></audio>
+      {{else if (eq type "video")}}
+      <video controls src="{{route}}"></video>
+      {{/if}} {{/each}}
+    </div>
+    {{/if}}
+    {{else if (eq kind "entry")}}
+    <a href="{{entry.route}}">{{#if title}}{{title}}{{else}}{{entry.name}}{{/if}}{{#if
+      (match entry.route "#([^#]+)$")}}, #{{match entry.route
+      "#([^#]+)$"}}{{/if}}</a>
+    <span class="navigation-entry-meta">(collection: {{collection.name}})</span>
+    {{/if}} {{#if children}} {{> navigation-items items=children}} {{/if}}
+  </li>
+  {{/each}}
+</ul>

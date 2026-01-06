@@ -80,42 +80,39 @@ Create a `navigation.webt` file inside an entry to build a custom, ordered list 
 Each line defines one item:
 
 ```
-- collection: posts
-- collection: posts, entry: draft
-- collection: lab
+name: My navigation
+- title: First section
+  - title: Posts, collection: posts
+    - entry: draft
+- title: Second section
+  - collection: lab
+    - title: Credits (anchored), collection: another-one, entry: credits#Audio
 ```
 
 Rules:
-- `collection` is required on every line.
-- `entry` is optional; when present, it must belong to the declared collection.
+- `name` is optional and sets `content.data.name` (first `name:` wins; empty `name:` lines are ignored).
+- Items can declare `title`, `collection`, and/or `entry`.
+- `title` is optional; it sets an item's display label (empty `title:` is ignored).
+- Indentation is structural: `0` then `2` spaces per level (unlimited). Children are nested under `children` in the model.
+- `collection` is required for collection items; `entry` items can omit `collection` when indented (they inherit the closest parent collection).
 - Values can be collection/entry names or slugs.
 - The list keeps the order defined in the file.
-- If the file is empty, Webette expands it into a full index (each collection followed by its entries).
+- If there are no items (empty file, or only `name:`), Webette expands it into a full index (each collection followed by its entries).
 - You can append an anchor to entry items: `entry: slug#anchor` or `entry: slug#Heading text`.
 
-The block does not auto-render. Use it in templates via `content.data.items`:
+The block does not auto-render. Use it in templates via `content.data.items` (tree):
 
 ```hbs
+{{!-- navigation blocks are skipRender, so look them up in entry.blocks, not in blocks --}}
 {{#with (firstBlockOfType entry.blocks "navigation")}}
-  {{#each content.data.items}}
-    {{#if (eq kind "collection")}}
-      <a href="{{collection.route}}">{{collection.name}}</a>
-      {{#if collection.description}}
-        <div>{{{nl2br collection.description}}}</div>
-      {{/if}}
-      {{#if collection.assets}}
-        {{#each collection.assets}}
-          {{#if (eq type "image")}}
-            {{image this}}
-          {{/if}}
-        {{/each}}
-      {{/if}}
-    {{else if (eq kind "entry")}}
-      <a href="{{entry.route}}">{{entry.name}}</a>
-    {{/if}}
-  {{/each}}
+  {{#if content.data.name}}
+    <h2>{{content.data.name}}</h2>
+  {{/if}}
+  {{> navigation-items items=content.data.items}}
 {{/with}}
 ```
+
+Where `navigation-items` is a recursive partial that renders `items` and their optional `children`.
 
 ## Template assets
 
