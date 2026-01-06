@@ -6,7 +6,7 @@ Webette sites define their settings in a TypeScript config file at the project r
 
 - File: `webette.config.ts`
 - Exports: default export (object). Non-default exports are ignored.
-- Loaded fresh on each build/serve: the loader transpiles the file via `Bun.Transpiler` and imports it with a cache-busting data URL.
+- Loaded fresh on each build/serve: the file is imported as a TS module via Bun, using a cache-busting querystring so changes are picked up reliably.
 
 ## `site` section
 
@@ -51,7 +51,10 @@ export default {
         collection: {
           posts: "layout/index-posts.hbs"
         }
-      }
+      },
+      entry: {
+        "posts/webette-demonstration": "layout/post-feature.hbs"
+      },
     },
     assets: {
       dir: "assets",
@@ -66,6 +69,7 @@ Notes:
 - `templates.custom.index.root` overrides the root index layout.
 - `templates.custom.index.collections` overrides the layout for all collection indexes.
 - `templates.custom.index.collection` maps collection slugs to per-collection index layouts.
+- `templates.custom.entry` maps `"<collectionSlug>/<entrySlug>"` to a layout file for a specific entry.
 - `templates.assets.dir` is relative to `templates.root` (or absolute if you pass an absolute path).
 - `templates.assets.publicBase` is the public URL prefix used in the build output.
 - Use the `asset` helper in templates to link to these files.

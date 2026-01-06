@@ -45,6 +45,9 @@ export default {
           posts: "layout/index-posts.hbs",
         },
       },
+      entry: {
+        "posts/webette-demonstration": "layout/post-feature.hbs",
+      },
     },
   },
 

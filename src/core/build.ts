@@ -1191,6 +1191,114 @@ export async function build(
 
   let renderedPages = 0;
 
+  const entryLayoutOverrides =
+    templatesCustom?.entry && Object.keys(templatesCustom.entry).length
+      ? templatesCustom.entry
+      : undefined;
+
+  const entryCollectionById = new Map<string, Collection>();
+  for (const collection of resolvedSiteWithHistory.collections ?? []) {
+    for (const entry of collection.entries) {
+      entryCollectionById.set(entry.id, collection);
+    }
+  }
+
+  const layoutNameFor = (value: string): string => path.parse(value).name || value;
+
+  const templatesRootsForEntryLayouts = entryLayoutOverrides
+    ? await resolveTemplatesRoots({
+        rootDir,
+        templatesRoot: toolEnv.templates.root,
+        siteTemplatesRoot,
+        logger: scoped,
+      })
+    : null;
+
+  const entryLayoutTemplatesCache = new Map<
+    string,
+    { templatePath: string; templatesRoot: string; source: "site" | "tool" } | null
+  >();
+  const loggedEntryLayouts = new Set<string>();
+  const warnedEntryLayouts = new Set<string>();
+
+  const resolveEntryLayoutTemplate = async (relPath: string) => {
+    if (!templatesRootsForEntryLayouts) return null;
+    if (entryLayoutTemplatesCache.has(relPath)) {
+      return entryLayoutTemplatesCache.get(relPath) ?? null;
+    }
+
+    const candidates: Array<{ root: string; source: "site" | "tool" }> = [
+      { root: templatesRootsForEntryLayouts.siteTemplatesRoot, source: "site" },
+      { root: templatesRootsForEntryLayouts.toolTemplatesRoot, source: "tool" },
+    ];
+
+    for (const candidate of candidates) {
+      const fullPath = path.join(candidate.root, relPath);
+      try {
+        const fileStat = await stat(fullPath);
+        if (!fileStat.isFile()) continue;
+        const resolved = {
+          templatePath: fullPath,
+          templatesRoot: candidate.root,
+          source: candidate.source,
+        };
+        entryLayoutTemplatesCache.set(relPath, resolved);
+        return resolved;
+      } catch {
+        // try next candidate
+      }
+    }
+
+    entryLayoutTemplatesCache.set(relPath, null);
+    return null;
+  };
+
+  const pickEntryLayoutName = async (
+    entry: Entry,
+    renderCollection: Collection | undefined
+  ): Promise<string> => {
+    if (!entryLayoutOverrides || !templatesRootsForEntryLayouts) return layoutPartialName;
+
+    const sourceCollection = entryCollectionById.get(entry.id) ?? renderCollection;
+    if (!sourceCollection) return layoutPartialName;
+
+    const key = `${sourceCollection.slug || sourceCollection.id}/${entry.slug || entry.id}`;
+    const overridePath = entryLayoutOverrides[key];
+    if (!overridePath) return layoutPartialName;
+
+    const resolved = await resolveEntryLayoutTemplate(overridePath);
+    if (resolved) {
+      if (!loggedEntryLayouts.has(overridePath)) {
+        loggedEntryLayouts.add(overridePath);
+        const logBase =
+          resolved.source === "site" ? rootDir : templatesRootsForEntryLayouts.toolRoot;
+        const templatePathForLog =
+          path.relative(logBase, resolved.templatePath) || resolved.templatePath;
+        const templatesRootForLog =
+          path.relative(logBase, resolved.templatesRoot) || resolved.templatesRoot;
+        scoped.debug("template.resolved", {
+          kind: "entry.layout",
+          key,
+          templatePath: templatePathForLog,
+          templatesRoot: templatesRootForLog,
+          source: resolved.source,
+        });
+      }
+      return layoutNameFor(overridePath);
+    }
+
+    if (!warnedEntryLayouts.has(overridePath)) {
+      warnedEntryLayouts.add(overridePath);
+      const triedPaths = [
+        path.normalize(path.join(templatesRootsForEntryLayouts.siteTemplatesRoot, overridePath)),
+        path.normalize(path.join(templatesRootsForEntryLayouts.toolTemplatesRoot, overridePath)),
+      ];
+      scoped.warn("template.notFound", { paths: triedPaths.join(", ") });
+    }
+
+    return layoutPartialName;
+  };
+
   const filterRenderableBlocks = (blocks: Block[]): Block[] =>
     blocks
       .filter((b) => !b.skipRender)
@@ -1205,8 +1313,10 @@ export async function build(
     targetDir: string
   ): Promise<boolean> => {
     const renderableBlocks = filterRenderableBlocks(entry.blocks);
+    const layoutName = await pickEntryLayoutName(entry, collection);
     const context = {
       ...renderBaseContext,
+      layoutName,
       ...(collection ? { collection } : {}),
       entry,
       blocks: renderableBlocks,

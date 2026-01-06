@@ -121,7 +121,7 @@ To experiment:
 git clone https://tangled.org/artwo.xyz/webette.git
 cd webette
 bun install
-bun webette build
+bun run build website-example
 ```
 
 Later, webette will ship as a standalone bun binary.
@@ -147,8 +147,8 @@ my-site/
 Then:
 
 ```bash
-bun webette build
-bun webette serve
+bun run build website-example
+bun run serve website-example
 ```
 
 Output appears in `_public/`.

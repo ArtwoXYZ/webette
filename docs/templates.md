@@ -5,7 +5,7 @@ Webette renders HTML with Handlebars. Each entry gets its own `index.html`; opti
 ## Where templates come from
 
 - Tool defaults are configured in `webette.tool.ts` (`templates.root` and `templates.default.*`).
-- The renderer looks first under the site root (`<site>/<templates.root>/...`), then falls back to the tool (`process.cwd()` + `templates.root`).
+- The renderer looks first under the site root (`<site>/<templates.root>/...`), then falls back to the tool templates root (the installed webette package root + `templates.root`).
 - Folder structure: `wrapper/` for the wrapper, `layout/` for layouts (registered as partials), `partial/` for classic partials (e.g. `templates/partial/header.hbs` -> `{{> header}}`). `layout/index.hbs` is the default index layout used for root/collection listings when index generation is enabled. `layout/access-forbidden.hbs` is the default layout used to render forbidden placeholders in asset folders. `layout/not-found.hbs` is the default layout used to render the static `404.html`.
 - Helper: the wrapper calls `{{{renderLayout layoutName}}}` which resolves the layout (partial) by name; `layoutName` defaults to `templates.default.layout`.
 
@@ -41,7 +41,7 @@ Routes in the model are root-relative (e.g. `/assets/images/...`), so they work 
 - The fallback not-found layout (`templates/layout/not-found.hbs`) renders the static `404.html` page.
 
 Sites can override wrapper and layouts by dropping their files under `<site>/<templates.root>/wrapper/...` and `<site>/<templates.root>/layout/...`; resolution order is site > tool.
-If the site config does not declare `templates.root`, or if the directory is missing, Webette logs a warning and falls back to tool templates. If a site omits any `templates.default.*` key, Webette logs a warning and falls back to the tool defaults for that key.
+If the site config does not declare `templates.root`, Webette logs a warning, but it will still use a site templates folder if it exists at the default location (tool `templates.root`). If the directory is missing, Webette falls back to tool templates. If a site omits any `templates.default.*` key, Webette logs a warning and falls back to the tool defaults for that key.
 
 ## Custom index layouts
 
@@ -68,6 +68,31 @@ templates: {
 Resolution order:
 - Root index (`/index.html`): `custom.index.root` -> `default.index`
 - Collection indexes: `custom.index.collection[slug]` -> `custom.index.collections` -> `default.index`
+
+## Per-entry layouts
+
+You can override the default entry layout on a per-entry basis:
+
+```ts
+templates: {
+  root: "_templates",
+  default: {
+    layout: "layout/post.hbs",
+  },
+  custom: {
+    entry: {
+      // key format: "<collectionSlug>/<entrySlug>" (falls back to ids if missing)
+      "posts/webette-demonstration": "layout/post-feature.hbs",
+      "pages/about": "layout/page.hbs",
+    }
+  }
+}
+```
+
+Resolution order for entries:
+
+1. `templates.custom.entry["<collection>/<entry>"]`
+2. `templates.default.layout`
 
 ## Unlisted collections and entries
 

@@ -72,7 +72,7 @@ export default {
 - `build.exportModel.only`: if `true`, skip HTML generation (export only). Export path is fixed to `<outputDir>/_model`.
 - `markdown.remarkPlugins`: list of remark plugins applied during Markdown parsing/rendering (e.g. `["remark-gfm", ["remark-footnotes", { inlineNotes: true }]]`)
 - `markdown.treatTxtAsMarkdown`: when `true`, `.txt` files use the Markdown pipeline; set to `false` to keep plain text blocks
-- `templates.root`: base folder for internal/fallback templates (resolved from `process.cwd()` unless absolute)
+- `templates.root`: base folder for internal/fallback templates (resolved from the installed webette package root unless absolute)
 - `templates.default.wrapper`: wrapper used when the site does not provide its own (relative to `templates.root`)
 - `templates.default.layout`: layout partial used when the site does not provide its own (relative to `templates.root`)
 - `templates.default.index`: index layout used for root/collection listings (relative to `templates.root`)
@@ -87,6 +87,6 @@ export default {
 - Loaded via `getEnv()` in `src/config/env.ts`.
 - Locale resolution is centralized with `resolveLocale(config)`.
 - Consumers (`build`, `serve`, `logger`) do **not** embed defaults; they rely on `getEnv()`.
-- `build` resolves the default wrapper at `path.join(templates.root, templates.default.wrapper)`; this is only used as fallback when the site has no explicit layout.
+- `build`/`serve` resolve wrapper/layout from the site templates root first, then fall back to the tool templates root (the installed webette package root + `templates.root`), using `templates.default.wrapper` and `templates.default.layout` as the relative paths.
 - Markdown parsing/rendering uses `markdown.remarkPlugins` when converting `.md` blocks to AST/HTML.
 - CLI override: `--skip-content` sets `readContent` to `false` for that run.

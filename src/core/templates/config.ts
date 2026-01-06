@@ -2,6 +2,7 @@ import type { WebetteEnv } from "../../config/env";
 
 type TemplateKey = keyof WebetteEnv["templates"]["default"];
 type CustomIndexOverrides = NonNullable<TemplatesOverrides["custom"]>["index"];
+type CustomEntryOverrides = NonNullable<TemplatesOverrides["custom"]>["entry"];
 
 export type TemplatesOverrides = Partial<{
   root: string;
@@ -16,6 +17,7 @@ export type TemplatesOverrides = Partial<{
       collections?: string;
       collection?: Record<string, string>;
     };
+    entry: Record<string, string>;
   };
 }>;
 
@@ -72,6 +74,13 @@ export function parseTemplatesOverrides(
   const rawCustom = (raw as Record<string, unknown>).custom;
   if (rawCustom && typeof rawCustom === "object") {
     const rawIndex = (rawCustom as Record<string, unknown>).index;
+    const rawEntry = (rawCustom as Record<string, unknown>).entry;
+
+    const custom: NonNullable<TemplatesOverrides["custom"]> = {
+      index: {},
+      entry: {},
+    };
+
     if (rawIndex && typeof rawIndex === "object") {
       const indexOverrides: CustomIndexOverrides = {};
       const root = (rawIndex as Record<string, unknown>).root;
@@ -98,8 +107,26 @@ export function parseTemplatesOverrides(
         indexOverrides.collections ||
         indexOverrides.collection
       ) {
-        overrides.custom = { index: indexOverrides };
+        custom.index = indexOverrides;
       }
+    }
+
+    if (rawEntry && typeof rawEntry === "object") {
+      const entryOverrides: CustomEntryOverrides = {};
+      for (const [rawKey, rawValue] of Object.entries(rawEntry as Record<string, unknown>)) {
+        const key = String(rawKey ?? "").trim();
+        const value = typeof rawValue === "string" ? rawValue.trim() : "";
+        if (!key || !value) continue;
+        entryOverrides[key] = value;
+      }
+      custom.entry = entryOverrides;
+    }
+
+    if (
+      (custom.index.root || custom.index.collections || custom.index.collection) ||
+      Object.keys(custom.entry).length
+    ) {
+      overrides.custom = custom;
     }
   }
 
