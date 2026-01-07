@@ -1,4 +1,6 @@
-// Lightweight file-type detector to tag blocks
+/**
+ * File-type detector used during scan to tag blocks.
+ */
 type DetectOptions = {
   treatTxtAsMarkdown?: boolean;
 };

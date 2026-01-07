@@ -1,3 +1,7 @@
+/**
+ * Handlebars template setup: registers partials/layouts and compiles the wrapper.
+ */
+
 import { readFile, readdir, stat } from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";

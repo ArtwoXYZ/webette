@@ -1,3 +1,7 @@
+/**
+ * History persistence for timestamps/fingerprints across builds.
+ */
+
 import { createHash } from "node:crypto";
 import { stat, readdir, readFile } from "node:fs/promises";
 import * as path from "node:path";

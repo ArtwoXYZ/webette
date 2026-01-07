@@ -1,3 +1,7 @@
+/**
+ * Audio metadata extraction (optional dependency via `music-metadata`).
+ */
+
 import type { Logger } from "../../../logging/logger";
 
 // Minimal shape of the optional music-metadata module (kept inline to avoid hard dependency).

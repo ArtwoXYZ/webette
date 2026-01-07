@@ -1,3 +1,7 @@
+/**
+ * Plugin API types.
+ */
+
 import type { Logger } from "../logging/logger";
 import type { Site, Collection, Entry, Block } from "../core/model";
 import Handlebars from "handlebars";

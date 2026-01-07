@@ -1,29 +1,16 @@
-import { readFile, writeFile } from "node:fs/promises";
+/**
+ * Sitemap generation (`sitemap.xml`) from the exported model.
+ */
+
 import * as path from "node:path";
 import type { Logger } from "../logging/logger";
+import { writeIfChanged } from "../utils/fs";
 import type { Site } from "./model";
 
 type SitemapUrl = {
   loc: string;
   lastmod?: string;
   source: "entry" | "collection" | "root";
-};
-
-const writeIfChanged = async (targetPath: string, content: string, logger: Logger) => {
-  const nextBuffer = Buffer.from(content, "utf8");
-  let current: Buffer | null = null;
-  try {
-    current = await readFile(targetPath);
-  } catch {
-    // file missing or unreadable -> treat as different
-  }
-  if (current && Buffer.compare(current, nextBuffer) === 0) {
-    logger.debug("build.fileUnchanged", { path: targetPath });
-    return false;
-  }
-  await writeFile(targetPath, nextBuffer, "utf8");
-  logger.debug("build.fileGenerated", { path: targetPath });
-  return true;
 };
 
 export async function writeSitemap(options: {

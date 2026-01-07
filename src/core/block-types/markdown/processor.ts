@@ -1,3 +1,7 @@
+/**
+ * Markdown block resolver (AST + HTML rendering).
+ */
+
 import { unified, type Processor, type Plugin } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";

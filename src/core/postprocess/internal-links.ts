@@ -1,6 +1,6 @@
-// Internal link resolver for Markdown content:
-// - Rewrites custom URLs (collection:/entry:/block:) to real routes based on the resolved site model.
-// - Re-renders markdown HTML after URL rewrites to keep content/html/ast in sync.
+/**
+ * Rewrites Markdown internal links (`collection:` / `entry:` / `block:`) to resolved routes.
+ */
 
 import type { Root, Content, Parent, Link as MdastLink } from "mdast";
 import { renderMarkdownToHtml } from "../block-types/markdown/processor";

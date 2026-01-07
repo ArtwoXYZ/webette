@@ -1,4 +1,6 @@
-// Resolver registry: maps block types to their content resolvers.
+/**
+ * Resolver registry: maps block types to content resolvers and shared context types.
+ */
 import type { Block, ImageVariant, Site } from "../model";
 import { resolveMarkdown } from "./resolvers/markdown";
 import { resolveText } from "./resolvers/text";

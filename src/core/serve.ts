@@ -1,4 +1,8 @@
-﻿import * as path from "node:path";
+/**
+ * Dev server (`serve`): rebuilds on change and serves `_public/`.
+ */
+
+import * as path from "node:path";
 import { stat } from "node:fs/promises";
 import { watch } from "node:fs";
 

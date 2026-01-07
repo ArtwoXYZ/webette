@@ -8,7 +8,7 @@
       <p class="draft-badge">Draft (unpublished)</p>
     {{/if}}
 
-    {{#each entry.blocks}}
+    {{#each blocks}}
       {{#if (eq type "markdown")}}
         {{{safe content.html}}}
       {{else if (eq type "text")}}

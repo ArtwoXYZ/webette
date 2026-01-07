@@ -1,3 +1,7 @@
+/**
+ * i18n utilities: locale normalization and message formatting.
+ */
+
 export type Locale = "en" | "fr";
 export type Messages = Record<string, string>;
 

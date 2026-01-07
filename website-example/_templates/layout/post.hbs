@@ -6,7 +6,7 @@
       <p class="draft-badge">Draft (unpublished)</p>
     {{/if}}
 
-    {{#each entry.blocks}}
+    {{#each blocks}}
       {{#if (eq type "markdown")}}
         {{{safe content.html}}}
       {{else if (eq type "text")}}
@@ -18,7 +18,7 @@
       {{else if (eq type "audio")}}
         <audio controls src="{{route}}"></audio>
       {{else if (eq type "video")}}
-        <video controls src="{{route}}"></video>s
+        <video controls src="{{route}}"></video>
       {{else if (eq type "navigation")}}
         {{#if content.data.items}}
           <section class="navigation">

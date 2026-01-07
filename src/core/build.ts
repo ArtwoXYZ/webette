@@ -1,23 +1,22 @@
-import { mkdir, rm, stat, writeFile, readdir, readFile, copyFile } from "node:fs/promises";
+/**
+ * Webette build pipeline entrypoint.
+ *
+ * Orchestrates the main steps (scan -> resolve -> render -> write output).
+ */
+
+import { mkdir, rm, stat } from "node:fs/promises";
 import * as path from "node:path";
 import { getEnv, resolveLocale } from "../config/env";
-import type { WebetteEnv } from "../config/env";
 import { t } from "../logging/i18n";
 import { createSite } from "./config";
 import { scanSite } from "./scan";
 import { resolveBlocks } from "./resolve";
-import { createTemplateRenderer, resolveTemplatesRoots } from "./template";
+import { createTemplateRenderer } from "./template";
 import type { Block, Entry, Collection, Site } from "./model";
 import type { Logger } from "../logging/logger";
 import { applyHistory, loadPreviousState } from "./export/history";
-import { unified, type Plugin } from "unified";
-import rehypeParse from "rehype-parse";
-import rehypeFormat from "rehype-format";
-import rehypeStringify from "rehype-stringify";
-import type { Root } from "hast";
 import { loadPlugins } from "../plugins/loader";
 import {
-  runExtendTemplates,
   runOnInit,
   runOnResolved,
   runOnScan,
@@ -29,11 +28,17 @@ import { rewriteInternalLinks } from "./postprocess/internal-links";
 import { rewriteInternalImages } from "./postprocess/internal-images";
 import { writeSitemap } from "./sitemap";
 import { resolveTemplatesConfig } from "./templates/config";
-import { getResolver } from "./resolve/registry";
-import { resolveImageConfig } from "./block-types/image/config";
-import { resolveAudioConfig } from "./block-types/audio/config";
-import { resolveVideoConfig } from "./block-types/video/config";
-import { matchCollection, matchEntry } from "./postprocess/internal-targets";
+import { matchCollection } from "./postprocess/internal-targets";
+import { copyDirectory, writeIfChanged as writeIfChangedFs } from "../utils/fs";
+import { resolveCollectionAssets } from "./build/collection-assets";
+import { countDraftEntries, filterDraftEntries, listDraftEntries } from "./build/drafts";
+import { formatHtml as formatHtmlFs } from "./build/html";
+import { parseIndexOverrides, resolveIndexEntry } from "./build/index-overrides";
+import { protectAssetDirs } from "./build/protect-assets";
+import { writeModelExport } from "./export/write-model";
+import { collectProtectedDirs, createExpectedOutputsRegistry, pruneOrphans } from "./build/prune";
+import { renderSite } from "./build/render";
+import { writeNginxSampleFile, writeRootHtaccessFile } from "./build/server-files";
 
 export interface BuildOptions {
   verbose: boolean;
@@ -58,77 +63,10 @@ function countBlocks(blocks: Block[] = []): number {
   );
 }
 
-function filterDraftEntries(site: Site, includeDrafts: boolean): Site {
-  if (includeDrafts) return site;
-  const collections = site.collections
-    ? site.collections.map((collection) => {
-        const entries = collection.entries.filter((entry) => !entry.isDraft);
-        return { ...collection, entries };
-      })
-    : undefined;
-
-  return { ...site, ...(collections ? { collections } : {}) };
-}
-
-function countDraftEntries(site: Site): number {
-  return (site.collections ?? []).reduce(
-    (acc, collection) =>
-      acc + collection.entries.filter((entry) => entry.isDraft).length,
-    0
-  );
-}
-
-function listDraftEntries(site: Site): { collection: string; entry: string; path: string }[] {
-  const drafts: { collection: string; entry: string; path: string }[] = [];
-  for (const collection of site.collections ?? []) {
-    for (const entry of collection.entries) {
-      if (!entry.isDraft) continue;
-      drafts.push({
-        collection: collection.slug || collection.id,
-        entry: entry.slug || entry.id,
-        path: entry.path,
-      });
-    }
-  }
-  return drafts;
-}
-
-// Recursively remove empty directories under `root`, excluding `root` itself.
-async function removeEmptyDirectories(dir: string, root: string): Promise<void> {
-  const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
-    const child = path.join(dir, entry.name);
-    await removeEmptyDirectories(child, root);
-  }
-  const after = await readdir(dir).catch(() => []);
-  if (dir !== root && after.length === 0) {
-    try {
-      await rm(dir, { force: true, recursive: true });
-    } catch {
-      // ignore
-    }
-  }
-}
-
 function normalizeAssetsBase(raw: string): string {
   const trimmed = raw.trim();
   const withLeading = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
   return withLeading.replace(/\/+$/, "");
-}
-
-async function copyDirectory(sourceDir: string, targetDir: string): Promise<void> {
-  const entries = await readdir(sourceDir, { withFileTypes: true }).catch(() => []);
-  await mkdir(targetDir, { recursive: true });
-  for (const entry of entries) {
-    const srcPath = path.join(sourceDir, entry.name);
-    const dstPath = path.join(targetDir, entry.name);
-    if (entry.isDirectory()) {
-      await copyDirectory(srcPath, dstPath);
-    } else if (entry.isFile()) {
-      await copyFile(srcPath, dstPath);
-    }
-  }
 }
 
 export async function build(
@@ -138,176 +76,12 @@ export async function build(
 ): Promise<void> {
   const scoped = logger.child("build");
 
-  const resolveCollectionAssets = async (
-    site: Site,
-    readContent: boolean,
-    toolEnv: WebetteEnv
-  ): Promise<Site> => {
-    const collections = site.collections
-      ? await Promise.all(
-          site.collections.map(async (collection) => {
-            if (!collection.assets || !collection.assets.length) {
-              return collection;
-            }
+  const writeIfChanged = async (targetPath: string, content: string): Promise<boolean> =>
+    writeIfChangedFs(targetPath, content, scoped);
 
-            const assets = await Promise.all(
-              collection.assets.map(async (asset) => {
-                const resolver = getResolver(asset);
-                if (!resolver) return asset;
-
-                const imageConfig = resolveImageConfig(rootDir, toolEnv, site);
-                const audioConfig = resolveAudioConfig(rootDir, toolEnv, site);
-                const videoConfig = resolveVideoConfig(rootDir, toolEnv, site);
-
-                const routeSegments = [
-                  collection.slug || collection.id,
-                  asset.slug || asset.rawName,
-                ];
-                const routeHint = `${routeSegments.join("/")}${asset.ext ?? ""}`;
-
-                const resolved = await resolver(asset, {
-                  rootDir,
-                  site,
-                  toolEnv,
-                  imageConfig,
-                  audioConfig,
-                  videoConfig,
-                  readContent,
-                  logger: scoped.child("assets"),
-                  routeHint,
-                  routeSegments,
-                });
-
-                const { blockRoute, ...content } = resolved ?? {};
-
-                return {
-                  ...asset,
-                  ...(blockRoute ? { route: blockRoute } : {}),
-                  ...(resolved ? { content } : {}),
-                };
-              })
-            );
-
-            return { ...collection, assets };
-          })
-        )
-      : undefined;
-
-    return {
-      ...site,
-      ...(collections ? { collections } : {}),
-    };
-  };
-
-  type IndexEntryRef = { collection: string; entry: string };
-  type IndexOverrides = {
-    root?: IndexEntryRef;
-    collections?: Record<string, IndexEntryRef>;
-  };
-
-  const parseIndexOverrides = (raw: unknown): IndexOverrides => {
-    if (!raw || typeof raw !== "object") return {};
-    const obj = raw as Record<string, unknown>;
-
-    const parseRef = (value: unknown): IndexEntryRef | undefined => {
-      if (!value || typeof value !== "object") return undefined;
-      const ref = value as Record<string, unknown>;
-      const collection =
-        typeof ref.collection === "string" ? ref.collection.trim() : "";
-      const entry = typeof ref.entry === "string" ? ref.entry.trim() : "";
-      if (!collection || !entry) return undefined;
-      return { collection, entry };
-    };
-
-    const root = parseRef(obj.root);
-    const collectionsRaw = obj.collections;
-    const collections: Record<string, IndexEntryRef> = {};
-    if (collectionsRaw && typeof collectionsRaw === "object") {
-      for (const [key, value] of Object.entries(
-        collectionsRaw as Record<string, unknown>
-      )) {
-        if (typeof key !== "string" || !key.trim()) continue;
-        const parsed = parseRef(value);
-        if (parsed) {
-          collections[key.trim()] = parsed;
-        }
-      }
-    }
-
-    return {
-      ...(root ? { root } : {}),
-      ...(Object.keys(collections).length ? { collections } : {}),
-    };
-  };
-
-  const resolveIndexEntry = (
-    site: Site,
-    ref: IndexEntryRef | undefined
-  ): { collection: Collection; entry: Entry } | undefined => {
-    if (!ref) return undefined;
-    const collection = matchCollection(site, ref.collection);
-    if (!collection) {
-      scoped.warn("index.override.collectionMissing", {
-        collection: ref.collection,
-      });
-      return undefined;
-    }
-    const entry = matchEntry(collection, ref.entry);
-    if (!entry) {
-      scoped.warn("index.override.entryMissing", {
-        collection: ref.collection,
-        entry: ref.entry,
-      });
-      return undefined;
-    }
-    if (!entry.isUnlisted) {
-      scoped.warn("index.override.entryNotUnlisted", {
-        collection: ref.collection,
-        entry: ref.entry,
-      });
-      return undefined;
-    }
-    return { collection, entry };
-  };
-
-  const writeIfChanged = async (targetPath: string, content: string): Promise<boolean> => {
-    const nextBuffer = Buffer.from(content, "utf8");
-    let current: Buffer | null = null;
-    try {
-      current = await readFile(targetPath);
-    } catch {
-      // file missing or unreadable -> treat as different
-    }
-    if (current && Buffer.compare(current, nextBuffer) === 0) {
-      scoped.debug("build.fileUnchanged", { path: targetPath });
-      return false;
-    }
-    await writeFile(targetPath, nextBuffer, "utf8");
-    scoped.debug("build.fileGenerated", { path: targetPath });
-    return true;
-  };
-
-  const pluginExpectedOutputs = new Set<string>();
-  const pluginExpectedPrefixes = new Set<string>();
-  const registerExpectedOutput = (relativePath: string) => {
-    if (typeof relativePath !== "string") return;
-    const normalized = path
-      .normalize(relativePath)
-      .replace(/^[/\\]+/, "")
-      .trim();
-    if (!normalized) return;
-    pluginExpectedOutputs.add(normalized);
-  };
-  const registerExpectedDir = (relativeDir: string) => {
-    if (typeof relativeDir !== "string") return;
-    const normalized = path
-      .normalize(relativeDir)
-      .replace(/^[/\\]+/, "")
-      .replace(/[/\\]+$/, "")
-      .trim();
-    if (!normalized) return;
-    pluginExpectedPrefixes.add(normalized + path.sep);
-  };
+  const pluginExpected = createExpectedOutputsRegistry();
+  const registerExpectedOutput = pluginExpected.addExpectedOutput;
+  const registerExpectedDir = pluginExpected.addExpectedDir;
 
   const toolEnv = await getEnv();
   const locale = resolveLocale(toolEnv);
@@ -632,11 +406,13 @@ export async function build(
     }
   }
 
-  const siteWithAssets = await resolveCollectionAssets(
-    scannedSiteWithPlugins,
+  const siteWithAssets = await resolveCollectionAssets({
+    rootDir,
+    site: scannedSiteWithPlugins,
+    toolEnv,
     readContent,
-    toolEnv
-  );
+    logger: scoped.child("assets"),
+  });
 
   const resolvedSite = await resolveBlocks(siteWithAssets, {
     rootDir,
@@ -724,7 +500,7 @@ export async function build(
   });
 
   const indexOverrides = parseIndexOverrides(site.config?.index);
-  const rootIndexTarget = resolveIndexEntry(resolvedSiteWithHistory, indexOverrides.root);
+  const rootIndexTarget = resolveIndexEntry(resolvedSiteWithHistory, indexOverrides.root, scoped);
   const collectionIndexTargets = new Map<
     string,
     { target: Collection; entry: Entry; entryCollection: Collection }
@@ -742,7 +518,7 @@ export async function build(
         });
         continue;
       }
-      const resolved = resolveIndexEntry(resolvedSiteWithHistory, ref);
+      const resolved = resolveIndexEntry(resolvedSiteWithHistory, ref, scoped);
       if (!resolved) continue;
       collectionIndexTargets.set(targetCollection.slug || targetCollection.id, {
         target: targetCollection,
@@ -763,109 +539,7 @@ export async function build(
   }
 
   scoped.debug("build.exportModel.start", { path: exportDir });
-
-  const orderKeys = (value: unknown): unknown => {
-    if (Array.isArray(value)) return value.map(orderKeys);
-    if (!value || typeof value !== "object") return value;
-
-    const obj = value as Record<string, unknown>;
-    const ordered: Record<string, unknown> = {};
-    const preferred = [
-      "rootDir",
-      "site",
-      "config",
-      "collections",
-      "id",
-      "rawName",
-      "path",
-      "name",
-      "type",
-      "ext",
-      "slug",
-      "route",
-      "isDraft",
-      "createdAt",
-      "updatedAt",
-      "fingerprint",
-      "entries",
-      "blocks",
-      "subBlocks",
-    ];
-
-    for (const key of preferred) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        ordered[key] = orderKeys(obj[key]);
-      }
-    }
-
-    for (const key of Object.keys(obj)) {
-      if (preferred.includes(key)) continue;
-      ordered[key] = orderKeys(obj[key]);
-    }
-
-    return ordered;
-  };
-
-  const siteSummary = {
-    ...resolvedSiteWithHistory,
-    collections: resolvedSiteWithHistory.collections?.map((collection) => {
-      const { entries, ...rest } = collection;
-      const entrySummaries = entries.map((entry) => ({
-        id: entry.id,
-        rawName: entry.rawName,
-        path: entry.path,
-        name: entry.name,
-        slug: entry.slug,
-        route: entry.route,
-        isDraft: entry.isDraft,
-        isUnlisted: entry.isUnlisted,
-        createdAt: entry.createdAt,
-        updatedAt: entry.updatedAt,
-        fingerprint: entry.fingerprint,
-      }));
-      return {
-        ...rest,
-        entries: entrySummaries,
-      };
-    }),
-  };
-
-  try {
-    await rm(exportDir, { recursive: true, force: true });
-    await mkdir(exportDir, { recursive: true });
-    await writeIfChanged(
-      path.join(exportDir, "site.json"),
-      JSON.stringify(orderKeys(siteSummary), null, 2)
-    );
-
-    const entriesDir = path.join(exportDir, "entries");
-    await mkdir(entriesDir, { recursive: true });
-
-    if (resolvedSiteWithHistory.collections) {
-      for (const collection of resolvedSiteWithHistory.collections) {
-        const collectionDirName = collection.slug || collection.id;
-        const collectionDir = path.join(entriesDir, collectionDirName);
-        await mkdir(collectionDir, { recursive: true });
-
-        for (const entry of collection.entries) {
-          const entryFileName = `${entry.slug || entry.id}.json`;
-          const entryPath = path.join(collectionDir, entryFileName);
-          await writeIfChanged(
-            entryPath,
-            JSON.stringify(orderKeys(entry), null, 2)
-          );
-        }
-      }
-    }
-
-    scoped.info("build.exportModel.success", { path: exportDir });
-  } catch (err: any) {
-    scoped.error("build.exportModel.error", {
-      path: exportDir,
-      error: String(err),
-    });
-    throw err;
-  }
+  await writeModelExport({ exportDir, site: resolvedSiteWithHistory, logger: scoped });
 
   if (exportModel.only) {
     if (options.quiet) {
@@ -904,668 +578,31 @@ export async function build(
     ...(assetsBase ? { templates: { assetsBase } } : {}),
   };
 
-  const formatHtml = async (rawHtml: string, targetPath: string): Promise<string> => {
-    if (!prettyPrint) return rawHtml;
-    try {
-      type ParseOptions = Parameters<typeof rehypeParse>[0];
-      type FormatOptions = Parameters<typeof rehypeFormat>[0];
-      type StringifyOptions = Parameters<typeof rehypeStringify>[0];
+  const formatHtml = (rawHtml: string, targetPath: string): Promise<string> =>
+    formatHtmlFs(rawHtml, targetPath, { prettyPrint, logger: scoped });
 
-      const parsePlugin = rehypeParse as Plugin<[ParseOptions?], Root, Root>;
-      const formatPlugin = rehypeFormat as Plugin<[FormatOptions?], Root, Root>;
-      const stringifyPlugin = rehypeStringify as Plugin<[StringifyOptions?], Root, string>;
-
-      const formatted = await unified()
-        .data("settings", { fragment: false })
-        .use(parsePlugin, { fragment: false })
-        .use(formatPlugin, { indent: 2 })
-        .use(stringifyPlugin)
-        .process(rawHtml);
-      return String(formatted);
-    } catch (err) {
-      scoped.warn("build.prettyPrintFailed", {
-        path: targetPath,
-        error: String(err),
-      });
-      return rawHtml;
-    }
-  };
-
-  const collectProtectedDirs = (siteModel: typeof resolvedSiteWithHistory): Set<string> => {
-    const exportSegment = path.relative(outputDir, exportDir).replace(/^[/\\]+/, "");
-    const assetSegments = [
-      toolEnv.images.outputDir,
-      toolEnv.audio.outputDir,
-      toolEnv.video.outputDir,
-      exportSegment,
-    ]
-      .map((seg) => seg.replace(/^[/\\]+/, ""))
-      .filter(Boolean);
-
-    const dirsToCover = new Set<string>();
-    const addDir = (dirPath: string) => dirsToCover.add(path.normalize(dirPath));
-
-    // Always cover base asset dirs and their ancestors
-    for (const seg of assetSegments) {
-      const baseDir = path.join(outputDir, seg);
-      addDir(baseDir);
-      const normalizedOutput = path.normalize(outputDir);
-      let parent = path.dirname(baseDir);
-      while (parent && path.normalize(parent) !== normalizedOutput) {
-        addDir(parent);
-        const nextParent = path.dirname(parent);
-        if (nextParent === parent) break;
-        parent = nextParent;
-      }
-    }
-
-    // Add directories implied by generated asset routes
-    const collectDirForRoute = (route?: string) => {
-      if (!route) return;
-      const rel = route.replace(/^[/\\]+/, "");
-      if (!rel) return;
-      const abs = path.join(outputDir, rel);
-      let dir = path.dirname(abs);
-      const normalizedOutput = path.normalize(outputDir);
-      while (dir && path.normalize(dir).startsWith(normalizedOutput)) {
-        addDir(dir);
-        const next = path.dirname(dir);
-        if (next === dir || path.normalize(next) === normalizedOutput) break;
-        dir = next;
-      }
-    };
-
-    for (const collection of siteModel.collections ?? []) {
-      for (const entry of collection.entries) {
-        if (!includeDrafts && entry.isDraft) continue;
-        const visitBlocks = (blocks: Block[]) => {
-          for (const blk of blocks) {
-            collectDirForRoute(blk.route);
-            if (blk.content?.variants) {
-              for (const variant of blk.content.variants) {
-                collectDirForRoute(variant.route);
-              }
-            }
-            if (blk.subBlocks) visitBlocks(blk.subBlocks);
-          }
-        };
-        visitBlocks(entry.blocks);
-      }
-    }
-
-    return dirsToCover;
-  };
-
-  const getForbiddenHtml = async (): Promise<string> => {
-    // Render once with a fully stable context so protect files stop rewriting.
-    const ctx = {
-      site: {
-        title: resolvedSiteWithHistory.site.title,
-        lang: resolvedSiteWithHistory.site.lang,
-      },
-      layoutName: accessForbiddenLayoutName,
-      entry: { name: "Access forbidden", route: "/" },
-      liveReloadScript: "",
-    };
-    const html = templateRenderer.render(ctx);
-    const targetPath = path.join(outputDir, "_forbidden_index.html");
-    return formatHtml(html, targetPath);
-  };
-
-  const protectAssetDirs = async (dirsToCover: Set<string>) => {
-    if (!protectAssets) return;
-    const forbiddenHtml = await getForbiddenHtml();
-
-    for (const dirPath of Array.from(dirsToCover)) {
-      await mkdir(dirPath, { recursive: true });
-      const targetPath = path.join(dirPath, "index.html");
-      await writeIfChanged(targetPath, forbiddenHtml);
-    }
-  };
-
-  const writeRootHtaccessFile = async () => {
-    if (!writeHtaccess) return;
-    const htaccessPath = path.join(outputDir, ".htaccess");
-    const lines = [
-      "# Generated by Webette. Adjust as needed for your hosting.",
-      "ErrorDocument 404 /404.html",
-      "Options -Indexes",
-      "# Block access to the exported model directory",
-      "RedirectMatch 403 ^/_model(/|$)",
-      "",
-    ].join("\n");
-    await writeIfChanged(htaccessPath, lines);
-  };
-
-  const writeNginxSampleFile = async () => {
-    if (!shouldWriteNginxSample) return;
-    const nginxPath = path.join(outputDir, "nginx.conf");
-    const serverBlock = [
-      "# Sample Nginx config generated by Webette.",
-      "# Replace `root`/`server_name` to match your setup.",
-      "server {",
-      "  listen 80;",
-      "  server_name _;",
-      `  root ${outputDir.replace(/\\/g, "/")};`,
-      "  index index.html;",
-      "  error_page 404 /404.html;",
-      "",
-      "  location / {",
-      "    try_files $uri $uri/ /404.html;",
-      "  }",
-      "",
-      "  location /assets/ {",
-      "    autoindex off;",
-      "  }",
-      "",
-      "  location /_model/ {",
-      "    return 403;",
-      "  }",
-      "}",
-      "",
-    ].join("\n");
-    await writeIfChanged(nginxPath, serverBlock);
-  };
-
-  // Prune orphaned outputs when not wiping everything (overwrite !== replace-all)
-  const pruneOrphans = async (protectedDirs?: Set<string>) => {
-    if (overwrite === "replace-all") return;
-
-    scoped.info("build.outputPruneStarted");
-
-    const expectedOutputs = new Set<string>();
-    const expectedPrefixes = new Set<string>(pluginExpectedPrefixes);
-    const addOutput = (relPath: string | undefined) => {
-      if (!relPath) return;
-      const normalized = relPath.replace(/^[/\\]+/, "");
-      if (normalized) expectedOutputs.add(path.normalize(normalized));
-    };
-    for (const extra of pluginExpectedOutputs) {
-      addOutput(extra);
-    }
-    if (protectedDirs && protectedDirs.size) {
-      for (const dirPath of protectedDirs) {
-        const rel = path.relative(outputDir, dirPath).replace(/\\+/g, "/");
-        addOutput(path.join(rel, "index.html"));
-      }
-    }
-
-    // Export model files
-    const exportRel = path.relative(outputDir, exportDir);
-    addOutput(path.join(exportRel, "site.json"));
-    for (const collection of resolvedSiteWithHistory.collections ?? []) {
-      const colDir = path.join(exportRel, "entries", collection.slug || collection.id);
-      for (const entry of collection.entries) {
-        if (!includeDrafts && entry.isDraft) continue;
-        addOutput(path.join(colDir, `${entry.slug || entry.id}.json`));
-      }
-    }
-
-    // Entry pages
-    const addEntryPage = (entry: Entry, collection: Collection) => {
-      const routeRelative = entry.route
-        ? entry.route.replace(/^\/+/, "")
-        : path.join(collection.slug || collection.id, entry.slug || entry.id);
-      addOutput(path.join(routeRelative, "index.html"));
-    };
-
-    // Collection indexes + root + 404
-    if (generateIndex) {
-      addOutput("index.html");
-      for (const collection of resolvedSiteWithHistory.collections ?? []) {
-        const routeRelative = collection.route
-          ? collection.route.replace(/^\/+/, "").replace(/\/+$/, "")
-          : collection.slug || collection.id;
-        const collectionIndex = routeRelative ? path.join(routeRelative, "index.html") : "index.html";
-        addOutput(collectionIndex);
-      }
-    }
-    addOutput("404.html");
-    addOutput("sitemap.xml");
-    if (writeHtaccess) addOutput(".htaccess");
-    if (shouldWriteNginxSample) addOutput("nginx.conf");
-
-    // Assets from blocks (routes + variants)
-    const collectBlocks = (blocks: Block[]) => {
-      for (const blk of blocks) {
-        if (blk.route) addOutput(blk.route);
-        if (blk.content?.variants) {
-          for (const variant of blk.content.variants) {
-            if (variant.route) addOutput(variant.route);
-          }
-        }
-        if (blk.subBlocks) collectBlocks(blk.subBlocks);
-      }
-    };
-
-    for (const collection of resolvedSiteWithHistory.collections ?? []) {
-      for (const entry of collection.entries) {
-        if (!includeDrafts && entry.isDraft) continue;
-        collectBlocks(entry.blocks);
-        addEntryPage(entry, collection);
-      }
-    }
-
-    for (const collection of resolvedSiteWithHistory.collections ?? []) {
-      if (collection.assets) {
-        collectBlocks(collection.assets);
-      }
-    }
-
-    const listFilesRecursive = async (dir: string): Promise<string[]> => {
-      const results: string[] = [];
-      const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
-      for (const item of entries) {
-        const rel = path.join(path.relative(outputDir, dir), item.name);
-        if (item.isDirectory()) {
-          results.push(...(await listFilesRecursive(path.join(dir, item.name))));
-        } else {
-          results.push(path.normalize(rel));
-        }
-      }
-      return results;
-    };
-
-    const existingFiles = await listFilesRecursive(outputDir);
-    const toDelete = existingFiles.filter((file) => {
-      const normalizedFile = file.replace(/^[/\\]+/, "");
-      const keepByFile = expectedOutputs.has(normalizedFile);
-      const keepByPrefix = Array.from(expectedPrefixes).some((prefix) =>
-        normalizedFile.startsWith(prefix)
-      );
-      return !(keepByFile || keepByPrefix);
-    });
-
-    for (const rel of toDelete) {
-      const abs = path.join(outputDir, rel);
-      try {
-        await rm(abs, { force: true });
-        scoped.info("build.outputPruned", { path: abs });
-      } catch {
-        // ignore failures silently
-      }
-    }
-
-    await removeEmptyDirectories(outputDir, outputDir);
-  };
-
-  let renderedPages = 0;
-
-  const entryLayoutOverrides =
-    templatesCustom?.entry && Object.keys(templatesCustom.entry).length
-      ? templatesCustom.entry
-      : undefined;
-
-  const entryCollectionById = new Map<string, Collection>();
-  for (const collection of resolvedSiteWithHistory.collections ?? []) {
-    for (const entry of collection.entries) {
-      entryCollectionById.set(entry.id, collection);
-    }
-  }
-
-  const layoutNameFor = (value: string): string => path.parse(value).name || value;
-
-  const templatesRootsForEntryLayouts = entryLayoutOverrides
-    ? await resolveTemplatesRoots({
-        rootDir,
-        templatesRoot: toolEnv.templates.root,
-        siteTemplatesRoot,
-        logger: scoped,
-      })
-    : null;
-
-  const entryLayoutTemplatesCache = new Map<
-    string,
-    { templatePath: string; templatesRoot: string; source: "site" | "tool" } | null
-  >();
-  const loggedEntryLayouts = new Set<string>();
-  const warnedEntryLayouts = new Set<string>();
-
-  const resolveEntryLayoutTemplate = async (relPath: string) => {
-    if (!templatesRootsForEntryLayouts) return null;
-    if (entryLayoutTemplatesCache.has(relPath)) {
-      return entryLayoutTemplatesCache.get(relPath) ?? null;
-    }
-
-    const candidates: Array<{ root: string; source: "site" | "tool" }> = [
-      { root: templatesRootsForEntryLayouts.siteTemplatesRoot, source: "site" },
-      { root: templatesRootsForEntryLayouts.toolTemplatesRoot, source: "tool" },
-    ];
-
-    for (const candidate of candidates) {
-      const fullPath = path.join(candidate.root, relPath);
-      try {
-        const fileStat = await stat(fullPath);
-        if (!fileStat.isFile()) continue;
-        const resolved = {
-          templatePath: fullPath,
-          templatesRoot: candidate.root,
-          source: candidate.source,
-        };
-        entryLayoutTemplatesCache.set(relPath, resolved);
-        return resolved;
-      } catch {
-        // try next candidate
-      }
-    }
-
-    entryLayoutTemplatesCache.set(relPath, null);
-    return null;
-  };
-
-  const pickEntryLayoutName = async (
-    entry: Entry,
-    renderCollection: Collection | undefined
-  ): Promise<string> => {
-    if (!entryLayoutOverrides || !templatesRootsForEntryLayouts) return layoutPartialName;
-
-    const sourceCollection = entryCollectionById.get(entry.id) ?? renderCollection;
-    if (!sourceCollection) return layoutPartialName;
-
-    const key = `${sourceCollection.slug || sourceCollection.id}/${entry.slug || entry.id}`;
-    const overridePath = entryLayoutOverrides[key];
-    if (!overridePath) return layoutPartialName;
-
-    const resolved = await resolveEntryLayoutTemplate(overridePath);
-    if (resolved) {
-      if (!loggedEntryLayouts.has(overridePath)) {
-        loggedEntryLayouts.add(overridePath);
-        const logBase =
-          resolved.source === "site" ? rootDir : templatesRootsForEntryLayouts.toolRoot;
-        const templatePathForLog =
-          path.relative(logBase, resolved.templatePath) || resolved.templatePath;
-        const templatesRootForLog =
-          path.relative(logBase, resolved.templatesRoot) || resolved.templatesRoot;
-        scoped.debug("template.resolved", {
-          kind: "entry.layout",
-          key,
-          templatePath: templatePathForLog,
-          templatesRoot: templatesRootForLog,
-          source: resolved.source,
-        });
-      }
-      return layoutNameFor(overridePath);
-    }
-
-    if (!warnedEntryLayouts.has(overridePath)) {
-      warnedEntryLayouts.add(overridePath);
-      const triedPaths = [
-        path.normalize(path.join(templatesRootsForEntryLayouts.siteTemplatesRoot, overridePath)),
-        path.normalize(path.join(templatesRootsForEntryLayouts.toolTemplatesRoot, overridePath)),
-      ];
-      scoped.warn("template.notFound", { paths: triedPaths.join(", ") });
-    }
-
-    return layoutPartialName;
-  };
-
-  const filterRenderableBlocks = (blocks: Block[]): Block[] =>
-    blocks
-      .filter((b) => !b.skipRender)
-      .map((b) => ({
-        ...b,
-        ...(b.subBlocks ? { subBlocks: filterRenderableBlocks(b.subBlocks) } : {}),
-      }));
-
-  const renderEntryTo = async (
-    entry: Entry,
-    collection: Collection | undefined,
-    targetDir: string
-  ): Promise<boolean> => {
-    const renderableBlocks = filterRenderableBlocks(entry.blocks);
-    const layoutName = await pickEntryLayoutName(entry, collection);
-    const context = {
-      ...renderBaseContext,
-      layoutName,
-      ...(collection ? { collection } : {}),
-      entry,
-      blocks: renderableBlocks,
-    };
-
-    const html = templateRenderer.render(context);
-    await mkdir(targetDir, { recursive: true });
-    const entryIndexPath = path.join(targetDir, "index.html");
-    const finalHtml = await formatHtml(html, entryIndexPath);
-    return writeIfChanged(entryIndexPath, finalHtml);
-  };
-
-  if (resolvedSiteWithHistory.collections) {
-    for (const collection of resolvedSiteWithHistory.collections) {
-      for (const entry of collection.entries) {
-        const entryKey = entryKeyFor(collection, entry);
-        if (overrideEntryKeys.has(entryKey)) continue;
-
-        const entryRouteRelative = entry.route
-          ? entry.route.replace(/^\/+/, "")
-          : path.join(collection.slug || collection.id, entry.slug || entry.id);
-        const entryOutputDir = path.join(outputDir, entryRouteRelative);
-
-        const wrote = await renderEntryTo(entry, collection, entryOutputDir);
-        if (wrote) {
-          renderedPages += 1;
-        }
-      }
-    }
-  }
-
-  if (generateIndex) {
-    const templatesRoots = await resolveTemplatesRoots({
-      rootDir,
-      templatesRoot: toolEnv.templates.root,
-      siteTemplatesRoot,
-      logger: scoped,
-    });
-
-    const layoutNameFor = (value: string): string =>
-      path.parse(value).name || value;
-
-    const customIndex = templatesCustom?.index;
-
-    const templatesCache = new Map<
-      string,
-      { templatePath: string; templatesRoot: string; source: "site" | "tool" } | null
-    >();
-
-    const resolveIndexTemplate = async (relPath: string) => {
-      if (templatesCache.has(relPath)) {
-        return templatesCache.get(relPath) ?? null;
-      }
-      const candidates: { root: string; source: "site" | "tool" }[] = [
-        { root: templatesRoots.siteTemplatesRoot, source: "site" },
-        { root: templatesRoots.toolTemplatesRoot, source: "tool" },
-      ];
-      for (const candidate of candidates) {
-        const fullPath = path.join(candidate.root, relPath);
-        try {
-          const s = await stat(fullPath);
-          if (s.isFile()) {
-            const resolved = {
-              templatePath: fullPath,
-              templatesRoot: candidate.root,
-              source: candidate.source,
-            };
-            templatesCache.set(relPath, resolved);
-            return resolved;
-          }
-        } catch {
-          // try next candidate
-        }
-      }
-      templatesCache.set(relPath, null);
-      return null;
-    };
-
-    const logIndexTemplate = async (kind: string, relPath: string) => {
-      const resolved = await resolveIndexTemplate(relPath);
-      if (resolved) {
-        const logBase =
-          resolved.source === "site" ? rootDir : templatesRoots.toolRoot;
-        const templatePathForLog =
-          path.relative(logBase, resolved.templatePath) || resolved.templatePath;
-        const templatesRootForLog =
-          path.relative(logBase, resolved.templatesRoot) || resolved.templatesRoot;
-        scoped.debug("template.resolved", {
-          kind,
-          templatePath: templatePathForLog,
-          templatesRoot: templatesRootForLog,
-          source: resolved.source,
-        });
-        return true;
-      }
-      return false;
-    };
-
-    const pickIndexLayout = async (kind: string, candidates: string[]) => {
-      const triedPaths: string[] = [];
-      for (const candidate of candidates) {
-        if (!candidate) continue;
-        triedPaths.push(
-          path.normalize(path.join(templatesRoots.siteTemplatesRoot, candidate)),
-          path.normalize(path.join(templatesRoots.toolTemplatesRoot, candidate))
-        );
-        const ok = await logIndexTemplate(kind, candidate);
-        if (ok) {
-          return layoutNameFor(candidate);
-        }
-      }
-      if (triedPaths.length) {
-        scoped.warn("template.notFound", { paths: triedPaths.join(", ") });
-      }
-      return layoutNameFor(templates.default.index);
-    };
-
-    // Root index (collections listing)
-    if (rootIndexTarget) {
-      const entryForIndex: Entry = { ...rootIndexTarget.entry, route: "/" };
-      const rootIndexDir = outputDir;
-      const wrote = await renderEntryTo(
-        entryForIndex,
-        undefined,
-        rootIndexDir
-      );
-      if (wrote) {
-        renderedPages += 1;
-      }
-    } else {
-      const rootIndexLayoutName = await pickIndexLayout("index.root", [
-        customIndex?.root ?? "",
-        templates.default.index,
-      ]);
-
-      const visibleCollections = (resolvedSiteWithHistory.collections ?? [])
-        .filter((collection) => !collection.isUnlisted)
-        .map((collection) => ({
-          ...collection,
-          entries: collection.entries.filter((entry) => !entry.isUnlisted),
-        }));
-
-      const rootContext = {
-        ...renderBaseContext,
-        layoutName: rootIndexLayoutName,
-        entry: { name: "Index", route: "/" },
-        collections: visibleCollections,
-      };
-      const rootHtml = templateRenderer.render(rootContext);
-      const rootIndexPath = path.join(outputDir, "index.html");
-      await mkdir(path.dirname(rootIndexPath), { recursive: true });
-      const finalRootHtml = await formatHtml(rootHtml, rootIndexPath);
-      await writeIfChanged(rootIndexPath, finalRootHtml);
-    }
-
-    // Collection indexes
-    for (const collection of resolvedSiteWithHistory.collections ?? []) {
-      if (collection.isUnlisted) {
-        const routeRelative = collection.route
-          ? collection.route.replace(/^\/+/, "").replace(/\/+$/, "")
-          : collection.slug || collection.id;
-        const collectionIndexDir = routeRelative
-          ? path.join(outputDir, routeRelative)
-          : outputDir;
-        const collectionIndexPath = path.join(collectionIndexDir, "index.html");
-
-        const forbiddenContext = {
-          ...renderBaseContext,
-          layoutName: accessForbiddenLayoutName,
-          entry: {
-            name: "Access forbidden",
-            route: collection.route ?? `/${collection.slug || collection.id}`,
-          },
-          collection,
-        };
-        const forbiddenHtml = templateRenderer.render(forbiddenContext);
-        await mkdir(collectionIndexDir, { recursive: true });
-        const finalForbidden = await formatHtml(forbiddenHtml, collectionIndexPath);
-        await writeIfChanged(collectionIndexPath, finalForbidden);
-        continue;
-      }
-      const visibleEntries = collection.entries.filter((entry) => !entry.isUnlisted);
-      const collectionForIndex = { ...collection, entries: visibleEntries };
-      const override = collectionIndexTargets.get(collection.slug || collection.id);
-      if (override) {
-        const routeRelative = collection.route
-          ? collection.route.replace(/^\/+/, "").replace(/\/+$/, "")
-          : collection.slug || collection.id;
-        const collectionIndexDir = routeRelative
-          ? path.join(outputDir, routeRelative)
-          : outputDir;
-        const entryForIndex: Entry = {
-          ...override.entry,
-          route: collection.route ?? `/${collection.slug || collection.id}/`,
-        };
-        const wrote = await renderEntryTo(
-          entryForIndex,
-          override.target,
-          collectionIndexDir
-        );
-        if (wrote) {
-          renderedPages += 1;
-        }
-        continue;
-      }
-
-      const collectionIndexLayoutName = await pickIndexLayout(
-        `index.collection.${collection.slug || collection.id}`,
-        [
-          customIndex?.collection?.[collection.slug || collection.id] ?? "",
-          customIndex?.collections ?? "",
-          templates.default.index,
-        ]
-      );
-      const routeRelative = collection.route
-        ? collection.route.replace(/^\/+/, "").replace(/\/+$/, "")
-        : collection.slug || collection.id;
-      const collectionIndexDir = routeRelative
-        ? path.join(outputDir, routeRelative)
-        : outputDir;
-      const collectionIndexPath = path.join(collectionIndexDir, "index.html");
-
-      const ctx = {
-        ...renderBaseContext,
-        layoutName: collectionIndexLayoutName,
-        entry: { name: collection.name, route: collection.route },
-        collection: collectionForIndex,
-        entries: visibleEntries,
-      };
-      const colHtml = templateRenderer.render(ctx);
-      await mkdir(collectionIndexDir, { recursive: true });
-      const finalColHtml = await formatHtml(colHtml, collectionIndexPath);
-      await writeIfChanged(collectionIndexPath, finalColHtml);
-    }
-  }
-
-  // Static 404 page (always generated)
-  {
-    const notFoundContext = {
-      ...renderBaseContext,
-      layoutName: notFoundLayoutName,
-      entry: { name: "Not found", route: "/404" },
-    };
-    const notFoundHtml = templateRenderer.render(notFoundContext);
-    const notFoundPath = path.join(outputDir, "404.html");
-    await mkdir(path.dirname(notFoundPath), { recursive: true });
-    const finalNotFoundHtml = await formatHtml(notFoundHtml, notFoundPath);
-    await writeIfChanged(notFoundPath, finalNotFoundHtml);
-  }
+  const { renderedPages } = await renderSite({
+    rootDir,
+    outputDir,
+    env: toolEnv,
+    site: resolvedSiteWithHistory,
+    templatesDefault: templates.default,
+    templatesCustom,
+    siteTemplatesRoot,
+    includeDrafts,
+    generateIndex,
+    layoutPartialName,
+    accessForbiddenLayoutName,
+    notFoundLayoutName,
+    writeIfChanged,
+    formatHtml,
+    templateRenderer,
+    renderBaseContext,
+    rootIndexTarget,
+    collectionIndexTargets,
+    overrideEntryKeys,
+    logger: scoped,
+  });
 
   await writeSitemap({
     outputDir,
@@ -1574,12 +611,43 @@ export async function build(
     includeDrafts,
     logger: scoped,
   });
-  const protectedDirs = collectProtectedDirs(resolvedSiteWithHistory);
-  await pruneOrphans(protectedDirs);
-  await writeRootHtaccessFile();
-  await writeNginxSampleFile();
-  await protectAssetDirs(protectedDirs);
-  await removeEmptyDirectories(outputDir, outputDir);
+  const protectedDirs = collectProtectedDirs({
+    outputDir,
+    exportDir,
+    env: toolEnv,
+    site: resolvedSiteWithHistory,
+    includeDrafts,
+  });
+  await pruneOrphans({
+    outputDir,
+    exportDir,
+    site: resolvedSiteWithHistory,
+    includeDrafts,
+    overwrite,
+    generateIndex,
+    writeHtaccess,
+    writeNginxSample: shouldWriteNginxSample,
+    protectedDirs,
+    pluginExpected,
+    logger: scoped,
+  });
+  await writeRootHtaccessFile({ outputDir, writeHtaccess, writeIfChanged });
+  await writeNginxSampleFile({
+    outputDir,
+    writeNginxSample: shouldWriteNginxSample,
+    writeIfChanged,
+  });
+  await protectAssetDirs({
+    outputDir,
+    protectAssets,
+    dirsToCover: protectedDirs,
+    siteTitle: resolvedSiteWithHistory.site.title,
+    siteLang: resolvedSiteWithHistory.site.lang,
+    accessForbiddenLayoutName,
+    templateRenderer,
+    formatHtml,
+    writeIfChanged,
+  });
 
   if (options.quiet) {
     scoped.debug("build.success", { path: outputDir, pages: renderedPages });

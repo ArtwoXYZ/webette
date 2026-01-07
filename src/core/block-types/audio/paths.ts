@@ -1,3 +1,7 @@
+/**
+ * Audio output path helpers for the build pipeline.
+ */
+
 import * as path from "node:path";
 import type { Block } from "../../model";
 

@@ -1,3 +1,7 @@
+/**
+ * Video block engine (copy-only in core).
+ */
+
 import { copyFile, mkdir, stat } from "node:fs/promises";
 import * as path from "node:path";
 import type { Block } from "../../model";

@@ -1,3 +1,7 @@
+/**
+ * Tool configuration (`webette.tool.ts`) loading + defaults.
+ */
+
 import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { existsSync } from "node:fs";

@@ -1,4 +1,8 @@
-﻿import Handlebars from "handlebars";
+/**
+ * Built-in Handlebars helpers available in templates.
+ */
+
+import Handlebars from "handlebars";
 import type { Collection, Entry } from "../model";
 import {
   buildImageHtml,

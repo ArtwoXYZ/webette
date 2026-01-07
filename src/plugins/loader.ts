@@ -1,3 +1,7 @@
+/**
+ * Plugin loader: imports ESM plugin modules from disk.
+ */
+
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Plugin, LoadedPlugin } from "./types";

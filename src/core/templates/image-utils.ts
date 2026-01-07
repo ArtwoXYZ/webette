@@ -1,3 +1,7 @@
+/**
+ * Template helpers for image variants and HTML generation.
+ */
+
 import Handlebars from "handlebars";
 import type {
   Block,

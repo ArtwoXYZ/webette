@@ -1,3 +1,7 @@
+/**
+ * Block resolution walker: enriches blocks by running type-specific resolvers.
+ */
+
 import type { Collection, Entry, Site, Block } from "../model";
 import type { WebetteEnv } from "../../config/env";
 import { resolveImageConfig } from "../block-types/image/config";

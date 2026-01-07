@@ -1,3 +1,7 @@
+/**
+ * Audio block engine (copy + optional metadata).
+ */
+
 import { copyFile, mkdir, stat } from "node:fs/promises";
 import * as path from "node:path";
 import type { Block } from "../../model";

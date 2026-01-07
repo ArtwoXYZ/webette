@@ -1,3 +1,7 @@
+/**
+ * Filesystem scan: discovers collections, entries, and blocks from folders.
+ */
+
 import { readdir, readFile, stat } from "node:fs/promises";
 import * as path from "node:path";
 import { getEnv } from "../../config/env";
@@ -92,7 +96,6 @@ async function listBlocksRaw(
       type,
       ext,
       path: relPath,
-      ...(isNavigation ? { skipRender: true } : {}),
       ...(shouldSkipRender ? { skipRender: true } : {}),
       ...(subBlocks && subBlocks.length > 0 ? { subBlocks } : {}),
     });

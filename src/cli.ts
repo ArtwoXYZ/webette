@@ -1,5 +1,9 @@
 #!/usr/bin/env bun
 
+/**
+ * Webette CLI entrypoint (`build` / `serve`).
+ */
+
 import { build } from "./core/build";
 import { serve } from "./core/serve";
 import { createProjectLogger } from "./logging/logger";

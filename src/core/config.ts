@@ -1,3 +1,7 @@
+/**
+ * Site config loader (`webette.config.ts`) and initial Site model creation.
+ */
+
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Site } from "./model";

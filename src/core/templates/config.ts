@@ -1,3 +1,7 @@
+/**
+ * Templates config parsing (site overrides on top of tool defaults).
+ */
+
 import type { WebetteEnv } from "../../config/env";
 
 type TemplateKey = keyof WebetteEnv["templates"]["default"];

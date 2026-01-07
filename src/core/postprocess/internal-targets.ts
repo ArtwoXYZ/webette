@@ -1,3 +1,7 @@
+/**
+ * Helpers to match collections/entries for internal targets (links, indexes, navigation).
+ */
+
 import * as path from "node:path";
 import type { Collection, Entry, Site, Block } from "../model";
 import { cleanName, slugify } from "../../utils/naming";

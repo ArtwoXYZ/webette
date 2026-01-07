@@ -1,4 +1,6 @@
-// Remove leading numeric ordering hints like "01 " or "1-"
+/**
+ * Naming utilities (cleanName, slugify, ordering helpers).
+ */
 export function cleanName(rawName: string): string {
   const trimmed = rawName.trim();
   const match = /^(\d+)[\s._-]*(.*)$/i.exec(trimmed);

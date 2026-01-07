@@ -128,13 +128,15 @@ Rules:
 The block does not auto-render. Use it in templates via `content.data.items` (tree):
 
 ```hbs
-{{!-- navigation blocks are skipRender, so look them up in entry.blocks, not in blocks --}}
-{{#with (firstBlockOfType entry.blocks "navigation")}}
-  {{#if content.data.name}}
-    <h2>{{content.data.name}}</h2>
+{{!-- navigation is just another block type: render it where it appears in `blocks` --}}
+{{#each blocks}}
+  {{#if (eq type "navigation")}}
+    {{#if content.data.name}}
+      <h2>{{content.data.name}}</h2>
+    {{/if}}
+    {{> navigation-items items=content.data.items}}
   {{/if}}
-  {{> navigation-items items=content.data.items}}
-{{/with}}
+{{/each}}
 ```
 
 Where `navigation-items` is a recursive partial that renders `items` and their optional `children`.

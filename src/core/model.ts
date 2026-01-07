@@ -1,3 +1,7 @@
+/**
+ * Core model types used across scan/resolve/render/export.
+ */
+
 export interface Block {
   id: string;          // identifier scoped to the entry
   rawName: string;     // raw filename or folder name

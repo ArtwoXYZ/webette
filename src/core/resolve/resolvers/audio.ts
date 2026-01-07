@@ -1,3 +1,7 @@
+/**
+ * Resolver for audio blocks.
+ */
+
 import { stat } from "node:fs/promises";
 import * as path from "node:path";
 import type { Resolver } from "../registry";

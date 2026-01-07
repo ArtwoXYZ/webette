@@ -1,4 +1,8 @@
-﻿import * as fs from "node:fs";
+/**
+ * Structured logger (console + JSONL file), with i18n support.
+ */
+
+import * as fs from "node:fs";
 import * as path from "node:path";
 import { getEnv, resolveLocale } from "../config/env";
 import { t, normalizeLocale, type Locale } from "./i18n";

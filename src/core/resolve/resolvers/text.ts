@@ -1,3 +1,7 @@
+/**
+ * Resolver for text blocks.
+ */
+
 import { readFile } from "node:fs/promises";
 import * as path from "node:path";
 import type { Resolver } from "../registry";

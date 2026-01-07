@@ -1,3 +1,7 @@
+/**
+ * Image block engine (copy + optional variants via sharp).
+ */
+
 import { copyFile, mkdir, stat } from "node:fs/promises";
 import * as path from "node:path";
 import type { Stats } from "node:fs";

@@ -1,3 +1,7 @@
+/**
+ * Image metadata helpers (dimensions + mime type mapping).
+ */
+
 import type { ImageInfo } from "image-size";
 
 export const mimeByExt: Record<string, string> = {

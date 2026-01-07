@@ -1,7 +1,6 @@
-// Internal image resolver for Markdown content:
-// - Rewrites image URLs (block:) to the right variant route
-// - Optionally renders a full <img>/<figure> using shared image utils
-// - Marks image blocks referenced inline (`renderedInline: true`)
+/**
+ * Rewrites Markdown internal images (`block:`) to final variant routes and marks inline renders.
+ */
 
 import type { Root, Content, Image as MdastImage, Html } from "mdast";
 import type { Site, Block } from "../model";

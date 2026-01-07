@@ -1,3 +1,7 @@
+/**
+ * Video pipeline config resolution (tool defaults + site overrides).
+ */
+
 import * as path from "node:path";
 import type { Site } from "../../model";
 import type { WebetteEnv } from "../../../config/env";

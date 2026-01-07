@@ -1,5 +1,6 @@
-// Route resolver: enriches the scanned model with slug-based routes, honoring
-// optional collection-level overrides from the site config.
+/**
+ * Route generation for collections/entries/blocks (slug-based, config-aware).
+ */
 import type { Block, Collection, Entry, Site } from "./model";
 
 type CollectionConfig = {

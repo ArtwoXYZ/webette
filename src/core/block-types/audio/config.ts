@@ -1,8 +1,11 @@
+/**
+ * Audio pipeline config resolution (tool defaults + site overrides).
+ */
+
 import * as path from "node:path";
 import type { Site } from "../../model";
 import type { WebetteEnv } from "../../../config/env";
 
-// Minimal audio pipeline config: only controls copy/output locations (no variants yet).
 export interface AudioPipelineConfig {
   outputDir: string; // absolute path: <root>/<outputDirName>/<audio.outputDir>
   publicBase: string; // URL prefix for routes, derived from outputDir segment

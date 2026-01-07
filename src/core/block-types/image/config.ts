@@ -1,3 +1,7 @@
+/**
+ * Image pipeline config resolution (tool defaults + site overrides).
+ */
+
 import * as path from "node:path";
 import type { Site } from "../../model";
 import type { ImageFit, ImageFormat, WebetteEnv } from "../../../config/env";

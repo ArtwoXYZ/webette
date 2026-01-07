@@ -1,3 +1,7 @@
+/**
+ * Plugin runner: executes lifecycle hooks and transform hooks in order.
+ */
+
 import type { Block, Collection, Entry, Site } from "../core/model";
 import type { LoadedPlugin, PluginContext } from "./types";
 import Handlebars from "handlebars";

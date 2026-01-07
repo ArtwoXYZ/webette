@@ -1,3 +1,7 @@
+/**
+ * Resolver for `navigation.webt` blocks (structured navigation tree).
+ */
+
 import { readFile } from "node:fs/promises";
 import * as path from "node:path";
 import type { Resolver } from "../registry";
