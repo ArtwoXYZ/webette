@@ -131,6 +131,22 @@ pre {
   overflow-x: auto;
 }
 
+blockquote.webt-md {
+  margin: 12px 0;
+  padding: 8px 12px;
+  border-left: 4px solid var(--border);
+  background: #f7f7f7;
+  color: var(--muted);
+}
+
+blockquote.webt-md > :first-child {
+  margin-top: 0;
+}
+
+blockquote.webt-md > :last-child {
+  margin-bottom: 0;
+}
+
 code {
   background: #f7f7f7;
   border: 1px solid var(--border);

@@ -104,6 +104,7 @@ interface MarkdownBlockContext {
 
 - All rendered Markdown elements receive the CSS class `webt-md`, applied at rehype stage; no wrapper needed. Use it to scope your typography/styles: `.webt-md { ... }` or `.webt-md :where(h1, p, a) { ... }`.
 - External links are decorated to open in a new tab with safe `rel` attributes (`target="_blank"`, `rel="noopener noreferrer"`) via `rehype-external-links` (optionalDependency). If the plugin is missing, Markdown rendering continues without altering links.
+- Line breaks: a single newline inside a paragraph is a Markdown "soft break" and will not render as a visible line break in HTML. To force a `<br>`, end the line with two spaces (or a trailing `\`). If you want every newline to become `<br>`, add `remark-breaks` to `markdown.remarkPlugins`.
 
 ---
 

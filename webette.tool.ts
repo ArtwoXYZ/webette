@@ -8,11 +8,11 @@ export default {
   serve: {
     port: 4173, // dev server port
     liveReloadIntervalMs: 1000, // live reload polling interval (ms)
-    watcherDebounceMs: 150, // watcher debounce (ms)
+    watcherDebounceMs: 300, // watcher debounce (ms)
   },
   build: {
     outputDirName: "_public", // build output directory
-    overwrite: "replace-all", // "none" | "replace-all" | "replace-files"
+    overwrite: "replace-files", // "none" | "replace-all" | "replace-files"
     protectAssets: true, // generate forbidden placeholders in asset folders
     writeHtaccess: true, // write a root .htaccess with ErrorDocument 404 and Options -Indexes (Apache only)
     writeNginxSample: true, // write a sample nginx.conf in the build output

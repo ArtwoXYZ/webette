@@ -39,14 +39,12 @@ export default {
     },
     custom: {
       index: {
-        root: "layout/index-root.hbs",
-        collections: "layout/index-collection.hbs",
         collection: {
           posts: "layout/index-posts.hbs",
         },
       },
       entry: {
-        "posts/webette-demonstration": "layout/post-feature.hbs",
+        "pages/welcome": "layout/welcome.hbs",
       },
     },
   },

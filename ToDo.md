@@ -39,6 +39,8 @@
 - ~~Pourquoi VSCode me remet les pages de templates en HTML pour le Language Mode alors que je spécifie Handlebars ? Comment forcer Handlebars~~
 - ~~Pouvoir spécifier un template pour une entrée~~
 - **EN COURS** - commencer un site webette pour la documentation webette
+- Transformer "collection-description.webt" en "description.webt" et l'étendre aux entrées
+- Ajouter "name.webt" pour les entrées et les collections (ça ne casse pas le slug), on pourrait créer un helper {{displayName entry}} et {{displayName collection}}
 - Plugin webette de TOC (sommaire, table des matières)
 - Refaire tout le système de sitemap pour essayer de refléter parfaitement les liens entre les pages dans le site exportés (par exemple, si une entry est unlisted mais qu'un lien pointe vers elle sur le site, il faut que la page soit visible dans le sitemap)
 - Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)
@@ -46,3 +48,30 @@
 - Plugin de flux RSS
 - Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)
 - Plugin : Ajouter un moyen à l'utilisateur de changer la date de son entrée grâce à un fichier created.webt et un autre fichier updated.webt si le user veux contrôlé ça. Je ne vois cette feature utile que dans les entrées
+
+## Site d'exemple, remake :
+Structure et ce qu'il faut mettre dans chaque page :
+
+- `01 Concept`
+  - `01 Everything is a Folder` : arborescence, conventions
+  - `02 The webette Model` : site/collections/entries/blocks, routes, métadonnées, Model exporté
+  - `03 Build vs Serve` : différences, watch, overwrite, brouillons
+  - `04 Learn More (Links and stuff)` : Lien vers "Features", Lien vers la doc officielle, Lien vers les Starters, Lien vers les Plugins, Annuaire de sites webette ou WebRing
+
+- `02 Features`
+  - `01 Augmented Markdown` : rendu md, classes, line breaks, options, helpers
+  - `02 Images` : variants, inline, galerie (dossier), alt/title
+  - `03 Audio and Video` : blocks audio/vidéo, métadonnées, rendu
+  - `04 Navigation and Indexes` : navigation.webt, index auto, overrides
+  - `05 Draft, Ignore and Unlisted` : draft.webt, ignore.webt, unlisted.webt, avec comportements serve/build
+  - `06 Collection's Assets, Name and Descriptions` : _assets, name.webt, description.webt
+  - `07 Plugins` : hooks, enrich, prune/expected, plugin demo, Lien vers la section "lien vers les plugins"
+  - `08 Template and Layouts` : wrapper/layout, fallback, overrides, helpers, assets, lien vers la section "lien vers les Starters"
+  - `09 Sitemap and servers config` : sitemap, config ngnix, htaccess
+
+
+- `03 Credits`
+  - `Credits for this website and webette` : crédits, licences, sources
+
+- `10 Example Unlisted`
+  - `Hello, I'm Unlisted` : page cachée, routable

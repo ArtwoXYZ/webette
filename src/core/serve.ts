@@ -141,27 +141,49 @@ export async function serve(
 
   let rebuildTimer: ReturnType<typeof setTimeout> | null = null;
 
+  let rebuildRunning = false;
+  let rebuildPending = false;
+
+  const runRebuild = async () => {
+    // Serialize rebuilds: never run two builds concurrently.
+    if (rebuildRunning) {
+      rebuildPending = true;
+      return;
+    }
+
+    rebuildRunning = true;
+
+    try {
+      // Coalesce multiple file events into as few builds as possible.
+      do {
+        rebuildPending = false;
+
+        await build(
+          rootDir,
+          { ...options, liveReload: true, quiet: true },
+          logger
+        );
+
+        buildVersion = Date.now().toString();
+
+        watchLogger.info("serve.rebuildSuccess", {
+          version: buildVersion,
+        });
+      } while (rebuildPending);
+    } catch (err) {
+      watchLogger.error("serve.rebuildError", {
+        error: String(err),
+      });
+    } finally {
+      rebuildRunning = false;
+    }
+  };
+
   const scheduleRebuild = () => {
     if (rebuildTimer) clearTimeout(rebuildTimer);
 
     rebuildTimer = setTimeout(() => {
-      build(
-        rootDir,
-        { ...options, liveReload: true, quiet: true },
-        logger
-      )
-        .then(() => {
-          buildVersion = Date.now().toString();
-
-          watchLogger.info("serve.rebuildSuccess", {
-            version: buildVersion,
-          });
-        })
-        .catch((err) => {
-          watchLogger.error("serve.rebuildError", {
-            error: String(err),
-          });
-        });
+      void runRebuild();
     }, toolEnv.serve.watcherDebounceMs);
   };
 
@@ -199,6 +221,10 @@ export async function serve(
           filename: name,
           base: watchPath,
         });
+
+        if (rebuildRunning) {
+          rebuildPending = true;
+        }
 
         scheduleRebuild();
       }

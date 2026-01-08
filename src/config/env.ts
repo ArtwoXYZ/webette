@@ -3,9 +3,10 @@
  */
 
 import * as path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
 import { normalizeLocale, type Locale } from "../logging/i18n";
+import { loadDefaultExportFresh } from "../utils/load-module";
 
 export type LogLevel = "debug" | "info" | "warn" | "error";
 export type OverwritePolicy = "none" | "replace-all" | "replace-files";
@@ -402,9 +403,7 @@ export async function getEnv(toolRoot?: string): Promise<WebetteEnv> {
 
   if (configPath) {
     try {
-      const specifier = `${pathToFileURL(configPath).href}?tool-config=${Date.now()}`;
-      const mod = await import(specifier);
-      const parsed = mod?.default ?? mod;
+      const parsed = await loadDefaultExportFresh<WebetteEnvOverrides>(configPath);
       overrides = parsed && typeof parsed === "object" ? (parsed as WebetteEnvOverrides) : {};
     } catch (err) {
       if (!warnedConfigLoadError) {

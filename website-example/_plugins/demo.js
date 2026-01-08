@@ -8,15 +8,16 @@ export default {
         if ((entry.slug || entry.id) === "enriched-by-a-plugin") {
           const noteBlock = {
             id: "plugin-note",
+            rawName: "plugin-note.md",
             type: "markdown",
             name: "Plugin note",
             slug: "plugin-note",
-            path: "plugin-note.md",
+            ext: ".md",
+            path: `${entry.path}/plugin-note.md`,
             content: {
-              raw: "> Added by demo plugin — showing transform hooks and prune whitelist.",
-              html: "<blockquote>Added by demo plugin — showing transform hooks and prune whitelist.</blockquote>",
+              raw: "> Added by demo plugin - showing transform hooks and prune whitelist.",
+              html: "<blockquote>Added by demo plugin - showing transform hooks and prune whitelist.</blockquote>",
             },
-            blocks: [],
           };
           entry.blocks = [...entry.blocks, noteBlock];
         }

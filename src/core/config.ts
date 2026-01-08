@@ -3,8 +3,8 @@
  */
 
 import * as path from "node:path";
-import { pathToFileURL } from "node:url";
 import type { Site } from "./model";
+import { loadDefaultExportFresh } from "../utils/load-module";
 
 interface WebetteConfigFile {
   site?: Record<string, unknown>;
@@ -25,9 +25,8 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
   const configPath = path.join(rootDir, "webette.config.ts");
 
   try {
-    const specifier = `${pathToFileURL(configPath).href}?ts-config=${Date.now()}`;
-    const mod = await import(specifier);
-    const raw = mod?.default ?? mod;
+    // Bun caches ESM by path (ignores query/hash), so we load via Bun.build + data: import.
+    const raw = await loadDefaultExportFresh<Record<string, unknown>>(configPath);
 
     if (!raw || typeof raw !== "object") {
       return {};

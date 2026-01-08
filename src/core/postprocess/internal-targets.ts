@@ -26,8 +26,11 @@ function decodeValue(value: string): string {
   }
 }
 
-function normalizeName(value: string): string {
-  const base = path.parse(value).name;
+function normalizeName(value: unknown): string {
+  if (typeof value !== "string") return "";
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  const base = path.parse(trimmed).name;
   return cleanName(base).toLowerCase();
 }
 
@@ -173,12 +176,13 @@ export function matchBlock(entry: Entry, name: string): Block | undefined {
   const targetBase = normalizeName(name);
   const targetWithExt = normalizeName(path.parse(name).name);
   return entry.blocks.find((blk) => {
+    const rawName = typeof (blk as { rawName?: unknown }).rawName === "string" ? blk.rawName : "";
     const names = [
       blk.slug,
       blk.id,
       blk.name,
-      normalizeName(blk.rawName),
-      normalizeName(path.parse(blk.rawName).name),
+      normalizeName(rawName),
+      normalizeName(path.parse(rawName).name),
     ]
       .filter(Boolean)
       .map((n) => normalizeName(String(n)));
