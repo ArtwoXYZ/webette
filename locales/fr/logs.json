@@ -30,6 +30,7 @@
   "build.exportOnly.success": "Export seul terminé (modèle : {path}).",
   "build.pluginsLoaded": "{count} plugin(s) chargé(s) : {ids}",
   "markdown.internalLink.unresolved": "Impossible de résoudre le lien interne {url} dans l'entrée {entry}",
+  "markdown.internalImage.unresolved": "Impossible de résoudre l'image interne {url} dans l'entrée {entry} (bloc image ou route manquante).",
   "resolve.image.dimensionsFailed": "Impossible de lire les dimensions pour {path} : {error}",
   "resolve.image.sharpMissing": "Moteur d'images (sharp) indisponible : {error}",
   "resolve.image.defaultReencodeSkipped": "Variante default laissée intacte pour {path} (sharp absent).",
