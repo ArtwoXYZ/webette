@@ -6,20 +6,27 @@
  * a `data:` URL, while caching by file mtime/size to avoid rebuilding unnecessarily.
  */
 
-import { stat } from "node:fs/promises";
+import { mkdir, rm, stat, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { tmpdir } from "node:os";
 import * as path from "node:path";
+import { pathToFileURL } from "node:url";
 
 type CachedModule = {
   mtimeMs: number;
   size: number;
   exports: any;
+  outputPath?: string;
 };
 
 const moduleCache = new Map<string, CachedModule>();
 
-function toDataUrl(js: string): string {
-  const base64 = Buffer.from(js, "utf8").toString("base64");
-  return `data:text/javascript;base64,${base64}`;
+const cacheRoot = path.join(tmpdir(), "webette-module-cache");
+
+function buildCachePath(absPath: string, stamp: string): string {
+  const hash = createHash("sha1").update(absPath).digest("hex").slice(0, 12);
+  const baseName = path.parse(absPath).name || "module";
+  return path.join(cacheRoot, hash, `${baseName}.${stamp}.mjs`);
 }
 
 export async function loadDefaultExportFresh<T = unknown>(
@@ -32,6 +39,9 @@ export async function loadDefaultExportFresh<T = unknown>(
   const cached = moduleCache.get(key);
   if (cached && cached.mtimeMs === s.mtimeMs && cached.size === s.size) {
     return cached.exports as T;
+  }
+  if (cached?.outputPath) {
+    await rm(cached.outputPath, { force: true }).catch(() => undefined);
   }
 
   // Note: Bun's TS types for `Bun.build()` vary by version; keep this config runtime-safe.
@@ -60,9 +70,18 @@ export async function loadDefaultExportFresh<T = unknown>(
   }
 
   const js = await first.text();
-  const mod = await import(toDataUrl(js));
+  const stamp = `${s.mtimeMs}-${s.size}`;
+  const outputPath = buildCachePath(absPath, stamp);
+  await mkdir(path.dirname(outputPath), { recursive: true });
+  await writeFile(outputPath, js, "utf8");
+  const mod = await import(pathToFileURL(outputPath).href);
   const exportsValue = (mod as any)?.default ?? mod;
 
-  moduleCache.set(key, { mtimeMs: s.mtimeMs, size: s.size, exports: exportsValue });
+  moduleCache.set(key, {
+    mtimeMs: s.mtimeMs,
+    size: s.size,
+    exports: exportsValue,
+    outputPath,
+  });
   return exportsValue as T;
 }
