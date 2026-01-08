@@ -98,11 +98,12 @@ Behavior:
 - Unlisted collections and entries are excluded from the sitemap.
 - Pages are still generated and available at their routes.
 
-## Collection description
+## Description
 
-Add `collection-description.webt` at the root of a collection to attach a raw description:
+Add `description.webt` to attach a raw description:
 
-- Stored on the collection as `collection.description`.
+- At the root of a collection: stored as `collection.description`.
+- Inside an entry folder: stored as `entry.description`.
 - Preserves line breaks; use `nl2br` in templates to display them.
 
 ## Collection assets

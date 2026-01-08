@@ -105,9 +105,9 @@ The block does not auto-render. Use it in templates (tree):
 
 Two collection-level features help custom indexes:
 
-### collection-description.webt
+### description.webt
 
-Add `collection-description.webt` at the root of a collection.
+Add `description.webt` at the root of a collection.
 Its raw content is stored as `collection.description`.
 Use `nl2br` to preserve line breaks in templates.
 
@@ -125,4 +125,4 @@ Routes are scoped to the collection, for example:
 - **Hide collections or entries**: `unlisted.webt`
 - **Use a custom entry as index**: `index.root` / `index.collections`
 - **Fully ordered index page**: `navigation.webt` in an entry
-- **Collection previews**: `collection-description.webt` + `_assets/`
+- **Collection previews**: `description.webt` + `_assets/`

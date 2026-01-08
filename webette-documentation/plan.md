@@ -52,7 +52,7 @@ Un site de documentation qui soit :
   - blocks.md
   - ordering.md (préfixes numériques + ordre alphabétique)
   - special-files.md (`draft.webt`, `unlisted.webt`, `ignore.webt`)
-  - collection-extras.md (`collection-description.webt`, `_assets/`)
+  - collection-extras.md (`description.webt`, `_assets/`)
 
 - 02 routing
 

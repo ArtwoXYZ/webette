@@ -159,6 +159,7 @@ type NavigationItem =
       entry: {
         id: string;
         name: string;
+        description?: string;
         slug: string;
         route?: string;
         isDraft?: boolean;
@@ -289,14 +290,15 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
           assets: collection.assets,
           isUnlisted: collection.isUnlisted,
         },
-        entry: {
-          id: entry.id,
-          name: entry.name,
-          slug: entry.slug,
-          route: anchor ? `${entry.route ?? ""}#${anchor}` : entry.route,
-          isDraft: entry.isDraft,
-          isUnlisted: entry.isUnlisted,
-          createdAt: entry.createdAt,
+      entry: {
+        id: entry.id,
+        name: entry.name,
+        description: entry.description,
+        slug: entry.slug,
+        route: anchor ? `${entry.route ?? ""}#${anchor}` : entry.route,
+        isDraft: entry.isDraft,
+        isUnlisted: entry.isUnlisted,
+        createdAt: entry.createdAt,
           updatedAt: entry.updatedAt,
         },
       };
@@ -370,6 +372,7 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
                 entry: {
                   id: entry.id,
                   name: entry.name,
+                  description: entry.description,
                   slug: entry.slug,
                   route: entry.route,
                   isDraft: entry.isDraft,

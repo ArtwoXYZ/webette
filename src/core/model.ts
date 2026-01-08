@@ -27,6 +27,7 @@ export interface Entry {
   path: string;        // path relative to the site root
   route?: string;      // route relative to site root (trailing slash)
   blocks: Block[];     // files/blocks contained in the entry
+  description?: string; // raw description from description.webt (entry-level)
   isDraft?: boolean;   // flagged when draft.webt is present in the entry folder
   isUnlisted?: boolean; // flagged when unlisted.webt is present in the entry folder
   createdAt?: string;  // ISO timestamp of first appearance in the model
@@ -43,7 +44,7 @@ export interface Collection {
   route?: string;      // route relative to site root (trailing slash)
   entries: Entry[];    // entries inside the collection
   assets?: Block[];    // media assets from _assets (images/audio/video)
-  description?: string; // raw description from collection-description.webt
+  description?: string; // raw description from description.webt (collection-level)
   isUnlisted?: boolean; // flagged when unlisted.webt is present in the collection root
   createdAt?: string;  // ISO timestamp of first appearance in the model
   updatedAt?: string;  // ISO timestamp of last change in the model

@@ -33,6 +33,7 @@ type RawEntry = {
   blocks: RawBlock[];
   isDraft?: boolean;
   isUnlisted?: boolean;
+  description?: string;
 };
 
 type RawCollection = {
@@ -132,6 +133,7 @@ async function listEntriesRaw(
     const absoluteEntry = path.join(rootDir, relPath);
     const isDraft = await isDraftEntry(absoluteEntry);
     const isUnlisted = await isUnlistedEntry(absoluteEntry);
+    const description = await readDescriptionFile(absoluteEntry);
 
     entries.push({
       rawName,
@@ -139,6 +141,7 @@ async function listEntriesRaw(
       blocks,
       ...(isDraft ? { isDraft: true } : {}),
       ...(isUnlisted ? { isUnlisted: true } : {}),
+      ...(description ? { description } : {}),
     });
   }
 
@@ -174,7 +177,7 @@ async function listCollectionsRaw(
     const relPath = toPosix(rawName);
     const absoluteCollection = path.join(rootDir, rawName);
     const isUnlisted = await isUnlistedCollection(absoluteCollection);
-    const description = await readCollectionDescription(absoluteCollection);
+    const description = await readDescriptionFile(absoluteCollection);
     const assets = await listCollectionAssetsRaw(rootDir, relPath);
     collections.push({
       rawName,
@@ -274,6 +277,7 @@ function enrichEntries(rawEntries: RawEntry[]): Entry[] {
       slug,
       path: raw.path,
       blocks,
+      ...(raw.description ? { description: raw.description } : {}),
       ...(raw.isDraft ? { isDraft: true } : {}),
       ...(raw.isUnlisted ? { isUnlisted: true } : {}),
     };
@@ -370,8 +374,8 @@ async function isUnlistedCollection(dir: string): Promise<boolean> {
   return isUnlistedEntry(dir);
 }
 
-async function readCollectionDescription(dir: string): Promise<string | undefined> {
-  const descriptionPath = path.join(dir, "collection-description.webt");
+async function readDescriptionFile(dir: string): Promise<string | undefined> {
+  const descriptionPath = path.join(dir, "description.webt");
   try {
     const content = await readFile(descriptionPath, "utf8");
     const trimmed = content.trimEnd();

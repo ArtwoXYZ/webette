@@ -132,9 +132,12 @@ Unlisted collections get a "forbidden" index page in their collection route.
 
 A file listing names of blocks to exclude from automatic rendering. The blocks remain in the model, but templates won't receive them in the default renderable blocks list.
 
-## Collection description (`collection-description.webt`)
+## Description (`description.webt`)
 
-A raw text file stored on a collection as `collection.description` for templates to display.
+A raw text file stored as:
+
+- `collection.description` when placed at the root of a collection
+- `entry.description` when placed inside an entry folder
 
 ## Collection assets (`_assets/`)
 
