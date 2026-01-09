@@ -5,10 +5,10 @@
 <ul>
   {{#each collections}}
     <li>
-      <strong>{{name}}</strong>
+      <strong>{{displayName this}}</strong>
       <ul>
         {{#each entries}}
-          <li><a href="{{route}}">{{name}}</a></li>
+          <li><a href="{{route}}">{{displayName this}}</a></li>
         {{/each}}
       </ul>
     </li>

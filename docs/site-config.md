@@ -106,6 +106,15 @@ Add `description.webt` to attach a raw description:
 - Inside an entry folder: stored as `entry.description`.
 - Preserves line breaks; use `nl2br` in templates to display them.
 
+## Name
+
+Add `name.webt` to attach a display name (without changing routes):
+
+- At the root of a collection: stored as `collection.displayName`.
+- Inside an entry folder: stored as `entry.displayName`.
+- Slugs/ids/routes keep using the folder name (and optional config overrides).
+- In templates, use `{{displayName collection}}` and `{{displayName entry}}` (see `docs/helpers.md`).
+
 ## Collection assets
 
 Add a `_assets/` folder at the root of a collection to attach media assets to that collection.

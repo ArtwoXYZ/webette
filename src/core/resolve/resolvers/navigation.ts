@@ -133,6 +133,7 @@ type NavigationItem =
       collection: {
         id: string;
         name: string;
+        displayName?: string;
         slug: string;
         route?: string;
         entriesCount: number;
@@ -150,6 +151,7 @@ type NavigationItem =
       collection: {
         id: string;
         name: string;
+        displayName?: string;
         slug: string;
         route?: string;
         description?: string;
@@ -159,6 +161,7 @@ type NavigationItem =
       entry: {
         id: string;
         name: string;
+        displayName?: string;
         description?: string;
         slug: string;
         route?: string;
@@ -281,18 +284,20 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
       const node: NavigationItem = {
         kind: "entry",
         ...(title ? { title } : {}),
-        collection: {
-          id: collection.id,
-          name: collection.name,
-          slug: collection.slug,
-          route: collection.route,
-          description: collection.description,
-          assets: collection.assets,
-          isUnlisted: collection.isUnlisted,
-        },
+      collection: {
+        id: collection.id,
+        name: collection.name,
+        displayName: collection.displayName,
+        slug: collection.slug,
+        route: collection.route,
+        description: collection.description,
+        assets: collection.assets,
+        isUnlisted: collection.isUnlisted,
+      },
       entry: {
         id: entry.id,
         name: entry.name,
+        displayName: entry.displayName,
         description: entry.description,
         slug: entry.slug,
         route: anchor ? `${entry.route ?? ""}#${anchor}` : entry.route,
@@ -324,6 +329,7 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
         collection: {
           id: collection.id,
           name: collection.name,
+          displayName: collection.displayName,
           slug: collection.slug,
           route: collection.route,
           entriesCount: collection.entries.length,
@@ -363,6 +369,7 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
                 collection: {
                   id: collection.id,
                   name: collection.name,
+                  displayName: collection.displayName,
                   slug: collection.slug,
                   route: collection.route,
                   description: collection.description,
@@ -372,6 +379,7 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
                 entry: {
                   id: entry.id,
                   name: entry.name,
+                  displayName: entry.displayName,
                   description: entry.description,
                   slug: entry.slug,
                   route: entry.route,
@@ -387,6 +395,7 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
               collection: {
                 id: collection.id,
                 name: collection.name,
+                displayName: collection.displayName,
                 slug: collection.slug,
                 route: collection.route,
                 entriesCount: collection.entries.length,

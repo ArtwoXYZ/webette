@@ -18,9 +18,9 @@
       <a href="/">← Back to index</a>
     </nav>
 
-    <h3 class="collection-name">Collection: {{collection.name}}</h3>
+    <h3 class="collection-name">Collection: {{displayName collection}}</h3>
     {{#if entry}}
-      <h3 class="entry-name">Entry: {{entry.name}}</h3>
+      <h3 class="entry-name">Entry: {{displayName entry}}</h3>
     {{/if}}
   {{/if}}
 </header>

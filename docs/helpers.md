@@ -29,6 +29,7 @@ Example:
 - `match value pattern [flags]`: return first regex match (or capture group 1).
 - `nl2br value`: convert newlines to `<br>`.
 - `safe value`: mark string as SafeString (no escaping).
+- `displayName [object]`: return `object.displayName` if set, else `object.name` (useful with `name.webt`).
 
 Examples:
 ```hbs
@@ -39,6 +40,9 @@ Examples:
 {{truncate entry.name 12 "..."}}           {{!-- My first po... --}}
 {{truncate "hello world" 8}}               {{!-- hello woâ€¦ --}}
 {{match entry.route "#(.+)$"}}                   {{!-- anchor without # --}}
+{{displayName collection}}                 {{!-- collection.displayName ?? collection.name --}}
+{{displayName entry}}                      {{!-- entry.displayName ?? entry.name --}}
+{{#each entries}}{{displayName}}{{/each}}  {{!-- uses the current context when called with no args --}}
 {{{nl2br collection.description}}}         {{!-- keep line breaks --}}
 {{{safe content.html}}}                    {{!-- inserts HTML as-is --}}
 ```

@@ -139,6 +139,13 @@ A raw text file stored as:
 - `collection.description` when placed at the root of a collection
 - `entry.description` when placed inside an entry folder
 
+## Name (`name.webt`)
+
+A display name stored as:
+
+- `collection.displayName` when placed at the root of a collection
+- `entry.displayName` when placed inside an entry folder
+
 ## Collection assets (`_assets/`)
 
 A special folder at the root of a collection that can contain media files (images/audio/video). These files are processed and exposed as `collection.assets`.

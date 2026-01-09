@@ -272,6 +272,7 @@ async function computeEntryHistory(
     route: entry.route,
     path: entry.path,
     description: entry.description,
+    displayName: entry.displayName,
     isDraft: entry.isDraft,
     isUnlisted: entry.isUnlisted,
     blocks: blocks.map((b) => b.fingerprint),
@@ -308,6 +309,7 @@ async function computeCollectionHistory(
     path: collection.path,
     isUnlisted: collection.isUnlisted,
     description: collection.description,
+    displayName: collection.displayName,
     entries: entries.map((ent) => ent.fingerprint),
   });
 

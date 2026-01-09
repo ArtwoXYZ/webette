@@ -23,6 +23,7 @@ export interface Entry {
   id: string;          // identifier derived from the path
   rawName: string;     // raw folder name
   name: string;        // cleaned name without ordering prefix
+  displayName?: string; // optional title from name.webt (entry-level)
   slug: string;        // slug used for routing
   path: string;        // path relative to the site root
   route?: string;      // route relative to site root (trailing slash)
@@ -39,6 +40,7 @@ export interface Collection {
   id: string;          // identifier derived from the path
   rawName: string;     // raw folder name
   name: string;        // cleaned name
+  displayName?: string; // optional title from name.webt (collection-level)
   slug: string;        // slug used for routing
   path: string;        // path relative to the site root
   route?: string;      // route relative to site root (trailing slash)

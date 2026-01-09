@@ -34,6 +34,7 @@ type RawEntry = {
   isDraft?: boolean;
   isUnlisted?: boolean;
   description?: string;
+  displayName?: string;
 };
 
 type RawCollection = {
@@ -42,6 +43,7 @@ type RawCollection = {
   entries: RawEntry[];
   isUnlisted?: boolean;
   description?: string;
+  displayName?: string;
   assets?: RawBlock[];
 };
 
@@ -134,6 +136,7 @@ async function listEntriesRaw(
     const isDraft = await isDraftEntry(absoluteEntry);
     const isUnlisted = await isUnlistedEntry(absoluteEntry);
     const description = await readDescriptionFile(absoluteEntry);
+    const displayName = await readNameFile(absoluteEntry);
 
     entries.push({
       rawName,
@@ -142,6 +145,7 @@ async function listEntriesRaw(
       ...(isDraft ? { isDraft: true } : {}),
       ...(isUnlisted ? { isUnlisted: true } : {}),
       ...(description ? { description } : {}),
+      ...(displayName ? { displayName } : {}),
     });
   }
 
@@ -178,6 +182,7 @@ async function listCollectionsRaw(
     const absoluteCollection = path.join(rootDir, rawName);
     const isUnlisted = await isUnlistedCollection(absoluteCollection);
     const description = await readDescriptionFile(absoluteCollection);
+    const displayName = await readNameFile(absoluteCollection);
     const assets = await listCollectionAssetsRaw(rootDir, relPath);
     collections.push({
       rawName,
@@ -185,6 +190,7 @@ async function listCollectionsRaw(
       entries: [],
       ...(isUnlisted ? { isUnlisted: true } : {}),
       ...(description ? { description } : {}),
+      ...(displayName ? { displayName } : {}),
       ...(assets.length ? { assets } : {}),
     });
   }
@@ -278,6 +284,7 @@ function enrichEntries(rawEntries: RawEntry[]): Entry[] {
       path: raw.path,
       blocks,
       ...(raw.description ? { description: raw.description } : {}),
+      ...(raw.displayName ? { displayName: raw.displayName } : {}),
       ...(raw.isDraft ? { isDraft: true } : {}),
       ...(raw.isUnlisted ? { isUnlisted: true } : {}),
     };
@@ -331,6 +338,7 @@ function enrichCollections(
       entries: entriesWithUnlisted,
       ...(assets ? { assets } : {}),
       ...(raw.description ? { description: raw.description } : {}),
+      ...(raw.displayName ? { displayName: raw.displayName } : {}),
       ...(isUnlisted ? { isUnlisted: true } : {}),
     };
   });
@@ -379,6 +387,17 @@ async function readDescriptionFile(dir: string): Promise<string | undefined> {
   try {
     const content = await readFile(descriptionPath, "utf8");
     const trimmed = content.trimEnd();
+    return trimmed.length ? trimmed : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+async function readNameFile(dir: string): Promise<string | undefined> {
+  const namePath = path.join(dir, "name.webt");
+  try {
+    const content = await readFile(namePath, "utf8");
+    const trimmed = content.trim();
     return trimmed.length ? trimmed : undefined;
   } catch {
     return undefined;

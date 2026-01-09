@@ -54,6 +54,27 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
   const safeString = (value: unknown) =>
     value == null ? "" : String(value);
 
+  Handlebars.registerHelper("displayName", function (this: unknown, value: unknown, options: any) {
+    const isOptionsOnly =
+      value &&
+      typeof value === "object" &&
+      ("hash" in (value as any) || "loc" in (value as any)) &&
+      options === undefined;
+    const target = isOptionsOnly ? (this as unknown) : value;
+
+    if (!target || typeof target !== "object") return "";
+
+    const obj = target as Record<string, unknown>;
+    const displayName =
+      typeof obj.displayName === "string" && obj.displayName.trim()
+        ? obj.displayName.trim()
+        : undefined;
+    if (displayName) return displayName;
+
+    const name = typeof obj.name === "string" && obj.name.trim() ? obj.name.trim() : undefined;
+    return name ?? "";
+  });
+
   const toNumber = (value: unknown): number | null => {
     if (typeof value === "number" && Number.isFinite(value)) return value;
     const parsed = Number(value);

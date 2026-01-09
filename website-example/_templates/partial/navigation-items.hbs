@@ -5,7 +5,7 @@
     <span class="navigation-heading">{{ title }}</span>
     {{else if (eq kind "collection")}}
     <a href="{{ collection.route }}">
-      {{#if title}}{{ title }}{{else}}{{ collection.name }}{{/if}}
+      {{#if title}}{{ title }}{{else}}{{ displayName collection }}{{/if}}
     </a>
 
     {{#if collection.description}}
@@ -27,10 +27,10 @@
     {{/if}}
     {{else if (eq kind "entry")}}
     <a href="{{ entry.route }}">
-      {{#if title}}{{ title }}{{else}}{{ entry.name }}{{/if}}
+      {{#if title}}{{ title }}{{else}}{{ displayName entry }}{{/if}}
       {{#if (match entry.route "#([^#]+)$")}}, #{{match entry.route "#([^#]+)$"}}{{/if}}
     </a>
-    <span class="navigation-entry-meta">(collection: {{ collection.name }})</span>
+    <span class="navigation-entry-meta">(collection: {{ displayName collection }})</span>
     {{/if}}
 
     {{#if children}}

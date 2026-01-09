@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="{{asset 'css/init.css'}}" />
     <link rel="stylesheet" href="{{asset 'css/style.css'}}" />
     <title>
-      {{#if entry}}{{entry.name}} - {{site.title}}{{else}}{{site.title}}{{/if}}
+      {{#if entry}}{{displayName entry}} - {{site.title}}{{else}}{{site.title}}{{/if}}
     </title>
   </head>
   <body>
