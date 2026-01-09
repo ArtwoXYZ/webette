@@ -11,7 +11,7 @@ The plan is to use **remark/unified internally**, while exposing a **simple, Web
 
 - Webette uses **unified + remark-parse** under the hood.
 - This logic lives in:
-  `core/markdown/processor.ts`
+  `src/core/block-types/markdown/processor.ts`
 - Public API is intentionally minimal:
 
 ```ts
@@ -115,13 +115,23 @@ After the site model is resolved, Webette rewrites custom internal URLs in Markd
 - Collection index: `[All posts](collection: posts)`
 - Entry (collection implied): `[My first post](entry: my first post)`
 - Entry with explicit collection: `[My first post](collection: posts, entry: my first post)`
+- With link attributes: `[Open](entry: my first post, class: button, id: cta, title: "Read more", aria-label: "Read the full post")`
 - Image block in the same entry: `![Nebula](block: The GREAT NEBULA in ORION.jpg)`
 - Image block in another entry: `![Stars](collection: posts, entry: my second post, block: Stars Whose Distances Are Best Known.jpg)`
 
 Rules:
 - Prefixes accepted: `collection:`/`coll:`, `entry:`, `block:`.
 - Names match slug, id, name, or raw filename without numeric prefixes; spaces are normalized/decoded.
+- Options after the target are applied as link attributes when the target resolves: `class`/`id`/`title`/`target`/`rel`/`download`, plus `data-*` and `aria-*` passthrough.
 - Unresolved targets emit warning `markdown.internalLink.unresolved`.
+
+## External links with options (url:)
+
+When you need external links with the same “options” syntax as internal links, use `url:` (or `href:`):
+
+- Basic: `[Webette](url: https://webette.dev)`
+- With attributes: `[Open](url: https://example.com, class: button, id: cta, title: "Read more", aria-label: "Read the full post")`
+- Defaults: when no `target` is provided, Webette sets `target="_blank"` and `rel="noopener noreferrer"` (you can override `target`/`rel` explicitly).
 
 ## Internal images (block: in Markdown)
 
@@ -134,6 +144,13 @@ Notes:
 - Image options align with the template helper (`variant`, `class`, `id`, `sizes`, `loading`, `figure`, etc.).
 - When an image block is rendered inline, its block gets `content.meta.renderedInline = true` so templates can skip duplicate rendering.
 - Raw HTML output is enabled in the Markdown pipeline to allow `<img>/<figure>` injection.
+
+## External images with options (url:)
+
+For images, `url:` lets you reuse the same options syntax (class, figure/caption, data-*…) with an external `src`:
+
+- `![Logo](url: https://example.com/logo.png, class: hero)`
+- `![Hero](url: https://example.com/cover.jpg, figure: true, caption: "Cover")`
 
 ---
 

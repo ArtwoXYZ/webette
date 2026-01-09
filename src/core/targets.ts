@@ -3,13 +3,14 @@
  */
 
 import * as path from "node:path";
-import type { Collection, Entry, Site, Block } from "../model";
-import { cleanName, slugify } from "../../utils/naming";
+import type { Collection, Entry, Site, Block } from "./model";
+import { cleanName, slugify } from "../utils/naming";
 
 export type ParsedTarget =
   | { kind: "collection"; collectionName: string }
   | { kind: "entry"; collectionName?: string; entryName: string }
-  | { kind: "block"; collectionName?: string; entryName?: string; blockName: string };
+  | { kind: "block"; collectionName?: string; entryName?: string; blockName: string }
+  | { kind: "url"; url: string };
 
 // Parsed internal reference with optional extra options (e.g. variant).
 export type ParsedInternal = {
@@ -35,10 +36,11 @@ function normalizeName(value: unknown): string {
 }
 
 // Only keep the explicit keys we support (collection has "coll" alias).
-function normalizeTargetKey(raw: string): "collection" | "entry" | "block" | undefined {
+function normalizeTargetKey(raw: string): "collection" | "entry" | "block" | "url" | undefined {
   if (raw === "collection" || raw === "coll") return "collection";
   if (raw === "entry") return "entry";
   if (raw === "block") return "block";
+  if (raw === "url" || raw === "href") return "url";
   return undefined;
 }
 
@@ -48,26 +50,24 @@ export function parseInternalReference(rawUrl: string): ParsedInternal | null {
   if (!trimmed) return null;
 
   const splitSegments = (raw: string): string[] => {
-    const keys = ["collection", "coll", "entry", "block"];
+    const looksLikeKeyAt = (pos: number): boolean => {
+      let end = pos;
+      while (end < raw.length && /[A-Za-z0-9_-]/.test(raw[end] ?? "")) end += 1;
+      if (end === pos) return false;
+      while (end < raw.length && /\s/.test(raw[end] ?? "")) end += 1;
+      return raw[end] === ":";
+    };
+
     const result: string[] = [];
     let start = 0;
     for (let i = 0; i < raw.length; i += 1) {
       if (raw[i] !== ",") continue;
       let j = i + 1;
       while (j < raw.length && /\s/.test(raw[j] ?? "")) j += 1;
-      let matched = false;
-      for (const key of keys) {
-        const slice = raw.slice(j, j + key.length);
-        const after = raw[j + key.length];
-        if (slice.toLowerCase() === key && after === ":") {
-          const segment = raw.slice(start, i).trim();
-          if (segment) result.push(segment);
-          start = j;
-          matched = true;
-          break;
-        }
-      }
-      if (matched) {
+      if (looksLikeKeyAt(j)) {
+        const segment = raw.slice(start, i).trim();
+        if (segment) result.push(segment);
+        start = j;
         i = j - 1;
       }
     }
@@ -94,9 +94,10 @@ export function parseInternalReference(rawUrl: string): ParsedInternal | null {
     const [rawKey, ...rest] = seg.split(":");
     if (!rawKey || rest.length === 0) continue;
     const key = rawKey.trim().toLowerCase();
-    const value = decodeValue(rest.join(":").trim());
-    if (!value) continue;
+    const rawValue = rest.join(":").trim();
     const targetKey = normalizeTargetKey(key);
+    const value = targetKey === "url" ? rawValue : decodeValue(rawValue);
+    if (!value) continue;
     if (targetKey) {
       if (targetKey === "entry") {
         const split = splitAnchor(value);
@@ -106,17 +107,18 @@ export function parseInternalReference(rawUrl: string): ParsedInternal | null {
         data[targetKey] = value;
       }
     } else {
-      options[key] = value;
+      options[key] = decodeValue(rawValue);
     }
   }
 
   if (Object.keys(data).length === 0) {
     const lower = trimmed.toLowerCase();
-    const prefixes = ["collection:", "coll:", "entry:", "block:"] as const;
+    const prefixes = ["collection:", "coll:", "entry:", "block:", "url:", "href:"] as const;
     const match = prefixes.find((prefix) => lower.startsWith(prefix));
     if (match) {
       const key = normalizeTargetKey(match.replace(":", ""))!;
-      const value = decodeValue(trimmed.slice(match.length).trim());
+      const rawValue = trimmed.slice(match.length).trim();
+      const value = key === "url" ? rawValue : decodeValue(rawValue);
       if (value) {
         if (key === "entry") {
           const split = splitAnchor(value);
@@ -130,7 +132,9 @@ export function parseInternalReference(rawUrl: string): ParsedInternal | null {
   }
 
   let target: ParsedTarget | null = null;
-  if (data.block) {
+  if (data.url) {
+    target = { kind: "url", url: data.url };
+  } else if (data.block) {
     target = {
       kind: "block",
       collectionName: data.collection,

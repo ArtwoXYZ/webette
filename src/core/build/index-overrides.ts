@@ -6,7 +6,7 @@
 
 import type { Logger } from "../../logging/logger";
 import type { Collection, Entry, Site } from "../model";
-import { matchCollection, matchEntry } from "../postprocess/internal-targets";
+import { matchCollection, matchEntry } from "../targets";
 
 export type IndexEntryRef = { collection: string; entry: string };
 

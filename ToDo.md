@@ -41,7 +41,7 @@
 - **EN COURS** - commencer un site webette pour la documentation webette
 - ~~Transformer "collection-description.webt" en "description.webt" et l'étendre aux entrées~~
 - ~~Ajouter "name.webt" pour les entrées et les collections (ça ne casse pas le slug), on pourrait créer un helper {{displayName entry}} et {{displayName collection}}~~
-- Possibilité de pouvoir faire des boutons ? En Markdown ?
+- ~~Possibilité de pouvoir faire des boutons ? En Markdown ?~~
 - Plugin webette de TOC (sommaire, table des matières)
 - Refaire tout le système de sitemap pour essayer de refléter parfaitement les liens entre les pages dans le site exportés (par exemple, si une entry est unlisted mais qu'un lien pointe vers elle sur le site, il faut que la page soit visible dans le sitemap)
 - Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)

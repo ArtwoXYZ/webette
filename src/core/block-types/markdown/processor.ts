@@ -44,26 +44,24 @@ export async function parseMarkdownToAst(
   remarkPlugins: unknown[] = []
 ): Promise<MarkdownAst> {
   const splitInternalSegments = (raw: string): string[] => {
-    const keys = ["collection", "coll", "entry", "block"];
+    const looksLikeKeyAt = (pos: number): boolean => {
+      let end = pos;
+      while (end < raw.length && /[A-Za-z0-9_-]/.test(raw[end] ?? "")) end += 1;
+      if (end === pos) return false;
+      while (end < raw.length && /\s/.test(raw[end] ?? "")) end += 1;
+      return raw[end] === ":";
+    };
+
     const result: string[] = [];
     let start = 0;
     for (let i = 0; i < raw.length; i += 1) {
       if (raw[i] !== ",") continue;
       let j = i + 1;
       while (j < raw.length && /\s/.test(raw[j] ?? "")) j += 1;
-      let matched = false;
-      for (const key of keys) {
-        const slice = raw.slice(j, j + key.length);
-        const after = raw[j + key.length];
-        if (slice.toLowerCase() === key && after === ":") {
-          const segment = raw.slice(start, i).trim();
-          if (segment) result.push(segment);
-          start = j;
-          matched = true;
-          break;
-        }
-      }
-      if (matched) {
+      if (looksLikeKeyAt(j)) {
+        const segment = raw.slice(start, i).trim();
+        if (segment) result.push(segment);
+        start = j;
         i = j - 1;
       }
     }
@@ -76,7 +74,7 @@ export async function parseMarkdownToAst(
   // - remove spaces around separators
   // - percent-encode spaces inside values (collection/entry/block names)
   const sanitized = source.replace(
-    /\(\s*(collection|coll|entry|block)\s*:\s*([^)\n]+)\)/gi,
+    /\(\s*(collection|coll|entry|block|url|href)\s*:\s*([^)\n]+)\)/gi,
     (_, kind, rest) => {
       const encodeValue = (val: string) => val.trim().replace(/\s+/g, "%20");
       const pieces = splitInternalSegments(rest);
@@ -87,7 +85,9 @@ export async function parseMarkdownToAst(
       }
 
       // The first segment belongs to the first key captured in the regex.
-      const mainKey = kind.toLowerCase() === "coll" ? "collection" : kind.toLowerCase();
+      const lowerKind = kind.toLowerCase();
+      const mainKey =
+        lowerKind === "coll" ? "collection" : lowerKind === "href" ? "url" : lowerKind;
       normalized.push(`${mainKey}:${encodeValue(pieces[0] ?? "")}`);
 
       // The remaining segments can declare other keys (entry, block, etc.).
@@ -126,6 +126,10 @@ export async function renderMarkdownToHtml(
       processor.use(externalLinks as any, {
         target: "_blank",
         rel: ["noopener", "noreferrer"],
+        test: (node: any) => {
+          const props = (node && typeof node === "object" ? (node as any).properties : null) ?? {};
+          return props["data-webt-md-custom"] !== "1";
+        },
       });
     } catch {
       // plugin not installed or failed to load; skip silently

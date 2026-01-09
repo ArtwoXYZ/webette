@@ -11,7 +11,7 @@ import {
   matchBlock,
   matchCollection,
   matchEntry,
-} from "./internal-targets";
+} from "../targets";
 import {
   buildImageHtml,
   normalizeVariantName,
@@ -89,6 +89,47 @@ function pickImageOptions(
   };
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function buildExternalImageHtml(
+  url: string,
+  options: ReturnType<typeof pickImageOptions>
+): string {
+  const attrs: string[] = [];
+  attrs.push(`src="${escapeHtml(url)}"`);
+  attrs.push(`alt="${escapeHtml(options.alt ?? "")}"`);
+
+  if (options.title) attrs.push(`title="${escapeHtml(options.title)}"`);
+  if (options.className) attrs.push(`class="${escapeHtml(options.className)}"`);
+  if (options.id) attrs.push(`id="${escapeHtml(options.id)}"`);
+  if (options.loading) attrs.push(`loading="${escapeHtml(options.loading)}"`);
+  if (options.decoding) attrs.push(`decoding="${escapeHtml(options.decoding)}"`);
+  if (options.sizes) attrs.push(`sizes="${escapeHtml(options.sizes)}"`);
+
+  if (options.data) {
+    for (const [key, value] of Object.entries(options.data)) {
+      if (!key) continue;
+      attrs.push(`${escapeHtml(key)}="${escapeHtml(value)}"`);
+    }
+  }
+
+  const img = `<img ${attrs.join(" ")}>`;
+
+  if (!options.figure) return img;
+
+  const figCaption = options.caption
+    ? `<figcaption class="${markdownClassName}">${escapeHtml(options.caption)}</figcaption>`
+    : "";
+  return `<figure class="${escapeHtml(options.figureClass)}">${img}${figCaption}</figure>`;
+}
+
 function isParent(node: MdastNode): node is ParentNode {
   return Array.isArray((node as ParentNode).children);
 }
@@ -155,6 +196,11 @@ export async function rewriteInternalImages(options: {
                               : undefined;
                           blockTarget = ent ? matchBlock(ent, parsed.target.blockName) : undefined;
                           targetRoute = blockTarget?.route;
+                        } else if (parsed.target.kind === "url") {
+                          const imageOptions = pickImageOptions(parsed.options, node.alt);
+                          const html = buildExternalImageHtml(parsed.target.url, imageOptions);
+                          didChange = true;
+                          return { type: "html", value: html } as MdastHtml;
                         }
 
                         if (isImageNode(node) && isImageBlock(blockTarget) && targetRoute) {

@@ -7,7 +7,7 @@ import * as path from "node:path";
 import type { Resolver } from "../registry";
 import type { Block } from "../../model";
 import { slugify } from "../../../utils/naming";
-import { matchCollection, matchEntry } from "../../postprocess/internal-targets";
+import { matchCollection, matchEntry } from "../../targets";
 
 function parseNavigationNameLine(rawLine: string): string | null {
   const trimmed = rawLine.trim();

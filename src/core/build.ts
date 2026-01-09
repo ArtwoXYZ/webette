@@ -24,11 +24,11 @@ import {
   runTransformEntry,
 } from "../plugins/runner";
 import type { PluginContext } from "../plugins/types";
-import { rewriteInternalLinks } from "./postprocess/internal-links";
-import { rewriteInternalImages } from "./postprocess/internal-images";
+import { rewriteInternalLinks } from "./postprocess/markdown-links";
+import { rewriteInternalImages } from "./postprocess/markdown-images";
 import { writeSitemap } from "./sitemap";
 import { resolveTemplatesConfig } from "./templates/config";
-import { matchCollection } from "./postprocess/internal-targets";
+import { matchCollection } from "./targets";
 import { copyDirectory, writeIfChanged as writeIfChangedFs } from "../utils/fs";
 import { resolveCollectionAssets } from "./build/collection-assets";
 import { countDraftEntries, filterDraftEntries, listDraftEntries } from "./build/drafts";

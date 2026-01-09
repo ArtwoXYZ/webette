@@ -224,6 +224,21 @@ footer {
   padding-top: 12px;
 }
 
+a.webt-md.button {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #111111;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+a.webt-md.button:hover {
+  background: #2a2a2a;
+  color: #ffffff;
+}
+
 @media (max-width: 720px) {
   body {
     padding: 16px;
