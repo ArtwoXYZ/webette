@@ -32,19 +32,16 @@ export default {
     },
     default: {
       wrapper: "wrapper/wrapper.hbs",
-      layout: "layout/post.hbs",
+      layout: "layout/entry.hbs",
       index: "layout/index.hbs",
       notFound: "layout/not-found.hbs",
       accessForbidden: "layout/access-forbidden.hbs",
     },
     custom: {
-      index: {
-        collection: {
-          posts: "layout/index-posts.hbs",
-        },
-      },
       entry: {
         "pages/welcome": "layout/welcome.hbs",
+        // Playground: fill this in to enable the custom layout for that one entry.
+        "playground/custom-layout-for-an-entry": "",
       },
     },
   },

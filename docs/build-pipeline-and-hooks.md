@@ -219,6 +219,8 @@ Helpers:
 - `renderLayout <name>`: pick a layout by name, fallback to `templates.default.layout`.
 - Helpers: see `docs/helpers.md`.
 
+Template context is also enriched at render time with a few derived values that are not part of the persisted model export, such as `prevEntry` / `nextEntry` for entry page navigation (see `docs/templates.md`).
+
 ## 13. HTML post-processing
 
 After rendering, plugins or the core may adjust the output:

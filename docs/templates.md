@@ -24,6 +24,8 @@ Every render gets the full model plus handy aliases:
 - `collection`: the current entry's collection (when rendering an entry)
 - `entry`: the current entry
 - `blocks`: renderable blocks (filters out `skipRender` blocks)
+- `prevEntry`: previous visible entry within the same collection (computed at render time; omitted when none)
+- `nextEntry`: next visible entry within the same collection (computed at render time; omitted when none)
 - `entry.isDraft`: `true` when the entry folder contains `draft.webt` (visible in `serve` by default; stripped from `build` output)
 - `block.content.meta.renderedInline`: `true` when a block is rendered inline in Markdown (e.g. internal image targets)
 - `liveReloadScript`: raw script injected during `serve` (use `{{{liveReloadScript}}}`)
@@ -31,6 +33,35 @@ Every render gets the full model plus handy aliases:
 - `templates.assetsBase`: base public path for template assets (only when `templates.assets` is configured)
 
 Routes in the model are root-relative (e.g. `/assets/images/...`), so they work from any entry page.
+
+### Prev/next entry navigation
+
+`prevEntry` and `nextEntry` are derived from the current collection order and follow Webette visibility rules:
+
+- Unlisted entries are skipped.
+- Draft entries are skipped when drafts are excluded (`build` always excludes drafts; `serve` can include them).
+
+Both objects are small references:
+
+```ts
+type EntryNavRef = {
+  id: string;
+  name: string;
+  displayName?: string;
+  route: string;
+};
+```
+
+Example (layout):
+
+```hbs
+{{#if prevEntry}}
+  <a href="{{prevEntry.route}}">← {{displayName prevEntry}}</a>
+{{/if}}
+{{#if nextEntry}}
+  <a href="{{nextEntry.route}}">{{displayName nextEntry}} →</a>
+{{/if}}
+```
 
 ## Default wrapper + layout
 

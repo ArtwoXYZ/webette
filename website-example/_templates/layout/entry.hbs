@@ -1,0 +1,58 @@
+{{> header}}
+
+<main>
+  <article>
+    {{#if entry.isDraft}}
+      <p class="draft-badge">Draft (unpublished)</p>
+    {{/if}}
+
+    {{#each blocks}}
+      {{#if (eq type "markdown")}}
+        {{{safe content.html}}}
+      {{else if (eq type "text")}}
+        <pre>{{content.raw}}</pre>
+      {{else if (eq type "image")}}
+        {{#unless content.meta.renderedInline}}
+          {{image this figure=true caption=name class="my-class"}}
+        {{/unless}}
+      {{else if (eq type "audio")}}
+        <audio controls src="{{route}}"></audio>
+      {{else if (eq type "video")}}
+        <video controls src="{{route}}"></video>
+      {{else if (eq type "navigation")}}
+        {{#if content.data.items}}
+          <section class="navigation">
+            {{#if content.data.name}}
+              <h2 class="navigation-title">{{content.data.name}}</h2>
+            {{/if}}
+
+            {{> navigation-items items=content.data.items}}
+          </section>
+        {{/if}}
+      {{/if}}
+    {{/each}}
+
+    {{#if entry.pluginNote}}
+      <p>
+        Plugin: <em>{{entry.pluginNote}}</em>
+      </p>
+    {{/if}}
+
+    {{#if prevEntry}}
+      <nav class="prev-next">
+        <a class="prev-next-link prev" href="{{prevEntry.route}}">← {{displayName prevEntry}}</a>
+        {{#if nextEntry}}
+          <a class="prev-next-link next" href="{{nextEntry.route}}">{{displayName nextEntry}} →</a>
+        {{/if}}
+      </nav>
+    {{else}}
+      {{#if nextEntry}}
+        <nav class="prev-next">
+          <a class="prev-next-link next" href="{{nextEntry.route}}">{{displayName nextEntry}} →</a>
+        </nav>
+      {{/if}}
+    {{/if}}
+  </article>
+</main>
+
+{{> footer}}

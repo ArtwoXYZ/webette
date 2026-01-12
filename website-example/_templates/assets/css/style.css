@@ -207,6 +207,27 @@ figure {
   margin-left: 6px;
 }
 
+.prev-next {
+  margin-top: 16px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  gap: 12px;
+}
+
+.prev-next-link {
+  text-decoration: none;
+}
+
+.prev-next-link:hover {
+  text-decoration: underline;
+}
+
+.prev-next-link.next {
+  margin-left: auto;
+  text-align: right;
+}
+
 .collection-description {
   color: var(--muted);
   font-size: 13px;
@@ -222,6 +243,22 @@ footer {
   font-size: 12px;
   border-top: 1px solid var(--border);
   padding-top: 12px;
+}
+
+.site-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.site-footer-left p,
+.site-footer-right p {
+  margin: 0;
+}
+
+.site-footer-right {
+  text-align: right;
 }
 
 a.webt-md.button {

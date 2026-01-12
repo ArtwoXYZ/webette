@@ -116,10 +116,12 @@ q:before {
 
 strong {
     font-weight: 700;
+    font-style: inherit;
 }
 
 em {
     font-style: italic;
+    font-weight: inherit;
 }
 
 code,

@@ -643,6 +643,7 @@ export async function build(
     dirsToCover: protectedDirs,
     siteTitle: resolvedSiteWithHistory.site.title,
     siteLang: resolvedSiteWithHistory.site.lang,
+    assetsBase,
     accessForbiddenLayoutName,
     templateRenderer,
     formatHtml,

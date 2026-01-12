@@ -11,6 +11,7 @@ import type { WebetteEnv } from "../../config/env";
 import type { Collection, Entry, Site, Block } from "../model";
 import { resolveTemplatesRoots } from "../template";
 import { createTemplateFileResolver } from "../templates/resolve-file";
+import { getPrevNextEntry } from "./prev-next";
 
 type TemplateRenderer = {
   render: (context: Record<string, unknown>) => string;
@@ -150,12 +151,20 @@ export async function renderSite(options: {
   ): Promise<boolean> => {
     const renderableBlocks = filterRenderableBlocks(entry.blocks);
     const layoutName = await pickEntryLayoutName(entry, collection);
+    const { prevEntry, nextEntry } = getPrevNextEntry({
+      site,
+      entry,
+      renderCollection: collection,
+      includeDrafts,
+    });
     const context = {
       ...renderBaseContext,
       layoutName,
       ...(collection ? { collection } : {}),
       entry,
       blocks: renderableBlocks,
+      ...(prevEntry ? { prevEntry } : {}),
+      ...(nextEntry ? { nextEntry } : {}),
     };
 
     const html = templateRenderer.render(context);

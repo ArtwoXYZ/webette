@@ -70,37 +70,169 @@ export async function parseMarkdownToAst(
     return result;
   };
 
+  const sanitizeInternalTargetsOutsideCode = (input: string): string => {
+    const sanitizeChunk = (chunk: string): string =>
+      chunk.replace(
+        /\(\s*(collection|coll|entry|block|url|href)\s*:\s*([^)\n]+)\)/gi,
+        (_, kind, rest) => {
+          const encodeValue = (val: string) => val.trim().replace(/\s+/g, "%20");
+          const pieces = splitInternalSegments(rest);
+          const normalized: string[] = [];
+
+          if (pieces.length === 0) {
+            return `(${kind.toLowerCase()}:)`;
+          }
+
+          // The first segment belongs to the first key captured in the regex.
+          const lowerKind = kind.toLowerCase();
+          const mainKey =
+            lowerKind === "coll" ? "collection" : lowerKind === "href" ? "url" : lowerKind;
+          normalized.push(`${mainKey}:${encodeValue(pieces[0] ?? "")}`);
+
+          // The remaining segments can declare other keys (entry, block, etc.).
+          for (const piece of pieces.slice(1)) {
+            const [k, ...vParts] = piece.split(":");
+            if (!k || vParts.length === 0) continue;
+            const value = encodeValue(vParts.join(":"));
+            normalized.push(`${k.trim().toLowerCase()}:${value}`);
+          }
+
+          return `(${normalized.join(",")})`;
+        }
+      );
+
+    let out = "";
+    let buffer = "";
+
+    let inFence = false;
+    let fenceChar: "`" | "~" | "" = "";
+    let fenceLen = 0;
+
+    let inCodeSpan = false;
+    let codeSpanLen = 0;
+
+    const flush = () => {
+      if (!buffer) return;
+      out += sanitizeChunk(buffer);
+      buffer = "";
+    };
+
+    const isFenceChar = (ch: string) => ch === "`" || ch === "~";
+
+    const isFenceLineStartAt = (pos: number) => {
+      // CommonMark: up to 3 leading spaces allowed before a fence.
+      let i = pos;
+      let spaces = 0;
+      while (i < input.length && input[i] === " " && spaces < 3) {
+        i += 1;
+        spaces += 1;
+      }
+
+      const ch = input[i] ?? "";
+      if (!isFenceChar(ch)) return null;
+
+      let run = 0;
+      while (i + run < input.length && input[i + run] === ch) run += 1;
+      if (run < 3) return null;
+
+      return { start: pos, markerPos: i, ch: ch as "`" | "~", run };
+    };
+
+    const readLineEnd = (pos: number) => {
+      const idx = input.indexOf("\n", pos);
+      return idx === -1 ? input.length : idx + 1;
+    };
+
+    let atLineStart = true;
+
+    for (let i = 0; i < input.length; ) {
+      if (inFence && atLineStart && !inCodeSpan) {
+        const fence = isFenceLineStartAt(i);
+        const lineEnd = readLineEnd(i);
+        if (fence && fence.ch === fenceChar && fence.run >= fenceLen) {
+          // Closing fence line.
+          out += input.slice(i, lineEnd);
+          i = lineEnd;
+          atLineStart = true;
+          inFence = false;
+          fenceChar = "";
+          fenceLen = 0;
+          continue;
+        }
+
+        // Inside fence: copy whole line as-is.
+        out += input.slice(i, lineEnd);
+        i = lineEnd;
+        atLineStart = true;
+        continue;
+      }
+
+      if (!inFence && atLineStart && !inCodeSpan) {
+        const fence = isFenceLineStartAt(i);
+        if (fence) {
+          // Opening fence line: flush normal text and copy whole line as-is.
+          flush();
+          const lineEnd = readLineEnd(i);
+          out += input.slice(i, lineEnd);
+          i = lineEnd;
+          atLineStart = true;
+          inFence = true;
+          fenceChar = fence.ch;
+          fenceLen = fence.run;
+          continue;
+        }
+      }
+
+      const ch = input[i] ?? "";
+
+      if (!inFence && ch === "`") {
+        let run = 1;
+        while (i + run < input.length && input[i + run] === "`") run += 1;
+
+        if (!inCodeSpan) {
+          flush();
+          out += "`".repeat(run);
+          inCodeSpan = true;
+          codeSpanLen = run;
+          i += run;
+          atLineStart = false;
+          continue;
+        }
+
+        if (run === codeSpanLen) {
+          out += "`".repeat(run);
+          inCodeSpan = false;
+          codeSpanLen = 0;
+          i += run;
+          atLineStart = false;
+          continue;
+        }
+
+        // Backticks inside a code span, but not the closing delimiter.
+        out += "`".repeat(run);
+        i += run;
+        atLineStart = false;
+        continue;
+      }
+
+      if (inCodeSpan) {
+        out += ch;
+      } else {
+        buffer += ch;
+      }
+
+      i += 1;
+      atLineStart = ch === "\n";
+    }
+
+    flush();
+    return out;
+  };
+
   // Normalize internal-link URLs so Markdown parses them as real links:
   // - remove spaces around separators
   // - percent-encode spaces inside values (collection/entry/block names)
-  const sanitized = source.replace(
-    /\(\s*(collection|coll|entry|block|url|href)\s*:\s*([^)\n]+)\)/gi,
-    (_, kind, rest) => {
-      const encodeValue = (val: string) => val.trim().replace(/\s+/g, "%20");
-      const pieces = splitInternalSegments(rest);
-      const normalized: string[] = [];
-
-      if (pieces.length === 0) {
-        return `(${kind.toLowerCase()}:)`;
-      }
-
-      // The first segment belongs to the first key captured in the regex.
-      const lowerKind = kind.toLowerCase();
-      const mainKey =
-        lowerKind === "coll" ? "collection" : lowerKind === "href" ? "url" : lowerKind;
-      normalized.push(`${mainKey}:${encodeValue(pieces[0] ?? "")}`);
-
-      // The remaining segments can declare other keys (entry, block, etc.).
-      for (const piece of pieces.slice(1)) {
-        const [k, ...vParts] = piece.split(":");
-        if (!k || vParts.length === 0) continue;
-        const value = encodeValue(vParts.join(":"));
-        normalized.push(`${k.trim().toLowerCase()}:${value}`);
-      }
-
-      return `(${normalized.join(",")})`;
-    }
-  );
+  const sanitized = sanitizeInternalTargetsOutsideCode(source);
   // Parse Markdown source into mdast and run remark plugins
   const processor = createMarkdownProcessor(remarkPlugins);
   const tree = processor.parse(sanitized);

@@ -16,9 +16,6 @@
 - ~~ajouter un mode brouillon : ajoute un parametre isDraft sur les entrée. Si serve : rendu (ajouté dans le template une info "brouillon"), si Build ignoré complétement, même pas dans le model ou quoi.~~
 - ~~Sitemap generator~~
 - ~~prévoire un helper pour les images~~
-- **EN COURS** - refaire entièrement le website-example pour montrer toutes les capacités actuelles de webette et faire un truc propre
-  - ~~virer les layouts inutiles et vérifier si ça prend encore les templates par défaut si on en enlève~~
-  - ~~refaire le webette.config.ts pour que ça prenne bien en compte les paramètres de template avec le dossier \_templates~~
 - ~~dans "\_templates", prévoir l'ajout d'un dossier "assets" pour les images, video, audio... et aussi le css et le js par exemple~~
 - ~~Prévoir des classes pour les rendus markdown "md image", "md link", etc.~~
 - ~~Liens vers sites extérieurs des markdown vers nouvel onglet (prévoir une option à paramétrer dans la config du site)~~
@@ -38,19 +35,39 @@
 - ~~Ajouter l'indentation des items dans le block navigation~~
 - ~~Pourquoi VSCode me remet les pages de templates en HTML pour le Language Mode alors que je spécifie Handlebars ? Comment forcer Handlebars~~
 - ~~Pouvoir spécifier un template pour une entrée~~
-- **EN COURS** - commencer un site webette pour la documentation webette
 - ~~Transformer "collection-description.webt" en "description.webt" et l'étendre aux entrées~~
 - ~~Ajouter "name.webt" pour les entrées et les collections (ça ne casse pas le slug), on pourrait créer un helper {{displayName entry}} et {{displayName collection}}~~
 - ~~Possibilité de pouvoir faire des boutons ? En Markdown ?~~
-- Plugin webette de TOC (sommaire, table des matières)
-- Refaire tout le système de sitemap pour essayer de refléter parfaitement les liens entre les pages dans le site exportés (par exemple, si une entry est unlisted mais qu'un lien pointe vers elle sur le site, il faut que la page soit visible dans le sitemap)
+- ~~Simplifier encore le site de démo : privilégier la doc pour les features et tout~~
+- ~~Support Bold + Italic md~~
+- **EN COURS** - commencer un site webette pour la documentation webette
+- **EN COURS** - refaire entièrement le website-example pour montrer toutes les capacités actuelles de webette et faire un truc propre
+  - ~~virer les layouts inutiles et vérifier si ça prend encore les templates par défaut si on en enlève~~
+  - ~~refaire le webette.config.ts pour que ça prenne bien en compte les paramètres de template avec le dossier \_templates~~
+  - Design
+- Pour le markdown, tester avec le cheatsheet markdown qu'on trouve sur github pour voir si tout fonctionne.
 - Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)
 - Peut-être retirer complétement les templates du tool (pas utiles, il faut créer des templates pour son site et puis c'est tout) ?
+- intégrer Standard.site (Lexicon ATproto) ?
+- Permettre de changer l'ordre ascendant par déscendant
+- Permettre de trier les entrées par date de création ?
+- CHANGER LES LIENS DU SITE DE DEMO (quand la doc sera en ligne) :
+  - https://docs.webette.org/markdown (website-example/01 Playground/02 Edit your text/01 edit.md:35)
+  - https://docs.webette.org/blocks/navigation (website-example/01 Playground/05 Add a Link/01 link.md:63)
+  - https://docs.webette.org/images/variants (website-example/01 Playground/06 Insert an image inline/02 inline.md:39)
+  - https://docs.webette.org (website-example/01 Playground/11 Go Further/01 go-further.md:21)
+  - https://store.webette.org/starters (website-example/01 Playground/11 Go Further/01 go-further.md:24)
+  - https://store.webette.org/plugins (website-example/01 Playground/11 Go Further/01 go-further.md:27)
+  - https://webette.org/showcase (website-example/01 Playground/11 Go Further/01 go-further.md:30)
+  - https://webette.org/donate (website-example/01 Playground/11 Go Further/01 go-further.md:33)
+- Ajouter navigation.webt : auto list d'une collection (ses entrées), possibilité d'enlever le nom de la collection
+
 - Plugin de flux RSS
 - Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)
 - Plugin : Ajouter un moyen à l'utilisateur de changer la date de son entrée grâce à un fichier created.webt et un autre fichier updated.webt si le user veux contrôlé ça. Je ne vois cette feature utile que dans les entrées
+- Plugin webette de TOC (sommaire, table des matières)
 
-## Site d'exemple, remake :
+## Trucs pour la doc :
 Structure et ce qu'il faut mettre dans chaque page :
 
 - `01 Concept`
@@ -69,10 +86,3 @@ Structure et ce qu'il faut mettre dans chaque page :
   - `07 Plugins` : hooks, enrich, prune/expected, plugin demo, Lien vers la section "lien vers les plugins"
   - `08 Template and Layouts` : wrapper/layout, fallback, overrides, helpers, assets, lien vers la section "lien vers les Starters"
   - `09 Sitemap and servers config` : sitemap, config ngnix, htaccess
-
-
-- `03 Credits`
-  - `Credits for this website and webette` : crédits, licences, sources
-
-- `10 Example Unlisted`
-  - `Hello, I'm Unlisted` : page cachée, routable
