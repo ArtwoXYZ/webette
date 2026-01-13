@@ -1,45 +1,29 @@
-{{> header}}
-
 <main>
-  <article>
-    <p class="draft-badge">Special layout: <strong>Welcome Page</strong></p>
-
-    {{#if entry.isDraft}}
-      <p class="draft-badge">Draft (unpublished)</p>
-    {{/if}}
-
-    {{#each blocks}}
-      {{#if (eq type "markdown")}}
+  {{#each blocks}}
+    {{#if (eq type "markdown")}}
+      <section class="markdown">
         {{{safe content.html}}}
-      {{else if (eq type "text")}}
-        <pre>{{content.raw}}</pre>
-      {{else if (eq type "image")}}
-        {{#unless content.meta.renderedInline}}
-          {{image this figure=true caption=name class="my-class"}}
-        {{/unless}}
-      {{else if (eq type "audio")}}
-        <audio controls src="{{route}}"></audio>
-      {{else if (eq type "video")}}
-        <video controls src="{{route}}"></video>
-      {{else if (eq type "navigation")}}
-        {{#if content.data.items}}
-          <section class="navigation">
-            {{#if content.data.name}}
-              <h2 class="navigation-title">{{content.data.name}}</h2>
-            {{/if}}
+      </section>
+    {{else if (eq type "image")}}
+      {{#unless content.meta.renderedInline}}
+      <section class="image">
+        {{image this alt="bebette, the webette mascot" class="webette-logo-welcome"}}
+        <hr>
+        <h1>webette</h1>
+      </section>
+      {{/unless}}
+    {{else if (eq type "navigation")}}
+      {{#if content.data.items}}
+        <section class="navigation">
+          {{#if content.data.name}}
+            <h2 class="navigation-title">{{content.data.name}}</h2>
+          {{/if}}
 
-            {{> navigation-items items=content.data.items}}
-          </section>
-        {{/if}}
+          {{> navigation-items items=content.data.items}}
+        </section>
       {{/if}}
-    {{/each}}
-
-    {{#if entry.pluginNote}}
-      <p>
-        Plugin: <em>{{entry.pluginNote}}</em>
-      </p>
     {{/if}}
-  </article>
+  {{/each}}
 </main>
 
 {{> footer}}

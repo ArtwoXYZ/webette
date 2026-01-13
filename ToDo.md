@@ -61,6 +61,7 @@
   - https://webette.org/showcase (website-example/01 Playground/11 Go Further/01 go-further.md:30)
   - https://webette.org/donate (website-example/01 Playground/11 Go Further/01 go-further.md:33)
 - Ajouter navigation.webt : auto list d'une collection (ses entrées), possibilité d'enlever le nom de la collection
+- Faire un Helper pour le menu / l'index et permettre de configurer des options dans la config du site
 
 - Plugin de flux RSS
 - Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)
