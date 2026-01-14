@@ -1,8 +1,10 @@
 ﻿:root {
   --bg: #000000;
   --bg-box: #f5f5f1;
-  --accent: #2590e7;
+  --accent: #D61F1F;
   --text: #000;
+  --rail: 2rem;
+  --gutter: 0.7rem;
 }
 
 * {
@@ -13,6 +15,7 @@ body {
   background-color: var(--bg);
   font-family: system-ui, sans-serif;
   color: var(--text);
+  margin: 0;
 }
 
 h1 {
@@ -56,14 +59,13 @@ strong  {
 }
 
 .container {
-  width: 50%;
-  margin: 0 auto;
+  padding: 0 var(--gutter) 72px;
 }
 
 section {
   background-color: var(--bg-box);
   padding: 2rem;
-  margin: 4rem 0;
+  margin: 0 0 calc(var(--gutter) * 4);
   position: relative;
 }
 
@@ -89,4 +91,229 @@ section.image h1 {
 .webette-logo-welcome {
   width: 28%;
   margin-left: -1%;
+}
+
+.site-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: calc(var(--rail) + var(--gutter) + var(--gutter));
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  padding: var(--gutter);
+}
+
+.corner-slot {
+  width: var(--rail);
+  height: var(--rail);
+}
+
+.corner-logo {
+  display: inline-flex;
+  width: var(--rail);
+  height: var(--rail);
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.corner-logo img {
+  display: block;
+  width: var(--rail);
+  width: var(--rail);
+  filter: invert(1);
+}
+
+.side-wordmark {
+  position: absolute;
+  transform: rotate(-90deg);
+  -ms-transform: rotate(-90deg);
+  -webkit-transform: rotate(-90deg);
+  font-family: 'Consolas', 'Lucida Console', monospace;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  color: var(--bg-box);
+  text-decoration: none;
+  top: calc((var(--rail) * 2) + var(--gutter));
+}
+
+.side-wordmark:hover {
+  color: var(--accent);
+}
+
+.site-page {
+  padding: 0 calc(var(--rail) + var(--gutter) + var(--gutter));
+}
+
+.site-frame {
+  padding: var(--gutter);
+}
+
+.top-menu {
+  display: flex;
+  flex-flow: wrap;
+}
+
+.top-menu-radio {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.top-menu-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+  width: 100%;
+  height: var(--rail);
+}
+
+.top-menu-tabwrap {
+  display: inline-block;
+  position: relative;
+}
+
+.top-menu-tab {
+  display: inline-block;
+  background: transparent;
+  color: var(--bg-box);
+  font-family: 'Consolas', 'Lucida Console', monospace;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  user-select: none;
+  cursor: pointer;
+}
+
+.top-menu-tab:hover {
+  color: var(--accent);
+}
+
+.top-menu-tab--close {
+  display: none;
+}
+
+.top-menu-panels {
+  width: 100%;
+}
+
+.top-menu-panel {
+  display: none;
+  padding: 0;
+  margin: var(--gutter);
+}
+
+.top-menu-tree {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-family: 'Consolas', 'Lucida Console', monospace;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.top-menu-tree-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.tree-prefix {
+  display: inline-block;
+  width: 3ch;
+  color: rgba(245, 245, 241, 0.6);
+}
+
+.tree-prefix.is-active {
+  color: var(--accent);
+}
+
+.top-menu-entry {
+  color: var(--bg-box);
+  text-decoration: none;
+}
+
+.top-menu-entry:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.top-menu-entry.is-active {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.draft-pill {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 6px;
+  border: 1px solid rgba(245, 245, 241, 0.35);
+  color: rgba(245, 245, 241, 0.85);
+}
+
+a.webt-md.button {
+  display: inline-block;
+  padding: 8px 12px;
+  background: #111111;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+a.webt-md.button:hover {
+  background: #2a2a2a;
+  color: #ffffff;
+}
+
+.site-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 52px 0 0;
+  color: rgba(245, 245, 241, 0.75);
+  font-size: 12px;
+}
+
+.site-footer-left p,
+.site-footer-right p {
+  margin: 0;
+}
+
+.site-footer-right {
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  :root {
+    --rail: 72px;
+    --corner: 60px;
+    --gutter: 16px;
+  }
+
+  .site-rail {
+    padding-top: 16px;
+  }
+
+  .corner-slot {
+    margin-left: 8px;
+  }
+
+  .side-wordmark {
+    left: 8px;
+    top: calc(var(--corner) + 10px);
+    font-size: 14px;
+  }
+
+  .site-frame {
+    padding-top: 16px;
+  }
+
+  .container {
+    padding: 0 var(--gutter) 56px;
+  }
 }

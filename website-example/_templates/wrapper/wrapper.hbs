@@ -10,21 +10,121 @@
   <body>
     <svg width="0" height="0" style="position: absolute;">
       <filter id="noise-texture">
-          <feTurbulence 
-              type="fractalNoise" 
-              baseFrequency="0.85" 
-              numOctaves="2" 
-              seed="0"
-              stitchTiles="stitch"/>
-          <feColorMatrix type="saturate" values="0"/>
-          <feComponentTransfer>
-              <feFuncA type="discrete" tableValues="0 0.35"/>
-          </feComponentTransfer>
-          <feBlend mode="multiply" in="SourceGraphic"/>
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.85"
+          numOctaves="2"
+          seed="0"
+          stitchTiles="stitch"
+        />
+        <feColorMatrix type="saturate" values="0" />
+        <feComponentTransfer>
+          <feFuncA type="discrete" tableValues="0 0.35" />
+        </feComponentTransfer>
+        <feBlend mode="multiply" in="SourceGraphic" />
       </filter>
-  </svg>
-    <div class="container">
-      {{{renderLayout layoutName}}}
+    </svg>
+
+    <div class="site-rail" aria-hidden="false">
+      <div class="corner-slot">
+        {{#unless (eq entry.route "/")}}
+          <a class="corner-logo" href="/" aria-label="Home">
+            <img src="{{asset 'images/bebette.svg'}}" alt="webette" />
+          </a>
+        {{/unless}}
+      </div>
+
+      <a class="side-wordmark" href="/" aria-label="Home">webette</a>
+    </div>
+
+    <div class="site-page">
+      <header class="site-frame">
+        <nav class="top-menu" aria-label="Site menu">
+          <input class="top-menu-radio" type="radio" name="top-menu" id="top-menu-none" {{#if collection}}{{#if collection.isUnlisted}}checked{{/if}}{{else}}checked{{/if}} />
+
+          {{#each collections}}
+            {{#unless isUnlisted}}
+              <input
+                class="top-menu-radio"
+                type="radio"
+                name="top-menu"
+                id="top-menu-{{slug}}"
+                {{#if ../collection}}{{#if (eq slug ../collection.slug)}}checked{{/if}}{{/if}}
+              />
+            {{/unless}}
+          {{/each}}
+
+          <div class="top-menu-tabs">
+            {{#each collections}}
+              {{#unless isUnlisted}}
+                <div class="top-menu-tabwrap">
+                  <label class="top-menu-tab top-menu-tab--open" for="top-menu-{{slug}}">
+                    {{displayName this}}
+                  </label>
+                  <label class="top-menu-tab top-menu-tab--close" for="top-menu-none" data-close="{{slug}}">
+                    {{displayName this}}
+                  </label>
+                </div>
+              {{/unless}}
+            {{/each}}
+          </div>
+
+          <div class="top-menu-panels">
+            {{#each collections}}
+              {{#unless isUnlisted}}
+                <div class="top-menu-panel" id="top-menu-panel-{{slug}}">
+                  <ul class="top-menu-tree">
+                    {{#each entries}}
+                      {{#unless isUnlisted}}
+                        <li class="top-menu-tree-item">
+                          <span class="tree-prefix {{#if (eq route ../../entry.route)}}is-active{{/if}}">{{#if @last}}&#9492;&#9472;&#9472;{{else}}&#9500;&#9472;&#9472;{{/if}}</span>
+                          <a
+                            class="top-menu-entry {{#if (eq route ../../entry.route)}}is-active{{/if}}"
+                            href="{{route}}"
+                            {{#if (eq route ../../entry.route)}}aria-current="page"{{/if}}
+                          >
+                            {{displayName this}}
+                          </a>
+                          {{#if isDraft}}
+                            <span class="draft-pill">draft</span>
+                          {{/if}}
+                        </li>
+                      {{/unless}}
+                    {{/each}}
+                  </ul>
+                </div>
+              {{/unless}}
+            {{/each}}
+          </div>
+
+          <style>
+            {{#each collections}}
+              {{#unless isUnlisted}}
+                #top-menu-{{slug}}:checked ~ .top-menu-tabs label[data-close="{{slug}}"] {
+                  background: var(--accent);
+                  color: var(--bg-box);
+                }
+
+                #top-menu-{{slug}}:checked ~ .top-menu-tabs label[data-close="{{slug}}"] {
+                  display: inline-block;
+                }
+
+                #top-menu-{{slug}}:checked ~ .top-menu-tabs label[for="top-menu-{{slug}}"] {
+                  display: none;
+                }
+
+                #top-menu-{{slug}}:checked ~ .top-menu-panels #top-menu-panel-{{slug}} {
+                  display: block;
+                }
+              {{/unless}}
+            {{/each}}
+          </style>
+        </nav>
+      </header>
+
+      <div class="container">
+        {{{renderLayout layoutName}}}
+      </div>
     </div>
 
     <div class="noise"></div>

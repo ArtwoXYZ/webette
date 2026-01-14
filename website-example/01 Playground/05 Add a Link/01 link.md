@@ -54,7 +54,7 @@ It is meant to be used by templates to build menus, sidebars, custom TOC, etc.
 
 If you want to see a real one, open:
 
-`website-example/pages/01 welcome/navigation.webt`
+`website-example/01 Playground/09 Unlist an Entry/02 navigation.webt`
 
 If you want the full `navigation.webt` reference, see:  
 [navigation.webt (docs)](https://docs.webette.org/blocks/navigation)
