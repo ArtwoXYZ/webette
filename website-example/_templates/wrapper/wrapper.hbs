@@ -77,13 +77,13 @@
                     {{#each entries}}
                       {{#unless isUnlisted}}
                         <li class="top-menu-tree-item">
-                          <span class="tree-prefix {{#if (eq route ../../entry.route)}}is-active{{/if}}">{{#if @last}}&#9492;&#9472;&#9472;{{else}}&#9500;&#9472;&#9472;{{/if}}</span>
+                          <span class="tree-line {{#if (eq route ../../entry.route)}}is-active{{/if}} {{#if @last}}last-tree-line{{/if}}">&#8195;&#8195;&#8195;</span>
                           <a
                             class="top-menu-entry {{#if (eq route ../../entry.route)}}is-active{{/if}}"
                             href="{{route}}"
                             {{#if (eq route ../../entry.route)}}aria-current="page"{{/if}}
                           >
-                            {{displayName this}}
+                            <span class="tree-ascii">&#9492;&#9472;&#9472;</span> {{displayName this}}
                           </a>
                           {{#if isDraft}}
                             <span class="draft-pill">draft</span>

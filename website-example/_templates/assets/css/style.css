@@ -1,8 +1,8 @@
 ﻿:root {
-  --bg: #000000;
-  --bg-box: #f5f5f1;
-  --accent: #D61F1F;
-  --text: #000;
+  --bg: #bebec0;
+  --bg-box: #000000;
+  --accent: #ff0048;
+  --text: #e7e7e7;
   --rail: 2rem;
   --gutter: 0.7rem;
 }
@@ -34,16 +34,19 @@ a {
 
 p {
   margin-bottom: 1rem;
+  color: var(--text);
 }
 
 em {
   font-style: italic;
   font-weight: inherit;
+  color: inherit;
 }
 
 strong  {
   font-weight: bold;
   font-style: inherit;
+  color: inherit;
 }
 
 .noise::before {
@@ -69,28 +72,30 @@ section {
   position: relative;
 }
 
-section.image {
+.image-hero {
   display: flex;
   flex-flow: wrap;
   justify-content: center;
   align-items: center;
   padding: 5rem 0;
+  background: none;
+  border: black 1px dashed;
 }
 
-section.image hr {
+.image-hero hr {
   width: 100%;
 }
 
-section.image h1 {
+.image-hero h1 {
   font-weight: bold;
   font-size: 1.5rem;
   margin-top: 1rem;
-  color: var(--text);
+  color: black;
 }
 
 .webette-logo-welcome {
-  width: 28%;
-  margin-left: -1%;
+  width: 18rem;
+  margin-left: -1rem;
 }
 
 .site-rail {
@@ -121,8 +126,6 @@ section.image h1 {
 .corner-logo img {
   display: block;
   width: var(--rail);
-  width: var(--rail);
-  filter: invert(1);
 }
 
 .side-wordmark {
@@ -186,6 +189,7 @@ section.image h1 {
   text-transform: uppercase;
   user-select: none;
   cursor: pointer;
+  padding: 0 0.3rem;
 }
 
 .top-menu-tab:hover {
@@ -220,39 +224,102 @@ section.image h1 {
   align-items: baseline;
   gap: 8px;
   white-space: nowrap;
+  color: var(--bg-box);
+  position: relative;
+  width: fit-content;
 }
 
-.tree-prefix {
+.tree-line {
   display: inline-block;
-  width: 3ch;
-  color: rgba(245, 245, 241, 0.6);
+  position: absolute;
+  z-index: 2;
+  border-left: 1px solid var(--bg-box);
 }
 
-.tree-prefix.is-active {
-  color: var(--accent);
+.tree-line.last-tree-line {
+  border-width: 1px;
+  border-style: solid;
+  border-right: none;
+  border-image: linear-gradient(
+    to bottom,
+    var(--bg-box) 0%,
+    var(--bg-box) 49%,
+    transparent 49%,
+    transparent 100%
+  ) 1 100%;
 }
 
 .top-menu-entry {
   color: var(--bg-box);
   text-decoration: none;
-}
-
-.top-menu-entry:hover {
-  color: var(--accent);
-  text-decoration: underline;
+  position: relative;
+  z-index: 1;
+  text-indent: -3px;
 }
 
 .top-menu-entry.is-active {
-  color: var(--accent);
   font-weight: 800;
+  color: var(--accent);
+}
+
+.tree-ascii {
+  color: inherit;
+}
+
+.top-menu-entry.is-active .tree-ascii {
+  color: var(--bg-box);
+}
+
+.top-menu-tree-item:hover .top-menu-entry {
+  color: var(--accent);
+  z-index: 3;
+}
+
+.top-menu-tree-item:hover .top-menu-entry.is-active .tree-ascii {
+  color: var(--accent);
+}
+
+.top-menu-tree-item:hover .tree-line {
+  border-width: 1px;
+  border-style: solid;
+  border-right: none;
+  border-image: linear-gradient(
+    to bottom,
+    var(--accent) 0%,
+    var(--accent) 49%,
+    var(--bg-box) 49%,
+    var(--bg-box) 100%
+  ) 1 100%;
+}
+
+.top-menu-tree-item:hover .tree-line.last-tree-line {
+  border-width: 1px;
+  border-style: solid;
+  border-right: none;
+  border-image: linear-gradient(
+    to bottom,
+    var(--accent) 0%,
+    var(--accent) 49%,
+    transparent 49%,
+    transparent 100%
+  ) 1 100%;
+}
+
+.top-menu-tree-item:has(~ .top-menu-tree-item:hover) .tree-line {
+  border-left: 1px solid var(--accent);
 }
 
 .draft-pill {
   display: inline-block;
   font-size: 11px;
   padding: 2px 6px;
-  border: 1px solid rgba(245, 245, 241, 0.35);
-  color: rgba(245, 245, 241, 0.85);
+  border: 1px solid var(--bg);
+  color: var(--bg);
+  filter: brightness(60%);
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translate(100%, -50%);
 }
 
 a.webt-md.button {
