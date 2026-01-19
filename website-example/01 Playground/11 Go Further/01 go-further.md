@@ -1,8 +1,4 @@
-# Go Further
-
 ## Nice work
-
-You just completed the whole **Playground** **collection**.
 
 You can keep playing as long as you want: edit files, rename folders, break things, fix them, and see how **webette** reacts.
 

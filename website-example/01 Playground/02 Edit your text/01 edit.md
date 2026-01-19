@@ -1,9 +1,4 @@
-# Edit your text
-
 ## The simplest kind of content
-
-Most websites start with text.
-In **webette**, that's the easiest thing to work with.
 
 This page is just a Markdown file living inside an **entry**.
 No frontmatter required.

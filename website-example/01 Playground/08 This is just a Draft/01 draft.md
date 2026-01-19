@@ -1,11 +1,6 @@
-# This is just a Draft
+## A **draft** is an **entry** that won't ship
 
-## A **draft** is an **entry** that won’t ship
-
-In **webette**, a **draft** is still a normal **entry** on your disk.  
-It’s just marked as “draft”, so it won’t be part of a production build.
-
-This is useful when you’re:
+This is useful when you're:
 
 - writing a page that’s not ready yet
 - preparing a new section for later

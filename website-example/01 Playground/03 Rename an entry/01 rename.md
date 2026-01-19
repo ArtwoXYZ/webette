@@ -1,8 +1,5 @@
-# Rename an entry
-
 ## Titles come from your folders (by default)
 
-In **webette**, the filesystem is the source of truth.
 
 - **Collection** title → the **collection** folder name
 - **Entry** title → the **entry** folder name

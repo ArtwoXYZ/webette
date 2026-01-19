@@ -1,0 +1,12 @@
+@font-face {
+  font-family: 'mononoki';
+  src: url('fonts/mononokiItalic.eot');
+  src:
+    url('fonts/mononokiItalic.eot') format('embedded-opentype'),
+    url('fonts/mononokiItalic.woff2') format('woff2'),
+    url('fonts/mononokiItalic.woff') format('woff'),
+    url('fonts/mononokiItalic.ttf') format('truetype'),
+    url('fonts/mononokiItalic.svg#mononokiItalic') format('svg');
+  font-weight: 400;
+  font-style: italic;
+}

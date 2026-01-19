@@ -1,6 +1,18 @@
 <html lang="{{site.lang}}">
   <head>
     <meta charset="utf-8" />
+    <!-- Fonts -->
+    <link rel="stylesheet" href="{{asset 'fonts/fantasque/FantasqueSansMono-Regular-decl.css'}}" />
+    <link rel="stylesheet" href="{{asset 'fonts/fantasque/FantasqueSansMono-Bold-decl.css'}}" />
+    <link rel="stylesheet" href="{{asset 'fonts/fantasque/FantasqueSansMono-Italic-decl.css'}}" />
+    <link rel="stylesheet" href="{{asset 'fonts/fantasque/FantasqueSansMono-BoldItalic-decl.css'}}" />
+    <link rel="stylesheet" href="{{asset 'fonts/mononoki-web/mononokiBold.css'}}" />
+    <link rel="stylesheet" href="{{asset 'fonts/mononoki-web/mononokiBoldItalic.css'}}" />
+    <link rel="stylesheet" href="{{asset 'fonts/mononoki-web/mononokiItalic.css'}}" />
+    <link rel="stylesheet" href="{{asset 'fonts/mononoki-web/mononokiRegular.css'}}" />
+    <link rel="stylesheet" href="{{asset 'fonts/flexi-ibm/Flexi_IBM_VGA_False_437.css'}}" />
+    <link rel="stylesheet" href="{{asset 'fonts/F1.8/F1_8Regular.css'}}" />
+    <link rel="stylesheet" href="{{asset 'fonts/Inconsolata/inconsolata.css' }}" />
     <link rel="stylesheet" href="{{asset 'css/init.css'}}" />
     <link rel="stylesheet" href="{{asset 'css/style.css'}}" />
     <title>
@@ -29,7 +41,7 @@
       <div class="corner-slot">
         {{#unless (eq entry.route "/")}}
           <a class="corner-logo" href="/" aria-label="Home">
-            <img src="{{asset 'images/bebette.svg'}}" alt="webette" />
+            <span class="corner-logo-icon" aria-hidden="true"></span>
           </a>
         {{/unless}}
       </div>
@@ -40,7 +52,7 @@
     <div class="site-page">
       <header class="site-frame">
         <nav class="top-menu" aria-label="Site menu">
-          <input class="top-menu-radio" type="radio" name="top-menu" id="top-menu-none" {{#if collection}}{{#if collection.isUnlisted}}checked{{/if}}{{else}}checked{{/if}} />
+          <input class="top-menu-radio" type="radio" name="top-menu" id="top-menu-none" checked />
 
           {{#each collections}}
             {{#unless isUnlisted}}
@@ -49,7 +61,6 @@
                 type="radio"
                 name="top-menu"
                 id="top-menu-{{slug}}"
-                {{#if ../collection}}{{#if (eq slug ../collection.slug)}}checked{{/if}}{{/if}}
               />
             {{/unless}}
           {{/each}}
@@ -58,7 +69,7 @@
             {{#each collections}}
               {{#unless isUnlisted}}
                 <div class="top-menu-tabwrap">
-                  <label class="top-menu-tab top-menu-tab--open" for="top-menu-{{slug}}">
+                  <label class="top-menu-tab top-menu-tab--open {{#if ../collection}}{{#if (eq slug ../collection.slug)}}is-current{{/if}}{{/if}}" for="top-menu-{{slug}}">
                     {{displayName this}}
                   </label>
                   <label class="top-menu-tab top-menu-tab--close" for="top-menu-none" data-close="{{slug}}">
@@ -114,7 +125,9 @@
                 }
 
                 #top-menu-{{slug}}:checked ~ .top-menu-panels #top-menu-panel-{{slug}} {
-                  display: block;
+                  max-height: 70vh;
+                  margin: var(--gutter) 0 0;
+                  pointer-events: auto;
                 }
               {{/unless}}
             {{/each}}

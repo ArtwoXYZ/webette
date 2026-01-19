@@ -1,13 +1,8 @@
-# Ignore a Block
-
 ## Sometimes you want a **block** to exist (but not render)
 
-In **webette**, every file inside an **entry** becomes a **block**.  
-Most of the time, templates render everything, but sometimes you want to keep a **block** around without showing it on the page.
-
-Maybe it’s an old image you’re not sure you want to delete yet.  
-Maybe it’s a video you want to keep for later.  
-Maybe it’s a “bonus” **block** you’ll only use in a different layout.
+Maybe it's an old image you're not sure you want to delete yet.  
+Maybe it's a video you want to keep for later.  
+Maybe it's a "bonus" **block** you'll only use in a different layout.
 
 ## The file `ignore.webt`
 

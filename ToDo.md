@@ -45,12 +45,16 @@
   - ~~virer les layouts inutiles et vérifier si ça prend encore les templates par défaut si on en enlève~~
   - ~~refaire le webette.config.ts pour que ça prenne bien en compte les paramètres de template avec le dossier \_templates~~
   - Design
-- Pour le markdown, tester avec le cheatsheet markdown qu'on trouve sur github pour voir si tout fonctionne.
+    - Continuer avec l'entrée unlist-an-entry qui possède un block navigation.webt et faire les changements nécessaires sur ce block spécial
+    - vérifier les choses cassées
+    - refaire un peu le texte pour les blocks intro
+    - Virer les fonts inutilisées
+- ~~Pour le markdown, tester avec le cheatsheet markdown qu'on trouve sur github pour voir si tout fonctionne.~~
 - Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)
 - Peut-être retirer complétement les templates du tool (pas utiles, il faut créer des templates pour son site et puis c'est tout) ?
 - intégrer Standard.site (Lexicon ATproto) ?
 - Permettre de changer l'ordre ascendant par déscendant
-- Permettre de trier les entrées par date de création ?
+- Permettre de trier les entrées par date de création + date d'update
 - CHANGER LES LIENS DU SITE DE DEMO (quand la doc sera en ligne) :
   - https://docs.webette.org/markdown (website-example/01 Playground/02 Edit your text/01 edit.md:35)
   - https://docs.webette.org/blocks/navigation (website-example/01 Playground/05 Add a Link/01 link.md:63)
@@ -62,6 +66,7 @@
   - https://webette.org/donate (website-example/01 Playground/11 Go Further/01 go-further.md:33)
 - Ajouter navigation.webt : auto list d'une collection (ses entrées), possibilité d'enlever le nom de la collection
 - Faire un Helper pour le menu / l'index et permettre de configurer des options dans la config du site
+- En serve sous Windows, tu peux encore croiser des EBUSY lors de rm dans _public
 
 - Plugin de flux RSS
 - Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)

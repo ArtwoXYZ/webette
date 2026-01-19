@@ -1,0 +1,7 @@
+@font-face {
+    font-family: 'Inconsolata';
+    src: url('Inconsolata-VariableFont_wdth,wght.ttf') format('truetype');
+    font-stretch: 100;
+    font-style: normal;
+    font-weight: 200..900;
+}

@@ -6,17 +6,27 @@
 
     {{#each blocks}}
       {{#if (eq type "markdown")}}
-        {{{safe content.html}}}
+        <section class="markdown prose">
+          {{{safe content.html}}}
+        </section>
       {{else if (eq type "text")}}
-        <pre>{{content.raw}}</pre>
+        <section class="text">
+          <pre>{{content.raw}}</pre>
+        </section>
       {{else if (eq type "image")}}
         {{#unless content.meta.renderedInline}}
-          {{image this figure=true caption=name class="my-class"}}
+          <section class="image">
+            {{image this figure=true caption=name class="my-class"}}
+          </section>
         {{/unless}}
       {{else if (eq type "audio")}}
-        <audio controls src="{{route}}"></audio>
+        <section class="audio">
+          <audio controls src="{{route}}"></audio>
+        </section>
       {{else if (eq type "video")}}
-        <video controls src="{{route}}"></video>
+        <section class="video">
+          <video controls src="{{route}}"></video>
+        </section>
       {{else if (eq type "navigation")}}
         {{#if content.data.items}}
           <section class="navigation">

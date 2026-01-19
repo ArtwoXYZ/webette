@@ -1,7 +1,7 @@
 <main>
   {{#each blocks}}
     {{#if (eq type "markdown")}}
-      <section class="markdown">
+      <section class="markdown prose">
         {{{safe content.html}}}
       </section>
     {{else if (eq type "image")}}

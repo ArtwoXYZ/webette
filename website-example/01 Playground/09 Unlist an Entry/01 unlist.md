@@ -1,10 +1,6 @@
-# Unlist an Entry
-
 ## Hide an **entry** without deleting it
 
-Sometimes you want a page to exist (and stay reachable), but you don’t want it to show up in your menus.
-
-That’s what “unlisted” means in **webette**.
+That's what "unlisted" means in **webette**.
 
 ## What “unlisted” does
 

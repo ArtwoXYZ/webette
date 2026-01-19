@@ -1,8 +1,5 @@
-# Custom Layout for an Entry
-
 ## One **entry**, one layout
 
-In **webette**, an **entry** uses a layout to be rendered.
 
 By default, every **entry** uses the same layout.  
 But sometimes one page needs to be special: a landing page, a gallery, a custom “about” page…
