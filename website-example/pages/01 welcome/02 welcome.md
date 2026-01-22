@@ -10,6 +10,6 @@ Open folders.
 Edit files.
 Break things if you want.
 
-> webette won't mind.
+> *webette won't mind.*
 
 [Explore the Playground](collection: playground, entry: Introduction, class: button)
