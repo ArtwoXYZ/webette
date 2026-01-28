@@ -43,7 +43,7 @@ A lightweight classification derived from the filesystem:
 - `video`: `.mp4/.mov/.webm/...`
 - `folder`: directories inside entries (nested blocks)
 - `unclassified`: anything else (meant to be handled by plugins)
-- `navigation`: the special `navigation.webt` block
+- `navigation`: the special `navigation.webt` block (Navigation Plan)
 
 ## Resolver
 
@@ -64,11 +64,11 @@ Entries and blocks are sorted deterministically:
 1. numeric prefix when present (`01 ...`, `2 ...`, etc.)
 2. then alphabetical order
 
-This is used for lists and indexes.
+This is used for lists and Automatic Index Pages.
 
 ## Site configuration (`webette.config.ts`)
 
-Configuration of one site (metadata, collection overrides, templates overrides, plugins, indexes, and optional overrides for markdown/media).
+Configuration of one site (metadata, collection overrides, templates overrides, plugins, Automatic Index Pages, and optional overrides for markdown/media).
 
 ## Tool configuration (`webette.tool.ts`)
 
@@ -122,11 +122,11 @@ A marker file inside an entry folder. Draft entries are visible in `serve` by de
 
 A marker file inside a collection or entry:
 
-- Excluded from automatic indexes
+- Excluded from Automatic Index Pages
 - Excluded from `sitemap.xml`
 - Pages can still exist at their routes
 
-Unlisted collections get a "forbidden" index page in their collection route.
+Unlisted collections get a "forbidden" Automatic Index Page in their collection route.
 
 ## Ignore (`ignore.webt`)
 
@@ -150,25 +150,25 @@ A display name stored as:
 
 A special folder at the root of a collection that can contain media files (images/audio/video). These files are processed and exposed as `collection.assets`.
 
-## Index (automatic)
+## Automatic Index Pages
 
 When enabled (`build.generateIndex=true`), webette generates:
 
-- a root index (`/index.html`) listing collections
-- one index per collection (`/<collection>/index.html`) listing entries
+- a **Root Automatic Index Page** (`/index.html`) listing collections
+- a **Collection Automatic Index Page** (`/<collection>/index.html`) listing entries
 
-## Index override
+## Index Override
 
-A config mechanism (`index.root`, `index.collections`) that renders a specific unlisted entry as the root index or a collection index.
+A config mechanism (`index.root`, `index.collections`) that renders a specific unlisted entry as a Root/Collection Automatic Index Page.
 
-## Navigation block (`navigation.webt`)
+## Navigation Plan (`navigation.webt`)
 
-A special block that defines an ordered list of collections and/or entries. It is not auto-rendered: templates read `content.data.items` to display it.
+A special block that defines an ordered list of collections and/or entries. It is **data**, not UI: templates read `content.data.items` to display it.
 
 It can optionally declare a display name:
 
 - `name: My navigation` sets `content.data.name` (first `name:` wins; empty `name:` lines are ignored).
-- If there are no item lines (empty file, or only `name:`), webette expands it into a full navigation (each collection followed by its entries).
+- If there are no item lines (empty file, or only `name:`), webette expands it into a full **Navigation Plan** (each collection followed by its entries).
 
 Items are hierarchical:
 
@@ -177,7 +177,12 @@ Items are hierarchical:
 - Each item can declare `title`, `collection`, and/or `entry`.
   - `title` without `collection`/`entry` creates a pure heading item (`kind: "title"`).
   - `title` with `collection`/`entry` sets the display label for that link.
-  - `entry` items can omit `collection` when indented (they inherit the closest parent collection).
+- `entry` items can omit `collection` when indented (they inherit the closest parent collection).
+
+## Site Menu (Navigation UI)
+
+The visual output (menu/sidebar/TOC) rendered by templates **from a Navigation Plan**.  
+This is a theme/UI concept, not a Webette block.
 
 ## Model export (`_public/_model`)
 

@@ -22,7 +22,7 @@ Un site de documentation qui soit :
 
 ### /01 pages (pages publiques)
 
-- 01 home (page d’accueil, remplace l'index root)
+- 01 home (page d’accueil, remplace la Root Automatic Index Page)
 - 02 features
 - 03 faq
 - 04 roadmap
@@ -36,7 +36,7 @@ Un site de documentation qui soit :
 - 03 your first site (dossiers → collections/entries/blocks + templates minimaux, et “démarrer via un Starter” : concept, utilisation, création)
 - 04 mental model (ordre, slugs/routes, export du modèle, debug)
 - 05 writing content (Markdown, comportement des `.txt`, liens internes `collection:/entry:/block:`, images internes inline)
-- 06 navigation & indexes (indexes automatiques, `unlisted.webt`, overrides d’index, `navigation.webt`, et impacts sur index/sitemap)
+- 06 navigation & indexes (Automatic Index Pages, `unlisted.webt`, Index Overrides, `navigation.webt`, et impacts sur Automatic Index Pages/sitemap)
 - 07 templates (wrapper/layout/partials, contexte, helpers, assets de templates, et logique “site vs tool”)
 - 08 plugins (concept + création + utilisation : écrire un plugin, l’activer dans `webette.config.ts`, lifecycle des hooks, expected outputs pour survivre au prune)
 - 09 build & deploy basics (overwrite/prune, sitemap, protectAssets, exemples htaccess/nginx)
@@ -59,12 +59,12 @@ Un site de documentation qui soit :
   - slugs.md
   - routes.md (site / collection / entry / block)
   - overrides.md (`collections.*.route`, `collections.*.slug`, etc.)
-  - index-routes.md (comportement des index root et collection)
+  - index-routes.md (comportement des Root/Collection Automatic Index Pages)
 
 - 03 indexes
 
   - automatic-indexes.md (`build.generateIndex`, layouts, exclusions)
-  - unlisted.md (effets exacts : index, sitemap, pages)
+  - unlisted.md (effets exacts : Automatic Index Pages, sitemap, pages)
   - index-overrides.md (`index.root`, `index.collections`, règle : l’entry doit être unlisted)
   - navigation.md (format, matching, modèle de données, usage dans les templates)
 
@@ -94,7 +94,7 @@ Un site de documentation qui soit :
   - overview.md (scan → resolve → postprocess → render → export → prune)
   - overwrite-prune.md (`none` / `replace-all` / `replace-files`, implications)
   - sitemap.md (règles actuelles + limitations connues)
-  - protect-assets.md (index “forbidden” dans les dossiers d’assets)
+  - protect-assets.md (forbidden index pages dans les dossiers d’assets)
   - pretty-print.md
 
 - 08 resolvers & block types
@@ -132,7 +132,7 @@ Un site de documentation qui soit :
 ### /04 cookbook (recettes / how-to)
 
 - 01 site de documentation avec sidebar
-- 02 home personnalisée via override d’index
+- 02 home personnalisée via Index Override
 - 03 navigation ordonnée avec `navigation.webt`
 - 04 plugin générant des assets de manière sûre (expected outputs)
 - 05 désactiver txt-as-markdown

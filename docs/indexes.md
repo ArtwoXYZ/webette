@@ -1,15 +1,15 @@
-# Indexes in webette
+# Automatic Index Pages in webette
 
-This page explains every way to build indexes in webette, from the automatic ones to fully custom pages.
+This page explains every way to build **Automatic Index Pages** in webette, from the built-in ones to fully custom pages.
 
-## 1) Automatic indexes (default)
+## 1) Automatic Index Pages (default)
 
 When `build.generateIndex = true`, webette generates:
 
-- `/index.html`: root index (collections listing)
-- `/<collection>/index.html`: collection index (entries listing)
+- `/index.html`: **Root Automatic Index Page** (collections listing)
+- `/<collection>/index.html`: **Collection Automatic Index Page** (entries listing)
 
-The default layout is `templates.default.index`.
+The default layout for Automatic Index Pages is `templates.default.index`.
 
 You can customize the layouts with:
 
@@ -17,34 +17,35 @@ You can customize the layouts with:
 - `templates.custom.index.collections` (all collections)
 - `templates.custom.index.collection[slug]` (per collection)
 
-Priority for collection indexes:
+Priority for **Collection Automatic Index Pages**:
 
 1. `templates.custom.index.collection[slug]`
 2. `templates.custom.index.collections`
 3. `templates.default.index`
 
-Root index uses:
+**Root Automatic Index Page** uses:
 
 1. `templates.custom.index.root`
 2. `templates.default.index`
 
 ## 2) Unlisted collections and entries
 
-`unlisted.webt` removes items from automatic indexing:
+`unlisted.webt` removes items from **Automatic Index Pages** and from the **Navigation Plan** (default expansion):
 
 - Put `unlisted.webt` in a collection folder to hide the collection and its entries.
 - Put `unlisted.webt` in an entry folder to hide that entry.
 
 Effects:
 
-- Unlisted collections/entries are excluded from root and collection indexes.
-- Unlisted collections get a forbidden index (`templates.default.accessForbidden`).
+- Unlisted collections/entries are excluded from Root/Collection Automatic Index Pages.
+- Unlisted collections get a forbidden index page (`templates.default.accessForbidden`).
 - Unlisted items are excluded from the sitemap.
-- Pages still exist at their routes (unless used as index overrides, see below).
+- Pages still exist at their routes (unless used as **Index Overrides**, see below).
 
-## 3) Entry-based index overrides (index config)
+## 3) Entry-based Index Overrides (index config)
 
-You can replace a root index or a collection index with a specific entry (must be unlisted).
+You can replace a Root/Collection Automatic Index Page with a specific entry (must be unlisted).  
+This is called an **Index Override**.
 
 Example:
 
@@ -63,9 +64,9 @@ Rules:
 - The entry is rendered as `/index.html` or `/<collection>/index.html`.
 - The entry's original page is not generated.
 
-## 4) Custom ordered indexes with navigation.webt
+## 4) Navigation Plan (`navigation.webt`)
 
-Place `navigation.webt` inside an entry to define a custom ordered list:
+Place `navigation.webt` inside an entry to define a **Navigation Plan**: a custom ordered list of collections/entries that templates can render as a **Site Menu** or a custom index page.
 
 ```
 name: My navigation
@@ -86,7 +87,7 @@ Rules:
 - `collection` is required for collection items; `entry` items can omit `collection` when indented (they inherit the closest parent collection).
 - Values can be names or slugs.
 - The order is the order of the file.
-- If there are no items (empty file, or only `name:`), webette expands it to a full index (each collection followed by its entries).
+- If there are no items (empty file, or only `name:`), webette expands it into a full **Navigation Plan** (each collection followed by its entries).
 
 The block does not auto-render. Use it in templates (tree):
 
@@ -101,7 +102,7 @@ The block does not auto-render. Use it in templates (tree):
 {{/each}}
 ```
 
-## 5) Collection metadata used in indexes
+## 5) Collection metadata used in Automatic Index Pages
 
 Two collection-level features help custom indexes:
 
@@ -121,8 +122,8 @@ Routes are scoped to the collection, for example:
 
 ## Summary (when to use what)
 
-- **Quick site listing**: automatic index + `templates.custom.index.*`
+- **Quick site listing**: Automatic Index Pages + `templates.custom.index.*`
 - **Hide collections or entries**: `unlisted.webt`
-- **Use a custom entry as index**: `index.root` / `index.collections`
-- **Fully ordered index page**: `navigation.webt` in an entry
+- **Use a custom entry as index** (Index Override): `index.root` / `index.collections`
+- **Fully ordered index page / Site Menu**: Navigation Plan via `navigation.webt`
 - **Collection previews**: `description.webt` + `_assets/`

@@ -1,5 +1,5 @@
 /**
- * Resolver for `navigation.webt` blocks (structured navigation tree).
+ * Resolver for `navigation.webt` blocks (Navigation Plan).
  */
 
 import { readFile } from "node:fs/promises";

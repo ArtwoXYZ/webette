@@ -1,79 +1,94 @@
-- ~~Refondre la structure/config des templates : wrapper implicite (`defaultWrapper`), layouts explicites (`defaultLayout`, `indexLayout`), fallback site > tool, logs du wrapper/layout retenus.~~
-- ~~Fournir des templates par défaut (wrapper + layouts) minimalistes, avec partials header et footer.~~
-- ~~Générer un index minimal (listing) pour racine/collections via `indexLayout`, désactivable.~~
-- ~~Protéger les dossiers d’assets : ajouter un `index.html` placeholder et proposer un `.htaccess` optionnel avec `Options -Indexes` (portée limitée à Apache) ; documenter cette option.~~
-- ~~Ajouter des helpers de templating genre pour tout mettre en lettres capitales, que les premières lettres de chaque mot, tout mettre en minuscule.~~
-- ~~Faire des templates par défaut pour les 404 (et d'autres pages d'erreurs ?)~~
-- ~~rendre l'export du modèle obligatoir : ça servira aussi comme une base de donnée interne, notamment pour les dates~~
-- ~~Mettre en place un système de date : quand on build on stock dans le fichier du model les dates de créa (1er build) et update des entries, blocks et collections. On fait les comparaisons grâce à un hash qu'on créer en même temps pour chaque objet ?~~
-- ~~Intégrer les hooks pour _l'API des plugins_ ~~
-- ~~Déplacer le model dans \_public et forcer ce chemin car il servira pour certains plugins. Il faudra mettre un index du coup et config apache/ngnix pour pas lister ce dossier~~
-- ~~créer un moyen d'appeler des images ou de faire des liens qui concernent le site même~~
-- ~~Changer le comportement des images : si une image d'une entrée est dans un markdown, alors on ne rend pas 2 fois l'image dans le html.~~
-- ~~ajouter un moyen d'exclure un block du rendu automatique~~
-- ~~ignorer les .webt du scan et ne pas les copier~~
-- ~~si un fichier est supprimé, même sans le replace-all il doit disparaitre des blocks copiés~~
-- ~~ajouter un mode brouillon : ajoute un parametre isDraft sur les entrée. Si serve : rendu (ajouté dans le template une info "brouillon"), si Build ignoré complétement, même pas dans le model ou quoi.~~
-- ~~Sitemap generator~~
-- ~~prévoire un helper pour les images~~
-- ~~dans "\_templates", prévoir l'ajout d'un dossier "assets" pour les images, video, audio... et aussi le css et le js par exemple~~
-- ~~Prévoir des classes pour les rendus markdown "md image", "md link", etc.~~
-- ~~Liens vers sites extérieurs des markdown vers nouvel onglet (prévoir une option à paramétrer dans la config du site)~~
-- ~~Pour les images internes rendues par le markdown, prévoir une option du site pour choisir le format par défaut à afficher et prévoir aussi de pouvoir le faire inline (genre ![mon image](block: image.png, size: small))~~
-- ~~Mises à jour sur les index :~~
-  - ~~permettre de définir : templates.default.index, templates.custom.index.root, templates.custom.index.collection, templates.custom.index.collection("collection name")~~
-  - ~~permettre de pouvoir délister une collection unlisted.webt (exemple : collection "pages") => ça retire l'indexation automatique pour cette collection et ces entries mais elles existent quand même (est-ce qu'on les sorts quand même dans le Sitemap ?)~~
-  - ~~créer un block index-list.webt qui permet de lister des collections et des entrées. Ce block peut être utilisé dans le templating pour afficher des liens et référencer tout ce dont on a besoin pour créer des aperçus des entries ou des collections~~
-  - ~~ajouter un collection-description.webt à la racine des collections peut permettre d'ajouter une description aux metadata d'une collection~~
-  - ~~ajouter un dossier \_assets à la racine d'une collection peut permettre d'ajouter des fichiers exploitables par le templating (de manière simple) mais pas listés comme une entrées ; par exemple, pour créer une image spécifique d'aperçus pour la collection~~
-  - ~~permettre de définir une page spécifique dans le webette.config pour remplacer l'index root ou l'index d'une collection spécifique par une autre entrée venant d'une collection unlisted (l'entrée devient alors réellement la page /index.html en gros)~~
-  - ~~faire en sorte que index-list.webt vide = index général (collection, toutes les entry dedans, collection, etc.)~~
-  - ~~faire une page de doc complète qui explique tous les moyens de créer des index avec webette~~
-- ~~Ajouter les ancres pour liens md et Handlebars~~
-- ~~renomer le block index-list.webt en navigation.webt~~
-- ~~Ajouter gestion d'une ligne "name: mon nom" pour le block navigation~~
-- ~~Ajouter l'indentation des items dans le block navigation~~
-- ~~Pourquoi VSCode me remet les pages de templates en HTML pour le Language Mode alors que je spécifie Handlebars ? Comment forcer Handlebars~~
-- ~~Pouvoir spécifier un template pour une entrée~~
-- ~~Transformer "collection-description.webt" en "description.webt" et l'étendre aux entrées~~
-- ~~Ajouter "name.webt" pour les entrées et les collections (ça ne casse pas le slug), on pourrait créer un helper {{displayName entry}} et {{displayName collection}}~~
-- ~~Possibilité de pouvoir faire des boutons ? En Markdown ?~~
-- ~~Simplifier encore le site de démo : privilégier la doc pour les features et tout~~
-- ~~Support Bold + Italic md~~
-- **EN COURS** - commencer un site webette pour la documentation webette
-- **EN COURS** - refaire entièrement le website-example pour montrer toutes les capacités actuelles de webette et faire un truc propre
-  - ~~virer les layouts inutiles et vérifier si ça prend encore les templates par défaut si on en enlève~~
-  - ~~refaire le webette.config.ts pour que ça prenne bien en compte les paramètres de template avec le dossier \_templates~~
-  - Design
-    - Continuer avec l'entrée unlist-an-entry qui possède un block navigation.webt et faire les changements nécessaires sur ce block spécial
-    - vérifier les choses cassées
-    - refaire un peu le texte pour les blocks intro
-    - Virer les fonts inutilisées
-- ~~Pour le markdown, tester avec le cheatsheet markdown qu'on trouve sur github pour voir si tout fonctionne.~~
-- Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)
-- Peut-être retirer complétement les templates du tool (pas utiles, il faut créer des templates pour son site et puis c'est tout) ?
-- intégrer Standard.site (Lexicon ATproto) ?
-- Permettre de changer l'ordre ascendant par déscendant
-- Permettre de trier les entrées par date de création + date d'update
-- CHANGER LES LIENS DU SITE DE DEMO (quand la doc sera en ligne) :
-  - https://docs.webette.org/markdown (website-example/01 Playground/02 Edit your text/01 edit.md:35)
-  - https://docs.webette.org/blocks/navigation (website-example/01 Playground/05 Add a Link/01 link.md:63)
-  - https://docs.webette.org/images/variants (website-example/01 Playground/06 Insert an image inline/02 inline.md:39)
-  - https://docs.webette.org (website-example/01 Playground/11 Go Further/01 go-further.md:21)
-  - https://store.webette.org/starters (website-example/01 Playground/11 Go Further/01 go-further.md:24)
-  - https://store.webette.org/plugins (website-example/01 Playground/11 Go Further/01 go-further.md:27)
-  - https://webette.org/showcase (website-example/01 Playground/11 Go Further/01 go-further.md:30)
-  - https://webette.org/donate (website-example/01 Playground/11 Go Further/01 go-further.md:33)
-- Ajouter navigation.webt : auto list d'une collection (ses entrées), possibilité d'enlever le nom de la collection
-- Faire un Helper pour le menu / l'index et permettre de configurer des options dans la config du site
-- En serve sous Windows, tu peux encore croiser des EBUSY lors de rm dans _public
+- ✅ Refondre la structure/config des templates : wrapper implicite (`defaultWrapper`), layouts explicites (`defaultLayout`, `indexLayout`), fallback site > tool, logs du wrapper/layout retenus.
+- ✅ Fournir des templates par défaut (wrapper + layouts) minimalistes, avec partials header et footer.
+- ✅ Générer un index minimal (listing) pour racine/collections via `indexLayout`, désactivable.
+- ✅ Protéger les dossiers d’assets : ajouter un `index.html` placeholder et proposer un `.htaccess` optionnel avec `Options -Indexes` (portée limitée à Apache) ; documenter cette option.
+- ✅ Ajouter des helpers de templating genre pour tout mettre en lettres capitales, que les premières lettres de chaque mot, tout mettre en minuscule.
+- ✅ Faire des templates par défaut pour les 404 (et d'autres pages d'erreurs ?)
+- ✅ rendre l'export du modèle obligatoir : ça servira aussi comme une base de donnée interne, notamment pour les dates
+- ✅ Mettre en place un système de date : quand on build on stock dans le fichier du model les dates de créa (1er build) et update des entries, blocks et collections. On fait les comparaisons grâce à un hash qu'on créer en même temps pour chaque objet ?
+- ✅ Intégrer les hooks pour _l'API des plugins_
+- ✅ Déplacer le model dans \_public et forcer ce chemin car il servira pour certains plugins. Il faudra mettre un index du coup et config apache/ngnix pour pas lister ce dossier
+- ✅ créer un moyen d'appeler des images ou de faire des liens qui concernent le site même
+- ✅ Changer le comportement des images : si une image d'une entrée est dans un markdown, alors on ne rend pas 2 fois l'image dans le html.
+- ✅ ajouter un moyen d'exclure un block du rendu automatique
+- ✅ ignorer les .webt du scan et ne pas les copier
+- ✅ si un fichier est supprimé, même sans le replace-all il doit disparaitre des blocks copiés
+- ✅ ajouter un mode brouillon : ajoute un parametre isDraft sur les entrée. Si serve : rendu (ajouté dans le template une info "brouillon"), si Build ignoré complétement, même pas dans le model ou quoi.
+- ✅ Sitemap generator
+- ✅ prévoire un helper pour les images
+- ✅ dans "\_templates", prévoir l'ajout d'un dossier "assets" pour les images, video, audio... et aussi le css et le js par exemple
+- ✅ Prévoir des classes pour les rendus markdown "md image", "md link", etc.
+- ✅ Liens vers sites extérieurs des markdown vers nouvel onglet (prévoir une option à paramétrer dans la config du site)
+- ✅ Pour les images internes rendues par le markdown, prévoir une option du site pour choisir le format par défaut à afficher et prévoir aussi de pouvoir le faire inline (genre ![mon image](block: image.png, size: small))
+- ✅ Mises à jour sur les index :
+  - ✅ permettre de définir : templates.default.index, templates.custom.index.root, templates.custom.index.collection, templates.custom.index.collection("collection name")
+  - ✅ permettre de pouvoir délister une collection unlisted.webt (exemple : collection "pages") => ça retire l'indexation automatique pour cette collection et ces entries mais elles existent quand même (est-ce qu'on les sorts quand même dans le Sitemap ?)
+  - ✅ créer un block index-list.webt qui permet de lister des collections et des entrées. Ce block peut être utilisé dans le templating pour afficher des liens et référencer tout ce dont on a besoin pour créer des aperçus des entries ou des collections
+  - ✅ ajouter un collection-description.webt à la racine des collections peut permettre d'ajouter une description aux metadata d'une collection
+  - ✅ ajouter un dossier \_assets à la racine d'une collection peut permettre d'ajouter des fichiers exploitables par le templating (de manière simple) mais pas listés comme une entrées ; par exemple, pour créer une image spécifique d'aperçus pour la collection
+  - ✅ permettre de définir une page spécifique dans le webette.config pour remplacer l'index root ou l'index d'une collection spécifique par une autre entrée venant d'une collection unlisted (l'entrée devient alors réellement la page /index.html en gros)
+  - ✅ faire en sorte que index-list.webt vide = index général (collection, toutes les entry dedans, collection, etc.)
+  - ✅ faire une page de doc complète qui explique tous les moyens de créer des index avec webette
+- ✅ Ajouter les ancres pour liens md et Handlebars
+- ✅ renomer le block index-list.webt en navigation.webt
+- ✅ Ajouter gestion d'une ligne "name: mon nom" pour le block navigation
+- ✅ Ajouter l'indentation des items dans le block navigation
+- ✅ Pourquoi VSCode me remet les pages de templates en HTML pour le Language Mode alors que je spécifie Handlebars ? Comment forcer Handlebars
+- ✅ Pouvoir spécifier un template pour une entrée
+- ✅ Transformer "collection-description.webt" en "description.webt" et l'étendre aux entrées
+- ✅ Ajouter "name.webt" pour les entrées et les collections (ça ne casse pas le slug), on pourrait créer un helper {{displayName entry}} et {{displayName collection}}
+- ✅ Possibilité de pouvoir faire des boutons ? En Markdown ?
+- ✅ Simplifier encore le site de démo : privilégier la doc pour les features et tout
+- ✅ Support Bold + Italic md
+- 🟨 EN COURS commencer un site webette pour la documentation webette
+- 🟨 EN COURS refaire entièrement le website-example pour montrer toutes les capacités actuelles de webette et faire un truc propre
+- ✅ virer les layouts inutiles et vérifier si ça prend encore les templates par défaut si on en enlève
+- ✅ refaire le webette.config.ts pour que ça prenne bien en compte les paramètres de template avec le dossier \_templates
+- 🔳 Design
+  - ✅ Pour le markdown, tester avec le cheatsheet markdown qu'on trouve sur github pour voir si tout fonctionne.
+  - 🔳 Continuer avec l'entrée unlist-an-entry qui possède un block navigation.webt et faire les changements nécessaires sur ce block spécial
+  - 🔳 vérifier les choses cassées
+  - 🔳 refaire un peu le texte pour les blocks intro
+  - 🔳 Virer les fonts inutilisées
+- 🔳 Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)
+- 🔳 Peut-être retirer complétement les templates du tool (pas utiles, il faut créer des templates pour son site et puis c'est tout) ?
+- 🔳 intégrer Standard.site (Lexicon ATproto) ?
+- 🔳 Permettre de changer l'ordre ascendant par déscendant
+- 🔳 Permettre de trier les entrées par date de création + date d'update
+- 🔳 CHANGER LES LIENS DU SITE DE DEMO (quand la doc sera en ligne) :
+  - 🔳 https://docs.webette.org/markdown (website-example/01 Playground/02 Edit your text/01 edit.md:35)
+  - 🔳 https://docs.webette.org/blocks/navigation (website-example/01 Playground/05 Add a Link/01 link.md:63)
+  - 🔳 https://docs.webette.org/images/variants (website-example/01 Playground/06 Insert an image inline/02 inline.md:39)
+  - 🔳 https://docs.webette.org (website-example/01 Playground/11 Go Further/01 go-further.md:21)
+  - 🔳 https://store.webette.org/starters (website-example/01 Playground/11 Go Further/01 go-further.md:24)
+  - 🔳 https://store.webette.org/plugins (website-example/01 Playground/11 Go Further/01 go-further.md:27)
+  - 🔳 https://webette.org/showcase (website-example/01 Playground/11 Go Further/01 go-further.md:30)
+  - 🔳 https://webette.org/donate (website-example/01 Playground/11 Go Further/01 go-further.md:33)
+- 🔳 Trouver un nom et inscrire ce nom dans le glossaire pour parler de l'indexation automatique et du rendu de cette navigation
+- 🔳 Ajouter à navigation.webt : auto list d'une collection (ses entrées), possibilité d'enlever le nom de la collection
+- 🔳 Permettre de retirer toutes les collections de la navigation auto. Permettre aussi de mettre des exceptions => Fichier de config du site
+- 🔳 Faire un Helper pour le menu / l'index
+- 🔳 En serve sous Windows, tu peux encore croiser des EBUSY lors de rm dans _public
+- 🔳 Sur webette.org : Ajouter une page de présentation d'atelier de formation "créer et publier son site web en une après-midi"
+- 🔳 Mettre en place les headers pour favicon et socials
+- 🔳 Mettre système de Tags pour les entry
+- 🔳 Mettre un fichier spécial collection.webt pour transformer une entry en sous-collection (faire en sorte que les niveaux soient-infinis). Faire fonctionner ça avec les index automatique
+- 🔳 Essayer de faire le tri dans les 2 types de fichiers de config pour avoir une vrai séparation entre la config d'un site et la config de l'outil
 
-- Plugin de flux RSS
-- Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)
-- Plugin : Ajouter un moyen à l'utilisateur de changer la date de son entrée grâce à un fichier created.webt et un autre fichier updated.webt si le user veux contrôlé ça. Je ne vois cette feature utile que dans les entrées
-- Plugin webette de TOC (sommaire, table des matières)
+## Plugins :
+- 🔳 Plugin de flux RSS
+- 🔳 Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)
+- 🔳 Plugin : Ajouter un moyen à l'utilisateur de changer la date de son entrée grâce à un fichier created.webt et un autre fichier updated.webt si le user veux contrôlé ça. Je ne vois cette feature utile que dans les entrées
+- 🔳 Plugin webette de TOC (sommaire, table des matières)
 
-## Trucs pour la doc :
+## Starters :
+- 🔳 Feed à la Pinterest
+- 🔳 Porfolio comme [portfolio.artwo.xyz](portfolio.artwo.xyz)
+- 🔳 VN ou Text RPG
+- 🔳 Blog tout simple
+- 🔳Documentation
+
+## Trucs pour la doc (pas vraiment des tâches, c'est en vrac) :
 Structure et ce qu'il faut mettre dans chaque page :
 
 - `01 Concept`

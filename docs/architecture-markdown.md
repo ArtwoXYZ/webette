@@ -112,7 +112,7 @@ interface MarkdownBlockContext {
 
 After the site model is resolved, Webette rewrites custom internal URLs in Markdown to real routes:
 
-- Collection index: `[All posts](collection: posts)`
+- Collection Automatic Index Page: `[All posts](collection: posts)`
 - Entry (collection implied): `[My first post](entry: my first post)`
 - Entry with explicit collection: `[My first post](collection: posts, entry: my first post)`
 - With link attributes: `[Open](entry: my first post, class: button, id: cta, title: "Read more", aria-label: "Read the full post")`

@@ -66,9 +66,9 @@ export default {
 
 Notes:
 - `templates.root` is relative to the site root.
-- `templates.custom.index.root` overrides the root index layout.
-- `templates.custom.index.collections` overrides the layout for all collection indexes.
-- `templates.custom.index.collection` maps collection slugs to per-collection index layouts.
+- `templates.custom.index.root` overrides the **Root Automatic Index Page** layout.
+- `templates.custom.index.collections` overrides the layout for all **Collection Automatic Index Pages**.
+- `templates.custom.index.collection` maps collection slugs to per-collection Automatic Index Page layouts.
 - `templates.custom.entry` maps `"<collectionSlug>/<entrySlug>"` to a layout file for a specific entry.
 - `templates.assets.dir` is relative to `templates.root` (or absolute if you pass an absolute path).
 - `templates.assets.publicBase` is the public URL prefix used in the build output.
@@ -93,8 +93,8 @@ Place a `unlisted.webt` file:
 - In an entry folder to mark that entry as unlisted.
 
 Behavior:
-- Unlisted collections and entries are excluded from the root/collection indexes.
-- Collection indexes are not generated for unlisted collections; instead, a forbidden index is written using `templates.default.accessForbidden`.
+- Unlisted collections and entries are excluded from Root/Collection **Automatic Index Pages**.
+- Collection Automatic Index Pages are not generated for unlisted collections; instead, a forbidden index page is written using `templates.default.accessForbidden`.
 - Unlisted collections and entries are excluded from the sitemap.
 - Pages are still generated and available at their routes.
 
@@ -124,9 +124,10 @@ Rules:
 - Files are copied/generated through the media pipelines and exposed as `collection.assets`.
 - Output routes follow the collection slug, e.g. `assets/images/posts/...`.
 
-## Index overrides (entry-based)
+## Index Override (entry-based)
 
-You can replace the root index or a collection index with a specific entry (must be unlisted):
+You can replace a Root/Collection **Automatic Index Page** with a specific entry (must be unlisted).  
+This is called an **Index Override**:
 
 ```ts
 index: {

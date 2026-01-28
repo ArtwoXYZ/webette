@@ -242,7 +242,7 @@ Generated HTML and assets are written to the folder defined by `build.outputDirN
 
 Media handling (core defaults): images optionally generate variants (if the engine is on) and always copy a default; audio and video are copied as-is to their configured output dirs with lightweight metadata (size/mime). Plugins handle transcodes or thumbnails.
 
-Rendering: the template engine (Handlebars) renders **one `index.html` per entry** at its route. Minimal root/collection indexes are generated when `build.generateIndex` is enabled (default on) using the index layout. A static `404.html` is always generated via the not-found layout + wrapper. When `build.protectAssets` is enabled (default on), “access forbidden” placeholders (wrapper + dedicated layout) are rendered in all asset folders/subfolders.
+Rendering: the template engine (Handlebars) renders **one `index.html` per entry** at its route. Minimal **Automatic Index Pages** (root + collection) are generated when `build.generateIndex` is enabled (default on) using the index layout. A static `404.html` is always generated via the not-found layout + wrapper. When `build.protectAssets` is enabled (default on), “access forbidden” placeholders (wrapper + dedicated layout) are rendered in all asset folders/subfolders.
 
 Optional server helpers:
 

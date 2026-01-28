@@ -64,7 +64,7 @@ export default {
   - other modes keep the folder but prune orphaned outputs (pages/assets/model) that no longer exist in the current model, so deleted blocks/entries/collections disappear even sans clean. If plugins write custom files outside the model, they should register or manage those files to avoid deletion.
 - `build.readContent`: whether to read/resolve block contents during build/serve (default `true`; set to `false` to only scan structure)
 - `build.prettyPrint`: pretty-format generated HTML via rehype (default `true`)
-- `build.generateIndex`: generate root/collection index pages (default `true`)
+- `build.generateIndex`: generate **Automatic Index Pages** (root + collection) (default `true`)
 - `build.protectAssets`: write a forbidden `index.html` in asset folders (default `true`)
 - `build.writeHtaccess`: write a root `.htaccess` with `ErrorDocument 404 /404.html` and `Options -Indexes` (Apache only, default `false`)
 - `build.writeNginxSample`: write a sample `nginx.conf` in the build output (default `false`)
@@ -75,7 +75,7 @@ export default {
 - `templates.root`: base folder for internal/fallback templates (resolved from the installed webette package root unless absolute)
 - `templates.default.wrapper`: wrapper used when the site does not provide its own (relative to `templates.root`)
 - `templates.default.layout`: layout partial used when the site does not provide its own (relative to `templates.root`)
-- `templates.default.index`: index layout used for root/collection listings (relative to `templates.root`)
+- `templates.default.index`: layout used for **Automatic Index Pages** (root/collection listings) (relative to `templates.root`)
 - `templates.default.notFound`: layout used to render the static `404.html` page (relative to `templates.root`)
 - `templates.default.accessForbidden`: layout used for asset-folder forbidden pages (relative to `templates.root`)
 - `images.*`: defaults for the image pipeline (engine on/off, sizes, format/quality/fit, `outputDir`, `reencodeDefault`); site config (`webette.config.ts`) can override.

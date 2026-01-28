@@ -44,8 +44,8 @@ If you want the same options syntax for an external link:
 
 ## The special block `navigation.webt`
 
-`navigation.webt` is a special **block** that lets you write a navigation tree pointing to **collections** and **entries**.
-It is meant to be used by templates to build menus, sidebars, custom TOC, etc.
+`navigation.webt` is a special **block** that defines a **Navigation Plan**: an ordered list of **collections** and **entries**.
+It is meant to be used by templates to build a **Site Menu**, sidebars, custom TOC, etc.
 
 If you want to see a real one, open:
 
