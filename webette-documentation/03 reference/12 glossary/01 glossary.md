@@ -169,6 +169,14 @@ It can optionally declare a display name:
 
 - `name: My navigation` sets `content.data.name` (first `name:` wins; empty `name:` lines are ignored).
 - If there are no item lines (empty file, or only `name:`), webette expands it into a full **Navigation Plan** (each collection followed by its entries).
+- If you add `mode: collection` before any items, webette expands into a **single** collection.
+- Use `collection: current` (or a collection name/slug) to pick which collection is expanded.
+- Optional header options (before any items):
+  - `hide collections: true|false` hides collection items (entries are promoted).
+  - `hide entries: true|false` hides entry items.
+  - `collections link: true|false` toggles links for collection items.
+  - `entries link: true|false` toggles links for entry items.
+  - When a link is disabled, the item exposes `link: false` for templates.
 
 Items are hierarchical:
 

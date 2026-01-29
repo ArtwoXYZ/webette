@@ -44,9 +44,10 @@
 - 🟨 EN COURS refaire entièrement le website-example pour montrer toutes les capacités actuelles de webette et faire un truc propre
 - ✅ virer les layouts inutiles et vérifier si ça prend encore les templates par défaut si on en enlève
 - ✅ refaire le webette.config.ts pour que ça prenne bien en compte les paramètres de template avec le dossier \_templates
+- ✅ Trouver un nom et inscrire ce nom dans le glossaire pour parler de l'indexation automatique et du rendu de cette navigation
 - 🔳 Design
   - ✅ Pour le markdown, tester avec le cheatsheet markdown qu'on trouve sur github pour voir si tout fonctionne.
-  - 🔳 Continuer avec l'entrée unlist-an-entry qui possède un block navigation.webt et faire les changements nécessaires sur ce block spécial
+  - ✅ Continuer avec l'entrée unlist-an-entry qui possède un block navigation.webt et faire les changements nécessaires sur ce block spécial
   - 🔳 vérifier les choses cassées
   - ✅ refaire un peu le texte pour les blocks intro
   - 🔳 Virer les fonts inutilisées
@@ -64,8 +65,7 @@
   - 🔳 https://store.webette.org/plugins (website-example/01 Playground/11 Go Further/01 go-further.md:27)
   - 🔳 https://webette.org/showcase (website-example/01 Playground/11 Go Further/01 go-further.md:30)
   - 🔳 https://webette.org/donate (website-example/01 Playground/11 Go Further/01 go-further.md:33)
-- ✅ Trouver un nom et inscrire ce nom dans le glossaire pour parler de l'indexation automatique et du rendu de cette navigation
-- 🔳 Ajouter à navigation.webt : auto list d'une collection (ses entrées), possibilité d'enlever le nom de la collection
+- ✅ Ajouter à navigation.webt : auto list d'une collection (ses entrées), possibilité d'enlever le nom de la collection
 - 🔳 Permettre de retirer toutes les collections de la navigation auto. Permettre aussi de mettre des exceptions => Fichier de config du site
 - 🔳 Faire un Helper pour le menu / l'index
 - 🔳 En serve sous Windows, tu peux encore croiser des EBUSY lors de rm dans _public

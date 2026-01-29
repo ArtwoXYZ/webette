@@ -132,7 +132,16 @@ A configuration mechanism (`index.root`, `index.collections`) that replaces an *
 A special block that defines an ordered list of collections and/or entries.  
 It is **data**, not UI: templates read `content.data.items` to render it.
 
-If the file is empty (or only `name:`), Webette expands it into a full Navigation Plan (each collection followed by its entries).
+If the file is empty (or only `name:`), Webette expands it into a full Navigation Plan (each collection followed by its entries).  
+If you add `mode: collection` before any items, Webette expands into a **single** collection.  
+Use `collection: current` (or a collection name/slug) to pick which collection is expanded.
+
+Optional header options (before any items):
+- `hide collections: true|false` hides collection items (entries are promoted).
+- `hide entries: true|false` hides entry items.
+- `collections link: true|false` toggles links for collection items.
+- `entries link: true|false` toggles links for entry items.
+When a link is disabled, the item exposes `link: false` for templates.
 
 ---
 

@@ -4,9 +4,17 @@
     {{#if (eq kind "title")}}
     <span class="navigation-heading">{{ title }}</span>
     {{else if (eq kind "collection")}}
-    <a href="{{ collection.route }}">
+    {{#if (eq link false)}}
+    <span class="navigation-label navigation-label--collection">
+      <span class="navigation-label-prefix">Collection:</span>
+      {{#if title}}{{ title }}{{else}}{{ displayName collection }}{{/if}}
+    </span>
+    {{else}}
+    <a href="{{ collection.route }}" class="navigation-link navigation-link--collection">
+      <span class="navigation-label-prefix">Collection:</span>
       {{#if title}}{{ title }}{{else}}{{ displayName collection }}{{/if}}
     </a>
+    {{/if}}
 
     {{#if collection.description}}
     <div class="collection-description">{{{nl2br collection.description}}}</div>
@@ -26,11 +34,17 @@
     </div>
     {{/if}}
     {{else if (eq kind "entry")}}
-    <a href="{{ entry.route }}">
+    {{#if (eq link false)}}
+    <span class="navigation-label navigation-label--entry">
+      {{#if title}}{{ title }}{{else}}{{ displayName entry }}{{/if}}
+      {{#if (match entry.route "#([^#]+)$")}}, #{{match entry.route "#([^#]+)$"}}{{/if}}
+    </span>
+    {{else}}
+    <a href="{{ entry.route }}" class="navigation-link navigation-link--entry">
       {{#if title}}{{ title }}{{else}}{{ displayName entry }}{{/if}}
       {{#if (match entry.route "#([^#]+)$")}}, #{{match entry.route "#([^#]+)$"}}{{/if}}
     </a>
-    <span class="navigation-entry-meta">(collection: {{ displayName collection }})</span>
+    {{/if}}
     {{/if}}
 
     {{#if children}}

@@ -147,6 +147,15 @@ name: My navigation
 
 Rules:
 - `name` is optional and sets `content.data.name` (first `name:` wins; empty `name:` lines are ignored).
+- Optional header lines can configure auto-expansion (must appear before item lines):
+  - `mode: collection` expands into a single collection instead of all collections.
+  - `collection: current` uses the collection that contains the `navigation.webt` file.
+  - `collection: <name>` uses a specific collection name or slug.
+  - `hide collections: true|false` hides collection items (entries are promoted to the same level).
+  - `hide entries: true|false` hides entry items.
+  - `collections link: true|false` toggles links for collection items.
+  - `entries link: true|false` toggles links for entry items.
+    When a link is disabled, the item exposes `link: false` so templates can render a label instead of an `<a>`.
 - Items can declare `title`, `collection`, and/or `entry`.
 - `title` is optional; it sets an item's display label (empty `title:` is ignored).
 - Indentation is structural: `0` then `2` spaces per level (unlimited). Children are nested under `children` in the model.
@@ -154,6 +163,7 @@ Rules:
 - Values can be collection/entry names or slugs.
 - The list keeps the order defined in the file.
 - If there are no items (empty file, or only `name:`), Webette expands it into a full **Navigation Plan** (each collection followed by its entries).
+- If `mode: collection` is set and there are no items, Webette expands it into a **single** collection (the chosen collection plus its entries).
 - You can append an anchor to entry items: `entry: slug#anchor` or `entry: slug#Heading text`.
 
 The block does not auto-render. Use it in templates via `content.data.items` (tree):
