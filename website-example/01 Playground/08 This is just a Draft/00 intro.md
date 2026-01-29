@@ -1,4 +1,5 @@
 # This is just a Draft
 
-In **webette**, a **draft** is still a normal **entry** on your disk.  
-It's just marked as "draft", so it won't be part of a production build.
+Drafts are for work in progress.  
+This page explains what `draft.webt` does in `serve` and in `build`.  
+It helps you keep unfinished pages out of the public output.

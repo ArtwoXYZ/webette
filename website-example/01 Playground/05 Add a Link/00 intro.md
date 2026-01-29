@@ -1,4 +1,5 @@
-# How to add links in **webette**
+# Add a Link
 
-The web is built on hypertext: pages that point to other pages.  
-And in **webette**, that kind of **navigation** comes very naturally: you can link to **entries**, **collections**, specific **blocks**, or any URL.
+Links are the paths between pages.  
+Here you will learn the normal Markdown way and the **webette** shortcuts.  
+It is a quick tour of internal and external targets.

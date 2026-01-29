@@ -1,4 +1,5 @@
 # Reorder with numbers
 
-**webette** reads the filesystem in a predictable way.
-If you add numeric prefixes, they become the order.
+Order is simple and predictable in **webette**.  
+This page introduces numeric prefixes and how they control sequencing.  
+It is a clean way to sort entries and blocks.

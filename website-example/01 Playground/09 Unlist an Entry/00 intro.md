@@ -1,3 +1,5 @@
 # Unlist an Entry
 
-Sometimes you want a page to exist (and stay reachable), but you don't want it to show up in your **Site Menu**.
+Sometimes a page should exist quietly.  
+This entry explains unlisted pages and how they behave in menus and indexes.  
+The URL stays valid even when the page is hidden from lists.
