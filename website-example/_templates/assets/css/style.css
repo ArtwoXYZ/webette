@@ -7,16 +7,16 @@
    -------------------------------------------------------------------------- */
 
 :root {
-    --bg: hsl(42.9, 24.1%, 94.3%);
-    --bg-box: hsl(150, 6%, 6%);
-    --accent: hsl(0, 100%, 50%);
-    --text: hsl(0, 0%, 91%);
+    --bg: hsl(0, 0%, 12%);
+    --bg-box: hsl(107.6, 16.4%, 57.3%);
+    --accent: hsl(3, 64.3%, 50.6%);
+    --text: hsl(270, 8.3%, 14.1%);
     --rail: 2rem;
     --corner: var(--rail);
     --gutter: 0.7rem;
 
     --font-sans: system-ui, sans-serif;
-    --font-mono: "F1.8", "Consolas", "Lucida Console", monospace;
+    --font-mono: "Drafting Mono", "Consolas", "Lucida Console", monospace;
 
     --text-muted: color-mix(in srgb, var(--bg-box) 40%, var(--text));
     --rule: color-mix(in srgb, var(--bg-box) 65%, var(--text));
@@ -120,12 +120,14 @@ strong {
     font-size: 1.8rem;
     margin: 0 0 1rem;
     letter-spacing: 0.1rem;
+    font-weight: 700;
 }
 
 .prose h2 {
     font-size: 1.35rem;
     margin: 2rem 0 0.75rem;
     letter-spacing: 0.05rem;
+    font-weight: 600;
 }
 
 .prose h3 {
@@ -158,6 +160,8 @@ strong {
     color: var(--accent);
     text-decoration: underline;
     text-underline-offset: 0.15em;
+    filter: brightness(80%);
+    font-weight: 600;
 }
 
 .prose a:hover {
@@ -347,6 +351,34 @@ main>article>section:last-of-type {
 }
 
 /* --------------------------------------------------------------------------
+   Home page section styling (invert first vs others)
+   -------------------------------------------------------------------------- */
+
+main.home>section:first-of-type {
+    background: var(--bg-box);
+    border: none;
+    color: inherit;
+    --text: unset;
+    --text-muted: unset;
+    --rule: unset;
+    --border: unset;
+    --surface-1: unset;
+    --surface-2: unset;
+}
+
+main.home>section:not(:first-of-type) {
+    background: none;
+    border: var(--bg-box) 1px dashed;
+    color: var(--bg-box);
+    --text: var(--light-text);
+    --text-muted: var(--light-muted);
+    --rule: var(--light-rule);
+    --border: var(--light-border);
+    --surface-1: var(--light-surface-1);
+    --surface-2: var(--light-surface-2);
+}
+
+/* --------------------------------------------------------------------------
    Left rail: corner + wordmark
    -------------------------------------------------------------------------- */
 
@@ -419,7 +451,7 @@ main>article>section:last-of-type {
     font-weight: 700;
     font-size: 1.3rem;
     margin-top: 1rem;
-    color: var(--bg-box);
+    color: var(--text);
 }
 
 .webette-logo-welcome {
@@ -527,6 +559,8 @@ main>article>section:last-of-type {
     z-index: 1;
     text-indent: -3px;
     line-height: 1.5rem;
+    font-weight: 500;
+    font-size: 0.8rem;
 }
 
 .top-menu-entry.is-active {
@@ -615,7 +649,7 @@ main>article>section:last-of-type {
     border: 1px solid var(--bg-box);
     color: var(--bg-box);
     background: var(--bg);
-    filter: brightness(60%);
+    filter: brightness(70%);
     width: fit-content;
 }
 
@@ -625,7 +659,7 @@ main>article>section:last-of-type {
     padding: 2px 6px 0;
     border: 1px solid var(--bg);
     color: var(--bg);
-    filter: brightness(60%);
+    filter: brightness(500%);
     position: absolute;
     right: -10px;
     top: 50%;
@@ -700,6 +734,8 @@ section.video video {
 .navigation-link {
     text-decoration: none;
     color: var(--accent);
+    filter: brightness(80%);
+    font-weight: 500;
 }
 
 .navigation-link:hover {
@@ -721,7 +757,7 @@ section.video video {
     justify-content: space-between;
     align-items: baseline;
     gap: var(--gutter);
-    margin-top: var(--gutter);
+    margin-top: calc(var(--gutter) * 4);
 }
 
 .prev-next a {
@@ -739,12 +775,13 @@ a.webt-md.button {
     display: block;
     width: fit-content;
     max-width: 100%;
-    margin: calc(var(--gutter) * 4) auto var(--gutter) auto;
-    padding: 8px 12px;
-    background: var(--button-bg);
-    color: var(--bg-box);
+    margin: calc(var(--gutter) * 8) auto calc(var(--gutter) * 4) auto;
+    padding: 0px 42px;
+    background: var(--accent);
+    color: var(--bg);
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 900;
+    font-family: var(--font-mono);
 }
 
 a.webt-md.button:hover {
@@ -778,7 +815,7 @@ a.webt-md.button:hover {
 
 .site-footer-right time {
     color: var(--bg);
-    filter: brightness(55%);
+    filter: brightness(500%);
 }
 
 

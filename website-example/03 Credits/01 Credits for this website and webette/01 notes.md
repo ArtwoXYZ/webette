@@ -12,7 +12,7 @@ and they share the same license unless stated otherwise.
 https://artwo.xyz
 
 Fonts used in the demo:
-- **F1.8** (mono display, bundled in the project)
+- **Drafting Mono** (SIL Open Font License 1.1, bundled in the project)
 - **system-ui** and system monospace fallbacks (depends on the OS)
 
 ## Media used for this demo site

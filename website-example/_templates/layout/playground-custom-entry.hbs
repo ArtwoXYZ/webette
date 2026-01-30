@@ -40,15 +40,15 @@
 
     {{#if prevEntry}}
       <nav class="prev-next">
-        <a class="prev-next-link prev" href="{{prevEntry.route}}">← {{displayName prevEntry}}</a>
+        <a class="prev-next-link prev" href="{{prevEntry.route}}">◀ {{displayName prevEntry}}</a>
         {{#if nextEntry}}
-          <a class="prev-next-link next" href="{{nextEntry.route}}">{{displayName nextEntry}} →</a>
+          <a class="prev-next-link next" href="{{nextEntry.route}}">{{displayName nextEntry}} ▶</a>
         {{/if}}
       </nav>
     {{else}}
       {{#if nextEntry}}
         <nav class="prev-next">
-          <a class="prev-next-link next" href="{{nextEntry.route}}">{{displayName nextEntry}} →</a>
+          <a class="prev-next-link next" href="{{nextEntry.route}}">{{displayName nextEntry}} ▶</a>
         </nav>
       {{/if}}
     {{/if}}

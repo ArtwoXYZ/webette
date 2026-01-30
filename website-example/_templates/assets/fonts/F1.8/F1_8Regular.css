@@ -1,9 +1,0 @@
-@font-face {
-    font-family: 'F1.8';
-    src: url('fonts/F1_8Regular.eot');
-    src: url('fonts/F1_8Regular.eot') format('embedded-opentype'),
-         url('fonts/F1_8Regular.woff2') format('woff2'),
-         url('fonts/F1_8Regular.woff') format('woff'),
-         url('fonts/F1_8Regular.ttf') format('truetype'),
-         url('fonts/F1_8Regular.svg#F1_8Regular') format('svg');
-}

@@ -1,9 +1,0 @@
-@font-face {
-    font-family: 'Flexi IBM VGA False';
-    src: url('fonts/Flexi_IBM_VGA_False.eot');
-    src: url('fonts/Flexi_IBM_VGA_False.eot') format('embedded-opentype'),
-         url('fonts/Flexi_IBM_VGA_False.woff2') format('woff2'),
-         url('fonts/Flexi_IBM_VGA_False.woff') format('woff'),
-         url('fonts/Flexi_IBM_VGA_False.ttf') format('truetype'),
-         url('fonts/Flexi_IBM_VGA_False.svg#Flexi_IBM_VGA_False') format('svg');
-}
