@@ -7,9 +7,9 @@
    -------------------------------------------------------------------------- */
 
 :root {
-    --bg: hsl(33, 20%, 90%);
+    --bg: hsl(42.9, 24.1%, 94.3%);
     --bg-box: hsl(150, 6%, 6%);
-    --accent: hsl(5.6, 100%, 66.3%);
+    --accent: hsl(0, 100%, 50%);
     --text: hsl(0, 0%, 91%);
     --rail: 2rem;
     --corner: var(--rail);
@@ -319,7 +319,8 @@ strong {
     padding: 0 var(--gutter) 72px;
 }
 
-section {
+main>section,
+main>article>section {
     background-color: var(--bg-box);
     padding: 2.5rem 3.3rem;
     margin: 0 0 calc(var(--gutter) * 4);
@@ -340,7 +341,8 @@ main>article>section:first-of-type {
     --surface-2: var(--light-surface-2);
 }
 
-section:last-of-type {
+main>section:last-of-type,
+main>article>section:last-of-type {
     margin-bottom: 0;
 }
 

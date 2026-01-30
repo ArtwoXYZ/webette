@@ -66,7 +66,6 @@
   - 🔳 https://webette.org/showcase (website-example/01 Playground/11 Go Further/01 go-further.md:30)
   - 🔳 https://webette.org/donate (website-example/01 Playground/11 Go Further/01 go-further.md:33)
 - ✅ Ajouter à navigation.webt : auto list d'une collection (ses entrées), possibilité d'enlever le nom de la collection
-- 🔳 Permettre de retirer toutes les collections de la navigation auto. Permettre aussi de mettre des exceptions => Fichier de config du site
 - 🔳 Faire un Helper pour le menu / l'index
 - 🔳 En serve sous Windows, tu peux encore croiser des EBUSY lors de rm dans _public
 - 🔳 Sur webette.org : Ajouter une page de présentation d'atelier de formation "créer et publier son site web en une après-midi"
@@ -74,6 +73,7 @@
 - 🔳 Mettre système de Tags pour les entry
 - 🔳 Mettre un fichier spécial collection.webt pour transformer une entry en sous-collection (faire en sorte que les niveaux soient-infinis). Faire fonctionner ça avec les index automatique
 - 🔳 Essayer de faire le tri dans les 2 types de fichiers de config pour avoir une vrai séparation entre la config d'un site et la config de l'outil
+- 🔳 Comment ajouter un block vidéo d'une autre entrée où on veut (via MD, via block spécial peut-être, via helper) ? Réfléchir à ça pour tous les types de blocks.
 
 ## Plugins :
 - 🔳 Plugin de flux RSS
