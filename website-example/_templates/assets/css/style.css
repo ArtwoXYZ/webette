@@ -11,6 +11,7 @@
     --bg-box: hsl(107.6, 16.4%, 57.3%);
     --accent: hsl(3, 64.3%, 50.6%);
     --text: hsl(270, 8.3%, 14.1%);
+    --link: hsl(47.7, 61.9%, 12.4%);
     --rail: 2rem;
     --corner: var(--rail);
     --gutter: 0.7rem;
@@ -19,10 +20,14 @@
     --font-mono: "Drafting Mono", "Consolas", "Lucida Console", monospace;
 
     --text-muted: color-mix(in srgb, var(--bg-box) 40%, var(--text));
+    --text-code: #f6eec3;
+    --text-code2: #511515;
     --rule: color-mix(in srgb, var(--bg-box) 65%, var(--text));
-    --border: color-mix(in srgb, var(--bg-box) 78%, var(--text));
-    --surface-1: color-mix(in srgb, var(--bg-box) 96%, var(--text));
-    --surface-2: color-mix(in srgb, var(--bg-box) 94%, var(--text));
+    --border: #2b2013;
+    --border2: #845f56;
+    --surface-1: #65533a;
+    --surface-2: #c18e7b;
+    --surface-3: #5f8661;
     --button-bg: color-mix(in srgb, var(--accent) 92%, var(--text));
     --button-bg-hover: color-mix(in srgb, var(--accent) 86%, var(--text));
 
@@ -45,6 +50,7 @@
 
 html {
     scrollbar-gutter: stable;
+    min-width: 320px;
 }
 
 body {
@@ -52,6 +58,8 @@ body {
     font-family: var(--font-sans);
     color: var(--text);
     margin: 0;
+    font-size: 16px;
+    min-width: 320px;
 }
 
 /* --------------------------------------------------------------------------
@@ -100,8 +108,7 @@ strong {
 
 .prose {
     color: var(--text);
-    font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.9;
 }
 
 .prose h1,
@@ -157,11 +164,25 @@ strong {
 }
 
 .prose a {
-    color: var(--accent);
+    color: var(--link);
     text-decoration: underline;
     text-underline-offset: 0.15em;
-    filter: brightness(80%);
     font-weight: 600;
+    word-wrap: break-word;
+}
+
+.prose a[target="_blank"] {
+    position: relative;
+    padding-left: 1.25em;
+}
+
+.prose a[target="_blank"]::before {
+    content: "🌏";
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translateY(-0.25rem);
+    text-decoration: none;
 }
 
 .prose a:hover {
@@ -197,7 +218,7 @@ strong {
     margin: 1rem 0;
     padding: 0.7rem 1rem;
     border-left: 2px solid var(--accent);
-    background: var(--surface-1);
+    background: var(--surface-3);
 }
 
 .prose blockquote blockquote {
@@ -208,27 +229,31 @@ strong {
 /* Inline code */
 .prose :not(pre)>code {
     display: inline-block;
-    padding: 0.05em 0.35em;
+    padding: 0 0.35rem;
     border: 1px solid var(--border);
     background: var(--surface-1);
-    font-size: 0.95em;
+    font-size: 0.9rem;
+    color: var(--text-code);
+    line-height: 1.6;
 }
 
 /* Code blocks */
 .prose pre {
     margin: 1rem 0;
     padding: 0.9rem 1rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border2);
     background: var(--surface-2);
     overflow-x: auto;
     overflow-y: hidden;
+    color: var(--text-code2);
 }
 
 .prose pre code {
     display: block;
-    white-space: pre;
+    white-space: normal;
     font-size: 0.9rem;
     line-height: 1.55;
+    margin-top: 0 !important;
 }
 
 /* Tables */
@@ -279,6 +304,14 @@ strong {
     margin-top: 2rem;
     padding-top: 1rem;
     border-top: 1px dashed var(--rule);
+}
+
+.prose>:first-child {
+    margin-top: var(--gutter);
+}
+
+img.webt-md {
+    margin: 2rem 0 0.5rem;
 }
 
 /* --------------------------------------------------------------------------
@@ -339,10 +372,13 @@ main>article>section:first-of-type {
 
     --text: var(--light-text);
     --text-muted: var(--light-muted);
+    --text-code2: var(--text-code);
+    --link: var(--accent);
     --rule: var(--light-rule);
     --border: var(--light-border);
     --surface-1: var(--light-surface-1);
     --surface-2: var(--light-surface-2);
+    --surface-3: var(--light-surface-2);
 }
 
 main>section:last-of-type,
@@ -364,6 +400,7 @@ main.home>section:first-of-type {
     --border: unset;
     --surface-1: unset;
     --surface-2: unset;
+    --surface-3: unset;
 }
 
 main.home>section:not(:first-of-type) {
@@ -374,7 +411,7 @@ main.home>section:not(:first-of-type) {
     --text-muted: var(--light-muted);
     --rule: var(--light-rule);
     --border: var(--light-border);
-    --surface-1: var(--light-surface-1);
+    --surface-3: var(--light-surface-1);
     --surface-2: var(--light-surface-2);
 }
 
@@ -440,7 +477,35 @@ main.home>section:not(:first-of-type) {
     align-items: center;
     padding: 5rem 0;
     background: none;
-    border: var(--bg-box) 1px dashed;
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0px -1px 5px #000000a1, 0px 2px 4px #ffffff2e;
+    border: 1px solid #000000d1 !important;
+}
+
+.image-hero::before {
+    content: ' ';
+    display: block;
+    position: absolute;
+    top: -3px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 3px 0px #0006, inset 0 -2px 3px -1px #ffffff52;
+    border-radius: 3px;
+
+}
+
+.image-hero::after {
+    content: ' ';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 3px;
+    background: radial-gradient(60% 190% at 10% 0%, #ffffff29, transparent), radial-gradient(360% 0.3% at -190% 0.1%, white, transparent);
 }
 
 .image-hero hr {
@@ -451,12 +516,16 @@ main.home>section:not(:first-of-type) {
     font-weight: 700;
     font-size: 1.3rem;
     margin-top: 1rem;
-    color: var(--text);
+    color: black;
 }
 
 .webette-logo-welcome {
     width: 18rem;
     margin-left: -1rem;
+}
+
+.image-hero>* {
+    filter: drop-shadow(4px 3px 0.8px #00000038);
 }
 
 /* --------------------------------------------------------------------------
@@ -500,6 +569,10 @@ main.home>section:not(:first-of-type) {
     cursor: pointer;
     padding: 0.12rem 0.3rem 0;
     font-size: 0.9rem;
+}
+
+.top-menu-tab--link {
+    text-decoration: none;
 }
 
 .top-menu-tab:hover {
@@ -672,12 +745,18 @@ main.home>section:not(:first-of-type) {
 
 section.image {
     text-align: center;
+    color: var(--text);
 }
 
 section.image figure {
     text-align: center;
     width: fit-content;
     margin: auto;
+    padding-top: 0.8rem;
+}
+
+section.image figure figcaption {
+    margin-top: 1rem;
 }
 
 section.video video {
@@ -710,7 +789,7 @@ section.video video {
 .navigation-list .navigation-list {
     margin: 0.35rem 0 0.7rem;
     padding-left: 1.4rem;
-    border-left: 1px dashed var(--rule);
+    border-left: 2px dotted var(--accent);
 }
 
 .navigation-item {
@@ -725,16 +804,17 @@ section.video video {
 }
 
 .navigation-label-prefix {
-    color: var(--text-muted);
+    color: var(--accent);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     font-size: 0.7rem;
+    font-weight: 700;
+    filter: brightness(80%);
 }
 
 .navigation-link {
     text-decoration: none;
-    color: var(--accent);
-    filter: brightness(80%);
+    color: var(--link);
     font-weight: 500;
 }
 
@@ -743,9 +823,8 @@ section.video video {
     text-underline-offset: 0.15em;
 }
 
-.navigation-label--entry,
-.navigation-link--entry {
-    font-family: var(--font-sans);
+.navigation-link--collection {
+    font-weight: 600;
 }
 
 /* --------------------------------------------------------------------------
@@ -771,22 +850,113 @@ section.video video {
 }
 
 /* Markdown "button" links */
+/* Main frame and text */
 a.webt-md.button {
     display: block;
     width: fit-content;
     max-width: 100%;
     margin: calc(var(--gutter) * 8) auto calc(var(--gutter) * 4) auto;
-    padding: 0px 42px;
-    background: var(--accent);
-    color: var(--bg);
+    background:
+        radial-gradient(83% 60% at 50% -40%, var(--accent), hsla(0, 0%, 0%, 0)),
+        radial-gradient(83% 60% at 50% 140%, var(--accent), hsla(0, 0%, 0%, 0)),
+        radial-gradient(13% 58% at 0 100%, hsla(0, 0%, 0%, 0.68), hsla(0, 0%, 0%, 0)),
+        radial-gradient(23% 108% at 0% 0%, hsla(0, 0%, 0%, 0.68), hsla(0, 0%, 0%, 0)),
+        radial-gradient(13% 38% at 98% 10%, hsla(0, 0%, 100%, 0.21), hsla(0, 0%, 0%, 0)),
+        radial-gradient(13% 38% at 98% 90%, hsla(0, 0%, 100%, 0.2), hsla(0, 0%, 0%, 0)),
+        linear-gradient(var(--accent));
+    color: hsla(0, 0%, 100%, 0.65);
     text-decoration: none;
-    font-weight: 900;
+    font-weight: 300;
     font-family: var(--font-mono);
+    position: relative;
+    padding: 1.2rem 1.7rem 1.15rem;
+    border-radius: 0.2rem;
+    z-index: 3;
+    box-shadow:
+        0 0 0 0.2rem hsla(0, 0%, 0%, 0.68),
+        0 0.1em 0.1rem 0.3rem color-mix(in hsl shorter hue, var(--accent) 8.3%, hsla(50, 0%, 100%, 0.12) 5%),
+        0 -0.1rem 0.1rem 0.3rem hsla(0, 0%, 0%, 0.35),
+        inset -1px 0px 1px 0px hsla(0, 0%, 0%, 0.45);
+    text-shadow: 1px -1px 1px #00000030;
+    filter: saturate(1.3) brightness(1.2) contrast(0.9);
+    transition:
+        box-shadow 0.1s ease-out,
+        color 0.1s ease-out,
+        filter 0.1s ease-out;
+}
+
+/* Squircle */
+a.button.webt-md::before {
+    content: ' ';
+    position: absolute;
+    --gradient01: color-mix(in hsl shorter hue, var(--accent) 10%, hsla(0, 0%, 100%, 0.35) 80%);
+    --gradient02: color-mix(in hsl shorter hue, var(--accent) 15%, hsla(0, 0%, 100%, 0.25) 60%);
+    background:
+        radial-gradient(30% 60% at 36% 50%, var(--accent), hsla(0, 0%, 0%, 0)),
+        radial-gradient(183% 130% at 130% 50%, hsla(0, 0%, 0%, 0.38), hsla(0, 0%, 0%, 0)),
+        radial-gradient(80% 72% at -30% 50%, var(--gradient01), var(--gradient02), hsla(0, 0%, 0%, 0)),
+        linear-gradient(var(--accent));
+    clip-path:
+        shape(from 0 var(--squircle-displacement),
+            curve to var(--squircle-displacement) 0 with 0 0 / 0 0,
+            hline to calc(100% - var(--squircle-displacement)),
+            curve to 100% var(--squircle-displacement) with 100% 0 / 100% 0,
+            vline to calc(100% - var(--squircle-displacement)),
+            curve to calc(100% - var(--squircle-displacement)) 100% with 100% 100% / 100% 100%,
+            hline to var(--squircle-displacement),
+            curve to 0 calc(100% - var(--squircle-displacement)) with 0 100% / 0 100%, close);
+    --squircle-displacement: 3rem;
+    top: 0;
+    left: 0;
+    margin: 0.3rem;
+    width: calc(100% - 0.6rem);
+    height: calc(100% - 0.6rem);
+    z-index: -1;
+}
+
+/* Squircle borders */
+a.button.webt-md::after {
+    content: ' ';
+    position: absolute;
+    --gradient03: color-mix(in hsl shorter hue, var(--accent) 10%, hsla(0, 0%, 100%, 0.6) 15%);
+    background: linear-gradient(0.25turn, hsla(0, 0%, 0%, 0.15), var(--gradient03));
+    clip-path:
+        shape(from 0 var(--squircle-displacement),
+            curve to var(--squircle-displacement) 0 with 0 0 / 0 0,
+            hline to calc(100% - var(--squircle-displacement)),
+            curve to 100% var(--squircle-displacement) with 100% 0 / 100% 0,
+            vline to calc(100% - var(--squircle-displacement)),
+            curve to calc(100% - var(--squircle-displacement)) 100% with 100% 100% / 100% 100%,
+            hline to var(--squircle-displacement),
+            curve to 0 calc(100% - var(--squircle-displacement)) with 0 100% / 0 100%, close);
+    --squircle-displacement: 3rem;
+    top: 0;
+    left: 0;
+    margin: 0.2rem;
+    width: calc(100% - 0.4rem);
+    height: calc(100% - 0.4rem);
+    z-index: -2;
 }
 
 a.webt-md.button:hover {
-    background: var(--button-bg-hover);
-    color: var(--text);
+    box-shadow:
+        0 0 0 0.2rem hsla(0, 0%, 0%, 0.68),
+        inset 0 0 1px hsla(0, 0%, 0%, 1),
+        0 0.1em 0.1rem 0.3rem color-mix(in hsl shorter hue, var(--accent) 1%, hsla(50, 0%, 100%, 0.12) 30%),
+        0 -0.1rem 0.1rem 0.3rem hsla(0, 0%, 0%, 0.35),
+        inset -2px 0px 1px 1px hsla(0, 0%, 0%, 0.65);
+    color: hsla(0, 0%, 100%, 0.55);
+    filter: saturate(1.3) brightness(1.15) contrast(0.9);
+}
+
+a.webt-md.button:hover::before {
+    --gradient01: color-mix(in hsl shorter hue, var(--accent) 10%, hsla(0, 0%, 100%, 0.2) 80%);
+    --gradient02: color-mix(in hsl shorter hue, var(--accent) 15%, hsla(0, 0%, 100%, 0.2) 60%);
+    background:
+        radial-gradient(30% 60% at 36% 50%, var(--accent), hsla(0, 0%, 0%, 0)),
+        radial-gradient(183% 130% at 130% 50%, hsla(0, 0%, 0%, 0.38), hsla(0, 0%, 0%, 0)),
+        radial-gradient(80% 72% at -30% 50%, var(--gradient01), var(--gradient02), hsla(0, 0%, 0%, 0)),
+        linear-gradient(var(--accent));
 }
 
 /* Footer */
@@ -824,33 +994,111 @@ a.webt-md.button:hover {
    Responsive
    -------------------------------------------------------------------------- */
 
-@media (max-width: 720px) {
-    :root {
-        --rail: 72px;
-        --corner: 60px;
-        --gutter: 16px;
-    }
-
-    .site-rail {
-        padding-top: 16px;
-    }
-
-    .corner-slot {
-        width: 100%;
-        height: var(--rail);
-    }
-
-    .side-wordmark {
-        left: 8px;
-        top: calc(var(--corner) + 10px);
+@media (max-width: 768px) {
+    body {
         font-size: 14px;
     }
 
-    .site-frame {
-        padding-top: 16px;
+    .site-page {
+        padding: 0 var(--gutter);
     }
 
     .container {
-        padding: 0 var(--gutter) 56px;
+        padding: 0 0 30px;
+    }
+
+    .site-rail {
+        position: absolute;
+        top: var(--gutter);
+        right: var(--gutter);
+        left: auto;
+        width: auto;
+        height: var(--rail);
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.6rem;
+    }
+
+    .corner-slot {
+        width: auto;
+        height: auto;
+    }
+
+    .corner-logo {
+        width: var(--rail);
+        height: var(--rail);
+        padding: 0;
+    }
+
+    .side-wordmark {
+        position: static;
+        transform: none;
+        top: auto;
+        font-size: 0.85rem;
+    }
+
+    .top-menu-tabs {
+        padding-left: 0;
+        padding-right: calc(var(--rail) + 5rem);
+    }
+
+    .top-menu-entry {
+        text-indent: -4px;
+    }
+
+    .site-frame {
+        padding: var(--gutter) 0;
+    }
+
+    main>section,
+    main>article>section {
+        margin: 0 0 calc(var(--gutter) * 3);
+        padding: 1.5rem 2.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .side-wordmark {
+        display: none;
+    }
+
+    .top-menu-tabs {
+        padding-right: 0;
+    }
+
+    main>section,
+    main>article>section {
+        padding: 0.7rem 1.8rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .site-page {
+        padding: 0 0.6rem;
+    }
+
+    .site-rail {
+        position: static;
+        top: auto;
+        right: auto;
+        left: auto;
+        width: 100%;
+        height: auto;
+        justify-content: center;
+        margin: var(--gutter) 0;
+    }
+
+    .side-wordmark {
+        display: inline-flex;
+    }
+
+    .webette-logo-welcome {
+        width: 14rem;
+    }
+
+    main>section,
+    main>article>section {
+        padding: 0.3rem 1.2rem;
     }
 }

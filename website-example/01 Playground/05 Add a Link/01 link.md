@@ -1,10 +1,11 @@
-There are a few ways to do it, depending on what you want to point to.
+There are a few ways to add a link in **webette**, depending on what you want to point to.
 
 ## External links (Markdown)
 
 Just use regular Markdown:
 
-- `[Open example.com](https://example.com)`
+- In Markdown: `[Open example.com](https://example.com)`,
+- it's rendered as: [Open example.com](https://example.com)
 
 By default, external links open in a new tab.
 
@@ -16,7 +17,15 @@ By default, external links open in a new tab.
 - **Collection**: `[The Playground](collection: Playground)`
 - **Block** (file): `[Open this image](block: My Image.jpg)`
 
-You can also add common HTML attributes as options: `[Open my entry](entry: my entry, class: button, id: cta, title: "Go", aria-label: "Go to the next page")`
+For example:
+
+- In Markdown: `[Open "Reorder with numbers"](entry: Reorder with numbers)`,
+- it's rendered as: [Open "Reorder with numbers"](entry: Reorder with numbers)
+
+You can also add common HTML attributes as options: 
+```
+[Open my entry](entry: my entry, class: button, id: cta, title: "Go", aria-label: "Go to the next page")
+```
 
 ### How does resolution work?
 
@@ -26,21 +35,29 @@ When you write `collection:` / `entry:` / `block:`, **webette** tries to match w
 - the **slug**
 - the **id**
 
-If you only write `entry: ...`, the **collection** is assumed:  
+If you only write `entry: the entry name`, the **collection** is assumed:  
 it will look inside the current **collection** (the one your Markdown **block** belongs to).
 
 It means:
 
-- For an **entry** from another **collection**, add `collection:`: `[Open this image](collection: My Collection, entry: My Entry)`
+- For an **entry** from another **collection**, add `collection:`: 
+```
+[Open this image](collection: My Collection, entry: My Entry)
+```
 
-- For a **block** inside another **entry**, add `entry:` (and optionally `collection:`): `[Open this image](collection: My Collection, entry: My Entry, block: My Image.jpg)`
+- For a **block** inside another **entry**, add `entry:` (and optionally `collection:`): 
+```
+[Open this image](collection: My Collection, entry: My Entry, block: My Image.jpg)
+```
 
 
 ## External links with options
 
-If you want the same options syntax for an external link:
+If you want the same options syntax for an external link, use `url: example.com`:
 
-- `[Open](url: https://example.com, class: button, title: "External link")`
+```
+[Open](url: https://example.com, class: button, title: "External link")
+```
 
 ## The special block `navigation.webt`
 
@@ -49,10 +66,11 @@ It is meant to be used by templates to build a **Site Menu**, sidebars, custom T
 
 If you want to see a real one, open:
 
-`website-example/01 Playground/09 Unlist an Entry/02 navigation.webt`
+```
+website-example/01 Playground/09 Unlist an Entry/02 navigation.webt
+```
 
-If you want the full `navigation.webt` reference, see:  
-[navigation.webt (docs)](https://docs.webette.org/blocks/navigation)
+If you want the full `navigation.webt` reference, see: [navigation.webt (docs)](https://docs.webette.org/blocks/navigation)
 
 ## Try it!
 

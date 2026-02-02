@@ -14,7 +14,9 @@ That’s it. The content doesn’t matter: the file just needs to exist.
 
 This **entry** has one:
 
-`website-example/01 Playground/08 This is just a Draft/draft.webt`
+```
+website-example/01 Playground/08 This is just a Draft/draft.webt
+```
 
 ## Serve vs Build
 
@@ -25,7 +27,9 @@ This **entry** has one:
 
 Edit (rename or delete) this file:
 
-`website-example/01 Playground/08 This is just a Draft/draft.webt`
+```
+website-example/01 Playground/08 This is just a Draft/draft.webt
+```
 
 Then check two things:
 

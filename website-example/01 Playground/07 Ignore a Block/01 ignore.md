@@ -29,7 +29,9 @@ So if you don’t see that image on the page, that’s normal.
 
 Edit this file:
 
-`website-example/01 Playground/07 Ignore a Block/ignore.webt`
+```
+website-example/01 Playground/07 Ignore a Block/ignore.webt
+```
 
 And do this:
 

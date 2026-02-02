@@ -6,7 +6,7 @@ That's what "unlisted" means in **webette**.
 
 An unlisted **entry** (or **collection**) is:
 
-- still in the **model** (`isUnlisted: true`)
+- still in the **model** ( `isUnlisted: true` )
 - still rendered as a page (it keeps its URL)
 - hidden from **Automatic Index Pages** and default **Site Menu**
 - excluded from the sitemap
@@ -35,7 +35,9 @@ We’re going to unlist a different **entry**, so you can watch it disappear fro
 
 Create this file (empty):
 
-`website-example/02 Example/01 You can Unlist me/unlisted.webt`
+```
+website-example/02 Example/01 You can Unlist me/unlisted.webt
+```
 
 If you're using **webette** in `serve` mode, just wait a moment: live reload should refresh this page automatically.
 

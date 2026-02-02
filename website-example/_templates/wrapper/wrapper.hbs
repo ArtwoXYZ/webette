@@ -1,5 +1,6 @@
 <html lang="{{site.lang}}">
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
     <!-- Fonts -->
     <link rel="stylesheet" href="{{asset 'fonts/DraftingMono/DraftingMono.css'}}" />
@@ -46,12 +47,14 @@
 
           {{#each collections}}
             {{#unless isUnlisted}}
-              <input
-                class="top-menu-radio"
-                type="radio"
-                name="top-menu"
-                id="top-menu-{{slug}}"
-              />
+              {{#unless (eq entries.length 1)}}
+                <input
+                  class="top-menu-radio"
+                  type="radio"
+                  name="top-menu"
+                  id="top-menu-{{slug}}"
+                />
+              {{/unless}}
             {{/unless}}
           {{/each}}
 
@@ -59,12 +62,22 @@
             {{#each collections}}
               {{#unless isUnlisted}}
                 <div class="top-menu-tabwrap">
-                  <label class="top-menu-tab top-menu-tab--open {{#if ../collection}}{{#if (eq slug ../collection.slug)}}is-current{{/if}}{{/if}}" for="top-menu-{{slug}}">
-                    {{displayName this}}
-                  </label>
-                  <label class="top-menu-tab top-menu-tab--close" for="top-menu-none" data-close="{{slug}}">
-                    {{displayName this}}
-                  </label>
+                  {{#if (eq entries.length 1)}}
+                    <a
+                      class="top-menu-tab top-menu-tab--link {{#if ../collection}}{{#if (eq slug ../collection.slug)}}is-current{{/if}}{{/if}}"
+                      href="{{entries.0.route}}"
+                      {{#if (eq entries.0.route ../entry.route)}}aria-current="page"{{/if}}
+                    >
+                      {{displayName this}}
+                    </a>
+                  {{else}}
+                    <label class="top-menu-tab top-menu-tab--open {{#if ../collection}}{{#if (eq slug ../collection.slug)}}is-current{{/if}}{{/if}}" for="top-menu-{{slug}}">
+                      {{displayName this}}
+                    </label>
+                    <label class="top-menu-tab top-menu-tab--close" for="top-menu-none" data-close="{{slug}}">
+                      {{displayName this}}
+                    </label>
+                  {{/if}}
                 </div>
               {{/unless}}
             {{/each}}
@@ -73,27 +86,29 @@
           <div class="top-menu-panels">
             {{#each collections}}
               {{#unless isUnlisted}}
-                <div class="top-menu-panel" id="top-menu-panel-{{slug}}">
-                  <ul class="top-menu-tree">
-                    {{#each entries}}
-                      {{#unless isUnlisted}}
-                        <li class="top-menu-tree-item">
-                          <span class="tree-line {{#if (eq route ../../entry.route)}}is-active{{/if}} {{#if @last}}last-tree-line{{/if}}">&#8195;&#8195;&#8195;</span>
-                          <a
-                            class="top-menu-entry {{#if (eq route ../../entry.route)}}is-active{{/if}}"
-                            href="{{route}}"
-                            {{#if (eq route ../../entry.route)}}aria-current="page"{{/if}}
-                          >
-                            <span class="tree-ascii">&#9492;&#9472;&#9472;</span> {{displayName this}}
-                          </a>
-                          {{#if isDraft}}
-                            <span class="draft-pill">draft</span>
-                          {{/if}}
-                        </li>
-                      {{/unless}}
-                    {{/each}}
-                  </ul>
-                </div>
+                {{#unless (eq entries.length 1)}}
+                  <div class="top-menu-panel" id="top-menu-panel-{{slug}}">
+                    <ul class="top-menu-tree">
+                      {{#each entries}}
+                        {{#unless isUnlisted}}
+                          <li class="top-menu-tree-item">
+                            <span class="tree-line {{#if (eq route ../../entry.route)}}is-active{{/if}} {{#if @last}}last-tree-line{{/if}}">&#8195;&#8195;&#8195;</span>
+                            <a
+                              class="top-menu-entry {{#if (eq route ../../entry.route)}}is-active{{/if}}"
+                              href="{{route}}"
+                              {{#if (eq route ../../entry.route)}}aria-current="page"{{/if}}
+                            >
+                              <span class="tree-ascii">&#9492;&#9472;&#9472;</span> {{displayName this}}
+                            </a>
+                            {{#if isDraft}}
+                              <span class="draft-pill">draft</span>
+                            {{/if}}
+                          </li>
+                        {{/unless}}
+                      {{/each}}
+                    </ul>
+                  </div>
+                {{/unless}}
               {{/unless}}
             {{/each}}
           </div>
@@ -101,24 +116,26 @@
           <style>
             {{#each collections}}
               {{#unless isUnlisted}}
-                #top-menu-{{slug}}:checked ~ .top-menu-tabs label[data-close="{{slug}}"] {
-                  background: var(--accent);
-                  color: var(--bg-box);
-                }
+                {{#unless (eq entries.length 1)}}
+                  #top-menu-{{slug}}:checked ~ .top-menu-tabs label[data-close="{{slug}}"] {
+                    background: var(--accent);
+                    color: color-mix(in lch shorter hue, var(--bg-box) 100%, white 50%);
+                  }
 
-                #top-menu-{{slug}}:checked ~ .top-menu-tabs label[data-close="{{slug}}"] {
-                  display: inline-block;
-                }
+                  #top-menu-{{slug}}:checked ~ .top-menu-tabs label[data-close="{{slug}}"] {
+                    display: inline-block;
+                  }
 
-                #top-menu-{{slug}}:checked ~ .top-menu-tabs label[for="top-menu-{{slug}}"] {
-                  display: none;
-                }
+                  #top-menu-{{slug}}:checked ~ .top-menu-tabs label[for="top-menu-{{slug}}"] {
+                    display: none;
+                  }
 
-                #top-menu-{{slug}}:checked ~ .top-menu-panels #top-menu-panel-{{slug}} {
-                  max-height: 70vh;
-                  margin: var(--gutter) 0 0;
-                  pointer-events: auto;
-                }
+                  #top-menu-{{slug}}:checked ~ .top-menu-panels #top-menu-panel-{{slug}} {
+                    max-height: 70vh;
+                    margin: var(--gutter) 0 0;
+                    pointer-events: auto;
+                  }
+                {{/unless}}
               {{/unless}}
             {{/each}}
           </style>

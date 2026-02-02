@@ -10,7 +10,9 @@ So **webette** lets you override the layout for a single **entry**.
 
 Open the site config:
 
-`website-example/webette.config.ts`
+```
+website-example/webette.config.ts
+```
 
 Then go to:
 
@@ -30,7 +32,10 @@ Keep **webette** running in `serve` mode and open this page in the browser.
 
 Now:
 
-1) Open `website-example/webette.config.ts`
+1) Open 
+```
+website-example/webette.config.ts
+```
 2) Find this line:
 
 `"playground/custom-layout-for-an-entry": ""`
@@ -47,7 +52,9 @@ Bonus:
 
 Open the layout file and change the badge text:
 
-`website-example/_templates/layout/playground-custom-entry.hbs`
+```
+website-example/_templates/layout/playground-custom-entry.hbs
+```
 
 Then save, and wait for live reload again.
 

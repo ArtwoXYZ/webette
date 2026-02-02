@@ -41,16 +41,19 @@
 - ✅ Simplifier encore le site de démo : privilégier la doc pour les features et tout
 - ✅ Support Bold + Italic md
 - 🟨 EN COURS commencer un site webette pour la documentation webette
-- 🟨 EN COURS refaire entièrement le website-example pour montrer toutes les capacités actuelles de webette et faire un truc propre
+- ✅ refaire entièrement le website-example pour montrer toutes les capacités actuelles de webette et faire un truc propre
 - ✅ virer les layouts inutiles et vérifier si ça prend encore les templates par défaut si on en enlève
 - ✅ refaire le webette.config.ts pour que ça prenne bien en compte les paramètres de template avec le dossier \_templates
 - ✅ Trouver un nom et inscrire ce nom dans le glossaire pour parler de l'indexation automatique et du rendu de cette navigation
-- 🔳 Design
+- ✅ Design
   - ✅ Pour le markdown, tester avec le cheatsheet markdown qu'on trouve sur github pour voir si tout fonctionne.
   - ✅ Continuer avec l'entrée unlist-an-entry qui possède un block navigation.webt et faire les changements nécessaires sur ce block spécial
-  - 🔳 vérifier les choses cassées
+  - ✅ vérifier les choses cassées
   - ✅ refaire un peu le texte pour les blocks intro
-  - 🔳 Virer les fonts inutilisées
+  - ✅ Virer les fonts inutilisées
+- 🔳 Refaire le point sur les licences
+  - 🔳 Changer les infos de licences pour les trucs webette dans Credits sur le site d'exemple
+  - 🔳 Bien push les licences dans le git
 - 🔳 Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)
 - 🔳 Peut-être retirer complétement les templates du tool (pas utiles, il faut créer des templates pour son site et puis c'est tout) ?
 - 🔳 intégrer Standard.site (Lexicon ATproto) ?
@@ -74,6 +77,7 @@
 - 🔳 Mettre un fichier spécial collection.webt pour transformer une entry en sous-collection (faire en sorte que les niveaux soient-infinis). Faire fonctionner ça avec les index automatique
 - 🔳 Essayer de faire le tri dans les 2 types de fichiers de config pour avoir une vrai séparation entre la config d'un site et la config de l'outil
 - 🔳 Comment ajouter un block vidéo d'une autre entrée où on veut (via MD, via block spécial peut-être, via helper) ? Réfléchir à ça pour tous les types de blocks.
+- 🔳 Injecter le live reload automatiquement
 
 ## Plugins :
 - 🔳 Plugin de flux RSS

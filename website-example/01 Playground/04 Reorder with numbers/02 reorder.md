@@ -14,11 +14,11 @@ This works the same for:
 The numbers are *only* for ordering.
 They are not part of the title.
 
-## About zeros
+## About *zeros*
 
 The prefix is read as a number, so leading zeros don't matter:
 
-- `1`, `01`, `001` all mean “1”
+- `1`, `01`, `001` all mean **“1”**
 - `2` comes after `01` and before `003`
 
 Both styles are fine:
@@ -34,7 +34,9 @@ Items without a numeric prefix come after the numbered ones (and are sorted alph
 
 In this **entry**, you have a file called:
 
-`website-example/01 Playground/04 Reorder with numbers/03 The GREAT NEBULA in ORION.jpg`
+```
+website-example/01 Playground/04 Reorder with numbers/03 The GREAT NEBULA in ORION.jpg
+```
 
 Rename it to start earlier, for example:
 

@@ -31,7 +31,9 @@ Keep `serve` running.
 
 Rename this folder:
 
-`website-example/01 Playground/03 Rename an entry/`
+```
+website-example/01 Playground/03 Rename an entry/
+```
 
 For example:
 - `03 Rename an entry` → `03 Rename this entry`
@@ -40,9 +42,11 @@ In **webette** `serve` mode, just wait for live reload. The URL will change (Don
 
 ### 2) Add a display name
 
-Inside the **entry** folder, create:
+Inside this **entry** folder, create a ***name.webt* block**:
 
-`website-example/01 Playground/03 Rename an entry/name.webt`
+```
+website-example/01 Playground/03 Rename an entry/name.webt
+```
 
 Put any title you want in it, for example:
 

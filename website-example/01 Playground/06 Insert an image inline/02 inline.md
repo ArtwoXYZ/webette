@@ -41,7 +41,9 @@ If you want the full variants reference, see:
 
 Edit this file:
 
-`website-example/01 Playground/06 Insert an image inline/02 inline.md`
+```
+website-example/01 Playground/06 Insert an image inline/02 inline.md
+```
 
 Then make the image `01 The Planet Jupiter.jpg` appear right here (it won't be at the top anymore). Write the line right below:
 

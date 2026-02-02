@@ -12,4 +12,4 @@ Break things if you want.
 
 > *webette won't mind.*
 
-[Explore the Playground](collection: playground, entry: Introduction, class: button)
+[Let's Go!](collection: playground, entry: Introduction, class: button)
