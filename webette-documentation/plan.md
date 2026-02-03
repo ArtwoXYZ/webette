@@ -14,7 +14,8 @@ Un site de documentation qui soit :
 
 - La source de vérité = le comportement réel du code (pas de suppositions).
 - Éviter la sur-fragmentation : dans la **Reference**, privilégier **1 entry par domaine**, avec plusieurs blocs Markdown internes (sections), plutôt que 30 micro-pages.
-- Toujours distinguer explicitement ce qui est **implémenté** vs ce qui est **conceptuel/à venir** (notamment pour les “starters”).
+- Toujours parler de ce qui est **implémenté**.
+- Réduire les redites : **Pages = résumé**, **Learn = progression pédagogique**, **Reference = détails exacts**, **Cookbook = recettes**, **Internals/Roadmap = à part**.
 
 ---
 
@@ -23,23 +24,62 @@ Un site de documentation qui soit :
 ### /01 pages (pages publiques)
 
 - 01 home (page d’accueil, remplace la Root Automatic Index Page)
-- 02 features
-- 03 faq
-- 04 roadmap
+  - pitch simple + promesse
+  - “Everything is a Folder” en une phrase
+  - ce que Webette génère (HTML + assets + `_public/_model`)
+  - “Learn more” : liens vers Learn, Reference, Features, Starters, Plugins, Roadmap
+- 02 features (résumé clair, donner envie, sans détails techniques)
+  - Format : 2 lignes de 4 cartes
+  - Ligne 1 (grand public)
+    - Site prêt à modifier : site d’exemple inclus
+    - Pas de back‑office : un site = des dossiers & fichiers
+    - Prévisualisation locale : `serve` + rebuild + refresh auto
+    - Publier au bon moment : `draft` / `unlisted` / `ignore`
+  - Ligne 2 (enthousiastes / bidouilleurs)
+    - Markdown enrichi : classes + titres avec ids + liens internes `collection:/entry:/block:`
+    - Images intelligentes : variantes + inline `block:` + helper `image`
+    - Navigation & index : `navigation.webt`, index auto, overrides `index.root` / `index.collections`
+    - Templates & extensible : wrapper/layout/partials + helpers + plugins (hooks + outputs protégés)
+- 03 faq (questions courtes : build vs serve, où va l’output, templates, plugins)
+- 04 roadmap (ce qui n’est pas implémenté, clairement séparé)
 
 ---
 
 ### /02 learn (didactique : expliquer clairement, pas un tuto — sauf quickstart)
 
 - 01 introduction (ce qu’est Webette, pour qui, et ce que Webette génère : HTML + assets + `_public/_model`)
+  - vision “Everything is a Folder”
+  - où trouver les détails (Learn vs Reference)
 - 02 quickstart (installation, `build` / `serve`, où va l’output, + config minimale : `webette.config.ts` et `webette.tool.ts`)
+  - aperçu simple “build vs serve” + sortie `_public`
 - 03 your first site (dossiers → collections/entries/blocks + templates minimaux, et “démarrer via un Starter” : concept, utilisation, création)
+  - conventions de noms + ordre (préfixes numériques)
+  - fichiers spéciaux : `name.webt`, `description.webt`, `draft.webt`, `unlisted.webt`, `ignore.webt`
+  - extras de collection : `_assets/` (médias exposés aux templates)
+  - où mettre un `navigation.webt`
 - 04 mental model (ordre, slugs/routes, export du modèle, debug)
+  - modèle : site / collections / entries / blocks
+  - routes et slugs
+  - export du modèle (`_public/_model`) + timestamps/fingerprints
+  - debug (logs)
 - 05 writing content (Markdown, comportement des `.txt`, liens internes `collection:/entry:/block:`, images internes inline)
+  - Markdown enrichi : classes globales, titres avec ids, liens internes
+  - `.txt` en markdown (ou texte simple si désactivé)
+  - images inline via `block:` + options (variant, figure, caption)
+  - liens externes (nouvel onglet, option configurable)
+  - audio & vidéo : rendu + métadonnées (quand disponibles)
 - 06 navigation & indexes (Automatic Index Pages, `unlisted.webt`, Index Overrides, `navigation.webt`, et impacts sur Automatic Index Pages/sitemap)
+  - index auto racine/collections + exclusions
+  - overrides via `index.root` / `index.collections` (entry unlisted)
+  - effets de draft/unlisted sur index et sitemap (sans détails techniques)
 - 07 templates (wrapper/layout/partials, contexte, helpers, assets de templates, et logique “site vs tool”)
+  - helpers clés (`image`, `asset`, `displayName`, `withEntry`, `withCollection`)
+  - assets de templates + fallback site/tool
+  - overrides d’index et de layout d’entrée
 - 08 plugins (concept + création + utilisation : écrire un plugin, l’activer dans `webette.config.ts`, lifecycle des hooks, expected outputs pour survivre au prune)
 - 09 build & deploy basics (overwrite/prune, sitemap, protectAssets, exemples htaccess/nginx)
+  - build vs serve (watch, overwrite, drafts)
+  - pretty print HTML + fichiers serveur générés
 
 ---
 
@@ -81,6 +121,7 @@ Un site de documentation qui soit :
   - defaults.md (rôle de chaque template par défaut)
   - helpers.md (dont `image`, `asset`, `withEntry`, etc.)
   - assets.md (`templates.assets`, copie vers l’output, helper `asset`)
+  - overrides.md (index/root/collection, layout par entry)
 
 - 06 plugins
 
@@ -96,15 +137,16 @@ Un site de documentation qui soit :
   - sitemap.md (règles actuelles + limitations connues)
   - protect-assets.md (forbidden index pages dans les dossiers d’assets)
   - pretty-print.md
+  - serve.md (dev server, live reload, watch, endpoint version)
 
 - 08 resolvers & block types
 
   - registry.md
-  - markdown.md
+  - markdown.md (ids de titres, liens internes, liens externes)
   - text.md
   - image.md (variants, `defaultVariant`, comportement si sharp absent)
-  - audio.md
-  - video.md
+  - audio.md (copie + metadata via lib optionnelle)
+  - video.md (copie-only)
   - folder.md (subBlocks)
   - navigation.md
   - unclassified.md (plugin-first)
@@ -118,7 +160,7 @@ Un site de documentation qui soit :
 - 10 cli
 
   - commands.md (`build`, `serve`)
-  - flags.md (`--skip-content`, `--export-model-only`, drafts)
+  - flags.md (`--skip-content`, `--export-model-only`, `--include-drafts`, `--no-include-drafts`, `--verbose`)
 
 - 11 logging
 

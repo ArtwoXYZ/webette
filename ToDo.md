@@ -92,6 +92,48 @@
 - 🔳 Blog tout simple
 - 🔳Documentation
 
+## webette UI
+- 🔳 Définir le périmètre produit (MVP)
+  - 🔳 Objectif principal : build/serve sans Bun installé
+  - 🔳 UX minimale : boutons Build / Serve / Stop + logs + lien localhost
+  - 🔳 Choisir le mode d’exécution (binaire Bun compilé)
+  - 🔳 Définir les OS cibles et la stratégie de release
+- 🔳 Préparer le mode dev (sans compiler)
+  - 🔳 Créer un entrypoint dev qui lance le mini serveur
+  - 🔳 Servir l’UI statique locale (HTML/CSS/JS)
+  - 🔳 Prévoir un état global simple (idle/building/serving/error)
+  - 🔳 Boucle de dev simple (relancer le serveur au besoin)
+- 🔳 API locale pour piloter webette
+  - 🔳 Endpoints API : build, serve, stop, status, logs
+  - 🔳 Gestion propre du process de serve (start/stop)
+  - 🔳 Gestion des erreurs et messages utilisateur
+- 🔳 UI sans framework (HTML/CSS/JS)
+  - 🔳 Page unique : boutons + infos de statut
+  - 🔳 Bloc logs (stream ou polling)
+  - 🔳 Lien local dynamique (port configuré)
+  - 🔳 Réglages de base (chemin du site, options build/serve)
+- 🔳 Test “compile” tôt (pour valider la faisabilité)
+  - 🔳 Premier binaire après le POC (serve + build)
+  - 🔳 Vérifier chemins, assets UI, et accès fichiers
+  - 🔳 Ajuster ce qui casse (paths relatifs, permissions)
+- 🔳 Éditeur visuel de config (prioritaire)
+  - 🔳 Définir un format modifiable (JSON/YAML) + pont vers TS
+  - 🔳 UI : sections tool/site (templates, build, serve, markdown, images...)
+  - 🔳 Validation + prévisualisation des changements
+  - 🔳 Stratégie de sauvegarde/rollback
+- 🔳 Packaging & distribution multi-OS
+  - 🔳 Build binaire par OS (Windows/macOS/Linux)
+  - 🔳 Nommage, icônes, signatures si nécessaire
+  - 🔳 Installer ou zip portable + notes de release
+- 🔳 Sécurité & confiance
+  - 🔳 Port local seulement, pas d’exposition réseau par défaut
+  - 🔳 Permissions d’écriture limitées au projet choisi
+  - 🔳 Logs clairs + consentements (ex : ouverture navigateur)
+- 🔳 Étapes de livraison
+  - 🔳 POC : serveur + build + logs
+  - 🔳 Alpha : build/serve/stop + config minimale
+  - 🔳 Beta : éditeur config + packaging multi-OS
+
 ## Trucs pour la doc (pas vraiment des tâches, c'est en vrac) :
 Structure et ce qu'il faut mettre dans chaque page :
 
