@@ -169,9 +169,9 @@ They currently act as both reference and roadmap.
 
 ## 🤝 Contributing
 
-webette is not officially open to contributions yet, the foundations are still shifting.
-You can follow development and discuss ideas on Bluesky.
-PRs will open once the API stabilizes.
+webette is still early and the foundations are still shifting.
+Issues and discussion are welcome; PRs may be reviewed slowly (or declined) until the API stabilizes.
+If you submit a contribution, please see `CONTRIBUTING.md` for licensing terms.
 
  
 
@@ -185,7 +185,7 @@ Designed by me, **@artwo.xyz**, she wears a cap, has eight legs, and a strong op
 ## 📜 License
 
 webette is free and open source.
-The LICENSE is intentionally simple for now. A more formal version will come later.
+See `LICENSING.md` for the licensing overview, `LICENSE` for the Apache-2.0 text, and `TRADEMARKS.md` for trademark and affiliation rules.
 
  
 

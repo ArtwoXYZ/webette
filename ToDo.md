@@ -51,9 +51,9 @@
   - ✅ vérifier les choses cassées
   - ✅ refaire un peu le texte pour les blocks intro
   - ✅ Virer les fonts inutilisées
-- 🔳 Refaire le point sur les licences
-  - 🔳 Changer les infos de licences pour les trucs webette dans Credits sur le site d'exemple
-  - 🔳 Bien push les licences dans le git
+- ✅ Refaire le point sur les licences
+  - ✅ Changer les infos de licences pour les trucs webette dans Credits sur le site d'exemple
+  - ✅ Bien push les licences dans le git
 - 🔳 Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)
 - 🔳 Peut-être retirer complétement les templates du tool (pas utiles, il faut créer des templates pour son site et puis c'est tout) ?
 - 🔳 intégrer Standard.site (Lexicon ATproto) ?
