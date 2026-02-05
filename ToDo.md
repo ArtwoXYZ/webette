@@ -78,12 +78,18 @@
 - 🔳 Essayer de faire le tri dans les 2 types de fichiers de config pour avoir une vrai séparation entre la config d'un site et la config de l'outil
 - 🔳 Comment ajouter un block vidéo d'une autre entrée où on veut (via MD, via block spécial peut-être, via helper) ? Réfléchir à ça pour tous les types de blocks.
 - 🔳 Injecter le live reload automatiquement
+- 🔳 Refaire le système d'index :
+  - 🔳 Dossier nommé "Root Index" (ou "00 Root Index") = Index de la root
+  - 🔳 Dossier "Collection Index" = Index de la collection
+  - ℹ Ca ne retire pas la ligne de config pour les layout personnalisés. Ca peut être intégré dans les layouts d'index des starters des base pour pouvoir ajouter du texte sur les index ou quoi, genre si ces dossier existes, on met ce contenu dans l'index. Qqch comme ça
+- 🔳 Refaire le système d'index :
 
 ## Plugins :
 - 🔳 Plugin de flux RSS
 - 🔳 Plugins (tester avec un plugin de traitement vidéo par exemple : miniature, encodage, metadata...)
 - 🔳 Plugin : Ajouter un moyen à l'utilisateur de changer la date de son entrée grâce à un fichier created.webt et un autre fichier updated.webt si le user veux contrôlé ça. Je ne vois cette feature utile que dans les entrées
 - 🔳 Plugin webette de TOC (sommaire, table des matières)
+- 🔳 Plugin Wayback Machine : Automatiquement archiver les site + fall back sur version archivée si page plus dispo
 
 ## Starters :
 - 🔳 Feed à la Pinterest

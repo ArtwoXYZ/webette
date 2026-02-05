@@ -1,0 +1,29 @@
+<main class="home">
+  {{#each blocks}}
+    {{#if (eq type "markdown")}}
+      <section class="markdown prose">
+        {{{safe content.html}}}
+      </section>
+    {{else if (eq type "image")}}
+      {{#unless content.meta.renderedInline}}
+      <section class="image-hero">
+        {{image this alt="bebette, the webette mascot" class="webette-logo-welcome"}}
+        <hr>
+        <h1>webette</h1>
+      </section>
+      {{/unless}}
+    {{else if (eq type "navigation")}}
+      {{#if content.data.items}}
+        <section class="navigation">
+          {{#if content.data.name}}
+            <h2 class="navigation-title">{{content.data.name}}</h2>
+          {{/if}}
+
+          {{> navigation-items items=content.data.items}}
+        </section>
+      {{/if}}
+    {{/if}}
+  {{/each}}
+</main>
+
+{{> footer}}

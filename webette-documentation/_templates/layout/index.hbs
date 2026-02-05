@@ -1,0 +1,32 @@
+<main>
+  <article>
+    {{#if collection}}
+      <h2>{{displayName collection}}</h2>
+      <p>Collection index.</p>
+
+      <ul>
+        {{#each entries}}
+          <li><a href="{{route}}">{{displayName this}}</a></li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <h2>Site index</h2>
+      <p>You can browse all collections and entries of this demo site.</p>
+
+      <ul>
+        {{#each collections}}
+          <li>
+            <strong><a href="{{route}}">{{displayName this}}</a></strong>
+            <ul>
+              {{#each entries}}
+                <li><a href="{{route}}">{{displayName this}}</a></li>
+              {{/each}}
+            </ul>
+          </li>
+        {{/each}}
+      </ul>
+    {{/if}}
+  </article>
+</main>
+
+{{> footer}}

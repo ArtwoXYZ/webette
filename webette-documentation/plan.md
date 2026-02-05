@@ -47,15 +47,16 @@ Un site de documentation qui soit :
 
 ### /02 learn (didactique : expliquer clairement, pas un tuto — sauf quickstart)
 
-- 01 introduction (ce qu’est Webette, pour qui, et ce que Webette génère : HTML + assets + `_public/_model`)
-  - vision “Everything is a Folder”
+- 01 introduction (ce qu’est Webette, pour qui, et ce que Webette génère : le site facile à héberger et le model pour debugger pour les power users)
+  - vision et explication de la collection
   - où trouver les détails (Learn vs Reference)
 - 02 quickstart (installation, `build` / `serve`, où va l’output, + config minimale : `webette.config.ts` et `webette.tool.ts`)
   - aperçu simple “build vs serve” + sortie `_public`
-- 03 your first site (dossiers → collections/entries/blocks + templates minimaux, et “démarrer via un Starter” : concept, utilisation, création)
+- 03 your first site
+  - comment faire son premier blog avec webette, en rapide mais voilà, on ajoute les pages, les blocs et tout, c'est cool
   - conventions de noms + ordre (préfixes numériques)
   - fichiers spéciaux : `name.webt`, `description.webt`, `draft.webt`, `unlisted.webt`, `ignore.webt`
-  - extras de collection : `_assets/` (médias exposés aux templates)
+  - extras de collection : `_assets/` (médias exposés aux templates, changer de logo par exemple)
   - où mettre un `navigation.webt`
 - 04 mental model (ordre, slugs/routes, export du modèle, debug)
   - modèle : site / collections / entries / blocks

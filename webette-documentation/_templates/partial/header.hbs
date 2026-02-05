@@ -1,0 +1,25 @@
+<header class="site-header">
+  <div class="brand">
+    <img
+      id="webette_logo"
+      class="logo"
+      src="{{asset 'images/bebette.svg'}}"
+      alt="Bebette logo"
+    />
+    <div class="brand-text">
+      <h1>{{site.title}}</h1>
+      <p class="tagline">Some examples of webette capabilities</p>
+    </div>
+  </div>
+
+  {{#if collection}}
+    <nav class="site-nav">
+      <a href="/">← Back to index</a>
+    </nav>
+
+    <h3 class="collection-name">Collection: {{displayName collection}}</h3>
+    {{#if blocks}}
+      <h3 class="entry-name">Entry: {{displayName entry}}</h3>
+    {{/if}}
+  {{/if}}
+</header>
