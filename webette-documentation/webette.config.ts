@@ -55,4 +55,8 @@ export default {
   index: {
     root: { collection: "pages", entry: "home" },
   },
+
+  markdown: {
+    headingShift: 0,
+  },
 };

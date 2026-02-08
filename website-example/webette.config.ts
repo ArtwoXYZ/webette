@@ -56,6 +56,7 @@ export default {
 
   markdown: {
     treatTxtAsMarkdown: false, // keep .txt blocks as plain text in this showcase
+    headingShift: 0, // shift Markdown headings (e.g., 1 => h1->h2)
   },
 
   images: {

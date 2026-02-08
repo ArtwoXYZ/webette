@@ -7,6 +7,7 @@ import * as path from "node:path";
 import type { Resolver } from "../registry";
 import {
   parseMarkdownToAst,
+  remarkShiftHeadings,
   renderMarkdownToHtml,
 } from "../../block-types/markdown/processor";
 
@@ -18,14 +19,35 @@ export const resolveMarkdown: Resolver = async (block, ctx) => {
 
   try {
     const remarkPlugins = ctx.remarkPlugins ?? [];
+    const siteMarkdown =
+      ctx.site?.site && typeof ctx.site.site === "object"
+        ? (ctx.site.site as Record<string, unknown>).markdown
+        : undefined;
+    const headingShiftRaw =
+      siteMarkdown && typeof siteMarkdown === "object"
+        ? (siteMarkdown as Record<string, unknown>).headingShift
+        : undefined;
+    const headingShift =
+      typeof headingShiftRaw === "number"
+        ? headingShiftRaw
+        : typeof headingShiftRaw === "string" && headingShiftRaw.trim()
+          ? Number(headingShiftRaw)
+          : 0;
+    const shiftPlugin =
+      Number.isFinite(headingShift) && Math.trunc(headingShift) !== 0
+        ? remarkShiftHeadings(headingShift)
+        : null;
+    const combinedRemarkPlugins = shiftPlugin
+      ? [...remarkPlugins, shiftPlugin]
+      : remarkPlugins;
     const enableExternalLinks =
       ctx.toolEnv?.markdown &&
-      typeof ctx.toolEnv.markdown === "object" &&
-      (ctx.toolEnv.markdown as any).externalLinks === false
+        typeof ctx.toolEnv.markdown === "object" &&
+        (ctx.toolEnv.markdown as any).externalLinks === false
         ? false
         : true;
-    const ast = await parseMarkdownToAst(raw, remarkPlugins);
-    const html = await renderMarkdownToHtml(ast, remarkPlugins, {
+    const ast = await parseMarkdownToAst(raw, combinedRemarkPlugins);
+    const html = await renderMarkdownToHtml(ast, combinedRemarkPlugins, {
       enableExternalLinks,
     });
 

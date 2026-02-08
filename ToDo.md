@@ -54,7 +54,7 @@
 - ✅ Refaire le point sur les licences
   - ✅ Changer les infos de licences pour les trucs webette dans Credits sur le site d'exemple
   - ✅ Bien push les licences dans le git
-- 🔳 Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)
+- ✅ Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)
 - 🔳 Peut-être retirer complétement les templates du tool (pas utiles, il faut créer des templates pour son site et puis c'est tout) ?
 - 🔳 intégrer Standard.site (Lexicon ATproto) ?
 - 🔳 Permettre de changer l'ordre ascendant par déscendant
@@ -82,7 +82,6 @@
   - 🔳 Dossier nommé "Root Index" (ou "00 Root Index") = Index de la root
   - 🔳 Dossier "Collection Index" = Index de la collection
   - ℹ Ca ne retire pas la ligne de config pour les layout personnalisés. Ca peut être intégré dans les layouts d'index des starters des base pour pouvoir ajouter du texte sur les index ou quoi, genre si ces dossier existes, on met ce contenu dans l'index. Qqch comme ça
-- 🔳 Refaire le système d'index :
 
 ## Plugins :
 - 🔳 Plugin de flux RSS

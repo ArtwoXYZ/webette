@@ -14,10 +14,10 @@ import { resolveTemplatesRoots } from "./template";
 import { createSite } from "./config";
 import { resolveTemplatesConfig } from "./templates/config";
 
-export interface ServeOptions extends BuildOptions {}
+export interface ServeOptions extends BuildOptions { }
 
 function keepProcessAlive() {
-  return new Promise<void>(() => {});
+  return new Promise<void>(() => { });
 }
 
 export async function serve(
@@ -202,7 +202,19 @@ export async function serve(
       async (eventType, filename) => {
         const name = filename?.toString() ?? "";
 
-        if (!name || shouldIgnore(name)) return;
+        if (!name) {
+          watchLogger.debug("serve.watchEvent", {
+            eventType,
+            filename: "<unknown>",
+            base: watchPath,
+          });
+          if (rebuildRunning) {
+            rebuildPending = true;
+          }
+          scheduleRebuild();
+          return;
+        }
+        if (shouldIgnore(name)) return;
 
         const fullPath = path.join(watchPath, name);
         try {

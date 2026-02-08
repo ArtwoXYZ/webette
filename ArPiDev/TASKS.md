@@ -1,15 +1,15 @@
 # TASKS
 
-Active story: T1-S04
+Active story: T2-S02
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
 - [x] T1-S02 Injecter le live reload automatiquement en `serve` (sans action template).
 - [x] T1-S03 Helper menu/index: définir l’API + implémenter dans templates par défaut.
-- [ ] T1-S04 Gestion des fichiers supprimés/outputs orphelins en mode `serve` (parité avec build).
+- [x] T1-S04 Gestion des fichiers supprimés/outputs orphelins en mode `serve` (parité avec build).
 
 ## T2 — Petits gains rapides
-- [ ] T2-S01 Option pour décaler les titres Markdown (h1→h2, etc.).
+- [x] T2-S01 Option pour décaler les titres Markdown (h1→h2, etc.).
 - [ ] T2-S02 Option de tri asc/desc des entries/collections.
 - [ ] T2-S03 Option de tri par dates (création/maj).
 - [ ] T2-S04 Ajouter les headers favicon/socials (config + template par défaut).
@@ -43,4 +43,5 @@ Active story: T1-S04
 ## T7 — Documentation & démo
 - [ ] T7-S01 Terminer le site de doc “EN COURS” (Concept + Features core).
 - [ ] T7-S02 Corriger les liens du site de démo une fois la doc en ligne.
+
 

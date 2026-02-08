@@ -15,6 +15,37 @@ type RemarkPluginLike = RemarkPlugin | [RemarkPlugin, ...any[]];
 const DEFAULT_MARKDOWN_CLASS = "webt-md";
 type AddClassOptions = { className?: string };
 
+export function remarkShiftHeadings(shift: number): RemarkPlugin {
+  const normalizedShift = Number.isFinite(shift) ? Math.trunc(shift) : 0;
+
+  return () => {
+    return (tree: any) => {
+      if (!normalizedShift) return;
+      const data = (tree && typeof tree === "object" ? tree.data : null) ?? {};
+      if (data.__webetteHeadingShiftApplied) return;
+      data.__webetteHeadingShiftApplied = true;
+      if (tree && typeof tree === "object") {
+        tree.data = data;
+      }
+
+      const clampDepth = (depth: number): number =>
+        Math.min(6, Math.max(1, depth + normalizedShift));
+
+      const walk = (node: any) => {
+        if (!node) return;
+        if (node.type === "heading" && typeof node.depth === "number") {
+          node.depth = clampDepth(node.depth);
+        }
+        if (Array.isArray(node.children)) {
+          node.children.forEach(walk);
+        }
+      };
+
+      walk(tree);
+    };
+  };
+}
+
 function applyPlugins<P extends Processor<any, any, any, any, any>>(
   processor: P,
   plugins: RemarkPluginLike[] = []
@@ -145,7 +176,7 @@ export async function parseMarkdownToAst(
 
     let atLineStart = true;
 
-    for (let i = 0; i < input.length; ) {
+    for (let i = 0; i < input.length;) {
       if (inFence && atLineStart && !inCodeSpan) {
         const fence = isFenceLineStartAt(i);
         const lineEnd = readLineEnd(i);

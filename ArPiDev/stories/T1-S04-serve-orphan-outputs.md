@@ -1,10 +1,10 @@
 # T1-S04 — Orphelins en serve
 
 Created: 2026-02-08 18h35m00s
-Closed:
+Closed: 2026-02-08 19h12m00s
 Acceptance: User
 
-Status: Active
+Status: Done
 
 ## Context
 En mode `serve`, des fichiers/entries supprimes peuvent laisser des sorties orphelines dans `_public`, ce qui cree un decalage avec `build`.
@@ -45,3 +45,5 @@ Assurer que `serve` gere la suppression des sources et nettoie les outputs orphe
 ## Reopen when
 
 ## Dev log
+- 2026-02-08 18h45m00s - In `serve`, when fs.watch provides no filename, still schedule a rebuild so deletes/renames trigger prune cleanup. - Why: avoid orphan outputs when delete events lack a filename. - Commands: none.
+- 2026-02-08 19h10m00s - User validated deletes/renames in serve; no orphan outputs observed. - Why: confirms Done-when criteria. - Commands: user ran manual serve tests.
