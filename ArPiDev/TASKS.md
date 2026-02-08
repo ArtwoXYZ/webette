@@ -1,9 +1,11 @@
 # TASKS
 
+Active story: T1-S04
+
 ## T1 — Stabiliser l’existant (build/serve)
-- [ ] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
-- [ ] T1-S02 Injecter le live reload automatiquement en `serve` (sans action template).
-- [ ] T1-S03 Helper menu/index: définir l’API + implémenter dans templates par défaut.
+- [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
+- [x] T1-S02 Injecter le live reload automatiquement en `serve` (sans action template).
+- [x] T1-S03 Helper menu/index: définir l’API + implémenter dans templates par défaut.
 - [ ] T1-S04 Gestion des fichiers supprimés/outputs orphelins en mode `serve` (parité avec build).
 
 ## T2 — Petits gains rapides
@@ -41,3 +43,4 @@
 ## T7 — Documentation & démo
 - [ ] T7-S01 Terminer le site de doc “EN COURS” (Concept + Features core).
 - [ ] T7-S02 Corriger les liens du site de démo une fois la doc en ligne.
+

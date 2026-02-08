@@ -44,6 +44,7 @@ Record:
 * why (short, explicit, why it was done this way)
 * commands you ran / checks you performed
 * any local tradeoffs
+* if full validation is blocked, add a concrete parking proposal (`Blocker`, `Remaining work`, `Reopen when`)
 
 All dev log entries must include a human-readable date and time using the format defined in `ArPiDev/definitions/artifacts/story.md`.
 
@@ -60,6 +61,13 @@ If you hit a question that impacts more than the active story (architecture, pro
 * Ask the Pilot for a decision.
 
 Do not decide silently.
+
+If implementation is done but final validation is blocked by an external prerequisite (for example another OS, credentials, third-party access):
+
+* Stop before declaring `Done`.
+* Summarize the blocker in the story in 3 bullets max.
+* Fill a concrete parking proposal in `Blocker`, `Remaining work`, and `Reopen when`.
+* Ask the Pilot to decide whether to close as `Parked` and move to the next story.
 
 ---
 

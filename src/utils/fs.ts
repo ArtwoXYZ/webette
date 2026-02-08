@@ -8,6 +8,38 @@ import { copyFile, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promi
 import * as path from "node:path";
 import type { Logger } from "../logging/logger";
 
+const retryableRmCodes = new Set(["EBUSY", "EPERM", "ENOTEMPTY"]);
+
+const isRetryableRmError = (err: unknown): boolean => {
+  if (!err || typeof err !== "object") return false;
+  const code = (err as { code?: unknown }).code;
+  return typeof code === "string" && retryableRmCodes.has(code);
+};
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export async function rmWithRetries(
+  targetPath: string,
+  options?: Parameters<typeof rm>[1],
+  retries = 5,
+  delayMs = 50
+): Promise<void> {
+  let attempt = 0;
+  while (true) {
+    try {
+      await rm(targetPath, options);
+      return;
+    } catch (err) {
+      if (attempt >= retries || !isRetryableRmError(err)) {
+        throw err;
+      }
+      const wait = delayMs * Math.pow(2, attempt);
+      await sleep(wait);
+      attempt += 1;
+    }
+  }
+}
+
 /**
  * Writes UTF-8 content to `targetPath` only when the bytes differ.
  * Returns `true` if the file changed, `false` if it was already identical.
@@ -46,7 +78,7 @@ export async function removeEmptyDirectories(dir: string, root: string): Promise
   const after = await readdir(dir).catch(() => []);
   if (dir !== root && after.length === 0) {
     try {
-      await rm(dir, { force: true, recursive: true });
+      await rmWithRetries(dir, { force: true, recursive: true });
     } catch {
       // ignore
     }

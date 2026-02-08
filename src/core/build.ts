@@ -4,7 +4,7 @@
  * Orchestrates the main steps (scan -> resolve -> render -> write output).
  */
 
-import { mkdir, rm, stat } from 'node:fs/promises'
+import { mkdir, stat } from 'node:fs/promises'
 import * as path from 'node:path'
 import { getEnv, resolveLocale } from '../config/env'
 import { t } from '../logging/i18n'
@@ -29,7 +29,7 @@ import { rewriteInternalImages } from './postprocess/markdown-images'
 import { writeSitemap } from './sitemap'
 import { resolveTemplatesConfig } from './templates/config'
 import { matchCollection } from './targets'
-import { copyDirectory, writeIfChanged as writeIfChangedFs } from '../utils/fs'
+import { copyDirectory, rmWithRetries, writeIfChanged as writeIfChangedFs } from '../utils/fs'
 import { resolveCollectionAssets } from './build/collection-assets'
 import { countDraftEntries, filterDraftEntries, listDraftEntries } from './build/drafts'
 import { formatHtml as formatHtmlFs } from './build/html'
@@ -296,7 +296,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
   // Handle existing output directory according to policy
   if (overwrite === 'replace-all') {
     try {
-      await rm(outputDir, { recursive: true, force: true })
+      await rmWithRetries(outputDir, { recursive: true, force: true })
       const stillThere = await stat(outputDir)
         .then(() => true)
         .catch(() => false)
@@ -343,7 +343,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
         scoped.error('build.overwriteDenied', { outputDir })
         throw new Error(t(locale, 'build.overwriteDenied', { outputDir }))
       case 'replace-all':
-        await rm(outputDir, { recursive: true, force: true })
+        await rmWithRetries(outputDir, { recursive: true, force: true })
         break
       case 'replace-files':
         // keep directory, individual files handled below
@@ -378,7 +378,17 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
       .then((s) => s.isDirectory())
       .catch(() => false)
     if (assetsSourceExists) {
-      await rm(assetsTargetDir, { recursive: true, force: true })
+      try {
+        await rmWithRetries(assetsTargetDir, { recursive: true, force: true })
+      } catch (err) {
+        scoped.warn('build.assetsCleanupFailed', {
+          path: assetsTargetDir,
+          error: String(err),
+        })
+        if (options.liveReload !== true) {
+          throw err
+        }
+      }
       await copyDirectory(assetsSourceDir, assetsTargetDir)
     }
   }
@@ -551,8 +561,16 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     ...(assetsBase ? { templates: { assetsBase } } : {}),
   }
 
+  const injectLiveReload = (rawHtml: string): string => {
+    if (!options.liveReload || !liveReloadScript) return rawHtml
+    if (rawHtml.includes('__webette-version')) return rawHtml
+    const closeBodyIndex = rawHtml.lastIndexOf('</body>')
+    if (closeBodyIndex === -1) return `${rawHtml}${liveReloadScript}`
+    return `${rawHtml.slice(0, closeBodyIndex)}${liveReloadScript}${rawHtml.slice(closeBodyIndex)}`
+  }
+
   const formatHtml = (rawHtml: string, targetPath: string): Promise<string> =>
-    formatHtmlFs(rawHtml, targetPath, { prettyPrint, logger: scoped })
+    formatHtmlFs(injectLiveReload(rawHtml), targetPath, { prettyPrint, logger: scoped })
 
   const { renderedPages } = await renderSite({
     rootDir,

@@ -112,7 +112,8 @@ Interpret “empty” as: missing, whitespace-only, or placeholder-only content.
 ### Story conventions
 
 * Story files live under `ArPiDev/stories/`.
-* Exactly **one** story is “active” at any time.
+* At most **one executable** story is “active” at any time.
+* A `Parked` story is closed-for-now and is never considered active.
 
 You must classify the repo into **one** state:
 
@@ -155,7 +156,17 @@ Condition:
 * `stories/` contains story files
 * AND there is a **single clear active story** (see §6)
 
-### State F — Ambiguous / inconsistent
+### State F — Waiting / parked (no active executable story)
+
+Condition:
+
+* `stories/` contains story files
+* AND there is **no active executable story**
+* AND remaining unfinished stories are explicitly parked or waiting external validation
+
+If State F: follow §8.7.
+
+### State G — Ambiguous / inconsistent
 
 Condition (any):
 
@@ -166,10 +177,11 @@ Condition (any):
 * story files exist but are not referenced in `TASKS.md`, OR
 * contradictions between `SPEC.md` / `DECISIONS.md` / stories, OR
 * unclear whether the project is still planning vs already executing
+* parked and active markers conflict (for example `Active story` points to a `[PARKED]` story)
 
-If State F: do not proceed. Follow §8.7.
+If State G: do not proceed. Follow §8.8.
 
-### State F examples (non-exhaustive)
+### State G examples (non-exhaustive)
 
 * `TASKS.md` says `Active story: T2-S03`, but `ArPiDev/stories/T2-S03-*.md` does not exist.
 * Two different stories are marked `IN PROGRESS` (or two `Active story:` lines exist).
@@ -181,22 +193,24 @@ If State F: do not proceed. Follow §8.7.
 
 Hard rules:
 
-* If `TASKS.md` contains more than one `Active story:` line → State F.
-* If `Active story: <id>` points to a missing story file → State F.
+* If `TASKS.md` contains more than one `Active story:` line → State G.
+* If `Active story: <id>` points to a missing story file → State G.
+* If `Active story:` points to a story marked `[PARKED]` in `TASKS.md` or `Status: Parked` in the story file → State G.
 
 Preferred sources, in order:
 
 1. `TASKS.md` contains exactly one explicit line:
 
-   * `Active story: <story-id>`
+   * `Active story: <story-id>` OR `Active story: NONE (waiting on parked stories or user input)`
 
 2. `TASKS.md` marks exactly one story as active (examples: `ACTIVE`, `NOW`, `IN PROGRESS`).
 
-3. Otherwise: choose the **first unchecked story** under the earliest unfinished Task.
+3. Otherwise: choose the **first unchecked story not marked `[PARKED]`** under the earliest unfinished Task.
 
 4. If still ambiguous: ask the user to confirm the active story.
 
 If there are no stories listed at all, there is no active story.
+If all remaining unchecked stories are marked `[PARKED]`, there is no active executable story (State F).
 
 ---
 
@@ -209,7 +223,8 @@ Choose **exactly one** role based on repo state:
 * State C → **Pilot**
 * State D → **Pilot**
 * State E → **Dev**
-* State F → **Pilot (triage)**. Escalate to Architect only for product vision or conceptual structure.
+* State F → **Pilot** (parking follow-up and next-step planning)
+* State G → **Pilot (triage)**. Escalate to Architect only for product vision or conceptual structure.
 
 Do not mix roles in the same response.
 
@@ -273,7 +288,16 @@ You must:
 * Document the work **only** in the active story file.
 * If a question exceeds the story scope: stop and escalate to Pilot (§10).
 
-### 8.7 State F (Ambiguous / inconsistent) — Pilot triage
+### 8.7 State F (Waiting / parked) — Pilot
+
+You must:
+
+* Act as **Pilot** and follow `ArPiDev/definitions/agents/pilot.md`.
+* Summarize parked stories in a compact list (reason, remaining work, unblock condition, owner).
+* Propose the next action: unpark one story, or create/activate the next executable story.
+* Keep `TASKS.md` explicit: parked entries in `Parked stories`, and `Active story: NONE (...)` only when nothing executable is active.
+
+### 8.8 State G (Ambiguous / inconsistent) — Pilot triage
 
 You must:
 
@@ -321,6 +345,7 @@ If the role file is missing, or the `## Permissions` section is missing/unclear:
 
 * If a decision impacts more than the active story, Dev must **stop** and escalate to Pilot.
 * Before escalating, Dev records the issue inside the active story (3 bullets max) so the context is preserved.
+* If implementation is complete but final validation is blocked by external prerequisites, Dev proposes parking details in the story (`Blocker`, `Remaining work`, `Reopen when`) and escalates to Pilot.
 * Pilot records cross-cutting decisions in `ArPiDev/DECISIONS.md` (1–3 lines) following `ArPiDev/definitions/artifacts/decisions.md`.
 * Architect is consulted only for product vision, structural or conceptual issues.
 
@@ -328,14 +353,21 @@ If the role file is missing, or the `## Permissions` section is missing/unclear:
 
 ## 11) Completion behavior
 
-When a story is done:
+When a story reaches closure:
 
+* **Done path**:
 * Dev marks it done inside the story file using the status marker defined in `ArPiDev/definitions/artifacts/story.md` (recommended: `Status: Done`).
 * Pilot sets the `Closed` timestamp in the story file and confirms closure.
 * The story is accepted by the `Acceptance` owner (default: user) before closure.
 * Dev tells the user in chat that the story is complete and briefly summarizes what changed (3 bullets max).
 * The user reviews/accepts.
-* Pilot closes the story and, if there are remaining stories, creates the next story file and asks the user to validate **only** the new story content.
+
+* **Parked path (closed for now, not finished)**:
+* Dev records blocker details in the story (`Blocker`, `Remaining work`, `Reopen when`) and escalates.
+* Pilot sets `Status: Parked` + `Closed` timestamp, marks the story line with `[PARKED]` in `TASKS.md`, and records it in `Parked stories`.
+* Pilot states exactly what remains to finish and who owns the next action.
+
+* After closure, if there are remaining executable stories, Pilot creates the next story file and asks the user to validate **only** the new story content.
 * If the user wants a final sanity check, the user can ask the **Pilot** to do a quick review before moving on.
 
   * Pilot may provide a short progress snapshot (what’s done, what’s next).

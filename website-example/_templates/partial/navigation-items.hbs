@@ -1,54 +1,104 @@
 <ul class="navigation-list">
   {{#each items}}
   <li class="navigation-item navigation-item--{{ kind }}">
-    {{#if (eq kind "title")}}
-    <span class="navigation-heading">{{ title }}</span>
-    {{else if (eq kind "collection")}}
-    {{#if (eq link false)}}
-    <span class="navigation-label navigation-label--collection">
-      <span class="navigation-label-prefix">Collection:</span>
-      {{#if title}}{{ title }}{{else}}{{ displayName collection }}{{/if}}
-    </span>
-    {{else}}
-    <a href="{{ collection.route }}" class="navigation-link navigation-link--collection">
-      <span class="navigation-label-prefix">Collection:</span>
-      {{#if title}}{{ title }}{{else}}{{ displayName collection }}{{/if}}
-    </a>
-    {{/if}}
-
-    {{#if collection.description}}
-    <div class="collection-description">{{{nl2br collection.description}}}</div>
-    {{/if}}
-
-    {{#if collection.assets}}
-    <div class="collection-assets">
-      {{#each collection.assets}}
-      {{#if (eq type "image")}}
-      {{image this class="collection-asset" variant="small"}}
-      {{else if (eq type "audio")}}
-      <audio controls src="{{ route }}"></audio>
-      {{else if (eq type "video")}}
-      <video controls src="{{ route }}"></video>
+    {{#if kind}}
+      {{#if (eq kind "title")}}
+      <span class="navigation-heading">{{ title }}</span>
+      {{else if (eq kind "collection")}}
+      {{#if (eq link false)}}
+      <span class="navigation-label navigation-label--collection">
+        <span class="navigation-label-prefix">Collection:</span>
+        {{#if title}}{{ title }}{{else}}{{ displayName collection }}{{/if}}
+      </span>
+      {{else}}
+      <a href="{{ collection.route }}" class="navigation-link navigation-link--collection">
+        <span class="navigation-label-prefix">Collection:</span>
+        {{#if title}}{{ title }}{{else}}{{ displayName collection }}{{/if}}
+      </a>
       {{/if}}
-      {{/each}}
-    </div>
-    {{/if}}
-    {{else if (eq kind "entry")}}
-    {{#if (eq link false)}}
-    <span class="navigation-label navigation-label--entry">
-      {{#if title}}{{ title }}{{else}}{{ displayName entry }}{{/if}}
-      {{#if (match entry.route "#([^#]+)$")}}, #{{match entry.route "#([^#]+)$"}}{{/if}}
-    </span>
-    {{else}}
-    <a href="{{ entry.route }}" class="navigation-link navigation-link--entry">
-      {{#if title}}{{ title }}{{else}}{{ displayName entry }}{{/if}}
-      {{#if (match entry.route "#([^#]+)$")}}, #{{match entry.route "#([^#]+)$"}}{{/if}}
-    </a>
-    {{/if}}
-    {{/if}}
 
-    {{#if children}}
-    {{> navigation-items items=children}}
+      {{#if collection.description}}
+      <div class="collection-description">{{{nl2br collection.description}}}</div>
+      {{/if}}
+
+      {{#if collection.assets}}
+      <div class="collection-assets">
+        {{#each collection.assets}}
+        {{#if (eq type "image")}}
+        {{image this class="collection-asset" variant="small"}}
+        {{else if (eq type "audio")}}
+        <audio controls src="{{ route }}"></audio>
+        {{else if (eq type "video")}}
+        <video controls src="{{ route }}"></video>
+        {{/if}}
+        {{/each}}
+      </div>
+      {{/if}}
+      {{else if (eq kind "entry")}}
+      {{#if (eq link false)}}
+      <span class="navigation-label navigation-label--entry">
+        {{#if title}}{{ title }}{{else}}{{ displayName entry }}{{/if}}
+        {{#if (match entry.route "#([^#]+)$")}}, #{{match entry.route "#([^#]+)$"}}{{/if}}
+      </span>
+      {{else}}
+      <a href="{{ entry.route }}" class="navigation-link navigation-link--entry">
+        {{#if title}}{{ title }}{{else}}{{ displayName entry }}{{/if}}
+        {{#if (match entry.route "#([^#]+)$")}}, #{{match entry.route "#([^#]+)$"}}{{/if}}
+      </a>
+      {{/if}}
+      {{/if}}
+
+      {{#if children}}
+      {{> navigation-items items=children}}
+      {{/if}}
+    {{else}}
+      {{#if entries}}
+        {{#if (eq link false)}}
+        <span class="navigation-label navigation-label--collection">
+          <span class="navigation-label-prefix">Collection:</span>
+          {{displayName this}}
+        </span>
+        {{else}}
+        <a href="{{ route }}" class="navigation-link navigation-link--collection">
+          <span class="navigation-label-prefix">Collection:</span>
+          {{displayName this}}
+        </a>
+        {{/if}}
+
+        {{#if description}}
+        <div class="collection-description">{{{nl2br description}}}</div>
+        {{/if}}
+
+        {{#if assets}}
+        <div class="collection-assets">
+          {{#each assets}}
+          {{#if (eq type "image")}}
+          {{image this class="collection-asset" variant="small"}}
+          {{else if (eq type "audio")}}
+          <audio controls src="{{ route }}"></audio>
+          {{else if (eq type "video")}}
+          <video controls src="{{ route }}"></video>
+          {{/if}}
+          {{/each}}
+        </div>
+        {{/if}}
+
+        {{#if entries}}
+        {{> navigation-items items=entries}}
+        {{/if}}
+      {{else}}
+        {{#if (eq link false)}}
+        <span class="navigation-label navigation-label--entry">
+          {{displayName this}}
+          {{#if (match route "#([^#]+)$")}}, #{{match route "#([^#]+)$"}}{{/if}}
+        </span>
+        {{else}}
+        <a href="{{ route }}" class="navigation-link navigation-link--entry">
+          {{displayName this}}
+          {{#if (match route "#([^#]+)$")}}, #{{match route "#([^#]+)$"}}{{/if}}
+        </a>
+        {{/if}}
+      {{/if}}
     {{/if}}
   </li>
   {{/each}}

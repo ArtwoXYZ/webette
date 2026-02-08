@@ -293,8 +293,8 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
       typeof decimals === "number"
         ? decimals
         : Number.isFinite(Number(decimals))
-        ? Number(decimals)
-        : 0;
+          ? Number(decimals)
+          : 0;
     const value = (p / t) * 100;
     return d > 0 ? value.toFixed(d) : Math.round(value);
   });
@@ -340,6 +340,81 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     if (!foundEntry) return "";
     const data = { ...(options.data || {}), collection: foundCollection };
     return options.fn(foundEntry, { data });
+  });
+
+  Handlebars.registerHelper("menu", function (options) {
+    if (!options || typeof options.fn !== "function") return "";
+    const root = options?.data?.root ?? {};
+    const model = (root as any).model ?? root;
+    const collections: Collection[] = Array.isArray((model as any).collections)
+      ? (model as any).collections
+      : [];
+    const currentCollection = (root as any).collection;
+    const currentEntry = (root as any).entry;
+
+    const includeUnlisted = options?.hash?.includeUnlisted === true;
+
+    const collectionKey = (value: Collection | undefined): string | undefined =>
+      value ? value.slug || value.id : undefined;
+
+    const normalizeRoute = (value: unknown): string | undefined => {
+      if (typeof value !== "string") return undefined;
+      if (value === "/") return "/";
+      return value.replace(/\/+$/, "");
+    };
+
+    const currentCollectionKey = collectionKey(currentCollection);
+    const currentEntryRoute = normalizeRoute(currentEntry?.route);
+
+    const menuCollections = collections
+      .filter((collection) => includeUnlisted || !collection.isUnlisted)
+      .map((collection) => {
+        const entries = (collection.entries ?? [])
+          .filter((entry) => includeUnlisted || !entry.isUnlisted)
+          .map((entry) => ({
+            ...entry,
+            isActive:
+              currentEntryRoute != null &&
+              normalizeRoute(entry.route) === currentEntryRoute,
+          }));
+
+        const isCurrent =
+          currentCollectionKey != null &&
+          (collection.slug === currentCollectionKey ||
+            collection.id === currentCollectionKey);
+
+        return {
+          ...collection,
+          entries,
+          isCurrent,
+          hasSingleEntry: entries.length === 1,
+          singleEntry: entries.length === 1 ? entries[0] : undefined,
+        };
+      });
+
+    const resolvedCurrentCollection = currentCollectionKey
+      ? menuCollections.find(
+        (collection) =>
+          collection.slug === currentCollectionKey ||
+          collection.id === currentCollectionKey
+      )
+      : undefined;
+    const resolvedCurrentEntry =
+      currentEntryRoute && resolvedCurrentCollection
+        ? resolvedCurrentCollection.entries.find(
+          (entry) => normalizeRoute(entry.route) === currentEntryRoute
+        )
+        : undefined;
+
+    const ctx = {
+      collections: menuCollections,
+      current: {
+        collection: resolvedCurrentCollection,
+        entry: resolvedCurrentEntry,
+      },
+    };
+
+    return options.fn(ctx);
   });
 
   // Render a layout partial by name, with a default fallback.

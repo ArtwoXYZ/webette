@@ -69,8 +69,8 @@
   - 🔳 https://webette.org/showcase (website-example/01 Playground/11 Go Further/01 go-further.md:30)
   - 🔳 https://webette.org/donate (website-example/01 Playground/11 Go Further/01 go-further.md:33)
 - ✅ Ajouter à navigation.webt : auto list d'une collection (ses entrées), possibilité d'enlever le nom de la collection
-- 🔳 Faire un Helper pour le menu / l'index
-- 🔳 En serve sous Windows, tu peux encore croiser des EBUSY lors de rm dans _public
+- ✅ Faire un Helper pour le menu / l'index
+- ✅ En serve sous Windows, tu peux encore croiser des EBUSY lors de rm dans _public
 - 🔳 Sur webette.org : Ajouter une page de présentation d'atelier de formation "créer et publier son site web en une après-midi"
 - 🔳 Mettre en place les headers pour favicon et socials
 - 🔳 Mettre système de Tags pour les entry

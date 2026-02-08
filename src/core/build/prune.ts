@@ -4,12 +4,12 @@
  * Deletes files in the output directory that aren't expected for the current build.
  */
 
-import { readdir, rm } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import * as path from "node:path";
 import type { Logger } from "../../logging/logger";
 import type { WebetteEnv } from "../../config/env";
 import type { Block, Collection, Entry, Site } from "../model";
-import { removeEmptyDirectories } from "../../utils/fs";
+import { removeEmptyDirectories, rmWithRetries } from "../../utils/fs";
 
 export type ExpectedOutputsRegistry = {
   addExpectedOutput: (relativePath: string) => void;
@@ -255,10 +255,10 @@ export async function pruneOrphans(options: {
   for (const rel of toDelete) {
     const abs = path.join(outputDir, rel);
     try {
-      await rm(abs, { force: true });
+      await rmWithRetries(abs, { force: true });
       logger.info("build.outputPruned", { path: abs });
-    } catch {
-      // ignore failures silently
+    } catch (err) {
+      logger.warn("build.outputPruneFailed", { path: abs, error: String(err) });
     }
   }
 

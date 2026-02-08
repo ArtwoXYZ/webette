@@ -43,11 +43,11 @@
     <div class="site-page">
       <header class="site-frame">
         <nav class="top-menu" aria-label="Site menu">
-          <input class="top-menu-radio" type="radio" name="top-menu" id="top-menu-none" checked />
+          {{#menu}}
+            <input class="top-menu-radio" type="radio" name="top-menu" id="top-menu-none" checked />
 
-          {{#each collections}}
-            {{#unless isUnlisted}}
-              {{#unless (eq entries.length 1)}}
+            {{#each collections}}
+              {{#unless hasSingleEntry}}
                 <input
                   class="top-menu-radio"
                   type="radio"
@@ -55,23 +55,21 @@
                   id="top-menu-{{slug}}"
                 />
               {{/unless}}
-            {{/unless}}
-          {{/each}}
+            {{/each}}
 
-          <div class="top-menu-tabs">
-            {{#each collections}}
-              {{#unless isUnlisted}}
+            <div class="top-menu-tabs">
+              {{#each collections}}
                 <div class="top-menu-tabwrap">
-                  {{#if (eq entries.length 1)}}
+                  {{#if hasSingleEntry}}
                     <a
-                      class="top-menu-tab top-menu-tab--link {{#if ../collection}}{{#if (eq slug ../collection.slug)}}is-current{{/if}}{{/if}}"
-                      href="{{entries.0.route}}"
-                      {{#if (eq entries.0.route ../entry.route)}}aria-current="page"{{/if}}
+                      class="top-menu-tab top-menu-tab--link {{#if isCurrent}}is-current{{/if}}"
+                      href="{{singleEntry.route}}"
+                      {{#if singleEntry.isActive}}aria-current="page"{{/if}}
                     >
                       {{displayName this}}
                     </a>
                   {{else}}
-                    <label class="top-menu-tab top-menu-tab--open {{#if ../collection}}{{#if (eq slug ../collection.slug)}}is-current{{/if}}{{/if}}" for="top-menu-{{slug}}">
+                    <label class="top-menu-tab top-menu-tab--open {{#if isCurrent}}is-current{{/if}}" for="top-menu-{{slug}}">
                       {{displayName this}}
                     </label>
                     <label class="top-menu-tab top-menu-tab--close" for="top-menu-none" data-close="{{slug}}">
@@ -79,44 +77,38 @@
                     </label>
                   {{/if}}
                 </div>
-              {{/unless}}
-            {{/each}}
-          </div>
+              {{/each}}
+            </div>
 
-          <div class="top-menu-panels">
-            {{#each collections}}
-              {{#unless isUnlisted}}
-                {{#unless (eq entries.length 1)}}
+            <div class="top-menu-panels">
+              {{#each collections}}
+                {{#unless hasSingleEntry}}
                   <div class="top-menu-panel" id="top-menu-panel-{{slug}}">
                     <ul class="top-menu-tree">
                       {{#each entries}}
-                        {{#unless isUnlisted}}
-                          <li class="top-menu-tree-item">
-                            <span class="tree-line {{#if (eq route ../../entry.route)}}is-active{{/if}} {{#if @last}}last-tree-line{{/if}}">&#8195;&#8195;&#8195;</span>
-                            <a
-                              class="top-menu-entry {{#if (eq route ../../entry.route)}}is-active{{/if}}"
-                              href="{{route}}"
-                              {{#if (eq route ../../entry.route)}}aria-current="page"{{/if}}
-                            >
-                              <span class="tree-ascii">&#9492;&#9472;&#9472;</span> {{displayName this}}
-                            </a>
-                            {{#if isDraft}}
-                              <span class="draft-pill">draft</span>
-                            {{/if}}
-                          </li>
-                        {{/unless}}
+                        <li class="top-menu-tree-item">
+                          <span class="tree-line {{#if isActive}}is-active{{/if}} {{#if @last}}last-tree-line{{/if}}">&#8195;&#8195;&#8195;</span>
+                          <a
+                            class="top-menu-entry {{#if isActive}}is-active{{/if}}"
+                            href="{{route}}"
+                            {{#if isActive}}aria-current="page"{{/if}}
+                          >
+                            <span class="tree-ascii">&#9492;&#9472;&#9472;</span> {{displayName this}}
+                          </a>
+                          {{#if isDraft}}
+                            <span class="draft-pill">draft</span>
+                          {{/if}}
+                        </li>
                       {{/each}}
                     </ul>
                   </div>
                 {{/unless}}
-              {{/unless}}
-            {{/each}}
-          </div>
+              {{/each}}
+            </div>
 
-          <style>
-            {{#each collections}}
-              {{#unless isUnlisted}}
-                {{#unless (eq entries.length 1)}}
+            <style>
+              {{#each collections}}
+                {{#unless hasSingleEntry}}
                   #top-menu-{{slug}}:checked ~ .top-menu-tabs label[data-close="{{slug}}"] {
                     background: var(--accent);
                     color: color-mix(in lch shorter hue, var(--bg-box) 100%, white 50%);
@@ -136,9 +128,9 @@
                     pointer-events: auto;
                   }
                 {{/unless}}
-              {{/unless}}
-            {{/each}}
-          </style>
+              {{/each}}
+            </style>
+          {{/menu}}
         </nav>
       </header>
 
@@ -149,6 +141,5 @@
 
     <div class="noise"></div>
 
-    {{{liveReloadScript}}}
   </body>
 </html>

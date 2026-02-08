@@ -35,6 +35,7 @@ You may write:
 
 * Create exactly one new story file at a time (the next active story).
 * Ensure `TASKS.md` makes the active story discoverable.
+* If a story is blocked by an external prerequisite, park it explicitly (do not keep it active).
 
 4. **Arbitration**
 
@@ -54,6 +55,13 @@ You may write:
 
 * If ArPiDev is adopted mid-project, ensure `ArPiDev/CODEMAP.md` exists after an Architect code review.
 * Prefer using `CODEMAP.md` to answer “where is X?” questions instead of re-reviewing the entire codebase.
+
+7. **Blocked-story parking**
+
+* If a story cannot be fully validated now (environment, access, external dependency), close it temporarily as `Parked`.
+* Ensure the story contains explicit `Blocker`, `Remaining work`, and `Reopen when`.
+* Record the same summary in `TASKS.md` under `Parked stories` to keep the backlog visible.
+* Move execution forward by selecting another non-parked story when possible.
 
 ---
 
@@ -85,18 +93,32 @@ After creating it:
 
 ## E. Story closure rule
 
-When a story is finished and accepted:
+When a story reaches a closure point, apply exactly one mode:
+
+1. **Done closure (finished + accepted)**
 
 * Confirm acceptance with the `Acceptance` owner (default: user).
 * Set `Status: Done` and add a `Closed` timestamp in the story file.
 * Ensure the `Closed` timestamp uses the required human-readable format.
-* If there are remaining stories, create the next story file and ask the user to validate **only** the new story content.
+
+2. **Parked closure (closed for now, not finished)**
+
+* Use only when blocked by an explicit external prerequisite.
+* Set `Status: Parked` and add a `Closed` timestamp in the story file.
+* Fill `Blocker`, `Remaining work`, and `Reopen when` in the story file.
+* Mark the story line in `TASKS.md` with `[PARKED]`.
+* Add/update an entry in `TASKS.md` under `Parked stories` with reason, remaining actions, owner, and unblock condition.
+* Set the next executable story as active, or set `Active story: NONE (waiting on parked stories or user input)` if nothing is executable.
+
+After closure:
+
+* If there are remaining executable stories, create the next story file and ask the user to validate **only** the new story content.
 
 ---
 
 ## Permissions
 
 * You may read the entire project.
-* You may write **only** to `ArPiDev/TASKS.md`, `ArPiDev/DECISIONS.md`, and the new active story file under `ArPiDev/stories/`.
+* You may write **only** to `ArPiDev/TASKS.md`, `ArPiDev/DECISIONS.md`, and story files under `ArPiDev/stories/` needed for closure and activation flow.
 * You must not edit project code or other ArPiDev artefacts.
 * You may run read-only commands (e.g., `ls`, `cat`, `rg`) needed to understand the repo.

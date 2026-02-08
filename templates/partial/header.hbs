@@ -8,4 +8,20 @@
     {{/if}}
   </nav>
   <h3>Collection: {{displayName collection}}</h3>
+  {{#menu}}
+    <nav class="site-menu" aria-label="Site menu">
+      <ul>
+        {{#each collections}}
+          <li>
+            <a
+              href="{{#if hasSingleEntry}}{{singleEntry.route}}{{else}}{{route}}{{/if}}"
+              class="{{#if isCurrent}}is-current{{/if}}"
+            >
+              {{displayName this}}
+            </a>
+          </li>
+        {{/each}}
+      </ul>
+    </nav>
+  {{/menu}}
 </header>
