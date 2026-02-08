@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: T2-S02
+Active story: T2-S03
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -10,7 +10,7 @@ Active story: T2-S02
 
 ## T2 — Petits gains rapides
 - [x] T2-S01 Option pour décaler les titres Markdown (h1→h2, etc.).
-- [ ] T2-S02 Option de tri asc/desc des entries/collections.
+- [x] T2-S02 Option de tri asc/desc des entries/collections.
 - [ ] T2-S03 Option de tri par dates (création/maj).
 - [ ] T2-S04 Ajouter les headers favicon/socials (config + template par défaut).
 - [ ] T2-S05 Intégrer Standard.site (Lexicon ATproto) : décision + POC d’intégration.
@@ -43,5 +43,4 @@ Active story: T2-S02
 ## T7 — Documentation & démo
 - [ ] T7-S01 Terminer le site de doc “EN COURS” (Concept + Features core).
 - [ ] T7-S02 Corriger les liens du site de démo une fois la doc en ligne.
-
 

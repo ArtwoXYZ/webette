@@ -1,10 +1,10 @@
 # T2-S02 — Sort order asc/desc
 
 Created: 2026-02-08 18h29m55s
-Closed:
+Closed: 2026-02-08 23h10m16s
 Acceptance: User
 
-Status: Active
+Status: Done
 
 ## Context
 L'ordre des collections/entries/blocks est implicite et ne peut pas etre ajuste facilement sans renommer les dossiers ou reordonner les fichiers.

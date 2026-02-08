@@ -48,27 +48,6 @@ type RawCollection = {
 };
 
 type SortOrder = "asc" | "desc";
-type SortSpec = { type: "name"; order: SortOrder };
-type SortingSection = {
-  type?: unknown;
-  order?: unknown;
-  custom?: unknown;
-};
-type SortingConfig = {
-  type?: unknown;
-  order?: unknown;
-  collections?: SortingSection;
-  entries?: SortingSection;
-  blocks?: SortingSection;
-};
-type CustomSorting = {
-  collection?: unknown;
-  entry?: unknown;
-  type?: unknown;
-  order?: unknown;
-};
-
-const DEFAULT_SORT: SortSpec = { type: "name", order: "asc" };
 
 type CollectionConfig = {
   path?: string;
@@ -81,106 +60,11 @@ function normalizePath(value: string): string {
   return toPosix(value.replace(/\\/g, "/"));
 }
 
-function normalizeSortOrder(value: unknown): SortOrder | undefined {
-  return value === "asc" || value === "desc" ? value : undefined;
-}
-
-function normalizeSortType(
-  value: unknown,
-  scope: string,
-  warned: Set<string>,
-  logger?: Logger
-): "name" | undefined {
-  if (value === undefined || value === null) return undefined;
-  if (value === "name") return "name";
-  const key = `${scope}:${String(value)}`;
-  if (!warned.has(key)) {
-    warned.add(key);
-    logger?.warn("scan.sortingUnknownType", { scope, type: value, fallback: "name" });
-  }
-  return "name";
-}
-
-function pickType(
-  candidates: Array<{ value: unknown; scope: string }>,
-  warned: Set<string>,
-  logger?: Logger
-): "name" | undefined {
-  for (const candidate of candidates) {
-    if (candidate.value === undefined || candidate.value === null) continue;
-    return normalizeSortType(candidate.value, candidate.scope, warned, logger) ?? "name";
-  }
-  return undefined;
-}
-
-function pickOrder(candidates: Array<{ value: unknown }>): SortOrder | undefined {
-  for (const candidate of candidates) {
-    const order = normalizeSortOrder(candidate.value);
-    if (order) return order;
-  }
-  return undefined;
-}
-
-function resolveSortSpec(
-  candidates: {
-    type: Array<{ value: unknown; scope: string }>;
-    order: Array<{ value: unknown }>;
-  },
-  warned: Set<string>,
-  logger?: Logger
-): SortSpec {
-  const type = pickType(candidates.type, warned, logger) ?? "name";
-  const order = pickOrder(candidates.order) ?? "asc";
-  return { type, order };
-}
-
-function findCustomSortingForCollection(
-  raw: unknown,
-  collectionKey: string | undefined
-): CustomSorting | undefined {
-  if (!collectionKey || !Array.isArray(raw)) return undefined;
-  for (const item of raw) {
-    if (!item || typeof item !== "object") continue;
-    const collection = (item as Record<string, unknown>).collection;
-    if (typeof collection === "string" && collection === collectionKey) {
-      return item as CustomSorting;
-    }
-  }
-  return undefined;
-}
-
-function findCustomSortingForEntry(
-  raw: unknown,
-  collectionKey: string | undefined,
-  entryKey: string | undefined
-): CustomSorting | undefined {
-  if (!collectionKey || !Array.isArray(raw)) return undefined;
-  let collectionMatch: CustomSorting | undefined;
-  for (const item of raw) {
-    if (!item || typeof item !== "object") continue;
-    const record = item as Record<string, unknown>;
-    const collection = record.collection;
-    if (typeof collection !== "string" || collection !== collectionKey) continue;
-    const entry = record.entry;
-    if (typeof entry === "string") {
-      if (entryKey && entry === entryKey) {
-        return item as CustomSorting;
-      }
-      continue;
-    }
-    if (!collectionMatch) {
-      collectionMatch = item as CustomSorting;
-    }
-  }
-  return collectionMatch;
-}
-
-function entryKeyFromRawName(rawName: string): string {
-  return slugify(cleanName(rawName));
-}
-
-function sortByName<T extends { rawName: string }>(items: T[], sort: SortSpec): void {
-  const dir = sort.order === "desc" ? -1 : 1;
+function sortByName<T extends { rawName: string }>(
+  items: T[],
+  order: SortOrder = "asc"
+): void {
+  const dir = order === "desc" ? -1 : 1;
   items.sort((a, b) => {
     const orderA = orderKey(a.rawName);
     const orderB = orderKey(b.rawName);
@@ -195,7 +79,6 @@ async function listBlocksRaw(
   rootDir: string,
   entryRelPath: string,
   options: { treatTxtAsMarkdown: boolean },
-  sorting: SortSpec = DEFAULT_SORT,
   logger?: Logger
 ): Promise<RawBlock[]> {
   const absoluteEntry = path.join(rootDir, entryRelPath);
@@ -223,7 +106,7 @@ async function listBlocksRaw(
     }
 
     const subBlocks = isDirectory
-      ? await listBlocksRaw(rootDir, relPath, options, sorting, logger)
+      ? await listBlocksRaw(rootDir, relPath, options, logger)
       : undefined;
 
     blocks.push({
@@ -236,7 +119,7 @@ async function listBlocksRaw(
     });
   }
 
-  sortByName(blocks, sorting);
+  sortByName(blocks);
 
   return blocks;
 }
@@ -245,8 +128,6 @@ async function listEntriesRaw(
   rootDir: string,
   collectionPath: string,
   options: { treatTxtAsMarkdown: boolean },
-  sorting: { entries: SortSpec },
-  blockSortForEntry: (entryRawName: string) => SortSpec,
   logger?: Logger
 ): Promise<RawEntry[]> {
   const absolute = path.join(rootDir, collectionPath);
@@ -260,13 +141,7 @@ async function listEntriesRaw(
     if (!rawName || rawName.startsWith(".") || rawName.startsWith("_")) continue;
 
     const relPath = toPosix(path.join(collectionPath, rawName));
-    const blocks = await listBlocksRaw(
-      rootDir,
-      relPath,
-      options,
-      blockSortForEntry(rawName),
-      logger
-    );
+    const blocks = await listBlocksRaw(rootDir, relPath, options, logger);
     const absoluteEntry = path.join(rootDir, relPath);
     const isDraft = await isDraftEntry(absoluteEntry);
     const isUnlisted = await isUnlistedEntry(absoluteEntry);
@@ -284,7 +159,7 @@ async function listEntriesRaw(
     });
   }
 
-  sortByName(entries, sorting.entries);
+  sortByName(entries);
 
   return entries;
 }
@@ -293,8 +168,7 @@ async function listCollectionsRaw(
   rootDir: string,
   toolTemplatesRoot: string,
   outputDirName: string,
-  loggingDirName: string,
-  sorting: SortSpec
+  loggingDirName: string
 ): Promise<RawCollection[]> {
   const dirEntries = await readdir(rootDir, { withFileTypes: true });
   const collections: RawCollection[] = [];
@@ -326,7 +200,7 @@ async function listCollectionsRaw(
     });
   }
 
-  sortByName(collections, sorting);
+  sortByName(collections);
 
   return collections;
 }
@@ -348,102 +222,6 @@ function buildConfigIndex(site: Site): Map<string, CollectionConfig> {
   }
 
   return map;
-}
-
-function buildCollectionKeyIndex(site: Site): Map<string, string> {
-  const map = new Map<string, string>();
-  const raw = site.config?.collections;
-  if (!raw || typeof raw !== "object") return map;
-
-  for (const [key, value] of Object.entries(raw)) {
-    if (!value || typeof value !== "object") continue;
-    const cfg = value as CollectionConfig;
-    const normalizedPath =
-      typeof cfg.path === "string" && cfg.path ? normalizePath(cfg.path) : normalizePath(key);
-    map.set(normalizedPath, key);
-  }
-
-  return map;
-}
-
-function resolveCollectionSort(
-  sorting: SortingConfig | undefined,
-  warned: Set<string>,
-  logger?: Logger
-): SortSpec {
-  if (!sorting) return DEFAULT_SORT;
-  return resolveSortSpec(
-    {
-      type: [
-        { value: sorting.collections?.type, scope: "sorting.collections.type" },
-        { value: sorting.type, scope: "sorting.type" },
-      ],
-      order: [{ value: sorting.collections?.order }, { value: sorting.order }],
-    },
-    warned,
-    logger
-  );
-}
-
-function resolveEntrySort(
-  sorting: SortingConfig | undefined,
-  collectionKey: string | undefined,
-  warned: Set<string>,
-  logger?: Logger
-): SortSpec {
-  if (!sorting) return DEFAULT_SORT;
-  const custom = findCustomSortingForCollection(sorting.entries?.custom, collectionKey);
-  const customScope = collectionKey
-    ? `sorting.entries.custom.type:${collectionKey}`
-    : "sorting.entries.custom.type";
-  return resolveSortSpec(
-    {
-      type: [
-        { value: custom?.type, scope: customScope },
-        { value: sorting.entries?.type, scope: "sorting.entries.type" },
-        { value: sorting.type, scope: "sorting.type" },
-      ],
-      order: [
-        { value: custom?.order },
-        { value: sorting.entries?.order },
-        { value: sorting.order },
-      ],
-    },
-    warned,
-    logger
-  );
-}
-
-function resolveBlockSort(
-  sorting: SortingConfig | undefined,
-  collectionKey: string | undefined,
-  entryKey: string | undefined,
-  warned: Set<string>,
-  logger?: Logger
-): SortSpec {
-  if (!sorting) return DEFAULT_SORT;
-  const custom = findCustomSortingForEntry(sorting.blocks?.custom, collectionKey, entryKey);
-  const customScope = collectionKey
-    ? entryKey
-      ? `sorting.blocks.custom.type:${collectionKey}:${entryKey}`
-      : `sorting.blocks.custom.type:${collectionKey}`
-    : "sorting.blocks.custom.type";
-  return resolveSortSpec(
-    {
-      type: [
-        { value: custom?.type, scope: customScope },
-        { value: sorting.blocks?.type, scope: "sorting.blocks.type" },
-        { value: sorting.type, scope: "sorting.type" },
-      ],
-      order: [
-        { value: custom?.order },
-        { value: sorting.blocks?.order },
-        { value: sorting.order },
-      ],
-    },
-    warned,
-    logger
-  );
 }
 
 function enrichBlocks(rawBlocks: RawBlock[]): Block[] {
@@ -666,15 +444,6 @@ export async function scanSite(site: Site, logger?: Logger): Promise<Site> {
     site?.site && typeof site.site === "object"
       ? (site.site as Record<string, unknown>).markdown
       : undefined;
-  const siteSortingConfig =
-    site?.site && typeof site.site === "object"
-      ? (site.site as Record<string, unknown>).sorting
-      : undefined;
-  const sortingConfig =
-    siteSortingConfig && typeof siteSortingConfig === "object"
-      ? (siteSortingConfig as SortingConfig)
-      : undefined;
-  const sortingWarned = new Set<string>();
   const siteTreatTxtAsMarkdown =
     siteMarkdownConfig && typeof siteMarkdownConfig === "object"
       ? (siteMarkdownConfig as Record<string, unknown>).treatTxtAsMarkdown
@@ -696,42 +465,22 @@ export async function scanSite(site: Site, logger?: Logger): Promise<Site> {
     site.rootDir,
     templatesRoot,
     toolEnv.build.outputDirName,
-    toolEnv.logging.dirName,
-    resolveCollectionSort(sortingConfig, sortingWarned, logger)
+    toolEnv.logging.dirName
   );
-
-  const collectionKeyIndex = buildCollectionKeyIndex(site);
 
   const collectionsWithEntries = await Promise.all(
     rawCollections.map(async (collection) => {
-      const collectionKey =
-        collectionKeyIndex.get(collection.path) ??
-        collectionKeyIndex.get(normalizePath(collection.rawName)) ??
-        slugify(cleanName(collection.rawName));
-      const entrySort = resolveEntrySort(sortingConfig, collectionKey, sortingWarned, logger);
       const entries = await listEntriesRaw(
         site.rootDir,
         collection.path,
         { treatTxtAsMarkdown },
-        { entries: entrySort },
-        (entryRawName) => {
-          const entryKey = entryKeyFromRawName(entryRawName);
-          return resolveBlockSort(
-            sortingConfig,
-            collectionKey,
-            entryKey,
-            sortingWarned,
-            logger
-          );
-        },
         logger
       );
-      const assets = collection.assets ? [...collection.assets] : undefined;
-      if (assets) {
-        const assetsSort = resolveBlockSort(sortingConfig, collectionKey, undefined, sortingWarned, logger);
-        sortByName(assets, assetsSort);
-      }
-      return { ...collection, entries, ...(assets ? { assets } : {}) };
+      return {
+        ...collection,
+        entries,
+        ...(collection.assets ? { assets: collection.assets } : {}),
+      };
     })
   );
 

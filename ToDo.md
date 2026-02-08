@@ -58,7 +58,7 @@
 - 🔳 Peut-être retirer complétement les templates du tool (pas utiles, il faut créer des templates pour son site et puis c'est tout) ?
 - 🔳 intégrer Standard.site (Lexicon ATproto) ?
 - ✅ Permettre de changer l'ordre ascendant par déscendant
-- 🔳 Permettre de trier les entrées par date de création + date d'update
+- ✅ Permettre de trier les entrées par date de création + date d'update
 - 🔳 CHANGER LES LIENS DU SITE DE DEMO (quand la doc sera en ligne) :
   - 🔳 https://docs.webette.org/markdown (website-example/01 Playground/02 Edit your text/01 edit.md:35)
   - 🔳 https://docs.webette.org/blocks/navigation (website-example/01 Playground/05 Add a Link/01 link.md:63)

@@ -35,6 +35,7 @@ import { countDraftEntries, filterDraftEntries, listDraftEntries } from './build
 import { formatHtml as formatHtmlFs } from './build/html'
 import { parseIndexOverrides, resolveIndexEntry } from './build/index-overrides'
 import { protectAssetDirs } from './build/protect-assets'
+import { applySorting } from './build/sorting'
 import { writeModelExport } from './export/write-model'
 import { collectProtectedDirs, createExpectedOutputsRegistry, pruneOrphans } from './build/prune'
 import { renderSite } from './build/render'
@@ -481,16 +482,17 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     rootDir,
     readContent,
   })
+  const sortedSite = applySorting(resolvedSiteWithHistory, scoped.child('sorting'))
 
   const indexOverrides = parseIndexOverrides(site.config?.index)
-  const rootIndexTarget = resolveIndexEntry(resolvedSiteWithHistory, indexOverrides.root, scoped)
+  const rootIndexTarget = resolveIndexEntry(sortedSite, indexOverrides.root, scoped)
   const collectionIndexTargets = new Map<
     string,
     { target: Collection; entry: Entry; entryCollection: Collection }
   >()
   if (indexOverrides.collections) {
     for (const [collectionSlug, ref] of Object.entries(indexOverrides.collections)) {
-      const targetCollection = matchCollection(resolvedSiteWithHistory, collectionSlug)
+      const targetCollection = matchCollection(sortedSite, collectionSlug)
       if (!targetCollection) {
         scoped.warn('index.override.targetMissing', { collection: collectionSlug })
         continue
@@ -501,7 +503,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
         })
         continue
       }
-      const resolved = resolveIndexEntry(resolvedSiteWithHistory, ref, scoped)
+      const resolved = resolveIndexEntry(sortedSite, ref, scoped)
       if (!resolved) continue
       collectionIndexTargets.set(targetCollection.slug || targetCollection.id, {
         target: targetCollection,
@@ -522,7 +524,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
   }
 
   scoped.debug('build.exportModel.start', { path: exportDir })
-  await writeModelExport({ exportDir, site: resolvedSiteWithHistory, logger: scoped })
+  await writeModelExport({ exportDir, site: sortedSite, logger: scoped })
 
   if (exportModel.only) {
     if (options.quiet) {
@@ -546,15 +548,15 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
   })
 
   const renderBaseContext = {
-    model: resolvedSiteWithHistory,
+    model: sortedSite,
     // Expose site timestamps/fingerprint directly on `site` for templates
     site: {
-      ...resolvedSiteWithHistory.site,
-      createdAt: resolvedSiteWithHistory.createdAt,
-      updatedAt: resolvedSiteWithHistory.updatedAt,
-      fingerprint: resolvedSiteWithHistory.fingerprint,
+      ...sortedSite.site,
+      createdAt: sortedSite.createdAt,
+      updatedAt: sortedSite.updatedAt,
+      fingerprint: sortedSite.fingerprint,
     },
-    collections: resolvedSiteWithHistory.collections ?? [],
+    collections: sortedSite.collections ?? [],
     layoutName: layoutPartialName,
     buildTime,
     liveReloadScript,
@@ -576,7 +578,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     rootDir,
     outputDir,
     env: toolEnv,
-    site: resolvedSiteWithHistory,
+    site: sortedSite,
     templatesDefault: templates.default,
     templatesCustom,
     siteTemplatesRoot,
@@ -597,7 +599,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
 
   await writeSitemap({
     outputDir,
-    site: resolvedSiteWithHistory,
+    site: sortedSite,
     generateIndex,
     includeDrafts,
     logger: scoped,
@@ -606,13 +608,13 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     outputDir,
     exportDir,
     env: toolEnv,
-    site: resolvedSiteWithHistory,
+    site: sortedSite,
     includeDrafts,
   })
   await pruneOrphans({
     outputDir,
     exportDir,
-    site: resolvedSiteWithHistory,
+    site: sortedSite,
     includeDrafts,
     overwrite,
     generateIndex,
@@ -632,8 +634,8 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     outputDir,
     protectAssets,
     dirsToCover: protectedDirs,
-    siteTitle: resolvedSiteWithHistory.site.title,
-    siteLang: resolvedSiteWithHistory.site.lang,
+    siteTitle: sortedSite.site.title,
+    siteLang: sortedSite.site.lang,
     assetsBase,
     accessForbiddenLayoutName,
     templateRenderer,
