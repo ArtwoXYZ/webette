@@ -13,6 +13,7 @@ interface WebetteConfigFile {
   images?: Record<string, unknown>;
   audio?: Record<string, unknown>;
   markdown?: Record<string, unknown>;
+  sorting?: Record<string, unknown>;
   video?: Record<string, unknown>;
   index?: Record<string, unknown>;
   plugins?: string[];
@@ -58,6 +59,10 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
       raw.markdown && typeof raw.markdown === "object"
         ? { ...raw.markdown }
         : undefined;
+    const sorting =
+      raw.sorting && typeof raw.sorting === "object"
+        ? { ...raw.sorting }
+        : undefined;
     const index =
       raw.index && typeof raw.index === "object" ? { ...raw.index } : undefined;
     const plugins =
@@ -73,6 +78,7 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
       audio: audio as Record<string, unknown> | undefined,
       video: video as Record<string, unknown> | undefined,
       markdown: markdown as Record<string, unknown> | undefined,
+      sorting: sorting as Record<string, unknown> | undefined,
       index: index as Record<string, unknown> | undefined,
       plugins,
     };
@@ -117,6 +123,12 @@ export async function createSite(rootDir: string): Promise<Site> {
     siteSection.markdown = {
       ...(siteSection.markdown as Record<string, unknown> | undefined),
       ...config.markdown,
+    };
+  }
+  if (config.sorting && typeof config.sorting === "object") {
+    siteSection.sorting = {
+      ...(siteSection.sorting as Record<string, unknown> | undefined),
+      ...config.sorting,
     };
   }
   const plugins: string[] | undefined =

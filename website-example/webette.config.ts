@@ -24,6 +24,11 @@ export default {
     },
   },
 
+  sorting: {
+    type: "name",
+    order: "asc"
+  },
+
   templates: {
     root: "_templates",
     assets: {

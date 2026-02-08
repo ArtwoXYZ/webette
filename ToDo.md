@@ -57,7 +57,7 @@
 - ✅ Proposer une option pour décaler de 1 tous les titres des markdown (h1 => h2, h2 => h3, etc.)
 - 🔳 Peut-être retirer complétement les templates du tool (pas utiles, il faut créer des templates pour son site et puis c'est tout) ?
 - 🔳 intégrer Standard.site (Lexicon ATproto) ?
-- 🔳 Permettre de changer l'ordre ascendant par déscendant
+- ✅ Permettre de changer l'ordre ascendant par déscendant
 - 🔳 Permettre de trier les entrées par date de création + date d'update
 - 🔳 CHANGER LES LIENS DU SITE DE DEMO (quand la doc sera en ligne) :
   - 🔳 https://docs.webette.org/markdown (website-example/01 Playground/02 Edit your text/01 edit.md:35)
