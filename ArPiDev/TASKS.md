@@ -1,6 +1,7 @@
 # TASKS
 
-Active story: T2-S03
+- [ ] T2-S04 Generer les favicons/icones (config + build + templates par defaut).
+- [ ] T2-S05 Ajouter les headers sociaux (config + templates par defaut).
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -11,9 +12,10 @@ Active story: T2-S03
 ## T2 — Petits gains rapides
 - [x] T2-S01 Option pour décaler les titres Markdown (h1→h2, etc.).
 - [x] T2-S02 Option de tri asc/desc des entries/collections.
-- [ ] T2-S03 Option de tri par dates (création/maj).
-- [ ] T2-S04 Ajouter les headers favicon/socials (config + template par défaut).
-- [ ] T2-S05 Intégrer Standard.site (Lexicon ATproto) : décision + POC d’intégration.
+- [x] T2-S03 Option de tri par dates (création/maj).
+- [ ] T2-S04 Generer les favicons/icones (config + build + templates par defaut).
+- [ ] T2-S05 Ajouter les headers sociaux (config + templates par defaut).
+- [ ] T2-S06 Integrer Standard.site (Lexicon ATproto) : decision + POC d'integration.
 
 ## T3 — Navigation & index refonte
 - [ ] T3-S01 Nouveau système d’index (dossiers “Root Index” / “Collection Index”) en conservant les overrides de layout existants (peut remplacer les overrides de contenu, pas les layouts).
@@ -43,4 +45,3 @@ Active story: T2-S03
 ## T7 — Documentation & démo
 - [ ] T7-S01 Terminer le site de doc “EN COURS” (Concept + Features core).
 - [ ] T7-S02 Corriger les liens du site de démo une fois la doc en ligne.
-

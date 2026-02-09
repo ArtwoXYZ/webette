@@ -72,7 +72,8 @@
 - ✅ Faire un Helper pour le menu / l'index
 - ✅ En serve sous Windows, tu peux encore croiser des EBUSY lors de rm dans _public
 - 🔳 Sur webette.org : Ajouter une page de présentation d'atelier de formation "créer et publier son site web en une après-midi"
-- 🔳 Mettre en place les headers pour favicon et socials
+- ✅ Mettre en place les headers pour favicon 
+- 🔳 Mettre en place les headers pour socials
 - 🔳 Mettre système de Tags pour les entry
 - 🔳 Mettre un fichier spécial collection.webt pour transformer une entry en sous-collection (faire en sorte que les niveaux soient-infinis). Faire fonctionner ça avec les index automatique
 - 🔳 Essayer de faire le tri dans les 2 types de fichiers de config pour avoir une vrai séparation entre la config d'un site et la config de l'outil

@@ -1,10 +1,10 @@
 # T2-S03 — Sort by dates
 
 Created: 2026-02-08 23h10m40s
-Closed:
+Closed: 2026-02-09 00h14m34s
 Acceptance: User
 
-Status: Active
+Status: Done
 
 ## Context
 Le tri actuel est basé sur le nom/ordre numerique, mais certains sites veulent un tri par dates (creation/maj).

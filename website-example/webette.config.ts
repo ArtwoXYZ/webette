@@ -4,6 +4,11 @@ export default {
     lang: "en",
     author: "Artwo",
     url: "https://example.webette.local",
+    icons: {
+      source: "_templates/assets/icon.jpg",
+      themeColor: "#ffffff",
+      colorScheme: "light dark",
+    },
   },
 
   collections: {

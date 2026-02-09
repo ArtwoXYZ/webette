@@ -39,6 +39,7 @@ import { applySorting } from './build/sorting'
 import { writeModelExport } from './export/write-model'
 import { collectProtectedDirs, createExpectedOutputsRegistry, pruneOrphans } from './build/prune'
 import { renderSite } from './build/render'
+import { buildIcons } from './build/icons'
 import { writeNginxSampleFile, writeRootHtaccessFile } from './build/server-files'
 
 export interface BuildOptions {
@@ -535,6 +536,14 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     return
   }
 
+  const iconsResult = await buildIcons({
+    rootDir,
+    outputDir,
+    site: sortedSite,
+    logger: scoped.child('icons'),
+    registerExpectedOutput,
+  })
+
   // Prepare Handlebars template (site overrides take precedence over tool fallback).
   const templateRenderer = await createTemplateRenderer({
     rootDir,
@@ -561,6 +570,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     buildTime,
     liveReloadScript,
     ...(assetsBase ? { templates: { assetsBase } } : {}),
+    ...(iconsResult.headHtml ? { iconsHead: iconsResult.headHtml } : { iconsHead: '' }),
   }
 
   const injectLiveReload = (rawHtml: string): string => {
