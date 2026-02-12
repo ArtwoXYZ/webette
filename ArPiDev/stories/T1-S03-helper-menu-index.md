@@ -4,7 +4,7 @@ Created: 2026-02-06 16h28m24s
 Closed: 2026-02-08 18h30m00s
 Acceptance: User
 
-Status: Done
+Status: Done, Validated
 
 ## Context
 Les templates par défaut n’exposent pas encore un helper menu/index clair et stable, ce qui complique la navigation et les exemples.
@@ -52,11 +52,17 @@ Définir l’API du helper menu/index et l’implémenter dans les templates par
 - Rappel: la logique filtre `unlisted` par defaut; utiliser `includeUnlisted=true` si besoin.
 - Partial `navigation-items`: supporte maintenant les items du helper `menu` (collections/entries) en plus des items `navigation.webt` (kind/title/children).
 
-## Blocker
+## Pending reason
+- None (story completed and validated).
 
 ## Remaining work
+- None.
 
-## Reopen when
+## Resume condition
+- Not applicable.
+
+## Pilot exchange
+- 2026-02-12 16h27m58s — Pilot -> Dev — Administrative migration: required story fields were backfilled to match the current ArPiDev schema.
 
 ## Dev log
 - 2026-02-08 18h22m00s - Marked story as Done (Dev-side completion, pending acceptance). - Why: all Done-when items are satisfied. - Commands: none.

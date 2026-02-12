@@ -4,7 +4,7 @@ Created: 2026-02-08 18h29m55s
 Closed: 2026-02-08 23h10m16s
 Acceptance: User
 
-Status: Done
+Status: Done, Validated
 
 ## Context
 L'ordre des collections/entries/blocks est implicite et ne peut pas etre ajuste facilement sans renommer les dossiers ou reordonner les fichiers.
@@ -83,11 +83,17 @@ To document: Ajouter une section "sorting" (config site) avec schema complet + e
 - `entry` (blocks.custom) = slug d'entree (derive du nom de dossier); si present, l'override ne touche que cette entree.
 - L'ordre est base sur le meme tri que l'existant: prefix numerique + nom (localeCompare, insensitive).
 
-## Blocker
+## Pending reason
+- None (story completed and validated).
 
 ## Remaining work
+- None.
 
-## Reopen when
+## Resume condition
+- Not applicable.
+
+## Pilot exchange
+- 2026-02-12 16h27m58s — Pilot -> Dev — Administrative migration: required story fields were backfilled to match the current ArPiDev schema.
 
 ## Dev log
 - 2026-02-08 19h14m20s - Ajout du support `sorting` (config site) + tri collections/entries/blocks avec overrides et warnings sur type inconnu; ajout config exemple. - Why: permettre un ordre asc/desc granulaire sans changer les fichiers. - Commands: `bun run build website-example`, `ConvertFrom-Json` pour verifier l'ordre.

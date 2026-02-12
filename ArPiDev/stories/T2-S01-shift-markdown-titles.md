@@ -1,10 +1,10 @@
 # T2-S01 — Shift Markdown headings
 
-Created: 2026-02-08 19h15m00s
-Closed: 2026-02-08 18h29m40s
+Created: 2026-02-08 18h29m40s
+Closed: 2026-02-08 21h45m00s
 Acceptance: User
 
-Status: Done
+Status: Done, Validated
 
 ## Context
 Les sites peuvent avoir des contenus Markdown avec des niveaux de titres trop hauts (h1) pour la mise en page, et il faut un moyen simple de les decalier.
@@ -39,11 +39,17 @@ Ajouter une option de configuration qui decale les titres Markdown (h1→h2, h2�
 - Validation manuelle sur un site d'exemple.
 To document: `markdown.headingShift` (niveau site dans `webette.config.ts`) decale les niveaux de titres Markdown (h1->h2, h2->h3, etc.), clamp a h1..h6, accepte un nombre (ou string numerique), et 0/absent = aucun changement. S'applique au rendu Markdown (pas aux blocs texte).
 
-## Blocker
+## Pending reason
+- None (story completed and validated).
 
 ## Remaining work
+- None.
 
-## Reopen when
+## Resume condition
+- Not applicable.
+
+## Pilot exchange
+- 2026-02-12 16h27m58s — Pilot -> Dev — Administrative migration: required story fields were backfilled to match the current ArPiDev schema.
 
 ## Dev log
 - 2026-02-08 20h10m00s - Added site-level `markdown.headingShift` support via a remark plugin that shifts heading depth during Markdown resolution. - Why: allow title level offsets without editing source content. - Commands: none.

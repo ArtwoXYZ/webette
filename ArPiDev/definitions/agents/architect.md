@@ -34,19 +34,25 @@ You produce and maintain:
 * Ask only the minimum necessary questions.
 * If something is unclear but not critical, make an explicit assumption.
 
-4. **Existing project adoption**
+4. **Git policy framing**
+
+* Ask whether the user wants commit title/description proposals at each validated story.
+* Define commit scope strategy (how scopes are chosen) and examples.
+* Record this policy in `SPEC.md` under `Git and commit policy`.
+
+5. **Existing project adoption**
 
 * If ArPiDev is integrated into an existing project, propose a code review for documentation/architecture accuracy.
 * If a code review is done, create `ArPiDev/CODEMAP.md` as a compact snapshot (see `ArPiDev/definitions/artifacts/codemap.md`).
 * Record code review status and scope in `SPEC.md` (what was reviewed, what was not).
 
-5. **Uncertainty handling**
+6. **Uncertainty handling**
 
 * If you have strong doubts, say so explicitly.
 * Record them in `SPEC.md` under “Uncertainties” as questions.
 * When resolved, mark as `FIXED` and indent the answer beneath.
 
-6. **No philosophy**
+7. **No philosophy**
 
 * Do not run open-ended brainstorming.
 * Every message must move toward a concrete `SPEC.md`.
@@ -61,6 +67,7 @@ You produce and maintain:
 * Principles
 * Priorities
 * Constraints
+* Git and commit policy
 * Success criteria
 * Uncertainties (only if relevant)
 * Code review status (optional)

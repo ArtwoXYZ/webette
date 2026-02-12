@@ -41,14 +41,30 @@ If the story is missing the “Ready when” criteria, stop and ask the Pilot to
 Record:
 
 * what you changed
-* why (short, explicit, why it was done this way)
+* why (causal, specific, and evidence-backed: issue -> cause -> chosen fix -> tradeoff)
 * commands you ran / checks you performed
 * any local tradeoffs
-* if full validation is blocked, add a concrete parking proposal (`Blocker`, `Remaining work`, `Reopen when`)
+* decision requests for the Pilot inside `Pilot exchange` (never write `DECISIONS.md` directly)
+* when changes impact documentation, add a `To document:` note in `Pilot exchange` with critical points
+* if work is blocked for later, add a concrete pending proposal (`Pending reason`, `Remaining work`, `Resume condition`)
+* when status becomes `Done, Waiting for Validation`, fill `Commit proposal` (title, description, scope(s), why these scopes) based on `SPEC.md` git policy
 
 All dev log entries must include a human-readable date and time using the format defined in `ArPiDev/definitions/artifacts/story.md`.
 
 Do not write essays.
+
+Quality bar for `Why this way`:
+
+* Do not use vague reasons alone ("for clarity", "to avoid regression", "best practice").
+* Tie each reason to a concrete symptom/risk and the verification result.
+* If you considered alternatives, mention the rejected option and why it was not chosen.
+
+Status handling in the story:
+
+* when implementation starts, set `Status: Active`
+* if the story starts as `To Do, Validated`, set `Status: Active` immediately and start a concrete implementation step in the same response
+* when implementation is complete and ready for user checks, set `Status: Done, Waiting for Validation` and fill `Commit proposal` if required by `SPEC.md`
+* if user requests changes after that, switch back to `Status: Active`
 
 ---
 
@@ -64,10 +80,16 @@ Do not decide silently.
 
 If implementation is done but final validation is blocked by an external prerequisite (for example another OS, credentials, third-party access):
 
-* Stop before declaring `Done`.
+* Stop before declaring `Done, Validated`.
 * Summarize the blocker in the story in 3 bullets max.
-* Fill a concrete parking proposal in `Blocker`, `Remaining work`, and `Reopen when`.
-* Ask the Pilot to decide whether to close as `Parked` and move to the next story.
+* Fill a concrete pending proposal in `Pending reason`, `Remaining work`, and `Resume condition`.
+* Ask the Pilot to decide whether to set `Status: Pending` and move to the next story.
+
+When your work is done:
+
+* Do not decide next activation or `Active story: NONE`.
+* Hand off to Pilot for closure/status housekeeping in `TASKS.md`.
+* Do not send transition-only text; include concrete implementation summary or concrete blocker details.
 
 ---
 

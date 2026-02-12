@@ -4,7 +4,7 @@ Created: 2026-02-08 18h35m00s
 Closed: 2026-02-08 19h12m00s
 Acceptance: User
 
-Status: Done
+Status: Done, Validated
 
 ## Context
 En mode `serve`, des fichiers/entries supprimes peuvent laisser des sorties orphelines dans `_public`, ce qui cree un decalage avec `build`.
@@ -38,11 +38,17 @@ Assurer que `serve` gere la suppression des sources et nettoie les outputs orphe
 - Pas de regression sur `build` et pas de wipe complet en live.
 - Validation manuelle sur un site d'exemple.
 
-## Blocker
+## Pending reason
+- None (story completed and validated).
 
 ## Remaining work
+- None.
 
-## Reopen when
+## Resume condition
+- Not applicable.
+
+## Pilot exchange
+- 2026-02-12 16h27m58s — Pilot -> Dev — Administrative migration: required story fields were backfilled to match the current ArPiDev schema.
 
 ## Dev log
 - 2026-02-08 18h45m00s - In `serve`, when fs.watch provides no filename, still schedule a rebuild so deletes/renames trigger prune cleanup. - Why: avoid orphan outputs when delete events lack a filename. - Commands: none.

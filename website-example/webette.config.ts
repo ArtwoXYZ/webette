@@ -1,68 +1,76 @@
 export default {
   site: {
-    title: "webette",
-    lang: "en",
-    author: "Artwo",
-    url: "https://example.webette.local",
+    title: 'webette',
+    lang: 'en',
+    author: 'Artwo',
+    url: 'https://example.webette.local',
+    social: {
+      injectHead: true,
+      image: '_templates/assets/social.png',
+      titleTemplate: '{{pageTitle}} | {{siteTitle}}',
+      descriptionTemplate: '{{pageDescription}}',
+      defaultDescription: 'Webette example site',
+      excerptFromFirstTextBlock: true,
+      excerptMaxWords: 30,
+      excerptSuffix: '…',
+    },
     icons: {
-      source: "_templates/assets/icon.jpg",
-      themeColor: "#ffffff",
-      colorScheme: "light dark",
+      source: '_templates/assets/icon.jpg',
+      themeColor: '#ffffff',
+      colorScheme: 'light dark',
     },
   },
 
   collections: {
     posts: {
-      path: "01 posts",
-      name: "Posts",
-      slug: "posts",
+      path: '01 posts',
+      name: 'Posts',
+      slug: 'posts',
     },
     lab: {
-      path: "02 lab",
-      name: "Lab",
-      slug: "lab",
+      path: '02 lab',
+      name: 'Lab',
+      slug: 'lab',
     },
-    "another-one": {
-      path: "03 another one",
-      name: "Another one!",
-      slug: "another-one",
+    'another-one': {
+      path: '03 another one',
+      name: 'Another one!',
+      slug: 'another-one',
     },
   },
 
   sorting: {
-    type: "name",
-    order: "asc"
+    type: 'name',
+    order: 'asc',
   },
 
   templates: {
-    root: "_templates",
+    root: '_templates',
     assets: {
-      dir: "assets",
-      publicBase: "/assets",
+      dir: 'assets',
+      publicBase: '/assets',
     },
     default: {
-      wrapper: "wrapper/wrapper.hbs",
-      layout: "layout/entry.hbs",
-      index: "layout/index.hbs",
-      notFound: "layout/not-found.hbs",
-      accessForbidden: "layout/access-forbidden.hbs",
+      wrapper: 'wrapper/wrapper.hbs',
+      layout: 'layout/entry.hbs',
+      index: 'layout/index.hbs',
+      notFound: 'layout/not-found.hbs',
+      accessForbidden: 'layout/access-forbidden.hbs',
     },
     custom: {
       entry: {
-        "pages/welcome": "layout/welcome.hbs",
+        'pages/welcome': 'layout/welcome.hbs',
         // Playground: fill this in to enable the custom layout for that one entry.
-        "playground/custom-layout-for-an-entry": "",
+        'playground/custom-layout-for-an-entry': '',
       },
     },
   },
 
   index: {
-    root: { collection: "pages", entry: "welcome" },
+    root: { collection: 'pages', entry: 'welcome' },
   },
 
-  plugins: [
-    "_plugins/demo.js",
-  ],
+  plugins: ['_plugins/demo.js'],
 
   markdown: {
     treatTxtAsMarkdown: false, // keep .txt blocks as plain text in this showcase
@@ -76,21 +84,21 @@ export default {
       medium: 960,
       large: 1440,
     },
-    format: "webp",
+    format: 'webp',
     quality: 80,
-    fit: "cover",
-    outputDir: "assets/images",
+    fit: 'cover',
+    outputDir: 'assets/images',
     reencodeDefault: false,
-    defaultVariant: "medium",
+    defaultVariant: 'medium',
   },
 
   audio: {
     // Currently copy-only; set outputDir to control public path under the build dir.
-    outputDir: "assets/audio",
+    outputDir: 'assets/audio',
   },
 
   video: {
     // Copy-only by default; set outputDir to control public path under the build dir.
-    outputDir: "assets/video",
+    outputDir: 'assets/video',
   },
-};
+}

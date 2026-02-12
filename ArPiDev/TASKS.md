@@ -1,7 +1,6 @@
 # TASKS
 
-- [ ] T2-S04 Generer les favicons/icones (config + build + templates par defaut).
-- [ ] T2-S05 Ajouter les headers sociaux (config + templates par defaut).
+Active story: T2-S05
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -13,7 +12,7 @@
 - [x] T2-S01 Option pour décaler les titres Markdown (h1→h2, etc.).
 - [x] T2-S02 Option de tri asc/desc des entries/collections.
 - [x] T2-S03 Option de tri par dates (création/maj).
-- [ ] T2-S04 Generer les favicons/icones (config + build + templates par defaut).
+- [x] T2-S04 Generer les favicons/icones (config + build + templates par defaut).
 - [ ] T2-S05 Ajouter les headers sociaux (config + templates par defaut).
 - [ ] T2-S06 Integrer Standard.site (Lexicon ATproto) : decision + POC d'integration.
 

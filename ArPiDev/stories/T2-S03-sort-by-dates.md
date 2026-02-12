@@ -4,7 +4,7 @@ Created: 2026-02-08 23h10m40s
 Closed: 2026-02-09 00h14m34s
 Acceptance: User
 
-Status: Done
+Status: Done, Validated
 
 ## Context
 Le tri actuel est basé sur le nom/ordre numerique, mais certains sites veulent un tri par dates (creation/maj).
@@ -55,11 +55,17 @@ To document:
   - `created`/`updated`: utilise `createdAt`/`updatedAt` (dates calculees par le pipeline). Dates manquantes -> fin de liste. Egalites -> fallback sur tri par nom.
 - Perimetre: s’applique aux collections, entries, blocks et assets (assets traites comme blocks).
 
-## Blocker
+## Pending reason
+- None (story completed and validated).
 
 ## Remaining work
+- None.
 
-## Reopen when
+## Resume condition
+- Not applicable.
+
+## Pilot exchange
+- 2026-02-12 16h27m58s — Pilot -> Dev — Administrative migration: required story fields were backfilled to match the current ArPiDev schema.
 
 ## Dev log
 - 2026-02-08 23h39m31s - Ajout du tri par dates (created/updated) via un passe de tri apres history + support config dans build. - Why: permettre le tri par dates reelles (createdAt/updatedAt) apres calcul historique. - Commands: `bun run build website-example`, verif ordre via `ConvertFrom-Json`.

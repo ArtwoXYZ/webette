@@ -1,12 +1,30 @@
-# Story: T1-S01 — Fix EBUSY en serve Windows (_public cleanup)
+# T1-S01 — Fix EBUSY en serve Windows (_public cleanup)
 
-Status: Done  
-Created: 2026-02-05  
+Created: 2026-02-05 00h00m00s
 Closed: 2026-02-06 16h14m28s
 Acceptance: User
 
+Status: Done, Validated
+
 ## Context
-En mode `serve` sous Windows, des erreurs EBUSY apparaissent lors de la suppression/cleanup de `_public`, bloquant ou ralentissant les rebuilds.
+En mode `serve` sous Windows, des erreurs EBUSY apparaissaient lors de la suppression/cleanup de `_public`, bloquant ou ralentissant les rebuilds.
+
+## Rationale
+Sécuriser le nettoyage en mode `serve` était prioritaire pour éviter des blocages locaux et restaurer une boucle de dev fiable sur Windows.
+
+## Goal
+Supprimer les erreurs EBUSY en `serve` pendant le nettoyage de `_public` sans régression sur les autres OS.
+
+## In scope
+- Auditer la séquence de cleanup `_public` en `serve` (`rm`, prune, expected outputs).
+- Adapter la stratégie pour Windows (retry/backoff ou `replace-files` en live).
+- Vérifier que le debounce/rebuild ne lance pas de suppression concurrente.
+- Tester localement et documenter le résultat.
+
+## Out of scope
+- Refonte complète de la stratégie de suppression du mode `build`.
+- Changement du modèle de contenu ou des templates.
+- Optimisations non liées au problème EBUSY.
 
 ## Ready when
 - Reproduced or reasoned fix path identified (filesystem semantics Windows/Bun).
@@ -14,16 +32,22 @@ En mode `serve` sous Windows, des erreurs EBUSY apparaissent lors de la suppress
 - Le watch/rebuild reste fonctionnel et non régressif sur macOS/Linux.
 - Logs clairs en cas d’erreur restante (niveau warn) sans crash.
 
-## Tasks
-- Auditer la séquence de cleanup `_public` en `serve` (rm, prune, expected outputs).
-- Adapter la stratégie pour Windows (retry/backoff ou rename-before-delete, verrouillage minimal).
-- Vérifier que le debounce/rebuild ne lance pas de rm concurrent.
-- Tester localement (ou via CI simulée) et documenter le changement dans les logs/messages.
-
 ## Done when
 - Le run `serve` sur Windows ne produit plus d’EBUSY lors du nettoyage de `_public`.
 - Aucun plantage, rebuilds successifs OK, comportement inchangé sur autres OS.
 - Story annotée avec le résultat des tests et éventuels contournements restants.
+
+## Pending reason
+- None (story completed and validated).
+
+## Remaining work
+- None.
+
+## Resume condition
+- Not applicable.
+
+## Pilot exchange
+- 2026-02-12 16h27m58s — Pilot -> Dev — Administrative migration: required story fields were backfilled to match the current ArPiDev schema.
 
 ## Dev log
 - 2026-02-05 19h30m00s — Forcé `overwrite` en mode liveReload/serve à `replace-files` pour éviter les suppressions complètes de `_public` qui déclenchent EBUSY sous Windows; change limité à `src/core/build.ts`, pas d’impact sur `build` hors serve. Commandes: aucune (raisonnement statique, pas de Windows à disposition pour test).

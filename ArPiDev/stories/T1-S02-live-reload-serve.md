@@ -4,7 +4,7 @@ Created: 2026-02-06 16h14m28s
 Closed: 2026-02-06 16h28m24s
 Acceptance: User
 
-Status: Done
+Status: Done, Validated
 
 ## Context
 En mode `serve`, le live reload doit fonctionner sans que l’utilisateur modifie ses templates.
@@ -39,11 +39,17 @@ Activer le live reload automatiquement en `serve`, sans action template.
 - Le `build` reste inchangé (pas d’injection live reload).
 - Le helper live reload est retiré des templates de `website-example` et `webette-documentation`.
 
-## Blocker
+## Pending reason
+- None (story completed and validated).
 
 ## Remaining work
+- None.
 
-## Reopen when
+## Resume condition
+- Not applicable.
+
+## Pilot exchange
+- 2026-02-12 16h27m58s — Pilot -> Dev — Administrative migration: required story fields were backfilled to match the current ArPiDev schema.
 
 ## Dev log
 - 2026-02-06 16h22m55s — Injection auto du live reload en `serve` via `formatHtml` (insertion avant `</body>` si absent) et suppression des références `{{{liveReloadScript}}}` dans les templates de `website-example` et `webette-documentation`. — Pourquoi: live reload sans action template et éviter les doubles injections. — Commandes: aucune.

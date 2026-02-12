@@ -12,6 +12,7 @@
 * Principles
 * Priorities
 * Constraints
+* Git and commit policy
 * Success criteria
 * Uncertainties (only if relevant)
 
@@ -44,6 +45,15 @@ Placeholder markers include (but are not limited to): `TBD`, `TODO`, `<TBD>`, `.
 ## Constraints
 - ...
 
+## Git and commit policy
+- Propose commit message on each validated story: <yes/no>
+- Commit proposal owner: <Dev/Pilot>
+- Commit title format: <example: type(scope): short title>
+- Commit description format: <bullets / paragraph / optional>
+- Commit language: <English/French>
+- Scope strategy: <how scopes are chosen>
+- Scope examples: <2-4 representative scopes>
+
 ## Success criteria
 - ...
 
@@ -64,4 +74,5 @@ Placeholder markers include (but are not limited to): `TBD`, `TODO`, `<TBD>`, `.
 * If assumptions are made, state them explicitly.
 * Uncertainties should be written as questions.
 * When an uncertainty is resolved, mark it as `FIXED` and indent the answer beneath.
+* `Git and commit policy` is mandatory and drives how stories propose commit title/description/scope.
 * This template lives here; create `ArPiDev/SPEC.md` when needed.

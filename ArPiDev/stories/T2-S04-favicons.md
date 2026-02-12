@@ -1,10 +1,10 @@
 # T2-S04 - Favicons & icons
 
 Created: 2026-02-09 00h15m21s
-Closed:
+Closed: 2026-02-12 17h14m17s
 Acceptance: User
 
-Status: Active
+Status: Done, Validated
 
 ## Context
 Les templates par defaut ne generent pas de favicons/icones et forcent l'utilisateur a tout gerer a la main.
@@ -76,11 +76,35 @@ Ajouter une config site pour generer les favicons/icones et les rendre dans les 
 - Aucune injection d'icones si `injectHead` est false.
 - Validation manuelle sur `website-example` (head genere + fichiers presents).
 
-## Blocker
+## Pending reason
+- None (story completed and awaiting user validation).
 
 ## Remaining work
+- User validation only (acceptance check).
 
-## Reopen when
+## Resume condition
+- Not applicable.
+
+## Commit proposal
+Title: feat(site): generate favicons/icons and inject default head tags
+Description:
+- Add `site.icons` config support (source variants, outputDir, theme colors, `injectHead`, `colorScheme`) with defined fallback precedence.
+- Generate apple/android/ms/favicon assets plus `manifest.json` and `browserconfig.xml` in `/_assets/icon/`, with best-effort `.ico` handling.
+- Inject icon/meta tags in default wrapper through `iconsHead`, and skip head injection when `site.icons.injectHead` is `false`.
+- Validate on `website-example` with icon generation and head output checks, including a no-injection check when `injectHead=false`.
+Scope(s):
+- site
+Why these scopes:
+- Primary impact is final site output generation and default site head metadata/icon assets behavior.
+
+## Pilot exchange
+- 2026-02-12 16h27m58s — Pilot -> Dev — Administrative migration: required story fields were backfilled to match the current ArPiDev schema.
+- 2026-02-12 16h39m40s — Dev -> Pilot — Decision request (cross-cutting):
+  - User asks to update git policy now with explicit title + description pattern and sample message format.
+  - This changes `SPEC.md` policy and affects all stories, not only `T2-S04`.
+  - Dev cannot edit `SPEC.md`; Pilot decision/update is required before applying this policy project-wide.
+- 2026-02-12 16h46m26s — Dev -> Pilot — User confirms Pilot should handle this now before continuing Dev execution.
+- 2026-02-12 17h14m17s — Pilot -> Dev — Story validated by user; closure applied (`Done, Validated`) and next executable story activation initiated.
 
 ## To Document
 - Config: `site.icons` dans `webette.config.ts` (niveau `site`).
@@ -114,3 +138,4 @@ Ajouter une config site pour generer les favicons/icones et les rendre dans les 
 - 2026-02-09 01h09m09s - Fix des types stricts: `extractVariants` renvoie `undefined` au lieu de `null`. - Why: eviter les erreurs TypeScript sur `SourceGroups`. - Commands: none.
 - 2026-02-09 01h12m32s - Validation avec `website-example/_templates/assets/icon.jpg` comme source; generation des icones + tags head verifies, puis revert config/test. - Why: confirmer le pipeline complet sur le site exemple. - Commands: `bun run build website-example`.
 - 2026-02-09 02h06m05s - Ajout de commentaires concis dans `icons.ts` (normalisation config, resolution des sources, padding transparent, theme-color). - Why: clarifier le fonctionnement pour la maintenance. - Commands: none.
+- 2026-02-12 16h50m50s - Validation de cloture T2-S04 sur `website-example` (generation d'assets d'icones + verification des tags head + verification `injectHead=false` sans injection), puis restauration de la config d'exemple. Why this way: observed issue -> la story etait restee Active apres changements de methode; root cause -> cloture non finalisee malgré implementation deja en place; chosen fix -> relancer les checks de bout en bout sur l'exemple et basculer en `Done, Waiting for Validation` avec proposition de commit; why this option -> confirmer l'etat reel du livrable sans reprendre de code hors scope; evidence -> assets presents sous `_public/_assets/icon`, tags icones/meta presents dans `_public/index.html`, check `injectHead=false` passe (`INJECT_FALSE_CHECK=PASSED`). Commands/tests: `bun run build website-example`; build avec `injectHead=false` temporaire + grep head + restore + rebuild.

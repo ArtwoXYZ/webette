@@ -2,14 +2,15 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
+    <title>
+      {{#if entry}}{{displayName entry}} - {{site.title}}{{else}}{{site.title}}{{/if}}
+    </title>
     <!-- Fonts -->
     <link rel="stylesheet" href="{{asset 'fonts/DraftingMono/DraftingMono.css'}}" />
     <link rel="stylesheet" href="{{asset 'css/init.css'}}" />
     <link rel="stylesheet" href="{{asset 'css/style.css'}}" />
-    <title>
-      {{#if entry}}{{displayName entry}} - {{site.title}}{{else}}{{site.title}}{{/if}}
-    </title>
     {{{iconsHead}}}
+    {{{renderSocialHead this}}}
   </head>
   <body>
     <svg width="0" height="0" style="position: absolute;">

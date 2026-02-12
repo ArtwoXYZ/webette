@@ -60,13 +60,31 @@ If any required file is missing, ask the user to add it (or propose creating it)
 * You follow the workflow order. Do **not** skip steps.
 * No open-ended “brainstorming” without producing an artefact.
 * If the repo state is ambiguous or rules conflict: propose the smallest fix, then **ask the user to confirm**.
+* Exception: for pure administrative consistency fixes, apply them directly and report what changed.
 * If the context window was compacted or is full, re-read the required artefacts (and `CODEMAP.md` if present) before acting.
+* Do not send transition-only responses (for example: "I switch to Dev"). If a role is selected, execute at least one concrete step in the same response.
+* If an existing artefact is missing fields now required by method guides, assume **method update drift** first (not user error).
 
 ### 2.1 Method files are immutable by default
 
 * Do **not** edit `ArPiDev/AGENTS.md`.
 * Do **not** edit anything under `ArPiDev/definitions/` (including subfolders).
 * The only exception is when the user **explicitly** asks you to update the ArPiDev method itself.
+
+### 2.2 Workflow doubt handling
+
+If you are unsure about ArPiDev workflow rules:
+
+* Re-read `ArPiDev/AGENTS.md`, the current role file, and relevant artifact guides **before** asking the user.
+* Ask the user only if uncertainty remains after this re-check.
+
+### 2.3 Method update drift handling
+
+When a required section/field from current artifact guides is missing in an existing artefact:
+
+* Treat it as likely schema drift after a method update.
+* Do not frame it as a user mistake.
+* Trigger migration flow (State H) led by Pilot.
 
 ---
 
@@ -96,6 +114,8 @@ Your first lines must be:
 * **Line 1**: `Role: <Architect|Pilot|Dev>`
 * **Line 2**: `Next: <one sentence describing the next action>`
 
+This header is required in **every operational response**, not only the first bootstrap reply.
+
 ---
 
 ## 5) Repo state detection (mandatory)
@@ -109,11 +129,16 @@ On every new user request (or whenever told to “use ArPiDev”), scan **`ArPiD
 
 Interpret “empty” as: missing, whitespace-only, or placeholder-only content. Minimum content requirements are defined by the corresponding artefact guide under `ArPiDev/definitions/artifacts/`.
 
+Before classifying states A-G, run a **required-fields compliance scan**:
+
+* Compare existing artefacts against required fields/sections defined in current guides under `ArPiDev/definitions/artifacts/`.
+* If required fields are missing in existing artefacts, classify as State H (method drift).
+
 ### Story conventions
 
 * Story files live under `ArPiDev/stories/`.
 * At most **one executable** story is “active” at any time.
-* A `Parked` story is closed-for-now and is never considered active.
+* A `Pending` story is deferred and is never considered active.
 
 You must classify the repo into **one** state:
 
@@ -156,13 +181,13 @@ Condition:
 * `stories/` contains story files
 * AND there is a **single clear active story** (see §6)
 
-### State F — Waiting / parked (no active executable story)
+### State F — Waiting / validation / pending (no active executable story)
 
 Condition:
 
 * `stories/` contains story files
 * AND there is **no active executable story**
-* AND remaining unfinished stories are explicitly parked or waiting external validation
+* AND remaining unfinished stories are in validation or explicitly pending
 
 If State F: follow §8.7.
 
@@ -177,9 +202,18 @@ Condition (any):
 * story files exist but are not referenced in `TASKS.md`, OR
 * contradictions between `SPEC.md` / `DECISIONS.md` / stories, OR
 * unclear whether the project is still planning vs already executing
-* parked and active markers conflict (for example `Active story` points to a `[PARKED]` story)
+* pending and active markers conflict (for example `Active story` points to a `[PENDING]` story)
 
 If State G: do not proceed. Follow §8.8.
+
+### State H — Method drift / migration required
+
+Condition:
+
+* existing artefact(s) miss required fields/sections defined in current method guides
+* and this is best explained by method evolution rather than execution ambiguity
+
+If State H: do not continue normal execution. Follow §8.9.
 
 ### State G examples (non-exhaustive)
 
@@ -195,22 +229,22 @@ Hard rules:
 
 * If `TASKS.md` contains more than one `Active story:` line → State G.
 * If `Active story: <id>` points to a missing story file → State G.
-* If `Active story:` points to a story marked `[PARKED]` in `TASKS.md` or `Status: Parked` in the story file → State G.
+* If `Active story:` points to a story marked `[PENDING]` in `TASKS.md` or `Status: Pending` in the story file → State G.
 
 Preferred sources, in order:
 
 1. `TASKS.md` contains exactly one explicit line:
 
-   * `Active story: <story-id>` OR `Active story: NONE (waiting on parked stories or user input)`
+   * `Active story: <story-id>` OR `Active story: NONE (waiting on pending stories or user input)`
 
 2. `TASKS.md` marks exactly one story as active (examples: `ACTIVE`, `NOW`, `IN PROGRESS`).
 
-3. Otherwise: choose the **first unchecked story not marked `[PARKED]`** under the earliest unfinished Task.
+3. Otherwise: choose the **first unchecked story not marked `[PENDING]`** under the earliest unfinished Task.
 
 4. If still ambiguous: ask the user to confirm the active story.
 
 If there are no stories listed at all, there is no active story.
-If all remaining unchecked stories are marked `[PARKED]`, there is no active executable story (State F).
+If all remaining unchecked stories are marked `[PENDING]`, there is no active executable story (State F).
 
 ---
 
@@ -222,9 +256,10 @@ Choose **exactly one** role based on repo state:
 * State B → **Pilot** (unless the user explicitly requests re-framing the product vision → Architect)
 * State C → **Pilot**
 * State D → **Pilot**
-* State E → **Dev**
-* State F → **Pilot** (parking follow-up and next-step planning)
+* State E → **Dev** if the active story status is `Active` or `To Do, Validated`; otherwise **Pilot**
+* State F → **Pilot** (validation/pending follow-up and next-step planning)
 * State G → **Pilot (triage)**. Escalate to Architect only for product vision or conceptual structure.
+* State H → **Pilot (migration)**.
 
 Do not mix roles in the same response.
 
@@ -251,6 +286,7 @@ You must:
 
 * Act as **Architect** and follow `ArPiDev/definitions/agents/architect.md`.
 * Produce `ArPiDev/SPEC.md` following `ArPiDev/definitions/artifacts/spec.md`.
+* Ensure `SPEC.md` includes `Git and commit policy` (proposal required or not, format, scope strategy).
 * Ask the user to validate the frame.
 
 ### 8.3 State B (Framing only) — Start as Pilot
@@ -277,25 +313,29 @@ You must:
 * Act as **Pilot** and follow `ArPiDev/definitions/agents/pilot.md`.
 * Ensure `ArPiDev/TASKS.md` identifies the next story and sets `Active story: <story-id>`.
 * Create **only** the active story file under `ArPiDev/stories/` following `ArPiDev/definitions/artifacts/story.md`.
-* Confirm to the user which story is now active.
+* Set `Status: To Do, Waiting for Validation` and ask the user to validate story content.
 
 ### 8.6 State E (Execution) — Dev
 
 You must:
 
 * Act as **Dev** and follow `ArPiDev/definitions/agents/dev.md`.
+* If story status is `To Do, Validated`, set it to `Active` when starting execution.
 * Implement strictly the active story (code changes allowed per permissions).
 * Document the work **only** in the active story file.
 * If a question exceeds the story scope: stop and escalate to Pilot (§10).
+* Do not answer with a pure handoff/transition message; include concrete execution progress or a concrete blocker.
 
-### 8.7 State F (Waiting / parked) — Pilot
+### 8.7 State F (Waiting / validation / pending) — Pilot
 
 You must:
 
 * Act as **Pilot** and follow `ArPiDev/definitions/agents/pilot.md`.
-* Summarize parked stories in a compact list (reason, remaining work, unblock condition, owner).
-* Propose the next action: unpark one story, or create/activate the next executable story.
-* Keep `TASKS.md` explicit: parked entries in `Parked stories`, and `Active story: NONE (...)` only when nothing executable is active.
+* Summarize non-executable stories in a compact list (validation waiting or pending).
+* For `To Do, Waiting for Validation`: request user validation and then set `To Do, Validated`.
+* For `Done, Waiting for Validation`: request user validation and then set `Done, Validated`.
+* For `Pending`: keep exact reason + remaining work + resume condition explicit.
+* Keep `TASKS.md` explicit: pending entries in `Pending stories`, and `Active story: NONE (...)` only when nothing executable is active.
 
 ### 8.8 State G (Ambiguous / inconsistent) — Pilot triage
 
@@ -304,7 +344,16 @@ You must:
 * Act as **Pilot** and follow `ArPiDev/definitions/agents/pilot.md`.
 * Explain the inconsistency in **3 bullets max**.
 * Propose the smallest fix.
-* Ask the user to confirm before applying changes.
+* Apply directly if it is a pure administrative consistency fix; otherwise ask the user to confirm.
+
+### 8.9 State H (Method drift / migration) — Pilot migration
+
+You must:
+
+* Act as **Pilot** and follow `ArPiDev/definitions/agents/pilot.md`.
+* Explain missing required fields in **3 bullets max** and state this likely comes from method update.
+* Propose a short migration discussion (which fields to backfill, defaults, and any user-specific choices).
+* After user confirmation, backfill required fields with minimal, explicit content and resume normal flow.
 
 ## 9) Permissions (read from the role file)
 
@@ -345,7 +394,8 @@ If the role file is missing, or the `## Permissions` section is missing/unclear:
 
 * If a decision impacts more than the active story, Dev must **stop** and escalate to Pilot.
 * Before escalating, Dev records the issue inside the active story (3 bullets max) so the context is preserved.
-* If implementation is complete but final validation is blocked by external prerequisites, Dev proposes parking details in the story (`Blocker`, `Remaining work`, `Reopen when`) and escalates to Pilot.
+* If implementation is complete but final validation is blocked by external prerequisites, Dev proposes pending details in the story (`Pending reason`, `Remaining work`, `Resume condition`) and escalates to Pilot.
+* Dev/ Pilot coordination must happen in the story `Pilot exchange` section.
 * Pilot records cross-cutting decisions in `ArPiDev/DECISIONS.md` (1–3 lines) following `ArPiDev/definitions/artifacts/decisions.md`.
 * Architect is consulted only for product vision, structural or conceptual issues.
 
@@ -355,18 +405,25 @@ If the role file is missing, or the `## Permissions` section is missing/unclear:
 
 When a story reaches closure:
 
-* **Done path**:
-* Dev marks it done inside the story file using the status marker defined in `ArPiDev/definitions/artifacts/story.md` (recommended: `Status: Done`).
-* Pilot sets the `Closed` timestamp in the story file and confirms closure.
-* The story is accepted by the `Acceptance` owner (default: user) before closure.
-* Dev tells the user in chat that the story is complete and briefly summarizes what changed (3 bullets max).
-* The user reviews/accepts.
+* **Build done, waiting validation**:
+* Dev sets `Status: Done, Waiting for Validation`.
+* Dev summarizes changes and asks for validation results only (no next-story proposal, no `NONE` proposal).
+* If user asks for changes, set status back to `Active`.
 
-* **Parked path (closed for now, not finished)**:
-* Dev records blocker details in the story (`Blocker`, `Remaining work`, `Reopen when`) and escalates.
-* Pilot sets `Status: Parked` + `Closed` timestamp, marks the story line with `[PARKED]` in `TASKS.md`, and records it in `Parked stories`.
+* **Validated done**:
+* Pilot sets `Status: Done, Validated` and `Closed` timestamp.
+* Pilot ensures latest `Dev log` entries contain concrete causal why + evidence (not vague rationale).
+* If required by `SPEC.md`, Pilot validates and presents story `Commit proposal` (title/description/scopes).
+* Pilot checks the story checkbox in `TASKS.md`.
+* Pilot activates the next executable story automatically when one exists.
+* For product changes, Pilot asks whether documentation follow-up is required in ArPiDoc and records the answer.
+
+* **Pending path (deferred, not finished)**:
+* Dev records pending details (`Pending reason`, `Remaining work`, `Resume condition`) and escalates.
+* Pilot sets `Status: Pending` + `Closed` timestamp, marks the story line with `[PENDING]` in `TASKS.md`, and records it in `Pending stories`.
 * Pilot states exactly what remains to finish and who owns the next action.
 
+* Use `Active story: NONE (waiting on pending stories or user input)` only when no executable story remains, or if explicitly requested by the user.
 * After closure, if there are remaining executable stories, Pilot creates the next story file and asks the user to validate **only** the new story content.
 * If the user wants a final sanity check, the user can ask the **Pilot** to do a quick review before moving on.
 

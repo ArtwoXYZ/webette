@@ -33,6 +33,22 @@
 - Early‑stage project; APIs and features can change.
 - Starters are distributed externally (site/repos/zips), not bundled in the tool.
 
+## Git and commit policy
+- Propose commit message on each validated story: yes
+- Commit proposal owner: Pilot
+- Commit title format: `<type>(<scope>): <short description>`
+- Commit description format: required bullets (1-5 items)
+- Commit language: English
+- Scope strategy: use one primary official scope from `docs/commit-scopes.md`; if a change spans multiple areas, choose the most impacted scope and mention secondary impacts in the description bullets.
+- Scope examples: `core`, `sorting`, `fs`, `templates`
+- Commit proposal must always include both title and description.
+- Reference example:
+  - Title: `feat(sorting): date sorting, sorting centralized in build`
+  - Description:
+    - `Add sorting.type support for created/updated with deterministic fallbacks and tie-break by name.`
+    - `Centralize config-driven sorting in build/sorting after history; keep scan ordering deterministic only.`
+    - `Validate with multiple sorting configurations (created asc/desc, updated desc + overrides) on website-example.`
+
 ## Success criteria
 - A user can build and serve a small site from folders with minimal setup.
 - The generated `_public/` output is predictable and easy to inspect.
