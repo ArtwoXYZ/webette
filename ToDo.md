@@ -83,6 +83,7 @@
   - ✅ Dossier nommé "Root Index" (ou "00 Root Index") = Index de la root
   - ✅ Dossier "Collection Index" = Index de la collection
   - ℹ Ca ne retire pas la ligne de config pour les layout personnalisés. Ca peut être intégré dans les layouts d'index des starters des base pour pouvoir ajouter du texte sur les index ou quoi, genre si ces dossier existes, on met ce contenu dans l'index. Qqch comme ça
+- ✅ Changer dans les credits du site exemple, la licence sur l'outil et les assets (dispos aujourd'hui dans les dossiers du projet)
 
 ## Plugins :
 - 🔳 Plugin de flux RSS
