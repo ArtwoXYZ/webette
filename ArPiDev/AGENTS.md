@@ -104,8 +104,9 @@ If the user instructs you to use ArPiDev and to read this `AGENTS.md`, you must 
 
 1. Acknowledge you read `AGENTS.md`.
 2. Run **Repo state detection** (§5).
-3. Select the role using **Role selection** (§7).
-4. Execute the **Startup behavior** for that state (§8).
+3. Classify user request intent (§6.1).
+4. Select the role using **Role selection** (§7).
+5. Execute the **Startup behavior** for that state (§8).
 
 ### Required response header
 
@@ -129,7 +130,7 @@ On every new user request (or whenever told to “use ArPiDev”), scan **`ArPiD
 
 Interpret “empty” as: missing, whitespace-only, or placeholder-only content. Minimum content requirements are defined by the corresponding artefact guide under `ArPiDev/definitions/artifacts/`.
 
-Before classifying states A-G, run a **required-fields compliance scan**:
+Before classifying states A-H, run a **required-fields compliance scan**:
 
 * Compare existing artefacts against required fields/sections defined in current guides under `ArPiDev/definitions/artifacts/`.
 * If required fields are missing in existing artefacts, classify as State H (method drift).
@@ -246,9 +247,29 @@ Preferred sources, in order:
 If there are no stories listed at all, there is no active story.
 If all remaining unchecked stories are marked `[PENDING]`, there is no active executable story (State F).
 
+### 6.1 Request intent classification (mandatory)
+
+Before role selection, classify the current user request intent:
+
+* **Execution intent**: implement the active story scope in code.
+* **Rework intent**: user explicitly asks implementation changes on the active story after `Done, Waiting for Validation`.
+* **Orchestration intent**: policy/process updates, `SPEC/TASKS/DECISIONS` edits, active story pointer changes, story closure/state administration, cross-cutting decisions.
+* **Framing intent**: product vision/conceptual reframing.
+
+Use this intent classification with state rules in §7.
+
 ---
 
 ## 7) Role selection (mandatory)
+
+Apply **intent overrides first**, then state defaults.
+
+### 7.1 Intent overrides (higher priority)
+
+* If intent is **Orchestration**, role is **Pilot** (even in State E).
+* If intent is **Framing**, role is **Architect**.
+* If intent is **Rework** and active story status is `Done, Waiting for Validation`, role is **Dev** directly (skip Pilot round-trip).
+* Only if intent is **Execution**, allow **Dev** in State E.
 
 Choose **exactly one** role based on repo state:
 
@@ -256,7 +277,7 @@ Choose **exactly one** role based on repo state:
 * State B → **Pilot** (unless the user explicitly requests re-framing the product vision → Architect)
 * State C → **Pilot**
 * State D → **Pilot**
-* State E → **Dev** if the active story status is `Active` or `To Do, Validated`; otherwise **Pilot**
+* State E → **Dev** for execution/rework intent when active story status is `Active`, `To Do, Validated`, or `Done, Waiting for Validation`; otherwise **Pilot**
 * State F → **Pilot** (validation/pending follow-up and next-step planning)
 * State G → **Pilot (triage)**. Escalate to Architect only for product vision or conceptual structure.
 * State H → **Pilot (migration)**.
@@ -320,7 +341,9 @@ You must:
 You must:
 
 * Act as **Dev** and follow `ArPiDev/definitions/agents/dev.md`.
+* This path is only for **execution intent**. If request intent is orchestration/policy, use Pilot instead.
 * If story status is `To Do, Validated`, set it to `Active` when starting execution.
+* If story status is `Done, Waiting for Validation` and user requested changes, set it back to `Active` and start rework in the same response.
 * Implement strictly the active story (code changes allowed per permissions).
 * Document the work **only** in the active story file.
 * If a question exceeds the story scope: stop and escalate to Pilot (§10).

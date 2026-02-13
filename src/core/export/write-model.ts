@@ -62,8 +62,10 @@ export async function writeModelExport(options: {
 }): Promise<void> {
   const { exportDir, site, logger } = options;
 
+  const { indexes, ...siteBase } = site;
+
   const siteSummary = {
-    ...site,
+    ...siteBase,
     collections: site.collections?.map((collection) => {
       const { entries, ...rest } = collection;
       const entrySummaries = entries.map((entry) => ({

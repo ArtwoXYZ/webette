@@ -25,6 +25,9 @@ Assurer que `serve` gere la suppression des sources et nettoie les outputs orphe
 - Changement de modele de donnees.
 - Optimisations de performance hors besoin immediat.
 
+## Documentation impact
+- To document: none
+
 ## Ready when
 - Goal est un seul resultat clair
 - In scope / Out of scope explicites

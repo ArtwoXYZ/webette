@@ -1,30 +1,69 @@
 <main>
   <article>
     {{#if collection}}
-      <h2>{{displayName collection}}</h2>
-      <p>Collection index.</p>
-
-      <ul>
-        {{#each entries}}
-          <li><a href="{{route}}">{{displayName this}}</a></li>
-        {{/each}}
-      </ul>
+      <header class="index-header">
+        <h1>{{displayName collection}}</h1>
+        {{#if collection.description}}
+          <p>{{{nl2br collection.description}}}</p>
+        {{/if}}
+      </header>
     {{else}}
-      <h2>Site index</h2>
-      <p>You can browse all collections and entries of this demo site.</p>
+      <header class="index-header">
+        <h1>{{site.title}}</h1>
+        <p>You can browse all collections and entries of this demo site.</p>
+      </header>
+    {{/if}}
 
-      <ul>
-        {{#each collections}}
-          <li>
-            <strong><a href="{{route}}">{{displayName this}}</a></strong>
-            <ul>
-              {{#each entries}}
-                <li><a href="{{route}}">{{displayName this}}</a></li>
-              {{/each}}
-            </ul>
-          </li>
+    {{#if blocks}}
+      <section class="index-content">
+        {{#each blocks}}
+          {{#if (eq type "markdown")}}
+            <section class="markdown prose">
+              {{{safe content.html}}}
+            </section>
+          {{else if (eq type "text")}}
+            <section class="text">
+              <pre>{{content.raw}}</pre>
+            </section>
+          {{else if (eq type "image")}}
+            {{#unless content.meta.renderedInline}}
+              <section class="image">
+                {{image this figure=true caption=name class="my-class"}}
+              </section>
+            {{/unless}}
+          {{else if (eq type "audio")}}
+            <section class="audio">
+              <audio controls src="{{route}}"></audio>
+            </section>
+          {{else if (eq type "video")}}
+            <section class="video">
+              <video controls src="{{route}}"></video>
+            </section>
+          {{else if (eq type "navigation")}}
+            {{#if content.data.items}}
+              <section class="navigation">
+                {{#if content.data.name}}
+                  <h2 class="navigation-title">{{content.data.name}}</h2>
+                {{/if}}
+
+                {{> navigation-items items=content.data.items}}
+              </section>
+            {{/if}}
+          {{/if}}
         {{/each}}
-      </ul>
+      </section>
+    {{/if}}
+
+    {{#if collection}}
+      <section class="navigation">
+        <h2 class="navigation-title">Collection contents</h2>
+        {{> navigation-items items=entries}}
+      </section>
+    {{else}}
+      <section class="navigation">
+        <h2 class="navigation-title">Site map</h2>
+        {{> navigation-items items=collections}}
+      </section>
     {{/if}}
   </article>
 </main>

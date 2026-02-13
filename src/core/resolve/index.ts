@@ -120,10 +120,32 @@ export async function resolveBlocks(
   const collections = site.collections
     ? await Promise.all(site.collections.map((col) => resolveCollection(col, ctx)))
     : undefined;
+  const rootIndex = site.indexes?.root
+    ? await resolveEntry(site.indexes.root, ctx)
+    : undefined;
+  const collectionIndexes = site.indexes?.collections
+    ? Object.fromEntries(
+      await Promise.all(
+        Object.entries(site.indexes.collections).map(async ([key, entry]) => [
+          key,
+          await resolveEntry(entry, ctx),
+        ])
+      )
+    )
+    : undefined;
 
   // Keep the same shape as the scanned site, only adding resolved content
   return {
     ...site,
     ...(collections ? { collections } : {}),
+    ...((rootIndex || collectionIndexes)
+      ? {
+        indexes: {
+          ...(site.indexes ?? {}),
+          ...(rootIndex ? { root: rootIndex } : {}),
+          ...(collectionIndexes ? { collections: collectionIndexes } : {}),
+        },
+      }
+      : {}),
   };
 }

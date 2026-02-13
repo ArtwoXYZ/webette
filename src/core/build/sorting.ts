@@ -341,5 +341,47 @@ export function applySorting(site: Site, logger?: Logger): Site {
     };
   });
 
-  return { ...site, collections: sortedCollections };
+  const collectionByKey = new Map(
+    sortedCollections.map((collection) => [collection.slug || collection.id, collection])
+  );
+
+  const sortedRootIndex =
+    site.indexes?.root
+      ? (() => {
+        const entryKey = entryKeyFromEntry(site.indexes!.root!);
+        const blockSort = resolveBlockSort(sorting, undefined, entryKey, warned, logger);
+        const blocks = sortBlocks(site.indexes!.root!.blocks, blockSort) ?? site.indexes!.root!.blocks;
+        return blocks === site.indexes!.root!.blocks
+          ? site.indexes!.root!
+          : { ...site.indexes!.root!, blocks };
+      })()
+      : undefined;
+
+  const sortedCollectionIndexes = site.indexes?.collections
+    ? Object.fromEntries(
+      Object.entries(site.indexes.collections).map(([key, entry]) => {
+        const collection = collectionByKey.get(key);
+        const collectionKey = collection ? resolveCollectionKey(collection, collectionKeyIndex) : undefined;
+        const entryKey = entryKeyFromEntry(entry);
+        const blockSort = resolveBlockSort(sorting, collectionKey, entryKey, warned, logger);
+        const blocks = sortBlocks(entry.blocks, blockSort) ?? entry.blocks;
+        const nextEntry = blocks === entry.blocks ? entry : { ...entry, blocks };
+        return [key, nextEntry];
+      })
+    )
+    : undefined;
+
+  return {
+    ...site,
+    collections: sortedCollections,
+    ...((sortedRootIndex || sortedCollectionIndexes)
+      ? {
+        indexes: {
+          ...(site.indexes ?? {}),
+          ...(sortedRootIndex ? { root: sortedRootIndex } : {}),
+          ...(sortedCollectionIndexes ? { collections: sortedCollectionIndexes } : {}),
+        },
+      }
+      : {}),
+  };
 }

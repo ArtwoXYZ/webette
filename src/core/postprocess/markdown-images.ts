@@ -3,7 +3,7 @@
  */
 
 import type { Root, Content, Image as MdastImage, Html } from "mdast";
-import type { Site, Block } from "../model";
+import type { Site, Block, Entry, Collection } from "../model";
 import { renderMarkdownToHtml } from "../block-types/markdown/processor";
 import type { Logger } from "../../logging/logger";
 import {
@@ -149,137 +149,163 @@ export async function rewriteInternalImages(options: {
 }): Promise<Site> {
   const { site, remarkPlugins, logger } = options;
 
+  const rewriteEntryBlocks = async (
+    entry: Entry,
+    collection?: Collection
+  ): Promise<Entry> => {
+    const inlineBlockIds = new Set<string>();
+    const blocks = await Promise.all(
+      entry.blocks.map(async (blk) => {
+        if (blk.type !== "markdown" || !blk.content?.ast) return blk;
+        const ast = blk.content.ast as Root;
+        let didChange = false;
+
+        // Keep child types stable while walking the tree.
+        const transformChild = (node: Content): Content => transformNode(node) as Content;
+
+        const transformNode = (node: MdastNode): MdastNode => {
+          if (!node || typeof node !== "object") return node;
+
+          if (isImageNode(node)) {
+            const url = node.url;
+            const parsed = parseInternalReference(url);
+            if (parsed?.target) {
+              let targetRoute: string | undefined;
+              let blockTarget: Block | undefined;
+
+              if (parsed.target.kind === "collection") {
+                const col = matchCollection(site, parsed.target.collectionName);
+                targetRoute = col?.route;
+              } else if (parsed.target.kind === "entry") {
+                const col = parsed.target.collectionName
+                  ? matchCollection(site, parsed.target.collectionName)
+                  : collection;
+                const ent = col ? matchEntry(col, parsed.target.entryName) : undefined;
+                targetRoute = ent?.route;
+              } else if (parsed.target.kind === "block") {
+                const col = parsed.target.collectionName
+                  ? matchCollection(site, parsed.target.collectionName)
+                  : collection;
+                const ent =
+                  col && parsed.target.entryName
+                    ? matchEntry(col, parsed.target.entryName)
+                    : col === collection
+                      ? entry
+                      : undefined;
+                blockTarget = ent ? matchBlock(ent, parsed.target.blockName) : undefined;
+                targetRoute = blockTarget?.route;
+              } else if (parsed.target.kind === "url") {
+                const imageOptions = pickImageOptions(parsed.options, node.alt);
+                const html = buildExternalImageHtml(parsed.target.url, imageOptions);
+                didChange = true;
+                return { type: "html", value: html } as MdastHtml;
+              }
+
+              if (isImageNode(node) && isImageBlock(blockTarget) && targetRoute) {
+                const imageOptions = pickImageOptions(parsed.options, node.alt);
+                const html = buildImageHtml(blockTarget, {
+                  ...imageOptions,
+                  site,
+                });
+                if (html) {
+                  didChange = true;
+                  inlineBlockIds.add(blockTarget.id);
+                  return { type: "html", value: html } as MdastHtml;
+                }
+              }
+
+              if (targetRoute) {
+                node.url = targetRoute;
+                didChange = true;
+                if (isImageBlock(blockTarget)) {
+                  inlineBlockIds.add(blockTarget.id);
+                }
+              } else {
+                logger?.warn("markdown.internalImage.unresolved", {
+                  url,
+                  entry: entry.path,
+                });
+              }
+            }
+          }
+
+          if (isParent(node)) {
+            node.children = node.children.map(transformChild);
+          }
+
+          return node;
+        };
+
+        transformNode(ast);
+
+        if (!didChange) return blk;
+
+        // Re-render HTML from mutated AST
+        const html = await renderMarkdownToHtml(ast, remarkPlugins);
+        const meta = { ...(blk.content.meta ?? {}) };
+        return {
+          ...blk,
+          content: {
+            ...blk.content,
+            ast,
+            html,
+            meta,
+          },
+        };
+      })
+    );
+
+    const updatedBlocks = blocks.map((block) => {
+      if (!inlineBlockIds.has(block.id)) return block;
+      const meta = {
+        ...(block.content?.meta ?? {}),
+        renderedInline: true,
+      };
+      return {
+        ...block,
+        content: { ...(block.content ?? {}), meta },
+      };
+    });
+
+    return { ...entry, blocks: updatedBlocks };
+  };
+
   const collections = site.collections
     ? await Promise.all(
-        site.collections.map(async (collection) => {
-          const entries = await Promise.all(
-            collection.entries.map(async (entry) => {
-              const inlineBlockIds = new Set<string>();
-              const blocks = await Promise.all(
-                entry.blocks.map(async (blk) => {
-                  if (blk.type !== "markdown" || !blk.content?.ast) return blk;
-                  const ast = blk.content.ast as Root;
-                  let didChange = false;
+      site.collections.map(async (collection) => {
+        const entries = await Promise.all(
+          collection.entries.map((entry) => rewriteEntryBlocks(entry, collection))
+        );
+        return { ...collection, entries };
+      })
+    )
+    : undefined;
 
-                  // Keep child types stable while walking the tree.
-                  const transformChild = (node: Content): Content =>
-                    transformNode(node) as Content;
-
-                  const transformNode = (node: MdastNode): MdastNode => {
-                    if (!node || typeof node !== "object") return node;
-
-                    if (isImageNode(node)) {
-                      const url = node.url;
-                      const parsed = parseInternalReference(url);
-                      if (parsed?.target) {
-                        let targetRoute: string | undefined;
-                        let blockTarget: Block | undefined;
-
-                        if (parsed.target.kind === "collection") {
-                          const col = matchCollection(site, parsed.target.collectionName);
-                          targetRoute = col?.route;
-                        } else if (parsed.target.kind === "entry") {
-                          const col = parsed.target.collectionName
-                            ? matchCollection(site, parsed.target.collectionName)
-                            : collection;
-                          const ent = col ? matchEntry(col, parsed.target.entryName) : undefined;
-                          targetRoute = ent?.route;
-                        } else if (parsed.target.kind === "block") {
-                          const col = parsed.target.collectionName
-                            ? matchCollection(site, parsed.target.collectionName)
-                            : collection;
-                          const ent =
-                            col && parsed.target.entryName
-                              ? matchEntry(col, parsed.target.entryName)
-                              : col === collection
-                              ? entry
-                              : undefined;
-                          blockTarget = ent ? matchBlock(ent, parsed.target.blockName) : undefined;
-                          targetRoute = blockTarget?.route;
-                        } else if (parsed.target.kind === "url") {
-                          const imageOptions = pickImageOptions(parsed.options, node.alt);
-                          const html = buildExternalImageHtml(parsed.target.url, imageOptions);
-                          didChange = true;
-                          return { type: "html", value: html } as MdastHtml;
-                        }
-
-                        if (isImageNode(node) && isImageBlock(blockTarget) && targetRoute) {
-                          const imageOptions = pickImageOptions(parsed.options, node.alt);
-                          const html = buildImageHtml(blockTarget, {
-                            ...imageOptions,
-                            site,
-                          });
-                          if (html) {
-                            didChange = true;
-                            inlineBlockIds.add(blockTarget.id);
-                            return { type: "html", value: html } as MdastHtml;
-                          }
-                        }
-
-                        if (targetRoute) {
-                          node.url = targetRoute;
-                          didChange = true;
-                          if (isImageBlock(blockTarget)) {
-                            inlineBlockIds.add(blockTarget.id);
-                          }
-                        } else {
-                          logger?.warn("markdown.internalImage.unresolved", {
-                            url,
-                            entry: entry.path,
-                          });
-                        }
-                      }
-                    }
-
-                    if (isParent(node)) {
-                      node.children = node.children.map(transformChild);
-                    }
-
-                    return node;
-                  };
-
-                  transformNode(ast);
-
-                  if (!didChange) return blk;
-
-                  // Re-render HTML from mutated AST
-                  const html = await renderMarkdownToHtml(ast, remarkPlugins);
-                  const meta = { ...(blk.content.meta ?? {}) };
-                  return {
-                    ...blk,
-                    content: {
-                      ...blk.content,
-                      ast,
-                      html,
-                      meta,
-                    },
-                  };
-                })
-              );
-
-              const updatedBlocks = blocks.map((block) => {
-                if (!inlineBlockIds.has(block.id)) return block;
-                const meta = {
-                  ...(block.content?.meta ?? {}),
-                  renderedInline: true,
-                };
-                return {
-                  ...block,
-                  content: { ...(block.content ?? {}), meta },
-                };
-              });
-
-              return { ...entry, blocks: updatedBlocks };
-            })
+  const rootIndex = site.indexes?.root ? await rewriteEntryBlocks(site.indexes.root) : undefined;
+  const collectionIndexes = site.indexes?.collections
+    ? Object.fromEntries(
+      await Promise.all(
+        Object.entries(site.indexes.collections).map(async ([key, entry]) => {
+          const collection = site.collections?.find(
+            (col) => (col.slug || col.id) === key
           );
-
-          return { ...collection, entries };
+          return [key, await rewriteEntryBlocks(entry, collection)];
         })
       )
+    )
     : undefined;
 
   return {
     ...site,
     ...(collections ? { collections } : {}),
+    ...((rootIndex || collectionIndexes)
+      ? {
+        indexes: {
+          ...(site.indexes ?? {}),
+          ...(rootIndex ? { root: rootIndex } : {}),
+          ...(collectionIndexes ? { collections: collectionIndexes } : {}),
+        },
+      }
+      : {}),
   };
 }

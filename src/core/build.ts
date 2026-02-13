@@ -28,12 +28,11 @@ import { rewriteInternalLinks } from './postprocess/markdown-links'
 import { rewriteInternalImages } from './postprocess/markdown-images'
 import { writeSitemap } from './sitemap'
 import { resolveTemplatesConfig } from './templates/config'
-import { matchCollection } from './targets'
 import { copyDirectory, rmWithRetries, writeIfChanged as writeIfChangedFs } from '../utils/fs'
 import { resolveCollectionAssets } from './build/collection-assets'
 import { countDraftEntries, filterDraftEntries, listDraftEntries } from './build/drafts'
 import { formatHtml as formatHtmlFs } from './build/html'
-import { parseIndexOverrides, resolveIndexEntry } from './build/index-overrides'
+import { extractIndexFolders } from './build/index-folders'
 import { protectAssetDirs } from './build/protect-assets'
 import { applySorting } from './build/sorting'
 import { writeModelExport } from './export/write-model'
@@ -250,7 +249,12 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     scannedSiteWithPlugins = await runOnScan(plugins, scannedSite, pluginContextBase)
   }
 
-  const collectionsList = scannedSiteWithPlugins.collections ?? []
+  const siteWithIndexFolders = extractIndexFolders(scannedSiteWithPlugins, {
+    includeDrafts,
+    logger: scoped.child('index'),
+  })
+
+  const collectionsList = siteWithIndexFolders.collections ?? []
   const entriesCount = collectionsList.reduce(
     (acc, collection) => acc + collection.entries.length,
     0,
@@ -397,7 +401,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
 
   const siteWithAssets = await resolveCollectionAssets({
     rootDir,
-    site: scannedSiteWithPlugins,
+    site: siteWithIndexFolders,
     toolEnv,
     readContent,
     logger: scoped.child('assets'),
@@ -418,27 +422,51 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     // Transform blocks then entries so hooks can mutate before timestamps
     if (resolvedSiteWithPlugins.collections) {
       const updatedCollections = [] as typeof resolvedSiteWithPlugins.collections
+      const transformEntryWithPlugins = async (
+        collection: Collection,
+        entry: Entry,
+      ): Promise<Entry> => {
+        const updatedBlocks = await runTransformBlocks(
+          plugins,
+          collection,
+          entry,
+          pluginContextBase,
+        )
+        const entryWithBlocks: Entry = { ...entry, blocks: updatedBlocks }
+        return runTransformEntry(plugins, collection, entryWithBlocks, pluginContextBase)
+      }
       for (const collection of resolvedSiteWithPlugins.collections) {
         const updatedEntries = [] as typeof collection.entries
         for (const entry of collection.entries) {
-          const updatedBlocks = await runTransformBlocks(
-            plugins,
-            collection,
-            entry,
-            pluginContextBase,
-          )
-          const entryWithBlocks: Entry = { ...entry, blocks: updatedBlocks }
-          const updatedEntry = await runTransformEntry(
-            plugins,
-            collection,
-            entryWithBlocks,
-            pluginContextBase,
-          )
+          const updatedEntry = await transformEntryWithPlugins(collection, entry)
           updatedEntries.push(updatedEntry)
         }
         updatedCollections.push({ ...collection, entries: updatedEntries })
       }
-      resolvedSiteWithPlugins = { ...resolvedSiteWithPlugins, collections: updatedCollections }
+
+      let nextIndexes = resolvedSiteWithPlugins.indexes
+      if (nextIndexes?.collections) {
+        const collectionByKey = new Map(
+          updatedCollections.map((collection) => [collection.slug || collection.id, collection]),
+        )
+        const updatedCollectionIndexes = Object.fromEntries(
+          await Promise.all(
+            Object.entries(nextIndexes.collections).map(async ([key, entry]) => {
+              const collection = collectionByKey.get(key)
+              if (!collection) return [key, entry]
+              const updatedEntry = await transformEntryWithPlugins(collection, entry)
+              return [key, updatedEntry]
+            }),
+          ),
+        )
+        nextIndexes = { ...nextIndexes, collections: updatedCollectionIndexes }
+      }
+
+      resolvedSiteWithPlugins = {
+        ...resolvedSiteWithPlugins,
+        collections: updatedCollections,
+        ...(nextIndexes ? { indexes: nextIndexes } : {}),
+      }
     }
   }
 
@@ -484,45 +512,6 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     readContent,
   })
   const sortedSite = applySorting(resolvedSiteWithHistory, scoped.child('sorting'))
-
-  const indexOverrides = parseIndexOverrides(site.config?.index)
-  const rootIndexTarget = resolveIndexEntry(sortedSite, indexOverrides.root, scoped)
-  const collectionIndexTargets = new Map<
-    string,
-    { target: Collection; entry: Entry; entryCollection: Collection }
-  >()
-  if (indexOverrides.collections) {
-    for (const [collectionSlug, ref] of Object.entries(indexOverrides.collections)) {
-      const targetCollection = matchCollection(sortedSite, collectionSlug)
-      if (!targetCollection) {
-        scoped.warn('index.override.targetMissing', { collection: collectionSlug })
-        continue
-      }
-      if (targetCollection.isUnlisted) {
-        scoped.warn('index.override.collectionUnlisted', {
-          collection: targetCollection.slug || targetCollection.id,
-        })
-        continue
-      }
-      const resolved = resolveIndexEntry(sortedSite, ref, scoped)
-      if (!resolved) continue
-      collectionIndexTargets.set(targetCollection.slug || targetCollection.id, {
-        target: targetCollection,
-        entry: resolved.entry,
-        entryCollection: resolved.collection,
-      })
-    }
-  }
-
-  const overrideEntryKeys = new Set<string>()
-  const entryKeyFor = (collection: Collection, entry: Entry) =>
-    `${collection.slug || collection.id}::${entry.slug || entry.id}`
-  if (rootIndexTarget) {
-    overrideEntryKeys.add(entryKeyFor(rootIndexTarget.collection, rootIndexTarget.entry))
-  }
-  for (const target of collectionIndexTargets.values()) {
-    overrideEntryKeys.add(entryKeyFor(target.entryCollection, target.entry))
-  }
 
   scoped.debug('build.exportModel.start', { path: exportDir })
   await writeModelExport({ exportDir, site: sortedSite, logger: scoped })
@@ -601,9 +590,6 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     formatHtml,
     templateRenderer,
     renderBaseContext,
-    rootIndexTarget,
-    collectionIndexTargets,
-    overrideEntryKeys,
     logger: scoped,
   })
 

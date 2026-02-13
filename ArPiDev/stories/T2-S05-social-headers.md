@@ -1,10 +1,10 @@
 # T2-S05 — Social headers (config + templates par defaut)
 
 Created: 2026-02-12 17h14m17s
-Closed:
+Closed: 2026-02-13 00h02m56s
 Acceptance: User
 
-Status: Active
+Status: Done, Validated
 
 ## Context
 Les templates par defaut n'ajoutent pas de balises sociales (Open Graph/Twitter), ce qui degrade les apercus lors du partage.

@@ -26,6 +26,9 @@ Activer le live reload automatiquement en `serve`, sans action template.
 - UI dédiée au live reload.
 - Modification du pipeline `build` hors `serve`.
 
+## Documentation impact
+- To document: none
+
 ## Ready when
 - Goal est un seul résultat clair
 - In scope / Out of scope explicites

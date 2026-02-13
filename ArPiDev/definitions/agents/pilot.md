@@ -46,6 +46,11 @@ You may write:
 * When Dev asks for a decision in story `Pilot exchange`, either log it in `DECISIONS.md` or explain why no decision entry is needed.
 * If Dev reports `To document:` points, ask the user whether ArPiDoc follow-up is required and record the answer in `DECISIONS.md`.
 
+If an active story exists and the user asks for orchestration/policy changes:
+
+* Stay in Pilot role (do not hand off to Dev).
+* Apply or triage the policy/process update first, then resume execution flow.
+
 5. **No drift**
 
 * Keep tasks/stories aligned with `SPEC.md`.

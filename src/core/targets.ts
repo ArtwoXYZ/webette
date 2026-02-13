@@ -169,6 +169,7 @@ export function matchCollection(site: Site, name: string): Collection | undefine
 export function matchEntry(collection: Collection, name: string): Entry | undefined {
   const target = normalizeName(name);
   return collection.entries.find((entry) => {
+    if (entry.isIndex) return false;
     const names = [entry.slug, entry.id, entry.name, normalizeName(entry.rawName)]
       .filter(Boolean)
       .map((n) => normalizeName(String(n)));

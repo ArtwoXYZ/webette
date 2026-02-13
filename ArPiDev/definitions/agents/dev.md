@@ -30,6 +30,7 @@ If the story is missing the “Ready when” criteria, stop and ask the Pilot to
 
 ## C. Execution rules
 
+* If the user request is orchestration/policy (for example `SPEC/TASKS/DECISIONS`, git policy, method/process, cross-story governance), do not proceed as Dev; escalate to Pilot immediately.
 * Implement strictly what the active story specifies.
 * Do not expand scope.
 * Keep changes small and verifiable.

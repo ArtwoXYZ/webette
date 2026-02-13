@@ -58,16 +58,14 @@ export default {
       accessForbidden: 'layout/access-forbidden.hbs',
     },
     custom: {
+      index: {
+        root: 'layout/welcome.hbs',
+      },
       entry: {
-        'pages/welcome': 'layout/welcome.hbs',
         // Playground: fill this in to enable the custom layout for that one entry.
         'playground/custom-layout-for-an-entry': '',
       },
     },
-  },
-
-  index: {
-    root: { collection: 'pages', entry: 'welcome' },
   },
 
   plugins: ['_plugins/demo.js'],

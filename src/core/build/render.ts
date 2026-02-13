@@ -41,12 +41,6 @@ export async function renderSite(options: {
   formatHtml: (rawHtml: string, targetPath: string) => Promise<string>;
   templateRenderer: TemplateRenderer;
   renderBaseContext: Record<string, unknown>;
-  rootIndexTarget?: { collection: Collection; entry: Entry };
-  collectionIndexTargets: Map<
-    string,
-    { target: Collection; entry: Entry; entryCollection: Collection }
-  >;
-  overrideEntryKeys: Set<string>;
   logger: Logger;
 }): Promise<{ renderedPages: number }> {
   const {
@@ -66,9 +60,6 @@ export async function renderSite(options: {
     formatHtml,
     templateRenderer,
     renderBaseContext,
-    rootIndexTarget,
-    collectionIndexTargets,
-    overrideEntryKeys,
     logger,
   } = options;
 
@@ -178,8 +169,7 @@ export async function renderSite(options: {
   for (const collection of site.collections ?? []) {
     for (const entry of collection.entries) {
       if (!includeDrafts && entry.isDraft) continue;
-      const entryKey = `${collection.slug || collection.id}::${entry.slug || entry.id}`;
-      if (overrideEntryKeys.has(entryKey)) continue;
+      if (entry.isIndex) continue;
 
       const entryRouteRelative = entry.route
         ? entry.route.replace(/^\/+/, "")
@@ -210,35 +200,31 @@ export async function renderSite(options: {
     const customIndex = templatesCustom?.index;
 
     // Root index
-    if (rootIndexTarget) {
-      const entryForIndex: Entry = { ...rootIndexTarget.entry, route: "/" };
-      const wrote = await renderEntryTo(entryForIndex, undefined, outputDir);
-      if (wrote) renderedPages += 1;
-    } else {
-      const rootIndexLayoutName = await pickIndexLayout("index.root", [
-        customIndex?.root ?? "",
-        templatesDefault.index,
-      ]);
+    const rootIndexLayoutName = await pickIndexLayout("index.root", [
+      customIndex?.root ?? "",
+      templatesDefault.index,
+    ]);
 
-      const visibleCollections = (site.collections ?? [])
-        .filter((collection) => !collection.isUnlisted)
-        .map((collection) => ({
-          ...collection,
-          entries: collection.entries.filter((entry) => !entry.isUnlisted),
-        }));
+    const visibleCollections = (site.collections ?? [])
+      .filter((collection) => !collection.isUnlisted)
+      .map((collection) => ({
+        ...collection,
+        entries: collection.entries.filter((entry) => !entry.isUnlisted),
+      }));
 
-      const rootContext = {
-        ...renderBaseContext,
-        layoutName: rootIndexLayoutName,
-        entry: { name: "Index", route: "/" },
-        collections: visibleCollections,
-      };
-      const rootHtml = templateRenderer.render(rootContext);
-      const rootIndexPath = path.join(outputDir, "index.html");
-      await mkdir(path.dirname(rootIndexPath), { recursive: true });
-      const finalRootHtml = await formatHtml(rootHtml, rootIndexPath);
-      await writeIfChanged(rootIndexPath, finalRootHtml);
-    }
+    const rootIndexEntry = site.indexes?.root;
+    const rootContext = {
+      ...renderBaseContext,
+      layoutName: rootIndexLayoutName,
+      entry: rootIndexEntry ? { ...rootIndexEntry, route: "/" } : { name: "Index", route: "/" },
+      ...(rootIndexEntry ? { blocks: filterRenderableBlocks(rootIndexEntry.blocks) } : {}),
+      collections: visibleCollections,
+    };
+    const rootHtml = templateRenderer.render(rootContext);
+    const rootIndexPath = path.join(outputDir, "index.html");
+    await mkdir(path.dirname(rootIndexPath), { recursive: true });
+    const finalRootHtml = await formatHtml(rootHtml, rootIndexPath);
+    await writeIfChanged(rootIndexPath, finalRootHtml);
 
     // Collection indexes
     for (const collection of site.collections ?? []) {
@@ -268,20 +254,8 @@ export async function renderSite(options: {
       const visibleEntries = collection.entries.filter((entry) => !entry.isUnlisted);
       const collectionForIndex = { ...collection, entries: visibleEntries };
 
-      const override = collectionIndexTargets.get(collection.slug || collection.id);
-      if (override) {
-        const routeRelative = collection.route
-          ? collection.route.replace(/^\/+/, "").replace(/\/+$/, "")
-          : collection.slug || collection.id;
-        const collectionIndexDir = routeRelative ? path.join(outputDir, routeRelative) : outputDir;
-        const entryForIndex: Entry = {
-          ...override.entry,
-          route: collection.route ?? `/${collection.slug || collection.id}/`,
-        };
-        const wrote = await renderEntryTo(entryForIndex, override.target, collectionIndexDir);
-        if (wrote) renderedPages += 1;
-        continue;
-      }
+      const indexEntries = site.indexes?.collections ?? {};
+      const indexEntry = indexEntries[collection.slug || collection.id];
 
       const collectionIndexLayoutName = await pickIndexLayout(
         `index.collection.${collection.slug || collection.id}`,
@@ -300,9 +274,12 @@ export async function renderSite(options: {
       const ctx = {
         ...renderBaseContext,
         layoutName: collectionIndexLayoutName,
-        entry: { name: collection.name, route: collection.route },
+        entry: indexEntry
+          ? { ...indexEntry, route: collection.route ?? `/${collection.slug || collection.id}/` }
+          : { name: collection.name, route: collection.route },
         collection: collectionForIndex,
         entries: visibleEntries,
+        ...(indexEntry ? { blocks: filterRenderableBlocks(indexEntry.blocks) } : {}),
       };
       const colHtml = templateRenderer.render(ctx);
       await mkdir(collectionIndexDir, { recursive: true });

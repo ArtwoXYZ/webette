@@ -26,6 +26,9 @@ Supprimer les erreurs EBUSY en `serve` pendant le nettoyage de `_public` sans r�
 - Changement du modèle de contenu ou des templates.
 - Optimisations non liées au problème EBUSY.
 
+## Documentation impact
+- To document: none
+
 ## Ready when
 - Reproduced or reasoned fix path identified (filesystem semantics Windows/Bun).
 - Suppression/cleanup de `_public` en `serve` ne déclenche plus d’EBUSY (tests manuels Windows ou simulation).

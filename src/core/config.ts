@@ -15,7 +15,6 @@ interface WebetteConfigFile {
   markdown?: Record<string, unknown>;
   sorting?: Record<string, unknown>;
   video?: Record<string, unknown>;
-  index?: Record<string, unknown>;
   plugins?: string[];
 }
 
@@ -63,8 +62,6 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
       raw.sorting && typeof raw.sorting === "object"
         ? { ...raw.sorting }
         : undefined;
-    const index =
-      raw.index && typeof raw.index === "object" ? { ...raw.index } : undefined;
     const plugins =
       Array.isArray(raw.plugins) && raw.plugins.every((p: unknown) => typeof p === "string")
         ? [...raw.plugins]
@@ -79,7 +76,6 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
       video: video as Record<string, unknown> | undefined,
       markdown: markdown as Record<string, unknown> | undefined,
       sorting: sorting as Record<string, unknown> | undefined,
-      index: index as Record<string, unknown> | undefined,
       plugins,
     };
   } catch {
@@ -143,10 +139,6 @@ export async function createSite(rootDir: string): Promise<Site> {
     config.templates && typeof config.templates === "object"
       ? { ...config.templates }
       : undefined;
-  const indexConfig: Record<string, unknown> | undefined =
-    config.index && typeof config.index === "object"
-      ? { ...config.index }
-      : undefined;
 
   // Apply minimal defaults for expected fields if absent
   if (typeof siteSection.title !== "string") {
@@ -163,7 +155,6 @@ export async function createSite(rootDir: string): Promise<Site> {
       collections: collectionsConfig,
       ...(plugins ? { plugins } : {}),
       ...(templatesConfig ? { templates: templatesConfig } : {}),
-      ...(indexConfig ? { index: indexConfig } : {}),
     },
   };
 

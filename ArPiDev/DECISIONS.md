@@ -9,3 +9,6 @@
 - 2026-02-12 — ArPiDoc follow-up for T2-S04 is intentionally deferred by user for later. Reason: keep delivery flow focused on next story implementation.
 - 2026-02-12 — T2-S05 keeps a single global social image (`site.social.image`) with no per-item override in this iteration; metadata uses template variables + deterministic fallbacks + optional head injection toggle. Reason: minimize user config while avoiding plugin-level complexity in this story.
 - 2026-02-12 — T2-S05 description fallback order is fixed as: item `description.webt` -> optional first text/markdown block excerpt (word-based, configurable) -> `site.social.defaultDescription` -> `site.description`. Reason: minimize required user config while preserving deterministic metadata quality.
+- 2026-02-12 — Backfilled required `Documentation impact` sections across story files. Reason: align existing stories with the current ArPiDev schema after method updates.
+- 2026-02-13 — Standard.site integration should be a plugin, not core. Reason: keep core minimal and isolate evolving interop concerns.
+- 2026-02-13 — ArPiDoc follow-up for T3-S01 deferred by user for a later batch. Reason: user prefers to handle documentation updates all at once.

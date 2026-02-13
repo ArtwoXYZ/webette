@@ -25,6 +25,9 @@ Ajouter une option de configuration qui decale les titres Markdown (h1â†’h2, h2â
 - Refonte globale du rendu Markdown.
 - Nouvel outil de transformation hors pipeline existant.
 
+## Documentation impact
+- To document: `markdown.headingShift` (niveau site dans `webette.config.ts`) decale les niveaux de titres Markdown (h1->h2, h2->h3, etc.), clamp a h1..h6, accepte un nombre (ou string numerique), et 0/absent = aucun changement. S'applique au rendu Markdown (pas aux blocs texte).
+
 ## Ready when
 - Goal est un seul resultat clair
 - In scope / Out of scope explicites
@@ -37,7 +40,6 @@ Ajouter une option de configuration qui decale les titres Markdown (h1â†’h2, h2â
 - Les titres Markdown sont decales correctement avec l'offset defini.
 - Aucun changement si l'option est desactivee.
 - Validation manuelle sur un site d'exemple.
-To document: `markdown.headingShift` (niveau site dans `webette.config.ts`) decale les niveaux de titres Markdown (h1->h2, h2->h3, etc.), clamp a h1..h6, accepte un nombre (ou string numerique), et 0/absent = aucun changement. S'applique au rendu Markdown (pas aux blocs texte).
 
 ## Pending reason
 - None (story completed and validated).

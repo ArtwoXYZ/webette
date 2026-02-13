@@ -73,15 +73,15 @@
 - ✅ En serve sous Windows, tu peux encore croiser des EBUSY lors de rm dans _public
 - 🔳 Sur webette.org : Ajouter une page de présentation d'atelier de formation "créer et publier son site web en une après-midi"
 - ✅ Mettre en place les headers pour favicon 
-- 🔳 Mettre en place les headers pour socials
+- ✅ Mettre en place les headers pour socials
 - 🔳 Mettre système de Tags pour les entry
 - 🔳 Mettre un fichier spécial collection.webt pour transformer une entry en sous-collection (faire en sorte que les niveaux soient-infinis). Faire fonctionner ça avec les index automatique
 - 🔳 Essayer de faire le tri dans les 2 types de fichiers de config pour avoir une vrai séparation entre la config d'un site et la config de l'outil
 - 🔳 Comment ajouter un block vidéo d'une autre entrée où on veut (via MD, via block spécial peut-être, via helper) ? Réfléchir à ça pour tous les types de blocks.
 - 🔳 Injecter le live reload automatiquement
-- 🔳 Refaire le système d'index :
-  - 🔳 Dossier nommé "Root Index" (ou "00 Root Index") = Index de la root
-  - 🔳 Dossier "Collection Index" = Index de la collection
+- ✅ Refaire le système d'index :
+  - ✅ Dossier nommé "Root Index" (ou "00 Root Index") = Index de la root
+  - ✅ Dossier "Collection Index" = Index de la collection
   - ℹ Ca ne retire pas la ligne de config pour les layout personnalisés. Ca peut être intégré dans les layouts d'index des starters des base pour pouvoir ajouter du texte sur les index ou quoi, genre si ces dossier existes, on met ce contenu dans l'index. Qqch comme ça
 
 ## Plugins :

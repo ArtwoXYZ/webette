@@ -110,6 +110,28 @@ export function collectProtectedDirs(options: {
     }
   }
 
+  const visitIndexEntry = (entry: Entry | undefined) => {
+    if (!entry) return;
+    if (!includeDrafts && entry.isDraft) return;
+    const visitBlocks = (blocks: Block[]) => {
+      for (const blk of blocks) {
+        collectDirForRoute(blk.route);
+        if (blk.content?.variants) {
+          for (const variant of blk.content.variants) {
+            collectDirForRoute(variant.route);
+          }
+        }
+        if (blk.subBlocks) visitBlocks(blk.subBlocks);
+      }
+    };
+    visitBlocks(entry.blocks);
+  };
+
+  visitIndexEntry(site.indexes?.root);
+  for (const entry of Object.values(site.indexes?.collections ?? {})) {
+    visitIndexEntry(entry);
+  }
+
   return dirsToCover;
 }
 
@@ -220,6 +242,16 @@ export async function pruneOrphans(options: {
       collectBlocks(entry.blocks);
       addEntryPage(entry, collection);
     }
+  }
+
+  if (site.indexes?.root) {
+    if (includeDrafts || !site.indexes.root.isDraft) {
+      collectBlocks(site.indexes.root.blocks);
+    }
+  }
+  for (const entry of Object.values(site.indexes?.collections ?? {})) {
+    if (!includeDrafts && entry.isDraft) continue;
+    collectBlocks(entry.blocks);
   }
 
   for (const collection of site.collections ?? []) {

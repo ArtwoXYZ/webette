@@ -216,15 +216,15 @@ async function computeBlockHistory(
 
   const contentForHash = block.content
     ? {
-        raw: block.content.raw,
-        html: block.content.html,
-        ast: block.content.ast,
-        meta: block.content.meta,
-        variants: block.content.variants,
-      }
+      raw: block.content.raw,
+      html: block.content.html,
+      ast: block.content.ast,
+      meta: block.content.meta,
+      variants: block.content.variants,
+    }
     : ctx.readContent === false
-    ? await fallbackBlockMeta(ctx.rootDir, block)
-    : undefined;
+      ? await fallbackBlockMeta(ctx.rootDir, block)
+      : undefined;
 
   const fingerprint = hashObject({
     type: block.type,
@@ -332,27 +332,74 @@ export async function applyHistory(
   const nowIso = (options.now ?? new Date()).toISOString();
   const collections = site.collections
     ? await Promise.all(
-        site.collections.map((collection) =>
-          computeCollectionHistory(collection, {
+      site.collections.map((collection) =>
+        computeCollectionHistory(collection, {
+          previous: options.previous,
+          nowIso,
+          rootDir: options.rootDir,
+          readContent: options.readContent,
+        })
+      )
+    )
+    : undefined;
+
+  const rootIndex = site.indexes?.root
+    ? await computeEntryHistory("__index__root", site.indexes.root, {
+      previous: options.previous,
+      nowIso,
+      rootDir: options.rootDir,
+      readContent: options.readContent,
+    })
+    : undefined;
+
+  const collectionIndexes = site.indexes?.collections
+    ? Object.fromEntries(
+      await Promise.all(
+        Object.entries(site.indexes.collections).map(async ([key, entry]) => [
+          key,
+          await computeEntryHistory(`__index__${key}`, entry, {
             previous: options.previous,
             nowIso,
             rootDir: options.rootDir,
             readContent: options.readContent,
-          })
-        )
+          }),
+        ])
       )
+    )
+    : undefined;
+
+  const orderedIndexCollections = collectionIndexes
+    ? Object.keys(collectionIndexes)
+      .sort()
+      .reduce((acc, key) => {
+        acc[key] = collectionIndexes[key]?.fingerprint;
+        return acc;
+      }, {} as Record<string, string | undefined>)
     : undefined;
 
   const siteFingerprint = hashObject({
     site: site.site,
     route: site.route,
     collections: collections?.map((col) => col.fingerprint),
+    indexes: {
+      root: rootIndex?.fingerprint,
+      collections: orderedIndexCollections,
+    },
   });
   const siteTimestamps = nextTimestamps(options.previous.site, siteFingerprint, nowIso);
 
   return {
     ...site,
     ...(collections ? { collections } : {}),
+    ...((rootIndex || collectionIndexes)
+      ? {
+        indexes: {
+          ...(site.indexes ?? {}),
+          ...(rootIndex ? { root: rootIndex } : {}),
+          ...(collectionIndexes ? { collections: collectionIndexes } : {}),
+        },
+      }
+      : {}),
     fingerprint: siteFingerprint,
     createdAt: siteTimestamps.createdAt,
     updatedAt: siteTimestamps.updatedAt,

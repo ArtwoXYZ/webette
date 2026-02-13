@@ -26,6 +26,22 @@ Ajouter le tri par dates via `sorting.type = "created"` ou `sorting.type = "upda
 - Nouveaux champs de dates dans le modele.
 - Changement du format de dates existantes.
 
+## Documentation impact
+- To document:
+  - Emplacement: `sorting` se configure dans `webette.config.ts` (config site), pas au niveau tool.
+  - Pipeline: le tri fonctionnel est applique **apres** `applyHistory` via `applySorting` dans `src/core/build/sorting.ts` (appele depuis `src/core/build.ts`).
+  - Scan: le scan ne fait qu’un tri deterministe par nom (prefix numerique + nom) dans `src/core/scan/index.ts` pour stabiliser le modele; il n’applique pas la config `sorting`.
+  - Types: `sorting.type` accepte `name`, `created`, `updated` (pas d’alias `date`). Si type inconnu -> warning `scan.sortingUnknownType` + fallback `name`.
+  - Order: `sorting.order` accepte `asc` ou `desc`.
+  - Priorite: `entries.custom` / `blocks.custom` -> `entries`/`blocks` -> global; `collections.*` ne s’applique qu’aux collections.
+  - Overrides:
+    - `entries.custom`: `{ collection, type?, order? }` (collection = cle de config, sinon slug derive du nom de dossier).
+    - `blocks.custom`: `{ collection, entry?, type?, order? }` (entry = slug derive du nom d’entree; si absent -> toutes les entries de la collection).
+  - Comparaison:
+    - `name`: ordre = `orderKey` (prefix numerique) puis `localeCompare` insensible.
+    - `created`/`updated`: utilise `createdAt`/`updatedAt` (dates calculees par le pipeline). Dates manquantes -> fin de liste. Egalites -> fallback sur tri par nom.
+  - Perimetre: s’applique aux collections, entries, blocks et assets (assets traites comme blocks).
+
 ## Ready when
 - Goal est un seul resultat clair
 - In scope / Out of scope explicites
@@ -39,21 +55,6 @@ Ajouter le tri par dates via `sorting.type = "created"` ou `sorting.type = "upda
 - Le tri par dates respecte `order` asc/desc.
 - Les cas sans date sont traites de facon deterministe (fin de liste).
 - Validation manuelle sur un site d'exemple.
-
-To document:
-- Emplacement: `sorting` se configure dans `webette.config.ts` (config site), pas au niveau tool.
-- Pipeline: le tri fonctionnel est applique **apres** `applyHistory` via `applySorting` dans `src/core/build/sorting.ts` (appele depuis `src/core/build.ts`).
-- Scan: le scan ne fait qu’un tri deterministe par nom (prefix numerique + nom) dans `src/core/scan/index.ts` pour stabiliser le modele; il n’applique pas la config `sorting`.
-- Types: `sorting.type` accepte `name`, `created`, `updated` (pas d’alias `date`). Si type inconnu -> warning `scan.sortingUnknownType` + fallback `name`.
-- Order: `sorting.order` accepte `asc` ou `desc`.
-- Priorite: `entries.custom` / `blocks.custom` -> `entries`/`blocks` -> global; `collections.*` ne s’applique qu’aux collections.
-- Overrides:
-  - `entries.custom`: `{ collection, type?, order? }` (collection = cle de config, sinon slug derive du nom de dossier).
-  - `blocks.custom`: `{ collection, entry?, type?, order? }` (entry = slug derive du nom d’entree; si absent -> toutes les entries de la collection).
-- Comparaison:
-  - `name`: ordre = `orderKey` (prefix numerique) puis `localeCompare` insensible.
-  - `created`/`updated`: utilise `createdAt`/`updatedAt` (dates calculees par le pipeline). Dates manquantes -> fin de liste. Egalites -> fallback sur tri par nom.
-- Perimetre: s’applique aux collections, entries, blocks et assets (assets traites comme blocks).
 
 ## Pending reason
 - None (story completed and validated).

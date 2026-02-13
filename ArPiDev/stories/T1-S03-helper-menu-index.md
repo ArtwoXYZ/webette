@@ -28,6 +28,16 @@ Définir l’API du helper menu/index et l’implémenter dans les templates par
 - Système d’index complet (T3).
 - Changements de modèle de données.
 
+## Documentation impact
+- To document:
+  - Partial `prev-next`: usage `{{> prev-next}}` et maintien du rendu existant.
+  - API du helper `menu`: signature, option `includeUnlisted`, structure de sortie (`collections[]`, `entries[]`, `isCurrent`, `isActive`, `hasSingleEntry`, `singleEntry`, `current.*`).
+  - Exemples HBS: menu simple (collections), menu tree (collections + entries), menu "collection courante".
+  - Notes de migration: remplacer boucles `collections/entries` directes par `{{#menu}}...{{/menu}}` sans changer le rendu.
+  - Comportement sur pages index: `current` resolu depuis le contexte (root/collection index), pas d'entry active.
+  - Rappel: la logique filtre `unlisted` par defaut; utiliser `includeUnlisted=true` si besoin.
+  - Partial `navigation-items`: supporte maintenant les items du helper `menu` (collections/entries) en plus des items `navigation.webt` (kind/title/children).
+
 ## Ready when
 - Goal est un seul résultat clair
 - In scope / Out of scope explicites
@@ -42,15 +52,6 @@ Définir l’API du helper menu/index et l’implémenter dans les templates par
 - Les templates par défaut utilisent le helper et rendent un menu/index fonctionnel.
 - Aucun impact sur `build` hors rendu template.
 - La proposition finale est validée par l’utilisateur.
-
-## Documentation a ecrire (precise)
-- Partial `prev-next`: usage `{{> prev-next}}` et maintien du rendu existant.
-- API du helper `menu`: signature, option `includeUnlisted`, structure de sortie (`collections[]`, `entries[]`, `isCurrent`, `isActive`, `hasSingleEntry`, `singleEntry`, `current.*`).
-- Exemples HBS: menu simple (collections), menu tree (collections + entries), menu "collection courante".
-- Notes de migration: remplacer boucles `collections/entries` directes par `{{#menu}}...{{/menu}}` sans changer le rendu.
-- Comportement sur pages index: `current` resolu depuis le contexte (root/collection index), pas d'entry active.
-- Rappel: la logique filtre `unlisted` par defaut; utiliser `includeUnlisted=true` si besoin.
-- Partial `navigation-items`: supporte maintenant les items du helper `menu` (collections/entries) en plus des items `navigation.webt` (kind/title/children).
 
 ## Pending reason
 - None (story completed and validated).

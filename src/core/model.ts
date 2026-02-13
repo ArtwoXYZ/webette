@@ -31,6 +31,7 @@ export interface Entry {
   description?: string; // raw description from description.webt (entry-level)
   isDraft?: boolean;   // flagged when draft.webt is present in the entry folder
   isUnlisted?: boolean; // flagged when unlisted.webt is present in the entry folder
+  isIndex?: boolean;   // flagged when entry is a custom index folder
   createdAt?: string;  // ISO timestamp of first appearance in the model
   updatedAt?: string;  // ISO timestamp of last change in the model
   fingerprint?: string; // stable hash of the entry content/structure
@@ -60,7 +61,10 @@ export interface Site {
     collections?: Record<string, unknown>; // raw collections config from webette.config.ts
     plugins?: string[];             // plugin paths from webette.config.ts
     templates?: Record<string, unknown>; // raw templates config from webette.config.ts
-    index?: Record<string, unknown>; // raw index overrides from webette.config.ts
+  };
+  indexes?: {
+    root?: Entry;
+    collections?: Record<string, Entry>;
   };
   collections?: Collection[];       // discovered collections with their entries/blocks
   route?: string;                   // root route, usually "/"

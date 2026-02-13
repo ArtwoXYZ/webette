@@ -63,6 +63,34 @@ Ajouter une config site pour generer les favicons/icones et les rendre dans les 
 - Champs sociaux avances (locale, video, multiple images).
 - Modification ou suppression des tags dans les templates custom utilisateur.
 
+## Documentation impact
+- To document:
+  - Config: `site.icons` dans `webette.config.ts` (niveau `site`).
+    - Champs: `source`, `outputDir`, `injectHead`, `themeColor`, `themeColorLight`, `themeColorDark`, `tileColor`, `colorScheme`.
+    - `outputDir` par defaut: `/_assets/icon/` (normalise sans slash de debut/fin). Base publique: `/${outputDir}`.
+    - `injectHead` (defaut: true) controle l'injection dans le head des templates par defaut.
+    - `themeColor` (defaut `#ffffff`) alimente `meta name="theme-color"` et sert de fallback a `tileColor`.
+    - `themeColorLight` / `themeColorDark` generent deux `meta name="theme-color"` avec `prefers-color-scheme`.
+    - `colorScheme` emet `meta name="color-scheme"` pour le rendu UI des navigateurs.
+  - `site.icons.source`:
+    - string: image globale par defaut.
+    - objet: `{ default?, lightmode?, darkmode?, app?, apple?, android?, ms?, favicon? }` (+ alias `light`/`dark`).
+    - precedence (du plus specifique au plus general) pour un groupe `X`: `source.X.<mode>` -> `source.app.<mode>` -> `source.<mode>` -> `source.X.default` -> `source.app.default` -> `source.default` -> `source` (string).
+    - light/dark: `favicon` genere aussi des fichiers `*-light.png` / `*-dark.png` et des tags `<link rel="icon">` avec media queries.
+  - Generation & integration:
+    - Code: `src/core/build/icons.ts` (generation + head tags).
+    - Appel: `src/core/build.ts` pendant le build.
+    - Injection head: `templates/wrapper/wrapper.hbs` via `{{{iconsHead}}}`; si `injectHead=false`, `iconsHead` est vide.
+    - Les templates custom ne sont jamais modifies automatiquement.
+  - Fichiers generes (selon sources disponibles): apple/android/ms/favicons + `manifest.json` + `browserconfig.xml`.
+    - `manifest.json` est ecrit seulement si des icones android ont ete generees.
+    - `browserconfig.xml` est ecrit seulement si des icones MS ont ete generees.
+    - `favicon.ico` en best-effort: si `sharp` ne supporte pas l'ICO, warning + skip.
+  - Moteur images:
+    - Utilise `sharp` si present; sinon warning `build.icons.sharpMissing` et aucune generation/tag.
+    - Images non carrees: redimensionnement `fit=contain` avec fond transparent (padding).
+    - Les outputs generes sont enregistres via `registerExpectedOutput` pour la gestion du pruning.
+
 ## Ready when
 - Champs de config `site.icons` et sorties exactes listees.
 - Priorites des valeurs (fallbacks) explicites.
@@ -105,33 +133,6 @@ Why these scopes:
   - Dev cannot edit `SPEC.md`; Pilot decision/update is required before applying this policy project-wide.
 - 2026-02-12 16h46m26s — Dev -> Pilot — User confirms Pilot should handle this now before continuing Dev execution.
 - 2026-02-12 17h14m17s — Pilot -> Dev — Story validated by user; closure applied (`Done, Validated`) and next executable story activation initiated.
-
-## To Document
-- Config: `site.icons` dans `webette.config.ts` (niveau `site`).
-  - Champs: `source`, `outputDir`, `injectHead`, `themeColor`, `themeColorLight`, `themeColorDark`, `tileColor`, `colorScheme`.
-  - `outputDir` par defaut: `/_assets/icon/` (normalise sans slash de debut/fin). Base publique: `/${outputDir}`.
-  - `injectHead` (defaut: true) controle l'injection dans le head des templates par defaut.
-  - `themeColor` (defaut `#ffffff`) alimente `meta name="theme-color"` et sert de fallback a `tileColor`.
-  - `themeColorLight` / `themeColorDark` generent deux `meta name="theme-color"` avec `prefers-color-scheme`.
-  - `colorScheme` emet `meta name="color-scheme"` pour le rendu UI des navigateurs.
-- `site.icons.source`:
-  - string: image globale par defaut.
-  - objet: `{ default?, lightmode?, darkmode?, app?, apple?, android?, ms?, favicon? }` (+ alias `light`/`dark`).
-  - precedence (du plus specifique au plus general) pour un groupe `X`: `source.X.<mode>` -> `source.app.<mode>` -> `source.<mode>` -> `source.X.default` -> `source.app.default` -> `source.default` -> `source` (string).
-  - light/dark: `favicon` genere aussi des fichiers `*-light.png` / `*-dark.png` et des tags `<link rel="icon">` avec media queries.
-- Generation & integration:
-  - Code: `src/core/build/icons.ts` (generation + head tags).
-  - Appel: `src/core/build.ts` pendant le build.
-  - Injection head: `templates/wrapper/wrapper.hbs` via `{{{iconsHead}}}`; si `injectHead=false`, `iconsHead` est vide.
-  - Les templates custom ne sont jamais modifies automatiquement.
-- Fichiers generes (selon sources disponibles): apple/android/ms/favicons + `manifest.json` + `browserconfig.xml`.
-  - `manifest.json` est ecrit seulement si des icones android ont ete generees.
-  - `browserconfig.xml` est ecrit seulement si des icones MS ont ete generees.
-  - `favicon.ico` en best-effort: si `sharp` ne supporte pas l'ICO, warning + skip.
-- Moteur images:
-  - Utilise `sharp` si present; sinon warning `build.icons.sharpMissing` et aucune generation/tag.
-  - Images non carrees: redimensionnement `fit=contain` avec fond transparent (padding).
-  - Les outputs generes sont enregistres via `registerExpectedOutput` pour la gestion du pruning.
 
 ## Dev log
 - 2026-02-09 01h02m20s - Generation des favicons/icones + injection head via `iconsHead` (config `site.icons` avec priorites lightmode/darkmode) + generation manifest/browserconfig; ajout tags dans wrapper par defaut. - Why: activer les favicons/icones sans override et centraliser la logique build. - Commands: `bun run build website-example` (validation avec config `site.icons` temporaire et wrapper exemple, puis revert). 

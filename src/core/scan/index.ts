@@ -60,6 +60,19 @@ function normalizePath(value: string): string {
   return toPosix(value.replace(/\\/g, "/"));
 }
 
+function normalizeIndexFolderName(raw: unknown): string {
+  if (typeof raw !== "string") return "index";
+  const trimmed = raw.trim();
+  if (!trimmed) return "index";
+  const normalized = slugify(cleanName(trimmed));
+  return normalized || "index";
+}
+
+function isIndexFolderName(rawName: string, normalizedName: string): boolean {
+  if (!rawName || !normalizedName) return false;
+  return slugify(cleanName(rawName)) === normalizedName;
+}
+
 function sortByName<T extends { rawName: string }>(
   items: T[],
   order: SortOrder = "asc"
@@ -168,7 +181,8 @@ async function listCollectionsRaw(
   rootDir: string,
   toolTemplatesRoot: string,
   outputDirName: string,
-  loggingDirName: string
+  loggingDirName: string,
+  indexFolderName: string
 ): Promise<RawCollection[]> {
   const dirEntries = await readdir(rootDir, { withFileTypes: true });
   const collections: RawCollection[] = [];
@@ -182,6 +196,7 @@ async function listCollectionsRaw(
     if (!rawName || rawName.startsWith(".") || rawName.startsWith("_")) continue;
     if (rawName === outputDirName || rawName === loggingDirName) continue;
     if (rawName === templateDirName) continue;
+    if (isIndexFolderName(rawName, indexFolderName)) continue;
 
     const relPath = toPosix(rawName);
     const absoluteCollection = path.join(rootDir, rawName);
@@ -203,6 +218,61 @@ async function listCollectionsRaw(
   sortByName(collections);
 
   return collections;
+}
+
+async function listRootIndexRaw(
+  rootDir: string,
+  toolTemplatesRoot: string,
+  outputDirName: string,
+  loggingDirName: string,
+  indexFolderName: string,
+  options: { treatTxtAsMarkdown: boolean },
+  logger?: Logger
+): Promise<RawEntry | undefined> {
+  const dirEntries = await readdir(rootDir, { withFileTypes: true });
+  const templateDirName = path.basename(toolTemplatesRoot);
+  const candidates: Array<{ rawName: string; path: string }> = [];
+
+  for (const entry of dirEntries) {
+    if (!entry.isDirectory()) continue;
+    const rawName = entry.name;
+    if (!rawName || rawName.startsWith(".") || rawName.startsWith("_")) continue;
+    if (rawName === outputDirName || rawName === loggingDirName) continue;
+    if (rawName === templateDirName) continue;
+    if (!isIndexFolderName(rawName, indexFolderName)) continue;
+
+    const relPath = toPosix(rawName);
+    candidates.push({ rawName, path: relPath });
+  }
+
+  if (!candidates.length) return undefined;
+  sortByName(candidates);
+  const [target] = candidates;
+  if (!target) return undefined;
+  if (candidates.length > 1) {
+    logger?.warn("index.folder.multipleRoot", {
+      count: candidates.length,
+      chosen: target.rawName,
+      candidates: candidates.map((item) => item.rawName).join(", "),
+    });
+  }
+
+  const blocks = await listBlocksRaw(rootDir, target.path, options, logger);
+  const absoluteEntry = path.join(rootDir, target.path);
+  const isDraft = await isDraftEntry(absoluteEntry);
+  const isUnlisted = await isUnlistedEntry(absoluteEntry);
+  const description = await readDescriptionFile(absoluteEntry);
+  const displayName = await readNameFile(absoluteEntry);
+
+  return {
+    rawName: target.rawName,
+    path: target.path,
+    blocks,
+    ...(isDraft ? { isDraft: true } : {}),
+    ...(isUnlisted ? { isUnlisted: true } : {}),
+    ...(description ? { description } : {}),
+    ...(displayName ? { displayName } : {}),
+  };
 }
 
 // --- Pass 2: apply config, Pass 3: enrich ---
@@ -459,13 +529,27 @@ export async function scanSite(site: Site, logger?: Logger): Promise<Site> {
     site.config?.templates
   );
   const templatesRoot = siteTemplatesRoot ?? toolEnv.templates.root;
+  const indexFolderName = normalizeIndexFolderName(
+    (site.site as Record<string, unknown> | undefined)?.indexFolderName
+  );
+
+  const rootIndexRaw = await listRootIndexRaw(
+    site.rootDir,
+    templatesRoot,
+    toolEnv.build.outputDirName,
+    toolEnv.logging.dirName,
+    indexFolderName,
+    { treatTxtAsMarkdown },
+    logger
+  );
 
   // Pass 1: raw structure
   const rawCollections = await listCollectionsRaw(
     site.rootDir,
     templatesRoot,
     toolEnv.build.outputDirName,
-    toolEnv.logging.dirName
+    toolEnv.logging.dirName,
+    indexFolderName
   );
 
   const collectionsWithEntries = await Promise.all(
@@ -486,11 +570,25 @@ export async function scanSite(site: Site, logger?: Logger): Promise<Site> {
 
   // Pass 2+3: apply config then enrich
   const configIndex = buildConfigIndex(site);
-  const collections = enrichCollections(collectionsWithEntries, configIndex);
+  const collections = enrichCollections(collectionsWithEntries, configIndex).map((collection) => {
+    const entries = collection.entries.map((entry) => ({
+      ...entry,
+      ...(isIndexFolderName(entry.rawName, indexFolderName) ? { isIndex: true } : {}),
+    }));
+    return { ...collection, entries };
+  });
+
+  const rootIndexEntry = (() => {
+    if (!rootIndexRaw) return undefined;
+    const [enriched] = enrichEntries([rootIndexRaw]);
+    if (!enriched) return undefined;
+    return { ...enriched, isIndex: true };
+  })();
 
   const scannedSite: Site = {
     ...site,
     collections,
+    ...(rootIndexEntry ? { indexes: { root: rootIndexEntry } } : {}),
   };
 
   return resolveRoutes(scannedSite);

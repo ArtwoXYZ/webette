@@ -79,6 +79,19 @@ function resolveCollectionRoutes(
   };
 }
 
+function resolveRootIndexRoutes(entry: Entry): Entry {
+  const baseRoute = entry.slug;
+  const parentSegments = routeSegments(baseRoute);
+  const route = ensureLeadingSlash(`${joinRoute(...parentSegments)}/`);
+  const blocks = entry.blocks.map((block) => resolveBlockRoutes(block, parentSegments));
+
+  return {
+    ...entry,
+    route,
+    blocks,
+  };
+}
+
 function buildConfigIndex(site: Site): Map<string, CollectionConfig> {
   // Build a lookup keyed by configured path (or collection key) for fast matching.
   const map = new Map<string, CollectionConfig>();
@@ -106,9 +119,35 @@ export function resolveRoutes(site: Site): Site {
     return resolveCollectionRoutes(collection, matchConfig);
   });
 
+  const rootIndex = site.indexes?.root ? resolveRootIndexRoutes(site.indexes.root) : undefined;
+  const collectionIndexes = site.indexes?.collections
+    ? Object.fromEntries(
+      Object.entries(site.indexes.collections).map(([key, entry]) => {
+        const collection = collections?.find(
+          (col) => (col.slug || col.id) === key
+        );
+        if (!collection) return [key, entry];
+        const baseRoute = (collection.route ?? "")
+          .replace(/^\/+|\/+$/g, "")
+          .trim();
+        const resolved = baseRoute ? resolveEntryRoutes(entry, baseRoute) : entry;
+        return [key, resolved];
+      })
+    )
+    : undefined;
+
   return {
     ...site,
     route: "/",
     ...(collections ? { collections } : {}),
+    ...((rootIndex || collectionIndexes)
+      ? {
+        indexes: {
+          ...(site.indexes ?? {}),
+          ...(rootIndex ? { root: rootIndex } : {}),
+          ...(collectionIndexes ? { collections: collectionIndexes } : {}),
+        },
+      }
+      : {}),
   };
 }

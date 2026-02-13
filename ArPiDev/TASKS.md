@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: T2-S05
+Active story: NONE (waiting on pending stories or user input)
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -13,11 +13,11 @@ Active story: T2-S05
 - [x] T2-S02 Option de tri asc/desc des entries/collections.
 - [x] T2-S03 Option de tri par dates (création/maj).
 - [x] T2-S04 Generer les favicons/icones (config + build + templates par defaut).
-- [ ] T2-S05 Ajouter les headers sociaux (config + templates par defaut).
-- [ ] T2-S06 Integrer Standard.site (Lexicon ATproto) : decision + POC d'integration.
+- [x] T2-S05 Ajouter les headers sociaux (config + templates par defaut).
+- [ ] T2-S06 Integrer Standard.site (Lexicon ATproto) : decision + POC d'integration. [PENDING]
 
 ## T3 — Navigation & index refonte
-- [ ] T3-S01 Nouveau système d’index (dossiers “Root Index” / “Collection Index”) en conservant les overrides de layout existants (peut remplacer les overrides de contenu, pas les layouts).
+- [x] T3-S01 Nouveau système d’index (dossiers “Root Index” / “Collection Index”) en conservant les overrides de layout existants (peut remplacer les overrides de contenu, pas les layouts).
 - [ ] T3-S02 Unifier navigation.webt + helper menu/index (auto list + exclusions + classes).
 - [ ] T3-S03 Clarifier la config d’index personnalisés (root/collection) et documenter.
 - [ ] T3-S04 Blocs cross-entry (référencer vidéo/image/asset d’une autre entrée).
@@ -44,3 +44,6 @@ Active story: T2-S05
 ## T7 — Documentation & démo
 - [ ] T7-S01 Terminer le site de doc “EN COURS” (Concept + Features core).
 - [ ] T7-S02 Corriger les liens du site de démo une fois la doc en ligne.
+
+## Pending stories
+- T2-S06 — Reason: integration should be a plugin; deferred until plugin path is ready — Remaining: define plugin scope/mapping and implement opt-in behavior — Owner: User/Pilot — Resume condition: plugin system is available or a dedicated plugin story is scheduled.

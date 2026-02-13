@@ -27,6 +27,16 @@ Ajouter une option de configuration de tri (granulaire) pour collections, entrie
 - Tri par dates (story suivante).
 - Tri manuel par liste explicite.
 
+## Documentation impact
+- To document: Ajouter une section "sorting" (config site) avec schema complet + exemples (global, collections, entries.custom, blocks.custom avec entry). Preciser que:
+  - `sorting` est lu au niveau site (`webette.config.ts`), pas tool.
+  - `type` supporte **seulement** `name` pour T2-S02; si `date`/inconnu -> warning `scan.sortingUnknownType` + fallback `name`.
+  - `order` = `asc`/`desc` inverse l'ordre; par defaut = asc.
+  - Priorite: entries.custom / blocks.custom -> entries/blocks -> global; `collections.*` ne s'applique qu'aux collections.
+  - `collection` = cle de collection (config), sinon fallback sur slug derive du nom de dossier.
+  - `entry` (blocks.custom) = slug d'entree (derive du nom de dossier); si present, l'override ne touche que cette entree.
+  - L'ordre est base sur le meme tri que l'existant: prefix numerique + nom (localeCompare, insensitive).
+
 ## Ready when
 - Goal est un seul resultat clair
 - In scope / Out of scope explicites
@@ -73,15 +83,6 @@ sorting: {
 - Si `type` = `date` (ou inconnu) dans cette story : warning log + fallback sur `name`.
 - Si `sorting` est absent : ordre actuel conserve (aucun changement).
 - `order` applique l'inversion asc/desc sur le type effectif resolu.
-
-To document: Ajouter une section "sorting" (config site) avec schema complet + exemples (global, collections, entries.custom, blocks.custom avec entry). Preciser que:
-- `sorting` est lu au niveau site (`webette.config.ts`), pas tool.
-- `type` supporte **seulement** `name` pour T2-S02; si `date`/inconnu -> warning `scan.sortingUnknownType` + fallback `name`.
-- `order` = `asc`/`desc` inverse l'ordre; par defaut = asc.
-- Priorite: entries.custom / blocks.custom -> entries/blocks -> global; `collections.*` ne s'applique qu'aux collections.
-- `collection` = cle de collection (config), sinon fallback sur slug derive du nom de dossier.
-- `entry` (blocks.custom) = slug d'entree (derive du nom de dossier); si present, l'override ne touche que cette entree.
-- L'ordre est base sur le meme tri que l'existant: prefix numerique + nom (localeCompare, insensitive).
 
 ## Pending reason
 - None (story completed and validated).
