@@ -54,17 +54,25 @@
       </section>
     {{/if}}
 
-    {{#if collection}}
-      <section class="navigation">
-        <h2 class="navigation-title">Collection contents</h2>
-        {{> navigation-items items=entries}}
-      </section>
-    {{else}}
-      <section class="navigation">
-        <h2 class="navigation-title">Site map</h2>
-        {{> navigation-items items=collections}}
-      </section>
-    {{/if}}
+    {{#menu}}
+      {{#if collection}}
+        <section class="navigation">
+          <h2 class="navigation-title">Collection contents</h2>
+          {{#each items}}
+            {{#if (eq kind "collection")}}
+              {{#if isCurrent}}
+                {{> navigation-items items=children}}
+              {{/if}}
+            {{/if}}
+          {{/each}}
+        </section>
+      {{else}}
+        <section class="navigation">
+          <h2 class="navigation-title">Site map</h2>
+          {{> navigation-items items=items}}
+        </section>
+      {{/if}}
+    {{/menu}}
   </article>
 </main>
 

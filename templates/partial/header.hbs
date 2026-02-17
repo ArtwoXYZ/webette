@@ -11,15 +11,22 @@
   {{#menu}}
     <nav class="site-menu" aria-label="Site menu">
       <ul>
-        {{#each collections}}
-          <li>
-            <a
-              href="{{#if hasSingleEntry}}{{singleEntry.route}}{{else}}{{route}}{{/if}}"
-              class="{{#if isCurrent}}is-current{{/if}}"
-            >
-              {{displayName this}}
-            </a>
-          </li>
+        {{#each items}}
+          {{#if (eq kind "collection")}}
+            <li>
+              {{#if (eq collection.entriesCount 1)}}
+                {{#with (first children)}}
+                  <a href="{{route}}" class="{{#if ../isCurrent}}is-current{{/if}}">
+                    {{displayName ../collection}}
+                  </a>
+                {{/with}}
+              {{else}}
+                <a href="{{route}}" class="{{#if isCurrent}}is-current{{/if}}">
+                  {{displayName collection}}
+                </a>
+              {{/if}}
+            </li>
+          {{/if}}
         {{/each}}
       </ul>
     </nav>

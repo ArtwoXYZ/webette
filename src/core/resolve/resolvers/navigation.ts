@@ -8,6 +8,16 @@ import type { Resolver } from "../registry";
 import type { Block, Collection, Entry, Site } from "../../model";
 import { slugify } from "../../../utils/naming";
 import { matchCollection, matchEntry } from "../../targets";
+import {
+  buildExcludeSet,
+  normalizeKey,
+  parseBoolean,
+  parseList,
+  shouldIncludeCollection as shouldIncludeCollectionUtil,
+  shouldIncludeEntry as shouldIncludeEntryUtil,
+  type CollectionLike,
+  type EntryLike,
+} from "../../navigation/utils";
 
 function parseNavigationNameLine(rawLine: string): string | null {
   const trimmed = rawLine.trim();
@@ -42,6 +52,7 @@ function countIndentSpaces(rawLine: string): {
   hadTabs: boolean;
   content: string;
 } {
+  // Navigation indentation is 2-space based; tabs are tolerated but warned about.
   let indentSpaces = 0;
   let hadTabs = false;
   let i = 0;
@@ -140,12 +151,21 @@ type NavigationItem =
   | {
     kind: "title";
     title: string;
+    route?: string;
+    link?: boolean;
+    isCurrent?: boolean;
+    isActive?: boolean;
+    depth?: number;
     children?: NavigationItem[];
   }
   | {
     kind: "collection";
     link?: boolean;
     title?: string;
+    route?: string;
+    isCurrent?: boolean;
+    isActive?: boolean;
+    depth?: number;
     collection: {
       id: string;
       name: string;
@@ -165,6 +185,10 @@ type NavigationItem =
     kind: "entry";
     link?: boolean;
     title?: string;
+    route?: string;
+    isCurrent?: boolean;
+    isActive?: boolean;
+    depth?: number;
     collection: {
       id: string;
       name: string;
@@ -193,6 +217,10 @@ type NavigationItem =
 type NavigationOptions = {
   mode?: "collection";
   collection?: string;
+  includeUnlisted?: boolean;
+  includeDrafts?: boolean;
+  excludeCollections?: string[];
+  excludeEntries?: string[];
   hideCollections?: boolean;
   hideEntries?: boolean;
   collectionsLink?: boolean;
@@ -216,9 +244,41 @@ function findCollectionForBlock(
   return undefined;
 }
 
+function findCurrentForBlock(
+  site: Site,
+  block: Block
+): { collection?: Collection; entry?: Entry } | undefined {
+  const direct = findCollectionForBlock(site, block);
+  if (direct) return direct;
+
+  const blockPath = block.path.replace(/\\/g, "/");
+  const rootIndex = site.indexes?.root;
+  if (rootIndex?.path) {
+    const indexPath = rootIndex.path.replace(/\\/g, "/");
+    if (blockPath === indexPath || blockPath.startsWith(`${indexPath}/`)) {
+      return { entry: rootIndex };
+    }
+  }
+
+  const collections = site.collections ?? [];
+  for (const [key, entry] of Object.entries(site.indexes?.collections ?? {})) {
+    if (!entry?.path) continue;
+    const indexPath = entry.path.replace(/\\/g, "/");
+    if (blockPath === indexPath || blockPath.startsWith(`${indexPath}/`)) {
+      const collection = collections.find(
+        (col) => (col.slug || col.id) === key || col.id === key
+      );
+      return { collection, entry };
+    }
+  }
+
+  return undefined;
+}
+
 function buildEntryNode(collection: Collection, entry: Entry): NavigationItem {
   return {
     kind: "entry",
+    route: entry.route,
     collection: {
       id: collection.id,
       name: collection.name,
@@ -248,15 +308,17 @@ function buildCollectionNode(
   collection: Collection,
   children: NavigationItem[]
 ): NavigationItem {
+  const entriesCount = children.filter((child) => child.kind === "entry").length;
   return {
     kind: "collection",
+    route: collection.route,
     collection: {
       id: collection.id,
       name: collection.name,
       displayName: collection.displayName,
       slug: collection.slug,
       route: collection.route,
-      entriesCount: collection.entries.length,
+      entriesCount,
       description: collection.description,
       assets: collection.assets,
       isUnlisted: collection.isUnlisted,
@@ -297,13 +359,6 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
       const value = headerOption.value;
       const normalizedValue = value.toLowerCase();
 
-      const parseBoolean = (raw: string): boolean | undefined => {
-        const trimmed = raw.trim().toLowerCase();
-        if (["true", "yes", "1", "on"].includes(trimmed)) return true;
-        if (["false", "no", "0", "off"].includes(trimmed)) return false;
-        return undefined;
-      };
-
       if (key === "name") {
         continue;
       }
@@ -320,8 +375,28 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
         continue;
       }
 
+      if (key === "exclude collections" || key === "exclude collection") {
+        options.excludeCollections = parseList(value);
+        continue;
+      }
+
+      if (key === "exclude entries" || key === "exclude entry") {
+        options.excludeEntries = parseList(value);
+        continue;
+      }
+
       const boolValue = parseBoolean(value);
       if (boolValue === undefined) {
+        continue;
+      }
+
+      if (key === "include unlisted") {
+        options.includeUnlisted = boolValue;
+        continue;
+      }
+
+      if (key === "include drafts") {
+        options.includeDrafts = boolValue;
         continue;
       }
 
@@ -352,6 +427,7 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
     }
 
     let normalizedIndent = indentSpaces;
+    // Odd indentation is rounded down so the tree stays stable.
     if (normalizedIndent % 2 !== 0) {
       ctx.logger?.warn("navigation.indentOdd", { path: block.path, line: rawLine });
       normalizedIndent -= 1;
@@ -436,6 +512,7 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
       const node: NavigationItem = {
         kind: "entry",
         ...(title ? { title } : {}),
+        route: anchor ? `${entry.route ?? ""}#${anchor}` : entry.route,
         collection: {
           id: collection.id,
           name: collection.name,
@@ -478,6 +555,7 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
       const node: NavigationItem = {
         kind: "collection",
         ...(title ? { title } : {}),
+        route: collection.route,
         collection: {
           id: collection.id,
           name: collection.name,
@@ -512,6 +590,23 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
   const isCurrentCollectionToken = (value: string): boolean =>
     ["current", "here", "this", "self", "."].includes(normalizeCollectionValue(value));
 
+  const includeUnlisted = options.includeUnlisted === true;
+  const siteHasDrafts =
+    (ctx.site.collections ?? []).some((collection) =>
+      (collection.entries ?? []).some((entry) => entry.isDraft)
+    ) || false;
+  // Default to showing drafts when the site model includes them (serve mode).
+  const includeDrafts =
+    typeof options.includeDrafts === "boolean" ? options.includeDrafts : siteHasDrafts;
+  const excludeCollections = buildExcludeSet(options.excludeCollections);
+  const excludeEntries = buildExcludeSet(options.excludeEntries);
+
+  const shouldIncludeCollection = (collection: CollectionLike): boolean =>
+    shouldIncludeCollectionUtil(collection, includeUnlisted, excludeCollections);
+
+  const shouldIncludeEntry = (entry: EntryLike, collection?: CollectionLike): boolean =>
+    shouldIncludeEntryUtil(entry, collection, includeUnlisted, includeDrafts, excludeEntries);
+
   let finalItems: NavigationItem[] = [];
 
   if (roots.length > 0) {
@@ -527,9 +622,9 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
       targetCollection = matchCollection(ctx.site, rawCollection);
     }
 
-    if (targetCollection && !targetCollection.isUnlisted) {
+    if (targetCollection && shouldIncludeCollection(targetCollection)) {
       const children = targetCollection.entries
-        .filter((entry) => !entry.isUnlisted)
+        .filter((entry) => shouldIncludeEntry(entry, targetCollection))
         .map((entry) => buildEntryNode(targetCollection, entry));
       finalItems = [buildCollectionNode(targetCollection, children)];
     } else if (!targetCollection && rawCollection) {
@@ -540,10 +635,10 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
     }
   } else {
     finalItems = (ctx.site.collections ?? [])
-      .filter((collection) => !collection.isUnlisted)
+      .filter((collection) => shouldIncludeCollection(collection))
       .map((collection) => {
         const children: NavigationItem[] = collection.entries
-          .filter((entry) => !entry.isUnlisted)
+          .filter((entry) => shouldIncludeEntry(entry, collection))
           .map((entry) => buildEntryNode(collection, entry));
 
         return buildCollectionNode(collection, children);
@@ -555,12 +650,26 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
       const children = item.children ? applyVisibility(item.children) : undefined;
       const withChildren = children && children.length ? { ...item, children } : { ...item };
 
-      if (options.hideEntries && withChildren.kind === "entry") {
-        return [];
+      if (withChildren.kind === "collection") {
+        if (!shouldIncludeCollection(withChildren.collection)) return [];
+        if (options.hideCollections) return children ?? [];
+        const entriesCount =
+          children?.filter((child) => child.kind === "entry").length ?? 0;
+        return [
+          {
+            ...withChildren,
+            collection: {
+              ...withChildren.collection,
+              entriesCount,
+            },
+          },
+        ];
       }
 
-      if (options.hideCollections && withChildren.kind === "collection") {
-        return children ?? [];
+      if (withChildren.kind === "entry") {
+        if (!shouldIncludeEntry(withChildren.entry, withChildren.collection)) return [];
+        if (options.hideEntries) return [];
+        return [withChildren];
       }
 
       return [withChildren];
@@ -586,13 +695,52 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
     });
   };
 
-  if (options.hideEntries || options.hideCollections) {
-    finalItems = applyVisibility(finalItems);
-  }
+  const current = findCurrentForBlock(ctx.site, block);
+  const currentCollectionKey = normalizeKey(current?.collection?.slug || current?.collection?.id || "");
+  const currentEntryId = current?.entry?.id;
+
+  const applyState = (items: NavigationItem[], depth = 0): NavigationItem[] => {
+    return items.map((item) => {
+      const children = item.children ? applyState(item.children, depth + 1) : undefined;
+      const withChildren = children && children.length ? { ...item, children } : { ...item };
+
+      if (withChildren.kind === "collection") {
+        const key = normalizeKey(
+          withChildren.collection.slug || withChildren.collection.id || ""
+        );
+        const isCurrent = key && currentCollectionKey ? key === currentCollectionKey : false;
+        const childActive = children?.some(
+          (child) => child.isActive || child.isCurrent
+        ) ?? false;
+        const isActive = isCurrent || childActive;
+        return {
+          ...withChildren,
+          depth,
+          ...(isCurrent ? { isCurrent: true } : {}),
+          ...(isActive ? { isActive: true } : {}),
+        };
+      }
+
+      if (withChildren.kind === "entry") {
+        const isActive = currentEntryId ? withChildren.entry.id === currentEntryId : false;
+        return {
+          ...withChildren,
+          depth,
+          ...(isActive ? { isActive: true } : {}),
+        };
+      }
+
+      return { ...withChildren, depth };
+    });
+  };
+
+  finalItems = applyVisibility(finalItems);
 
   if (options.collectionsLink === false || options.entriesLink === false) {
     finalItems = applyLinkFlags(finalItems);
   }
+
+  finalItems = applyState(finalItems);
 
   return {
     raw,

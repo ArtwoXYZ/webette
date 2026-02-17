@@ -24,28 +24,36 @@
 {{/if}}
 
 {{#menu}}
-  {{#if current.collection}}
-    <h2>Collection: {{displayName current.collection}}</h2>
-    <p>{{current.collection.entries.length}} entries</p>
+  {{#if collection}}
+    <h2>Collection: {{displayName collection}}</h2>
+    <p>{{collection.entries.length}} entries</p>
     <ul>
       <li><a href="/">← Back to root</a></li>
-      {{#each current.collection.entries}}
-        <li>
-          <a href="{{route}}">{{displayName this}}</a>
-          ({{blocks.length}}
-          blocks)
-        </li>
+      {{#each items}}
+        {{#if (eq kind "collection")}}
+          {{#if isCurrent}}
+            {{#each children}}
+              {{#if (eq kind "entry")}}
+                <li>
+                  <a href="{{route}}">{{displayName entry}}</a>
+                </li>
+              {{/if}}
+            {{/each}}
+          {{/if}}
+        {{/if}}
       {{/each}}
     </ul>
   {{else}}
     <h2>Collections</h2>
     <ul>
-      {{#each collections}}
-        <li>
-          <a href="{{route}}">{{displayName this}}</a>
-          ({{entries.length}}
-          entries)
-        </li>
+      {{#each items}}
+        {{#if (eq kind "collection")}}
+          <li>
+            <a href="{{route}}">{{displayName collection}}</a>
+            ({{collection.entriesCount}}
+            entries)
+          </li>
+        {{/if}}
       {{/each}}
     </ul>
   {{/if}}
