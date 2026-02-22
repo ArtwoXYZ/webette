@@ -124,3 +124,5 @@ Why these scopes:
 * Every dev log entry must include an explicit causal “why”:
   observed issue -> root cause -> chosen fix -> why this option -> evidence.
 * Generic lines like "to avoid regression" are insufficient unless tied to a specific risk and verification result.
+* Dev log entries are incremental: append entries during execution after each meaningful change/check, not only at closure.
+* `Pilot exchange` should also capture explicit user pause/stop decisions at closure (date + pause request + next resume target).

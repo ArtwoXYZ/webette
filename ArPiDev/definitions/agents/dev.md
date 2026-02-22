@@ -47,6 +47,8 @@ Record:
 * any local tradeoffs
 * decision requests for the Pilot inside `Pilot exchange` (never write `DECISIONS.md` directly)
 * when changes impact documentation, add a `To document:` note in `Pilot exchange` with critical points
+* update `Dev log` incrementally during execution (after each meaningful integration/fix/check), not only at the end
+* when a planned change is postponed or dropped, add a short dated `Dev log` note with the reason
 * if work is blocked for later, add a concrete pending proposal (`Pending reason`, `Remaining work`, `Resume condition`)
 * when status becomes `Done, Waiting for Validation`, fill `Commit proposal` (title, description, scope(s), why these scopes) based on `SPEC.md` git policy
 
@@ -64,6 +66,7 @@ Status handling in the story:
 
 * when implementation starts, set `Status: Active`
 * if the story starts as `To Do, Validated`, set `Status: Active` immediately and start a concrete implementation step in the same response
+* before asking for validation, ensure `Dev log` already covers each meaningful step completed since status became `Active`
 * when implementation is complete and ready for user checks, set `Status: Done, Waiting for Validation` and fill `Commit proposal` if required by `SPEC.md`
 * if user requests changes after that, switch back to `Status: Active`
 
@@ -90,6 +93,7 @@ When your work is done:
 
 * Do not decide next activation or `Active story: NONE`.
 * Hand off to Pilot for closure/status housekeeping in `TASKS.md`.
+* Announce handoff to Pilot once, after story updates are complete; do not repeat handoff-only acknowledgements.
 * Do not send transition-only text; include concrete implementation summary or concrete blocker details.
 
 ---

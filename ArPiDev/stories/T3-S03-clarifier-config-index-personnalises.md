@@ -4,7 +4,7 @@ Created: 2026-02-17 02h50m00s
 Closed:
 Acceptance: User
 
-Status: To Do, Waiting for Validation
+Status: Done, Waiting for Validation
 
 ## Context
 Depuis T3-S01, les pages d’index reposent sur des dossiers d’index (par défaut `index`) et la config `site.indexFolderName`. Le fonctionnement est puissant mais peu explicite: où placer les dossiers, quel contenu est pris en compte, comment les layouts sont choisis, et quelles règles d’exclusion s’appliquent.
@@ -60,5 +60,47 @@ Produire une documentation claire et actionnable sur la configuration des index 
 ## Pilot exchange
 - (none yet)
 
+## Commit proposal
+Title: docs(indexes): add comprehensive index configuration documentation
+Description:
+- Add technical reference documentation for index configuration in reference/indexes/
+- Add beginner-friendly guide for index usage in learn/navigation-indexes/
+- Document index folder conventions, configuration options, and template overrides
+- Include multiple examples showing basic usage, custom folder names, and template overrides
+- Explain index exclusion rules and duplicate handling behavior
+Scope(s):
+- docs
+Why these scopes:
+- Primary impact is on documentation (docs scope per commit-scopes.md)
+- No changes to core functionality, only documentation additions
+
 ## Dev log
-- (none yet)
+- 2026-02-22 14h30m00s — Change: Added comprehensive index documentation to webette-documentation
+  Why this way:
+  - Observed issue: Index configuration was undocumented, making it difficult for users to understand how to customize index behavior
+  - Root cause: Missing documentation files in both reference and learn sections
+  - Chosen fix: Created two documentation files with different levels of detail:
+    - `webette-documentation/03 reference/03 indexes/01 index.md`: Technical reference with complete API details
+    - `webette-documentation/02 learn/06 navigation & indexes/01 index.md`: Beginner-friendly guide with practical examples
+  - Why this option: Two-tiered documentation approach serves both beginners and advanced users
+  - Evidence: Successfully built documentation site and verified HTML output contains properly rendered content
+  Commands/tests: 
+  - Created documentation files with detailed index configuration explanations
+  - Ran `bun run build webette-documentation` to verify build success
+  - Verified HTML output contains expected content sections
+  - Tested both reference and learn documentation pages
+
+- 2026-02-22 14h45m00s — Change: Enhanced documentation with concrete collection custom layout examples
+  Why this way:
+  - Observed issue: User requested specific examples for collection custom layouts (not just root index)
+  - Root cause: Initial examples only showed root index customization, missing collection-specific cases
+  - Chosen fix: Added detailed examples showing how to configure custom layouts for individual collections
+    - Updated reference documentation with full configuration example including blog and products collections
+    - Updated learn documentation with practical collection custom layout example
+    - Added explanation of slug-based mapping between collections and custom layouts
+  - Why this option: Provides complete, actionable examples that users can directly apply to their projects
+  - Evidence: Rebuilt documentation and verified new content appears correctly in HTML output
+  Commands/tests: 
+  - Enhanced both documentation files with collection-specific custom layout examples
+  - Ran `bun run build webette-documentation` to verify changes
+  - Confirmed HTML output includes the new examples with proper formatting

@@ -63,6 +63,7 @@ If any required file is missing, ask the user to add it (or propose creating it)
 * Exception: for pure administrative consistency fixes, apply them directly and report what changed.
 * If the context window was compacted or is full, re-read the required artefacts (and `CODEMAP.md` if present) before acting.
 * Do not send transition-only responses (for example: "I switch to Dev"). If a role is selected, execute at least one concrete step in the same response.
+* If the user validates a story and asks to stop/pause for now, treat it as orchestration and route to Pilot for closure + pause bookkeeping.
 * If an existing artefact is missing fields now required by method guides, assume **method update drift** first (not user error).
 
 ### 2.1 Method files are immutable by default
@@ -253,7 +254,7 @@ Before role selection, classify the current user request intent:
 
 * **Execution intent**: implement the active story scope in code.
 * **Rework intent**: user explicitly asks implementation changes on the active story after `Done, Waiting for Validation`.
-* **Orchestration intent**: policy/process updates, `SPEC/TASKS/DECISIONS` edits, active story pointer changes, story closure/state administration, cross-cutting decisions.
+* **Orchestration intent**: policy/process updates, `SPEC/TASKS/DECISIONS` edits, active story pointer changes, story closure/state administration, cross-cutting decisions, explicit handoff requests, or user "validate and stop/pause" instructions.
 * **Framing intent**: product vision/conceptual reframing.
 
 Use this intent classification with state rules in §7.
@@ -357,8 +358,9 @@ You must:
 * Summarize non-executable stories in a compact list (validation waiting or pending).
 * For `To Do, Waiting for Validation`: request user validation and then set `To Do, Validated`.
 * For `Done, Waiting for Validation`: request user validation and then set `Done, Validated`.
+* If the user validates and asks to stop/pause now, log it in story `Pilot exchange`, close the story, and set `Active story: NONE (waiting on pending stories or user input)` (explicit user pause).
 * For `Pending`: keep exact reason + remaining work + resume condition explicit.
-* Keep `TASKS.md` explicit: pending entries in `Pending stories`, and `Active story: NONE (...)` only when nothing executable is active.
+* Keep `TASKS.md` explicit: pending entries in `Pending stories`, and `Active story: NONE (...)` only when nothing executable is active or when the user explicitly requests a pause.
 
 ### 8.8 State G (Ambiguous / inconsistent) — Pilot triage
 
@@ -438,7 +440,8 @@ When a story reaches closure:
 * Pilot ensures latest `Dev log` entries contain concrete causal why + evidence (not vague rationale).
 * If required by `SPEC.md`, Pilot validates and presents story `Commit proposal` (title/description/scopes).
 * Pilot checks the story checkbox in `TASKS.md`.
-* Pilot activates the next executable story automatically when one exists.
+* Pilot activates the next executable story automatically when one exists, unless the user explicitly asks to stop/pause.
+* If the user explicitly asks to stop/pause, Pilot writes a dated note in story `Pilot exchange` and keeps execution paused for this session.
 * For product changes, Pilot asks whether documentation follow-up is required in ArPiDoc and records the answer.
 
 * **Pending path (deferred, not finished)**:
@@ -446,8 +449,8 @@ When a story reaches closure:
 * Pilot sets `Status: Pending` + `Closed` timestamp, marks the story line with `[PENDING]` in `TASKS.md`, and records it in `Pending stories`.
 * Pilot states exactly what remains to finish and who owns the next action.
 
-* Use `Active story: NONE (waiting on pending stories or user input)` only when no executable story remains, or if explicitly requested by the user.
-* After closure, if there are remaining executable stories, Pilot creates the next story file and asks the user to validate **only** the new story content.
+* Use `Active story: NONE (waiting on pending stories or user input)` only when no executable story remains, or if explicitly requested by the user (including "stop for today"/pause requests).
+* After closure, if there are remaining executable stories and the user did not request a pause, Pilot creates the next story file and asks the user to validate **only** the new story content.
 * If the user wants a final sanity check, the user can ask the **Pilot** to do a quick review before moving on.
 
   * Pilot may provide a short progress snapshot (what’s done, what’s next).

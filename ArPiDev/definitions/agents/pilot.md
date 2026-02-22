@@ -98,6 +98,13 @@ If an active story exists and the user asks for orchestration/policy changes:
 * Apply minimal backfill to restore compliance with current artifact guides.
 * Record a short migration note in `DECISIONS.md` (date + what was backfilled + why).
 
+12. **User pause handling**
+
+* If the user validates a story and asks to stop/pause for now (for example "stop for today"), close the story in the current session.
+* Add a dated note in story `Pilot exchange` with the pause request and the next resume target.
+* Set `Active story: NONE (waiting on pending stories or user input)` even if executable stories remain.
+* Do not auto-activate/create the next story until the user resumes.
+
 ---
 
 ## C. TASKS.md structure (recommended)
@@ -140,8 +147,9 @@ When a story reaches a closure point, apply exactly one mode:
 * Set `Status: Done, Validated` and add a `Closed` timestamp in the story file.
 * Ensure the `Closed` timestamp uses the required human-readable format.
 * Check the story checkbox in `TASKS.md`.
-* Activate the next executable story automatically when one exists.
-* Use `Active story: NONE (waiting on pending stories or user input)` only if nothing executable remains.
+* Activate the next executable story automatically when one exists, unless the user requested a pause.
+* If user requested a pause, add a dated note in story `Pilot exchange` and keep execution paused.
+* Use `Active story: NONE (waiting on pending stories or user input)` only if nothing executable remains, or if the user explicitly requested a pause.
 * Run the ArPiDoc handoff trigger.
 
 2. **Pending closure (deferred, not finished)**
@@ -155,7 +163,7 @@ When a story reaches a closure point, apply exactly one mode:
 
 After closure:
 
-* If there are remaining executable stories, create the next story file and ask the user to validate **only** the new story content.
+* If there are remaining executable stories and the user did not request a pause, create the next story file and ask the user to validate **only** the new story content.
 
 ---
 

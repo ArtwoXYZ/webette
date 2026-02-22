@@ -51,4 +51,5 @@ Active story: T1-S01
 * Pending stories stay visible and explicit; they are not considered active.
 * Selection of the next active story must ignore lines marked `[PENDING]`.
 * A story is checked only when the story file status is `Done, Validated`.
+* If the user explicitly pauses execution (for example "stop for today"), set `Active story: NONE (waiting on pending stories or user input)` until the user resumes, even if executable stories remain.
 * This template lives here; create `ArPiDev/TASKS.md` when needed.
