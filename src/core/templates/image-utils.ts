@@ -122,7 +122,12 @@ export function buildImageHtml(block: ImageBlock, options: ImageRenderOptions = 
   const picked = pickImageSource(block, variant, defaultVariant);
   if (!picked.src) return "";
 
-  const alt = options.alt ?? block?.name ?? block?.rawName ?? "";
+  const alt =
+    options.alt ??
+    (typeof block?.content?.meta?.alt === "string" ? block.content.meta.alt : undefined) ??
+    block?.name ??
+    block?.rawName ??
+    "";
 
   const attrs: Record<string, unknown> = {
     src: picked.src,

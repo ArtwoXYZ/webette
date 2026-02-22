@@ -106,8 +106,11 @@ export interface ResolvedBlockContent {
     album?: string;                  // tag (audio)
     year?: number;                   // tag (audio)
     genre?: string[];                // tag (audio)
+    alt?: string;                    // preferred fallback alt text for images
   };
   variants?: ImageVariant[];         // generated/resolved variants for media (images)
   ast?: unknown;                     // structured representation (e.g. mdast)
   html?: string;                     // rendered HTML for markdown/text blocks
+  blockRoute?: string;               // route for media blocks (images, videos, audio)
+  changedType?: string;              // new type if resolver changed it (e.g., reference blocks)
 }

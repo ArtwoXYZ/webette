@@ -159,7 +159,7 @@ export function parseInternalReference(rawUrl: string): ParsedInternal | null {
 export function matchCollection(site: Site, name: string): Collection | undefined {
   const target = normalizeName(name);
   return site.collections?.find((col) => {
-    const names = [col.slug, col.id, col.name, normalizeName(col.rawName)]
+    const names = [col.slug, col.id, col.name, col.rawName]
       .filter(Boolean)
       .map((n) => normalizeName(String(n)));
     return names.includes(target);
@@ -170,7 +170,7 @@ export function matchEntry(collection: Collection, name: string): Entry | undefi
   const target = normalizeName(name);
   return collection.entries.find((entry) => {
     if (entry.isIndex) return false;
-    const names = [entry.slug, entry.id, entry.name, normalizeName(entry.rawName)]
+    const names = [entry.slug, entry.id, entry.name, entry.rawName]
       .filter(Boolean)
       .map((n) => normalizeName(String(n)));
     return names.includes(target);
@@ -186,8 +186,8 @@ export function matchBlock(entry: Entry, name: string): Block | undefined {
       blk.slug,
       blk.id,
       blk.name,
-      normalizeName(rawName),
-      normalizeName(path.parse(rawName).name),
+      rawName,
+      path.parse(rawName).name,
     ]
       .filter(Boolean)
       .map((n) => normalizeName(String(n)));

@@ -61,5 +61,8 @@
   "build.drafts.excluded": "Brouillons exclus du modèle : {count}",
   "build.draft.entrySkipped": "Entrée brouillon ignorée : {collection}/{entry} (chemin : {path})",
   "build.fileUnchanged": "Fichier inchangé, écriture ignorée : {path}",
-  "build.sitemap": "Sitemap écrit ({count} urls, brouillons inclus : {includeDrafts}, urls absolues : {absolute}) : {path}"
+  "build.sitemap": "Sitemap écrit ({count} urls, brouillons inclus : {includeDrafts}, urls absolues : {absolute}) : {path}",
+  "reference.resolveError": "Échec de la résolution du bloc de référence {block} : {error}",
+  "serve.portInUse": "Échec du démarrage du serveur : le port {port} est déjà utilisé",
+  "serve.serverStartFailed": "Échec du démarrage du serveur : {error}"
 }

@@ -128,7 +128,7 @@ const defaultEnv: WebetteEnv = {
     dirName: ".webette",
   },
   serve: {
-    port: 4173,
+    port: 4174, // Changed from 4173 to avoid EADDRINUSE error
     liveReloadIntervalMs: 1000,
     watcherDebounceMs: 150,
   },
@@ -226,15 +226,15 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
       ? { overwrite: overrides.build.overwrite }
       : {}),
     ...(overrides.build?.exportModel &&
-    typeof overrides.build.exportModel === "object"
+      typeof overrides.build.exportModel === "object"
       ? {
-          exportModel: {
-            ...defaults.build.exportModel,
-            ...(typeof overrides.build.exportModel.only === "boolean"
-              ? { only: overrides.build.exportModel.only }
-              : {}),
-          },
-        }
+        exportModel: {
+          ...defaults.build.exportModel,
+          ...(typeof overrides.build.exportModel.only === "boolean"
+            ? { only: overrides.build.exportModel.only }
+            : {}),
+        },
+      }
       : {}),
     ...(typeof overrides.build?.readContent === "boolean"
       ? { readContent: overrides.build.readContent }
@@ -284,7 +284,7 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
         ? { notFound: defaultOverrides.notFound }
         : {}),
       ...(typeof defaultOverrides.accessForbidden === "string" &&
-      defaultOverrides.accessForbidden
+        defaultOverrides.accessForbidden
         ? { accessForbidden: defaultOverrides.accessForbidden }
         : {}),
     },
@@ -311,17 +311,17 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
     sizes: {
       ...defaults.images.sizes,
       ...(overrides.images?.sizes &&
-      typeof overrides.images.sizes === "object"
+        typeof overrides.images.sizes === "object"
         ? (["small", "medium", "large"] as const).reduce(
-            (acc, key) => {
-              const value = (overrides.images?.sizes as Record<string, unknown>)[key];
-              if (typeof value === "number" && value > 0) {
-                acc[key] = value;
-              }
-              return acc;
-            },
-            {} as Partial<ImagesEnv["sizes"]>
-          )
+          (acc, key) => {
+            const value = (overrides.images?.sizes as Record<string, unknown>)[key];
+            if (typeof value === "number" && value > 0) {
+              acc[key] = value;
+            }
+            return acc;
+          },
+          {} as Partial<ImagesEnv["sizes"]>
+        )
         : {}),
     },
     ...(typeof overrides.images?.format === "string" && overrides.images.format

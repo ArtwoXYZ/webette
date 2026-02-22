@@ -57,197 +57,222 @@ export async function serve(
   scoped.debug("serve.initialBuildDone", { version: buildVersion });
 
   // 2. HTTP Server
-  Bun.serve({
-    port,
-    async fetch(req) {
-      const url = new URL(req.url);
+  try {
+    Bun.serve({
+      port,
+      async fetch(req) {
+        const url = new URL(req.url);
 
-      if (url.pathname === "/__webette-version") {
-        return new Response(buildVersion, {
-          headers: { "Cache-Control": "no-store" },
-        });
+        if (url.pathname === "/__webette-version") {
+          return new Response(buildVersion, {
+            headers: { "Cache-Control": "no-store" },
+          });
+        }
+
+        const requestedPath =
+          url.pathname === "/" ? "/index.html" : url.pathname;
+
+        const filePath = path.join(outputDir, requestedPath);
+
+        try {
+          const fileStat = await stat(filePath);
+          if (fileStat.isDirectory()) {
+            const indexPath = path.join(filePath, "index.html");
+            return new Response(Bun.file(indexPath));
+          }
+          return new Response(Bun.file(filePath));
+        } catch {
+          try {
+            const notFoundStat = await stat(notFoundPath);
+            if (notFoundStat.isFile()) {
+              return new Response(Bun.file(notFoundPath), {
+                status: 404,
+                headers: { "Content-Type": "text/html; charset=utf-8" },
+              });
+            }
+          } catch {
+            // fall through to plain text 404
+          }
+          return new Response("Not found", { status: 404 });
+        }
+      },
+    });
+
+    // Info level: server is ready
+    scoped.info("serve.listening", {
+      url: `http://localhost:${port}`,
+      port,
+      rootDir,
+    });
+
+    const watchLogger = scoped.child("watch");
+
+    const collectSegments = (p: string | undefined) =>
+      (p ?? "")
+        .split(/[\\/]/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+    const ignoreNames = new Set<string>([
+      ...collectSegments(toolEnv.build.outputDirName),
+      ...collectSegments(toolEnv.logging.dirName),
+      ...collectSegments(path.join(toolEnv.build.outputDirName, "_model")),
+    ]);
+
+    const shouldIgnore = (name: string) => {
+      const parts = name.split(/[\\/]/).filter(Boolean);
+      if (parts.some((part) => ignoreNames.has(part))) return true;
+
+      // Also ignore anything inside the absolute output or logging directories
+      const fullPath = path.join(rootDir, name);
+      const normalized = path.normalize(fullPath);
+      const outputNormalized = path.normalize(outputDir);
+      const loggingNormalized = path.normalize(path.join(rootDir, toolEnv.logging.dirName));
+      const exportNormalized = path.normalize(path.join(outputDir, "_model"));
+
+      return (
+        normalized.startsWith(outputNormalized + path.sep) ||
+        normalized === outputNormalized ||
+        normalized.startsWith(exportNormalized + path.sep) ||
+        normalized === exportNormalized ||
+        normalized.startsWith(loggingNormalized + path.sep) ||
+        normalized === loggingNormalized
+      );
+    };
+
+    let rebuildTimer: ReturnType<typeof setTimeout> | null = null;
+
+    let rebuildRunning = false;
+    let rebuildPending = false;
+
+    const runRebuild = async () => {
+      // Serialize rebuilds: never run two builds concurrently.
+      if (rebuildRunning) {
+        rebuildPending = true;
+        return;
       }
 
-      const requestedPath =
-        url.pathname === "/" ? "/index.html" : url.pathname;
-
-      const filePath = path.join(outputDir, requestedPath);
+      rebuildRunning = true;
 
       try {
-        const fileStat = await stat(filePath);
-        if (fileStat.isDirectory()) {
-          const indexPath = path.join(filePath, "index.html");
-          return new Response(Bun.file(indexPath));
-        }
-        return new Response(Bun.file(filePath));
-      } catch {
-        try {
-          const notFoundStat = await stat(notFoundPath);
-          if (notFoundStat.isFile()) {
-            return new Response(Bun.file(notFoundPath), {
-              status: 404,
-              headers: { "Content-Type": "text/html; charset=utf-8" },
-            });
-          }
-        } catch {
-          // fall through to plain text 404
-        }
-        return new Response("Not found", { status: 404 });
-      }
-    },
-  });
+        // Coalesce multiple file events into as few builds as possible.
+        do {
+          rebuildPending = false;
 
-  // Info level: server is ready
-  scoped.info("serve.listening", {
-    url: `http://localhost:${port}`,
-    port,
-    rootDir,
-  });
+          await build(
+            rootDir,
+            { ...options, liveReload: true, quiet: true },
+            logger
+          );
 
-  const watchLogger = scoped.child("watch");
+          buildVersion = Date.now().toString();
 
-  const collectSegments = (p: string | undefined) =>
-    (p ?? "")
-      .split(/[\\/]/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-  const ignoreNames = new Set<string>([
-    ...collectSegments(toolEnv.build.outputDirName),
-    ...collectSegments(toolEnv.logging.dirName),
-    ...collectSegments(path.join(toolEnv.build.outputDirName, "_model")),
-  ]);
-
-  const shouldIgnore = (name: string) => {
-    const parts = name.split(/[\\/]/).filter(Boolean);
-    if (parts.some((part) => ignoreNames.has(part))) return true;
-
-    // Also ignore anything inside the absolute output or logging directories
-    const fullPath = path.join(rootDir, name);
-    const normalized = path.normalize(fullPath);
-    const outputNormalized = path.normalize(outputDir);
-    const loggingNormalized = path.normalize(path.join(rootDir, toolEnv.logging.dirName));
-    const exportNormalized = path.normalize(path.join(outputDir, "_model"));
-
-    return (
-      normalized.startsWith(outputNormalized + path.sep) ||
-      normalized === outputNormalized ||
-      normalized.startsWith(exportNormalized + path.sep) ||
-      normalized === exportNormalized ||
-      normalized.startsWith(loggingNormalized + path.sep) ||
-      normalized === loggingNormalized
-    );
-  };
-
-  let rebuildTimer: ReturnType<typeof setTimeout> | null = null;
-
-  let rebuildRunning = false;
-  let rebuildPending = false;
-
-  const runRebuild = async () => {
-    // Serialize rebuilds: never run two builds concurrently.
-    if (rebuildRunning) {
-      rebuildPending = true;
-      return;
-    }
-
-    rebuildRunning = true;
-
-    try {
-      // Coalesce multiple file events into as few builds as possible.
-      do {
-        rebuildPending = false;
-
-        await build(
-          rootDir,
-          { ...options, liveReload: true, quiet: true },
-          logger
-        );
-
-        buildVersion = Date.now().toString();
-
-        watchLogger.info("serve.rebuildSuccess", {
-          version: buildVersion,
+          watchLogger.info("serve.rebuildSuccess", {
+            version: buildVersion,
+          });
+        } while (rebuildPending);
+      } catch (err) {
+        watchLogger.error("serve.rebuildError", {
+          error: String(err),
         });
-      } while (rebuildPending);
-    } catch (err) {
-      watchLogger.error("serve.rebuildError", {
-        error: String(err),
-      });
-    } finally {
-      rebuildRunning = false;
+      } finally {
+        rebuildRunning = false;
+      }
+    };
+
+    const scheduleRebuild = () => {
+      if (rebuildTimer) clearTimeout(rebuildTimer);
+
+      rebuildTimer = setTimeout(() => {
+        void runRebuild();
+      }, toolEnv.serve.watcherDebounceMs);
+    };
+
+    const watchPaths = new Set<string>([rootDir]);
+    if (path.normalize(templatesRoot) !== path.normalize(rootDir)) {
+      watchPaths.add(templatesRoot);
     }
-  };
 
-  const scheduleRebuild = () => {
-    if (rebuildTimer) clearTimeout(rebuildTimer);
+    const lastMtime = new Map<string, number>();
 
-    rebuildTimer = setTimeout(() => {
-      void runRebuild();
-    }, toolEnv.serve.watcherDebounceMs);
-  };
+    // 3. File watchers (site root + fallback templates)
+    for (const watchPath of watchPaths) {
+      watch(
+        watchPath,
+        { recursive: true },
+        async (eventType, filename) => {
+          const name = filename?.toString() ?? "";
 
-  const watchPaths = new Set<string>([rootDir]);
-  if (path.normalize(templatesRoot) !== path.normalize(rootDir)) {
-    watchPaths.add(templatesRoot);
-  }
+          if (!name) {
+            watchLogger.debug("serve.watchEvent", {
+              eventType,
+              filename: "<unknown>",
+              base: watchPath,
+            });
+            if (rebuildRunning) {
+              rebuildPending = true;
+            }
+            scheduleRebuild();
+            return;
+          }
+          if (shouldIgnore(name)) return;
 
-  const lastMtime = new Map<string, number>();
+          const fullPath = path.join(watchPath, name);
+          try {
+            const s = await stat(fullPath);
+            const prev = lastMtime.get(fullPath);
+            lastMtime.set(fullPath, s.mtimeMs);
+            if (prev != null && prev === s.mtimeMs) {
+              return; // ignore pure atime changes
+            }
+          } catch {
+            // ignore stat errors (deleted files etc.)
+          }
 
-  // 3. File watchers (site root + fallback templates)
-  for (const watchPath of watchPaths) {
-    watch(
-      watchPath,
-      { recursive: true },
-      async (eventType, filename) => {
-        const name = filename?.toString() ?? "";
-
-        if (!name) {
           watchLogger.debug("serve.watchEvent", {
             eventType,
-            filename: "<unknown>",
+            filename: name,
             base: watchPath,
           });
+
           if (rebuildRunning) {
             rebuildPending = true;
           }
+
           scheduleRebuild();
-          return;
         }
-        if (shouldIgnore(name)) return;
+      );
+    }
 
-        const fullPath = path.join(watchPath, name);
-        try {
-          const s = await stat(fullPath);
-          const prev = lastMtime.get(fullPath);
-          lastMtime.set(fullPath, s.mtimeMs);
-          if (prev != null && prev === s.mtimeMs) {
-            return; // ignore pure atime changes
-          }
-        } catch {
-          // ignore stat errors (deleted files etc.)
-        }
+    // "watch ready" message -> debug
+    watchLogger.debug("serve.watchReady", { rootDir, templatesRoot });
 
-        watchLogger.debug("serve.watchEvent", {
-          eventType,
-          filename: name,
-          base: watchPath,
-        });
+    // Final "Ctrl+C" hint -> info
+    scoped.info("serve.stopHint");
 
-        if (rebuildRunning) {
-          rebuildPending = true;
-        }
-
-        scheduleRebuild();
-      }
-    );
+    await keepProcessAlive();
+  } catch (error) {
+    // Check if this is a port-in-use error
+    if (error instanceof Error && error.message.includes("EADDRINUSE")) {
+      scoped.error("serve.portInUse", {
+        port: port,
+        error: error.message,
+      });
+      console.error(`\n${"=".repeat(60)}`);
+      console.error("ERROR: Port ${port} is already in use!");
+      console.error("\nPossible solutions:");
+      console.error("  1. Kill the process using port ${port}");
+      console.error("  2. Change the port in src/config/env.ts");
+      console.error("  3. Wait for the port to be freed");
+      console.error(`${"=".repeat(60)}\n`);
+    } else {
+      // For other errors, log with details
+      scoped.error("serve.startFailed", {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+    }
+    // Re-throw to let the outer handler deal with it
+    throw error;
   }
-
-  // "watch ready" message -> debug
-  watchLogger.debug("serve.watchReady", { rootDir, templatesRoot });
-
-  // Final "Ctrl+C" hint -> info
-  scoped.info("serve.stopHint");
-
-  await keepProcessAlive();
 }

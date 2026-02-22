@@ -35,6 +35,7 @@ export const resolveImage: Resolver = async (block, ctx) => {
     ...(mime ? { mime } : {}),
     ...(dimensions.width ? { width: dimensions.width } : {}),
     ...(dimensions.height ? { height: dimensions.height } : {}),
+    alt: block.name || block.rawName,
   };
 
   const imageConfig = ctx.imageConfig;

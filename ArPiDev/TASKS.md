@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: T3-S03
+Active story: T4-S01
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -19,8 +19,8 @@ Active story: T3-S03
 ## T3 — Navigation & index refonte
 - [x] T3-S01 Nouveau système d’index (dossiers “Root Index” / “Collection Index”) en conservant les overrides de layout existants (peut remplacer les overrides de contenu, pas les layouts).
 - [x] T3-S02 Unifier navigation.webt + helper menu/index (auto list + exclusions + classes).
-- [ ] T3-S03 Clarifier la config d’index personnalisés (root/collection) et documenter.
-- [ ] T3-S04 Blocs cross-entry (référencer vidéo/image/asset d’une autre entrée).
+- [x] T3-S03 Clarifier la config d’index personnalisés (root/collection) et documenter.
+- [x] T3-S04 Blocs cross-entry (référencer vidéo/image/asset d’une autre entrée).
 
 ## T4 — Évolution structurelle (modèle & config)
 - [ ] T4-S01 Plugin TOC (spec + plugin minimal + doc d’usage).

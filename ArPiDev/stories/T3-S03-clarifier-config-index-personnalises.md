@@ -1,10 +1,10 @@
 # T3-S03 — Clarifier la config d’index personnalisés (root/collection)
 
 Created: 2026-02-17 02h50m00s
-Closed:
+Closed: 2026-02-22 21h39m57s
 Acceptance: User
 
-Status: Done, Waiting for Validation
+Status: Done, Validated
 
 ## Context
 Depuis T3-S01, les pages d’index reposent sur des dossiers d’index (par défaut `index`) et la config `site.indexFolderName`. Le fonctionnement est puissant mais peu explicite: où placer les dossiers, quel contenu est pris en compte, comment les layouts sont choisis, et quelles règles d’exclusion s’appliquent.
@@ -58,7 +58,7 @@ Produire une documentation claire et actionnable sur la configuration des index 
 - Not applicable.
 
 ## Pilot exchange
-- (none yet)
+- 2026-02-22 21h39m57s — Pilot -> User — Story closed as validated after explicit user confirmation ("censée être closed et terminée").
 
 ## Commit proposal
 Title: docs(indexes): add comprehensive index configuration documentation

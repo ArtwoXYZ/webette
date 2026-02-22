@@ -82,11 +82,13 @@ async function resolveBlock(
 
   ctx.afterBlock?.(block, resolved);
 
-  const { blockRoute, ...content } = resolved ?? {};
+  const { blockRoute, changedType, changedName, ...content } = resolved ?? {};
 
   return {
     ...block,
     ...(blockRoute ? { route: blockRoute } : {}),
+    ...(changedType ? { type: changedType } : {}),
+    ...(changedName ? { name: changedName } : {}),
     ...(subBlocks ? { subBlocks } : {}),
     ...(resolved ? { content } : {}),
   };

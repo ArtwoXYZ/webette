@@ -10,6 +10,7 @@ import { resolveAudio } from "./resolvers/audio";
 import { resolveFolder } from "./resolvers/folder";
 import { resolveUnclassified } from "./resolvers/unclassified";
 import { resolveNavigation } from "./resolvers/navigation";
+import { resolveReference } from "./resolvers/reference";
 import type { Logger } from "../../logging/logger";
 import type { ImagePipelineConfig } from "../block-types/image/config";
 import type { AudioPipelineConfig } from "../block-types/audio/config";
@@ -18,6 +19,7 @@ import type { WebetteEnv } from "../../config/env";
 
 export interface ResolvedContent {
   raw?: string;
+  data?: unknown;
   meta?: {
     size?: number;
     mime?: string;
@@ -35,11 +37,14 @@ export interface ResolvedContent {
     album?: string;
     year?: number;
     genre?: string[];
+    alt?: string;
   };
   ast?: unknown; // Structured representation (e.g. mdast) when available
   html?: string; // Optional HTML rendering for text/markdown blocks
   variants?: ImageVariant[]; // Generated variants for media (images)
   blockRoute?: string; // Optional override for the block route (e.g., generated asset path)
+  changedType?: string; // Optional type override returned by resolvers (e.g., reference -> image)
+  changedName?: string; // Optional name override returned by resolvers (e.g., reference -> target name)
 }
 
 // Context passed to all resolvers
@@ -74,6 +79,7 @@ const typeResolvers = new Map<string, Resolver>([
   ["navigation", resolveNavigation],
   ["folder", resolveFolder],
   ["unclassified", resolveUnclassified],
+  ["reference", resolveReference],
 ]);
 
 export function getResolver(block: Block): Resolver | undefined {

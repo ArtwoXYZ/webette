@@ -109,8 +109,12 @@ async function listBlocksRaw(
     const isNavigation =
       !isDirectory &&
       cleanName(rawName).toLowerCase() === "navigation.webt";
-    if (!isDirectory && ext?.toLowerCase() === ".webt" && !isNavigation) continue; // skip webette meta files
-    const type = isNavigation ? "navigation" : detectBlockType(ext, isDirectory, options);
+    const isReference =
+      !isDirectory &&
+      ext?.toLowerCase() === ".webt" &&
+      rawName.toLowerCase().includes("reference");
+    if (!isDirectory && ext?.toLowerCase() === ".webt" && !isNavigation && !isReference) continue; // skip webette meta files
+    const type = isNavigation ? "navigation" : detectBlockType(rawName, ext, isDirectory, options);
 
     // Files listed in ignore.webt: keep them in the model but mark for skip-render.
     const shouldSkipRender = ignoreSet.has(rawName);
@@ -488,7 +492,7 @@ async function listCollectionAssetsRaw(
     if (!rawName || rawName.startsWith(".") || rawName.startsWith("_")) continue;
     const relPath = toPosix(path.join(collectionPath, "_assets", rawName));
     const ext = path.extname(rawName) || undefined;
-    const type = detectBlockType(ext, false, { treatTxtAsMarkdown: false });
+    const type = detectBlockType(rawName, ext, false, { treatTxtAsMarkdown: false });
     if (type !== "image" && type !== "audio" && type !== "video") continue;
     assets.push({
       rawName,
