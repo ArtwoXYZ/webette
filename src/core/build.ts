@@ -255,10 +255,11 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
   })
 
   const collectionsList = siteWithIndexFolders.collections ?? []
+  const rootEntriesList = siteWithIndexFolders.rootEntries ?? []
   const entriesCount = collectionsList.reduce(
     (acc, collection) => acc + collection.entries.length,
     0,
-  )
+  ) + rootEntriesList.length
 
   if (readContent === false) {
     scoped.info('build.skipContent', {})
@@ -267,7 +268,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     (acc, collection) =>
       acc + collection.entries.reduce((entryAcc, entry) => entryAcc + countBlocks(entry.blocks), 0),
     0,
-  )
+  ) + rootEntriesList.reduce((acc, entry) => acc + countBlocks(entry.blocks), 0)
 
   for (const collection of collectionsList) {
     if (!collection.entries.length) {
@@ -284,6 +285,15 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
           path: entry.path,
         })
       }
+    }
+  }
+  for (const entry of rootEntriesList) {
+    if (!entry.blocks.length) {
+      scoped.warn('scan.entryEmpty', {
+        collection: '(root)',
+        entry: entry.slug || entry.id,
+        path: entry.path,
+      })
     }
   }
   if (options.quiet) {
@@ -420,8 +430,17 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     // Run post-resolution site hooks
     resolvedSiteWithPlugins = await runOnResolved(plugins, resolvedSite, pluginContextBase)
     // Transform blocks then entries so hooks can mutate before timestamps
-    if (resolvedSiteWithPlugins.collections) {
-      const updatedCollections = [] as typeof resolvedSiteWithPlugins.collections
+    if (resolvedSiteWithPlugins.collections || resolvedSiteWithPlugins.rootEntries) {
+      const updatedCollections = [] as NonNullable<typeof resolvedSiteWithPlugins.collections>
+      const rootCollectionForTransforms: Collection = {
+        id: '__root__',
+        rawName: '(root)',
+        name: 'Root',
+        slug: 'root',
+        path: '',
+        route: '/',
+        entries: [],
+      }
       const transformEntryWithPlugins = async (
         collection: Collection,
         entry: Entry,
@@ -435,7 +454,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
         const entryWithBlocks: Entry = { ...entry, blocks: updatedBlocks }
         return runTransformEntry(plugins, collection, entryWithBlocks, pluginContextBase)
       }
-      for (const collection of resolvedSiteWithPlugins.collections) {
+      for (const collection of resolvedSiteWithPlugins.collections ?? []) {
         const updatedEntries = [] as typeof collection.entries
         for (const entry of collection.entries) {
           const updatedEntry = await transformEntryWithPlugins(collection, entry)
@@ -444,8 +463,16 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
         updatedCollections.push({ ...collection, entries: updatedEntries })
       }
 
+      const updatedRootEntries = resolvedSiteWithPlugins.rootEntries
+        ? await Promise.all(
+          resolvedSiteWithPlugins.rootEntries.map((entry) =>
+            transformEntryWithPlugins(rootCollectionForTransforms, entry)
+          )
+        )
+        : undefined;
+
       let nextIndexes = resolvedSiteWithPlugins.indexes
-      if (nextIndexes?.collections) {
+      if (nextIndexes?.collections && updatedCollections.length) {
         const collectionByKey = new Map(
           updatedCollections.map((collection) => [collection.slug || collection.id, collection]),
         )
@@ -464,7 +491,8 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
 
       resolvedSiteWithPlugins = {
         ...resolvedSiteWithPlugins,
-        collections: updatedCollections,
+        ...(resolvedSiteWithPlugins.collections ? { collections: updatedCollections } : {}),
+        ...(updatedRootEntries ? { rootEntries: updatedRootEntries } : {}),
         ...(nextIndexes ? { indexes: nextIndexes } : {}),
       }
     }

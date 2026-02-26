@@ -12,6 +12,20 @@ collection: playground, entry: introduction, block: 00 intro.md
 
 When the site is built, the reference is resolved and the target block's content is injected as if it were a normal block.
 
+## Root Entries (entries without collection)
+
+If you need to target a root entry **from inside a collection entry**, use the reserved collection name `root`:
+
+```txt
+collection: root, entry: my-root-entry, block: 00 intro.md
+```
+
+This also works in Markdown internal links/images using the same target syntax, for example:
+
+```md
+[Open root entry](collection: root, entry: my-root-entry)
+```
+
 ## Reference Examples Below
 
 The following examples show different types of blocks being referenced from other entries.

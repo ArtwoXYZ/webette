@@ -7,6 +7,7 @@ import { renderMarkdownToHtml } from "../block-types/markdown/processor";
 import type { Logger } from "../../logging/logger";
 import type { Site, Entry, Collection } from "../model";
 import {
+  isRootCollectionName,
   parseInternalReference,
   matchCollection,
   matchEntry,
@@ -19,6 +20,16 @@ export async function rewriteInternalLinks(options: {
   logger?: Logger;
 }): Promise<Site> {
   const { site, remarkPlugins, logger } = options;
+  const matchRootEntry = (name: string): Entry | undefined => {
+    const target = name.trim().toLowerCase();
+    if (!target) return undefined;
+    return (site.rootEntries ?? []).find((entry) => {
+      const names = [entry.slug, entry.id, entry.name, entry.rawName]
+        .filter(Boolean)
+        .map((v) => String(v).trim().toLowerCase());
+      return names.includes(target);
+    });
+  };
 
   const rewriteEntryBlocks = async (
     entry: Entry,
@@ -178,21 +189,43 @@ export async function rewriteInternalLinks(options: {
                 const col = matchCollection(site, parsed.target.collectionName);
                 targetRoute = col?.route;
               } else if (parsed.target.kind === "entry") {
-                const col = parsed.target.collectionName
-                  ? matchCollection(site, parsed.target.collectionName)
+                const explicitCollection = parsed.target.collectionName;
+                const explicitRoot =
+                  typeof explicitCollection === "string" &&
+                  isRootCollectionName(explicitCollection);
+                const col = explicitCollection
+                  ? explicitRoot
+                    ? undefined
+                    : matchCollection(site, explicitCollection)
                   : collection;
-                const ent = col ? matchEntry(col, parsed.target.entryName) : undefined;
+                const ent = explicitRoot
+                  ? matchRootEntry(parsed.target.entryName)
+                  : col
+                    ? matchEntry(col, parsed.target.entryName)
+                    : explicitCollection
+                      ? undefined
+                      : matchRootEntry(parsed.target.entryName);
                 targetRoute = ent?.route;
                 if (targetRoute && parsed.anchor) {
                   targetRoute = `${targetRoute.replace(/#.*$/, "")}#${parsed.anchor}`;
                 }
               } else if (parsed.target.kind === "block") {
-                const col = parsed.target.collectionName
-                  ? matchCollection(site, parsed.target.collectionName)
+                const explicitCollection = parsed.target.collectionName;
+                const explicitRoot =
+                  typeof explicitCollection === "string" &&
+                  isRootCollectionName(explicitCollection);
+                const col = explicitCollection
+                  ? explicitRoot
+                    ? undefined
+                    : matchCollection(site, explicitCollection)
                   : collection;
                 const ent =
-                  col && parsed.target.entryName
+                  explicitRoot && parsed.target.entryName
+                    ? matchRootEntry(parsed.target.entryName)
+                    : col && parsed.target.entryName
                     ? matchEntry(col, parsed.target.entryName)
+                    : !explicitCollection && !col && parsed.target.entryName
+                      ? matchRootEntry(parsed.target.entryName)
                     : col === collection
                       ? entry
                       : undefined;
@@ -254,6 +287,9 @@ export async function rewriteInternalLinks(options: {
       })
     )
     : undefined;
+  const rootEntries = site.rootEntries
+    ? await Promise.all(site.rootEntries.map((entry) => rewriteEntryBlocks(entry)))
+    : undefined;
 
   const rootIndex = site.indexes?.root ? await rewriteEntryBlocks(site.indexes.root) : undefined;
   const collectionIndexes = site.indexes?.collections
@@ -271,6 +307,7 @@ export async function rewriteInternalLinks(options: {
 
   return {
     ...site,
+    ...(rootEntries ? { rootEntries } : {}),
     ...(collections ? { collections } : {}),
     ...((rootIndex || collectionIndexes)
       ? {

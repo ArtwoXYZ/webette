@@ -122,6 +122,9 @@ export async function resolveBlocks(
   const collections = site.collections
     ? await Promise.all(site.collections.map((col) => resolveCollection(col, ctx)))
     : undefined;
+  const rootEntries = site.rootEntries
+    ? await Promise.all(site.rootEntries.map((entry) => resolveEntry(entry, ctx)))
+    : undefined;
   const rootIndex = site.indexes?.root
     ? await resolveEntry(site.indexes.root, ctx)
     : undefined;
@@ -139,6 +142,7 @@ export async function resolveBlocks(
   // Keep the same shape as the scanned site, only adding resolved content
   return {
     ...site,
+    ...(rootEntries ? { rootEntries } : {}),
     ...(collections ? { collections } : {}),
     ...((rootIndex || collectionIndexes)
       ? {

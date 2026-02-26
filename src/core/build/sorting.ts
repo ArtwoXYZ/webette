@@ -319,7 +319,23 @@ export function applySorting(site: Site, logger?: Logger): Site {
   const collectionSort = resolveCollectionSort(sorting, warned, logger);
 
   const collections = site.collections ? sortList(site.collections, collectionSort) : undefined;
-  if (!collections) return site;
+  const rootEntries = site.rootEntries
+    ? (() => {
+      const entrySort = resolveEntrySort(sorting, undefined, warned, logger);
+      return sortList(site.rootEntries, entrySort).map((entry) => {
+        const entryKey = entryKeyFromEntry(entry);
+        const blockSort = resolveBlockSort(sorting, undefined, entryKey, warned, logger);
+        const blocks = sortBlocks(entry.blocks, blockSort) ?? entry.blocks;
+        return blocks === entry.blocks ? entry : { ...entry, blocks };
+      });
+    })()
+    : undefined;
+  if (!collections) {
+    return {
+      ...site,
+      ...(rootEntries ? { rootEntries } : {}),
+    };
+  }
 
   const sortedCollections = collections.map((collection) => {
     const collectionKey = resolveCollectionKey(collection, collectionKeyIndex);
@@ -373,6 +389,7 @@ export function applySorting(site: Site, logger?: Logger): Site {
 
   return {
     ...site,
+    ...(rootEntries ? { rootEntries } : {}),
     collections: sortedCollections,
     ...((sortedRootIndex || sortedCollectionIndexes)
       ? {

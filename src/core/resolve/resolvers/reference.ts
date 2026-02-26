@@ -7,7 +7,12 @@ import { readFile } from "node:fs/promises";
 import type { Block, Collection, Entry, Site } from "../../model";
 import type { ResolveContext, ResolvedContent } from "../registry";
 import { parseInternalReference, type ParsedTarget } from "../../../core/targets";
-import { matchCollection, matchEntry, matchBlock } from "../../../core/targets";
+import {
+  isRootCollectionName,
+  matchCollection,
+  matchEntry,
+  matchBlock,
+} from "../../../core/targets";
 import { getResolver } from "../registry";
 
 type BlockLocation = {
@@ -55,6 +60,12 @@ function findCurrentLocation(site: Site, blockPath: string): BlockLocation | und
     }
   }
 
+  for (const entry of site.rootEntries ?? []) {
+    if (hasBlockPath(entry.blocks, blockPath)) {
+      return { entry };
+    }
+  }
+
   const rootIndex = site.indexes?.root;
   if (rootIndex && hasBlockPath(rootIndex.blocks, blockPath)) {
     return { entry: rootIndex };
@@ -72,12 +83,24 @@ function findCurrentLocation(site: Site, blockPath: string): BlockLocation | und
   return undefined;
 }
 
+function matchRootEntry(site: Site, name: string): Entry | undefined {
+  const target = name.trim().toLowerCase();
+  if (!target) return undefined;
+  return (site.rootEntries ?? []).find((entry) => {
+    const names = [entry.slug, entry.id, entry.name, entry.rawName]
+      .filter(Boolean)
+      .map((v) => String(v).trim().toLowerCase());
+    return names.includes(target);
+  });
+}
+
 function resolveCollectionForTarget(
   target: Extract<ParsedTarget, { kind: "entry" | "block" }>,
   site: Site,
   currentLocation?: BlockLocation
 ): Collection | undefined {
   if (target.collectionName) {
+    if (isRootCollectionName(target.collectionName)) return undefined;
     return matchCollection(site, target.collectionName);
   }
   return currentLocation?.collection;
@@ -85,12 +108,28 @@ function resolveCollectionForTarget(
 
 function resolveEntryForTarget(
   target: Extract<ParsedTarget, { kind: "entry" | "block" }>,
+  site: Site,
   collection: Collection | undefined,
   currentLocation?: BlockLocation
 ): Entry | undefined {
   if (target.entryName) {
-    if (!collection) return undefined;
+    if (target.collectionName) {
+      if (isRootCollectionName(target.collectionName)) {
+        return matchRootEntry(site, target.entryName);
+      }
+      if (!collection) return undefined;
+      return matchEntry(collection, target.entryName);
+    }
+
+    if (!collection) return matchRootEntry(site, target.entryName);
     return matchEntry(collection, target.entryName);
+  }
+
+  if (target.collectionName && isRootCollectionName(target.collectionName)) {
+    if (!currentLocation) return undefined;
+    // Only allow implicit "current entry" when the current block itself is in a root entry.
+    if (currentLocation.collection) return undefined;
+    return currentLocation.entry;
   }
 
   if (!currentLocation) return undefined;
@@ -112,7 +151,7 @@ function resolveTarget(
   }
 
   const collection = resolveCollectionForTarget(target, site, currentLocation);
-  const entry = resolveEntryForTarget(target, collection, currentLocation);
+  const entry = resolveEntryForTarget(target, site, collection, currentLocation);
   if (!entry) return undefined;
 
   if (target.kind === "entry") {

@@ -1,22 +1,24 @@
-# ArPiDev Artifact — DECISIONS.md
+# ArPiDev Artifact — DECISIONS.md (V2)
 
 ## Purpose
 
-`DECISIONS.md` records short, concrete decisions to avoid re-debating.
+`DECISIONS.md` records short, concrete cross-cutting decisions to avoid re-debating.
+
+This is not a general changelog and not a place to dump story-level details.
 
 ## Minimum content rule (non-empty)
 
-A `DECISIONS.md` is considered **non-empty** only if it contains at least one concrete decision.
+A `DECISIONS.md` is considered non-empty only if it contains at least one concrete decision.
 
 Placeholder markers include (but are not limited to): `TBD`, `TODO`, `<TBD>`, `...`, `?`.
 
 ## Required format
 
-Each decision is 1–3 lines and includes:
+Each decision is 1-3 lines and includes:
 
 * Date (human-readable)
 * Decision
-* Reason (short, explicit “why”)
+* Reason (short, explicit why)
 
 ## Template
 
@@ -30,5 +32,6 @@ Each decision is 1–3 lines and includes:
 ## Notes
 
 * No debates or long rationale.
-* If a decision is reversed, add a new entry and place an **OUTDATED** in front of the reversed decision entry.
-* This template lives here; create `ArPiDev/DECISIONS.md` when needed.
+* Prefer recording only repeated/cross-story decisions.
+* If a decision is reversed, add a new entry and prefix the old one with `OUTDATED`.
+* Older formats are acceptable if meaning is clear.

@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: T4-S01
+Active story: T5-S01
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -22,28 +22,37 @@ Active story: T4-S01
 - [x] T3-S03 Clarifier la config d’index personnalisés (root/collection) et documenter.
 - [x] T3-S04 Blocs cross-entry (référencer vidéo/image/asset d’une autre entrée).
 
-## T4 — Évolution structurelle (modèle & config)
-- [ ] T4-S01 Plugin TOC (spec + plugin minimal + doc d’usage).
-- [ ] T4-S02 Tags pour entries (modèle + rendu/filtre minimal).
-- [ ] T4-S03 `collection.webt` pour sous‑collections/niveaux infinis (scan + routes + index).
-- [ ] T4-S04 Séparer clairement config tool vs config site (format + migration + doc).
-- [ ] T4-S05 Option pour retirer les templates embarqués du tool (décision + plan de migration).
+## T4 — Refonte du modèle arborescent (collections/entries récursifs)
+- [x] T4-S01 Cadrer la refonte (PAS POUR DEV, tâche pour Pilot/Archi): règles de classification, invariants, warnings, objectif de non-régression de rendu (`website-example`) et découpage des stories d’exécution.
+- [x] T4-S02 Scanner récursif + classification des dossiers (entries racine, collections imbriquées, dossiers vides ignorés avec warning) avec preuves scan/export modèle.
+- [x] T4-S03 Routing + génération d’index sur arbre récursif (parité fonctionnelle visée, routes/pages générées vérifiées sur `website-example`).
+- [x] T4-S04 Rendu/templates/helpers (`menu` / `index`, layouts/index custom, prev/next) adaptés au nouveau modèle, sans changement de rendu attendu sur `website-example`.
+- [x] T4-S05 Validation de non-régression sur `website-example` + documentation des règles/cas limites (rendu attendu identique malgré la refonte; sans objectif de compat rétro).
+- [x] T4-S06 Finaliser le système interne récursif comme système de fonctionnement de Webette (supprimer la dépendance à la projection legacy interne, sans régression de rendu sur `website-example`).
+- [x] T4-S07 Refactor du scan (découpage de `src/core/scan/index.ts`, clarification des responsabilités, sans changement de comportement).
+- [x] T4-S08 Campagne de tests de confiance du nouveau système (checks techniques + tests manuels ciblés IA/user sur cas réels/edge cases).
 
-## T5 — Webette UI (beta)
-- [ ] T5-S01 POC serveur + build + logs (API locale minimale).
-- [ ] T5-S02 Alpha: build/serve/stop + gestion process + status.
-- [ ] T5-S03 UI minimale (boutons + logs + lien local).
-- [ ] T5-S04 Packaging/exécutable multi‑OS (alpha).
-- [ ] T5-S05 Éditeur de config + persistance (beta).
+## T5 — Plugins & configuration (beta)
+- [ ] T5-S01 Plugin TOC (spec + plugin minimal + doc d’usage).
+- [ ] T5-S02 Tags pour entries (modèle + rendu/filtre minimal).
+- [ ] T5-S03 Séparer clairement config tool vs config site (format + migration + doc).
+- [ ] T5-S04 Option pour retirer les templates embarqués du tool (décision + plan de migration).
 
-## T6 — Starters & hub
-- [ ] T6-S01 Starter blog pour la beta (structure + assets + README).
-- [ ] T6-S02 Format de distribution starters (zip + métadonnées).
-- [ ] T6-S03 Site `hub.webette.org` listant starters/plugins.
+## T6 — Webette UI (beta)
+- [ ] T6-S01 POC serveur + build + logs (API locale minimale).
+- [ ] T6-S02 Alpha: build/serve/stop + gestion process + status.
+- [ ] T6-S03 UI minimale (boutons + logs + lien local).
+- [ ] T6-S04 Packaging/exécutable multi‑OS (alpha).
+- [ ] T6-S05 Éditeur de config + persistance (beta).
 
-## T7 — Documentation & démo
-- [ ] T7-S01 Terminer le site de doc “EN COURS” (Concept + Features core).
-- [ ] T7-S02 Corriger les liens du site de démo une fois la doc en ligne.
+## T7 — Starters & hub
+- [ ] T7-S01 Starter blog pour la beta (structure + assets + README).
+- [ ] T7-S02 Format de distribution starters (zip + métadonnées).
+- [ ] T7-S03 Site `hub.webette.org` listant starters/plugins.
+
+## T8 — Documentation & démo
+- [ ] T8-S01 Terminer le site de doc “EN COURS” (Concept + Features core).
+- [ ] T8-S02 Corriger les liens du site de démo une fois la doc en ligne.
 
 ## Pending stories
 - T2-S06 — Reason: integration should be a plugin; deferred until plugin path is ready — Remaining: define plugin scope/mapping and implement opt-in behavior — Owner: User/Pilot — Resume condition: plugin system is available or a dedicated plugin story is scheduled.

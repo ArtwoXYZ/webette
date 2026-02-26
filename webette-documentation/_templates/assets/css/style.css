@@ -636,6 +636,10 @@ main.home>section:not(:first-of-type) {
     font-size: 0.8rem;
 }
 
+.top-menu-entry--collection {
+    text-transform: uppercase;
+}
+
 .top-menu-entry.is-active {
     font-weight: 800;
     color: var(--accent);

@@ -14,16 +14,25 @@ export function filterDraftEntries(site: Site, includeDrafts: boolean): Site {
         return { ...collection, entries };
       })
     : undefined;
+  const rootEntries = site.rootEntries
+    ? site.rootEntries.filter((entry) => !entry.isDraft)
+    : undefined;
 
-  return { ...site, ...(collections ? { collections } : {}) };
+  return {
+    ...site,
+    ...(collections ? { collections } : {}),
+    ...(rootEntries ? { rootEntries } : {}),
+  };
 }
 
 export function countDraftEntries(site: Site): number {
-  return (site.collections ?? []).reduce(
+  const collectionDrafts = (site.collections ?? []).reduce(
     (acc, collection) =>
       acc + collection.entries.filter((entry) => entry.isDraft).length,
     0
   );
+  const rootDrafts = (site.rootEntries ?? []).filter((entry) => entry.isDraft).length;
+  return collectionDrafts + rootDrafts;
 }
 
 export function listDraftEntries(site: Site): { collection: string; entry: string; path: string }[] {
@@ -37,6 +46,14 @@ export function listDraftEntries(site: Site): { collection: string; entry: strin
         path: entry.path,
       });
     }
+  }
+  for (const entry of site.rootEntries ?? []) {
+    if (!entry.isDraft) continue;
+    drafts.push({
+      collection: "(root)",
+      entry: entry.slug || entry.id,
+      path: entry.path,
+    });
   }
   return drafts;
 }

@@ -342,6 +342,18 @@ export async function applyHistory(
       )
     )
     : undefined;
+  const rootEntries = site.rootEntries
+    ? await Promise.all(
+      site.rootEntries.map((entry) =>
+        computeEntryHistory("__root__", entry, {
+          previous: options.previous,
+          nowIso,
+          rootDir: options.rootDir,
+          readContent: options.readContent,
+        })
+      )
+    )
+    : undefined;
 
   const rootIndex = site.indexes?.root
     ? await computeEntryHistory("__index__root", site.indexes.root, {
@@ -380,6 +392,7 @@ export async function applyHistory(
   const siteFingerprint = hashObject({
     site: site.site,
     route: site.route,
+    rootEntries: rootEntries?.map((ent) => ent.fingerprint),
     collections: collections?.map((col) => col.fingerprint),
     indexes: {
       root: rootIndex?.fingerprint,
@@ -390,6 +403,7 @@ export async function applyHistory(
 
   return {
     ...site,
+    ...(rootEntries ? { rootEntries } : {}),
     ...(collections ? { collections } : {}),
     ...((rootIndex || collectionIndexes)
       ? {

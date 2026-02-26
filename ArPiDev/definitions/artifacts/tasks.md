@@ -1,30 +1,30 @@
-# ArPiDev Artifact — TASKS.md
+# ArPiDev Artifact — TASKS.md (V2.1 Core-First)
 
 ## Purpose
 
-`TASKS.md` is the macro plan and execution map. It lists Tasks and their stories, plus the active story.
+`TASKS.md` is the visible macro plan and execution map.
 
-## Required structure
+It should let the user quickly see what is done, what is next, and where the project is paused.
 
-* A single `Active story: <id>` line when a story is active.
-* If no executable story is active, use `Active story: NONE (waiting on pending stories or user input)`.
+## Core required structure
+
+* One `Active story: <id>` line when a story is active, or
+* `Active story: NONE (waiting on pending stories or user input)` when no executable story is active
 * Tasks labeled `T1`, `T2`, ...
-* Under each Task, a list of stories labeled `T1-S01`, `T1-S02`, ... with 1-line scope.
-* Optional `Pending stories` section for deferred-but-tracked stories.
+* Story lines under tasks (`T1-S01`, `T1-S02`, ...) with one-line scopes
 
-## Minimum content rule (non-empty)
+## Optional structure
 
-A `TASKS.md` is considered **non-empty** only if it contains at least **one Task** with a concrete description.
+* `Pending stories` section (recommended when pending work exists)
+* status hints on story lines
 
-Placeholder markers include (but are not limited to): `TBD`, `TODO`, `<TBD>`, `...`, `?`.
+## V1/V2/V2.1 compatibility
 
-## Story conventions
+* Older `TASKS.md` formats remain valid if task/story IDs are readable and an active story can be inferred.
+* Story lines may include legacy status hints; parse leniently.
+* Pilot should backfill only what is needed to continue safely.
 
-Follow `ArPiDev/definitions/artifacts/naming.md` for story IDs and filenames.
-
-If a story is pending, keep its checkbox unchecked and append `[PENDING]` in the story line.
-
-## Template
+## Template (core-first)
 
 ```text
 # TASKS
@@ -39,17 +39,13 @@ Active story: T1-S01
 - [ ] T2-S01 <Short story scope>
 
 ## Pending stories
-- T1-S02 — Reason: waiting Windows validation — Remaining: run smoke test on Windows + capture result — Owner: User — Resume condition: Windows result is shared
+- T1-S02 — Reason: waiting external dependency — Remaining: <next steps> — Owner: <User/Pilot/Dev> — Resume condition: <explicit condition>
 ```
 
 ## Notes
 
 * Use checkboxes for progress.
-* Keep story scopes short (one line).
 * Only one story can be active at a time.
-* Story lines can optionally include a status hint (`To Do, Validated`, `Done, Waiting for Validation`, `Pending`).
-* Pending stories stay visible and explicit; they are not considered active.
-* Selection of the next active story must ignore lines marked `[PENDING]`.
-* A story is checked only when the story file status is `Done, Validated`.
-* If the user explicitly pauses execution (for example "stop for today"), set `Active story: NONE (waiting on pending stories or user input)` until the user resumes, even if executable stories remain.
-* This template lives here; create `ArPiDev/TASKS.md` when needed.
+* Keep story scopes short and outcome-oriented.
+* A story is checked only when its story file is `Done, Validated`.
+* If the user pauses after a story closes, keep `Active story: NONE (...)` until the user resumes.

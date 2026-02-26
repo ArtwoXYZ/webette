@@ -244,12 +244,40 @@ function findCollectionForBlock(
   return undefined;
 }
 
+function findRootEntryForBlock(
+  site: Site,
+  block: Block
+): { entry: Entry } | undefined {
+  const blockPath = block.path.replace(/\\/g, "/");
+  for (const entry of site.rootEntries ?? []) {
+    const entryPath = (entry.path ?? "").replace(/\\/g, "/");
+    if (!entryPath) continue;
+    if (blockPath.startsWith(`${entryPath}/`)) {
+      return { entry };
+    }
+  }
+  return undefined;
+}
+
+function matchRootEntry(site: Site, rawName: string): Entry | undefined {
+  const target = rawName.trim().toLowerCase();
+  if (!target) return undefined;
+  return (site.rootEntries ?? []).find((entry) => {
+    const names = [entry.slug, entry.id, entry.name, entry.rawName]
+      .filter(Boolean)
+      .map((v) => String(v).trim().toLowerCase());
+    return names.includes(target);
+  });
+}
+
 function findCurrentForBlock(
   site: Site,
   block: Block
 ): { collection?: Collection; entry?: Entry } | undefined {
   const direct = findCollectionForBlock(site, block);
   if (direct) return direct;
+  const rootDirect = findRootEntryForBlock(site, block);
+  if (rootDirect) return rootDirect;
 
   const blockPath = block.path.replace(/\\/g, "/");
   const rootIndex = site.indexes?.root;
@@ -304,6 +332,31 @@ function buildEntryNode(collection: Collection, entry: Entry): NavigationItem {
   };
 }
 
+function buildRootEntryNode(entry: Entry): NavigationItem {
+  return {
+    kind: "entry",
+    route: entry.route,
+    collection: {
+      id: "__root__",
+      name: "Root",
+      slug: "root",
+      route: "/",
+    },
+    entry: {
+      id: entry.id,
+      name: entry.name,
+      displayName: entry.displayName,
+      description: entry.description,
+      slug: entry.slug,
+      route: entry.route,
+      isDraft: entry.isDraft,
+      isUnlisted: entry.isUnlisted,
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt,
+    },
+  };
+}
+
 function buildCollectionNode(
   collection: Collection,
   children: NavigationItem[]
@@ -327,6 +380,61 @@ function buildCollectionNode(
     },
     ...(children.length ? { children } : {}),
   };
+}
+
+function normalizeCollectionPathKey(value: string | undefined): string {
+  return (value ?? "").replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+}
+
+function parentCollectionPathKey(collectionPath: string): string {
+  const normalized = normalizeCollectionPathKey(collectionPath);
+  if (!normalized) return "";
+  const parent = path.posix.dirname(normalized);
+  return parent === "." ? "" : parent;
+}
+
+function buildCollectionForestNodes(
+  collections: Collection[],
+  buildChildrenForCollection: (collection: Collection) => NavigationItem[]
+): NavigationItem[] {
+  const byPath = new Map<string, Collection>();
+  for (const collection of collections) {
+    byPath.set(normalizeCollectionPathKey(collection.path), collection);
+  }
+
+  const childrenByParent = new Map<string, Collection[]>();
+  for (const collection of collections) {
+    const key = normalizeCollectionPathKey(collection.path);
+    const parentKey = parentCollectionPathKey(key);
+    const effectiveParentKey = parentKey && byPath.has(parentKey) ? parentKey : "";
+    const siblings = childrenByParent.get(effectiveParentKey) ?? [];
+    siblings.push(collection);
+    childrenByParent.set(effectiveParentKey, siblings);
+  }
+
+  const buildNode = (collection: Collection): NavigationItem => {
+    const collectionKey = normalizeCollectionPathKey(collection.path);
+    const entryChildren = buildChildrenForCollection(collection);
+    const nestedCollectionChildren = (childrenByParent.get(collectionKey) ?? []).map(buildNode);
+    return buildCollectionNode(collection, [...entryChildren, ...nestedCollectionChildren]);
+  };
+
+  return (childrenByParent.get("") ?? []).map(buildNode);
+}
+
+function buildCollectionSubtreeNode(
+  allCollections: Collection[],
+  targetCollection: Collection,
+  buildChildrenForCollection: (collection: Collection) => NavigationItem[]
+): NavigationItem {
+  const targetKey = normalizeCollectionPathKey(targetCollection.path);
+  const subtreeCollections = allCollections.filter((collection) => {
+    const key = normalizeCollectionPathKey(collection.path);
+    return key === targetKey || key.startsWith(`${targetKey}/`);
+  });
+
+  const [root] = buildCollectionForestNodes(subtreeCollections, buildChildrenForCollection);
+  return root ?? buildCollectionNode(targetCollection, buildChildrenForCollection(targetCollection));
 }
 
 export const resolveNavigation: Resolver = async (block, ctx) => {
@@ -488,6 +596,16 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
         ? matchCollection(ctx.site, collectionRaw)
         : inherited;
       if (!collection) {
+        const rootEntry = collectionRaw ? undefined : matchRootEntry(ctx.site, entryRaw);
+        if (rootEntry) {
+          const node: NavigationItem = {
+            ...buildRootEntryNode(rootEntry),
+            ...(title ? { title } : {}),
+          };
+          appendChild(parent, node);
+          stack.push({ level, node });
+          continue;
+        }
         ctx.logger?.warn("navigation.entryMissingCollection", {
           path: block.path,
           line: parsed.rawLine,
@@ -594,7 +712,7 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
   const siteHasDrafts =
     (ctx.site.collections ?? []).some((collection) =>
       (collection.entries ?? []).some((entry) => entry.isDraft)
-    ) || false;
+    ) || (ctx.site.rootEntries ?? []).some((entry) => entry.isDraft);
   // Default to showing drafts when the site model includes them (serve mode).
   const includeDrafts =
     typeof options.includeDrafts === "boolean" ? options.includeDrafts : siteHasDrafts;
@@ -623,10 +741,14 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
     }
 
     if (targetCollection && shouldIncludeCollection(targetCollection)) {
-      const children = targetCollection.entries
-        .filter((entry) => shouldIncludeEntry(entry, targetCollection))
-        .map((entry) => buildEntryNode(targetCollection, entry));
-      finalItems = [buildCollectionNode(targetCollection, children)];
+      finalItems = [
+        buildCollectionSubtreeNode(
+          ctx.site.collections ?? [],
+          targetCollection,
+          (collection) =>
+            (collection.entries ?? []).map((entry) => buildEntryNode(collection, entry))
+        ),
+      ];
     } else if (!targetCollection && rawCollection) {
       ctx.logger?.warn("navigation.collectionMissing", {
         path: block.path,
@@ -634,15 +756,16 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
       });
     }
   } else {
-    finalItems = (ctx.site.collections ?? [])
-      .filter((collection) => shouldIncludeCollection(collection))
-      .map((collection) => {
-        const children: NavigationItem[] = collection.entries
-          .filter((entry) => shouldIncludeEntry(entry, collection))
-          .map((entry) => buildEntryNode(collection, entry));
-
-        return buildCollectionNode(collection, children);
-      });
+    const rootEntryItems = (ctx.site.rootEntries ?? [])
+      .filter((entry) => shouldIncludeEntry(entry))
+      .map((entry) => buildRootEntryNode(entry));
+    finalItems = [
+      ...rootEntryItems,
+      ...buildCollectionForestNodes(
+        ctx.site.collections ?? [],
+        (collection) => (collection.entries ?? []).map((entry) => buildEntryNode(collection, entry))
+      ),
+    ];
   }
 
   const applyVisibility = (items: NavigationItem[]): NavigationItem[] => {

@@ -58,13 +58,9 @@
       {{#if collection}}
         <section class="navigation">
           <h2 class="navigation-title">Collection contents</h2>
-          {{#each items}}
-            {{#if (eq kind "collection")}}
-              {{#if isCurrent}}
-                {{> navigation-items items=children}}
-              {{/if}}
-            {{/if}}
-          {{/each}}
+          {{#if currentCollectionItem.children}}
+            {{> navigation-items items=currentCollectionItem.children}}
+          {{/if}}
         </section>
       {{else}}
         <section class="navigation">

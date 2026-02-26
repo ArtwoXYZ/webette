@@ -1,32 +1,55 @@
-# ArPiDev Artifact — Story File
+# ArPiDev Artifact — Story File (V2.1 Core-First)
 
 ## Purpose
 
-A story file is the execution contract for the Dev. It must be unambiguous and testable.
+A story file is the execution contract for the Dev and the main trace for the user.
 
-## Required fields
+It should let the user quickly understand:
+
+* what the AI is trying to do,
+* what it changed,
+* why it chose that approach,
+* what was verified,
+* where to resume.
+
+## Core required fields (new V2.1 stories)
 
 * Title (story id + short name)
-* Created (date and time)
-* Closed (date and time, when fully closed)
-* Acceptance (who approves)
+* Created
+* Closed (filled on `Done, Validated` or `Pending`)
+* Acceptance
 * Status
-* Context
-* Rationale
 * Goal
 * In scope
 * Out of scope
-* Documentation impact (optional)
-* Ready when (Definition of Ready)
 * Done when
-* Pending reason (required when `Status: Pending`)
-* Remaining work (required when `Status: Pending`)
-* Resume condition (required when `Status: Pending`)
-* Commit proposal (required when `Status: Done, Waiting for Validation` and `SPEC.md` policy requires it)
+* Execution brief
+* Checks to run
+* Evidence expected
 * Pilot exchange
 * Dev log
 
-## Template
+## Conditional required fields
+
+* `Pending reason`, `Remaining work`, `Resume condition` when `Status: Pending`
+* `Commit proposal` when `Status: Done, Waiting for Validation` and `SPEC.md` requires it
+
+## Extended fields (optional, use when helpful)
+
+* Context
+* Rationale
+* Files/areas likely involved
+* Constraints and traps
+* Documentation impact
+* Ready when
+
+## V1/V2/V2.1 compatibility
+
+* Older stories remain valid if they are executable and testable.
+* Missing newer fields is not an error by default.
+* Pilot may backfill only the fields needed to continue safely.
+
+## Template (core-first)
 
 ```text
 # T1-S01 — <Short name>
@@ -37,12 +60,6 @@ Acceptance: User
 
 Status: To Do, Waiting for Validation
 
-## Context
-<Why this story exists>
-
-## Rationale
-<Why now / why this approach, in 1-2 lines>
-
 ## Goal
 <The single outcome this story must achieve>
 
@@ -52,15 +69,14 @@ Status: To Do, Waiting for Validation
 ## Out of scope
 - ...
 
-## Documentation impact
-- To document: <leave empty if no documentation impact>
+## Execution brief
+- <2-5 bullets the Dev can act on immediately>
 
-## Ready when
-- Goal is a single outcome
-- In scope / Out of scope are explicit
-- Done when is testable
-- Acceptance owner is set
-- Rationale is present
+## Checks to run
+- <command> — <what it validates>
+
+## Evidence expected
+- <what the Dev should prove in `Dev log` or visible result>
 
 ## Done when
 - ...
@@ -87,42 +103,30 @@ Why these scopes:
 
 ## Pilot exchange
 - 2026-02-03 15h10m00s — Dev -> Pilot — Decision request: <decision needed + why>
-- 2026-02-03 15h30m00s — Pilot -> Dev — Logged in `ArPiDev/DECISIONS.md`: <short decision>
 
 ## Dev log
 - 2026-02-03 16h20m00s — Change: <what changed>
   Why this way:
-  - Observed issue: <concrete symptom or failing behavior>
-  - Root cause: <what was actually wrong>
-  - Chosen fix: <what was changed>
-  - Why this option: <why this was selected over alternatives, with tradeoff>
-  - Evidence: <how the change was validated>
-  Commands/tests: <commands run + short result>
+  - Observed issue: <symptom/risk>
+  - Root cause: <cause or working hypothesis>
+  - Chosen fix: <what changed>
+  - Tradeoff: <why this option>
+  - Evidence: <test/check/result>
+  Commands/tests: <commands + short result>
 ```
 
 ## Notes
 
-* Keep the scope tight.
-* The Dev documents only in `Dev log`.
-* Dev-to-Pilot coordination goes in `Pilot exchange` (especially decision requests).
-* Use `Documentation impact` and/or `Pilot exchange` with a `To document:` prefix when a change should later be covered by ArPiDoc.
-* Time format must be `YYYY-MM-DD HHhMMmSSs` (human-readable, local time).
-* `Status` must be one of:
+* Keep scope tight and outcome-oriented.
+* `Dev log` is the primary user-facing trace of implementation and reasoning.
+* Use `Pilot exchange` for cross-story decisions and `To document:` notes.
+* Time format: `YYYY-MM-DD HHhMMmSSs` (local time).
+* Valid statuses:
   - `To Do, Waiting for Validation`
   - `To Do, Validated`
   - `Active`
   - `Done, Waiting for Validation`
   - `Done, Validated`
   - `Pending`
-* `Closed` is set by the Pilot when status becomes `Done, Validated` or `Pending`.
-* If user asks for changes while status is `Done, Waiting for Validation`, switch back to `Active`.
-* `Pending` means "blocked for now and intentionally deferred". It must include `Pending reason`, `Remaining work`, and `Resume condition`.
-* When status is `Done, Waiting for Validation`, fill `Commit proposal` if required by `SPEC.md` git policy.
-* Story checkboxes in `TASKS.md` are checked only when status is `Done, Validated`.
-* If acceptance is delegated to the Pilot, note it next to `Acceptance`.
-* `Rationale` should be short, concrete, and tied to goals or constraints (not a long essay).
-* Every dev log entry must include an explicit causal “why”:
-  observed issue -> root cause -> chosen fix -> why this option -> evidence.
-* Generic lines like "to avoid regression" are insufficient unless tied to a specific risk and verification result.
-* Dev log entries are incremental: append entries during execution after each meaningful change/check, not only at closure.
-* `Pilot exchange` should also capture explicit user pause/stop decisions at closure (date + pause request + next resume target).
+* If the user requests changes after `Done, Waiting for Validation`, switch back to `Active`.
+* Incremental logs are preferred over one large final summary.

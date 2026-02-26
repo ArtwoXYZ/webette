@@ -75,7 +75,6 @@
 - ✅ Mettre en place les headers pour favicon 
 - ✅ Mettre en place les headers pour socials
 - 🔳 Mettre système de Tags pour les entry
-- 🔳 Mettre un fichier spécial collection.webt pour transformer une entry en sous-collection (faire en sorte que les niveaux soient-infinis). Faire fonctionner ça avec les index automatique
 - 🔳 Essayer de faire le tri dans les 2 types de fichiers de config pour avoir une vrai séparation entre la config d'un site et la config de l'outil
 - ✅ Comment ajouter un block vidéo d'une autre entrée où on veut (via MD, via block spécial peut-être, via helper) ? Réfléchir à ça pour tous les types de blocks.
 - ✅ Injecter le live reload automatiquement
@@ -84,6 +83,7 @@
   - ✅ Dossier "Collection Index" = Index de la collection
   - ℹ Ca ne retire pas la ligne de config pour les layout personnalisés. Ca peut être intégré dans les layouts d'index des starters des base pour pouvoir ajouter du texte sur les index ou quoi, genre si ces dossier existes, on met ce contenu dans l'index. Qqch comme ça
 - ✅ Changer dans les credits du site exemple, la licence sur l'outil et les assets (dispos aujourd'hui dans les dossiers du projet)
+- 🔳 Cleaner et faire un CLI plus cohérent et sympa avec une Aide et tout
 
 ## Plugins :
 - 🔳 Plugin de flux RSS

@@ -339,6 +339,9 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     const collections: Collection[] = Array.isArray((model as any).collections)
       ? (model as any).collections
       : []
+    const rootEntries: Entry[] = Array.isArray((model as any).rootEntries)
+      ? (model as any).rootEntries
+      : []
 
     let foundEntry: Entry | undefined
     let foundCollection: Collection | undefined
@@ -355,6 +358,15 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
         foundCollection = col
         break
       }
+    }
+
+    if (!foundEntry) {
+      foundEntry = rootEntries.find(
+        (ent) =>
+          ent.slug === identifier ||
+          ent.id === identifier ||
+          (ent.route && ent.route.replace(/\/+$/, '') === identifier.replace(/\/+$/, '')),
+      )
     }
 
     if (!foundEntry) return ''

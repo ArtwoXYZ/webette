@@ -3,6 +3,7 @@
  */
 
 import type Handlebars from "handlebars";
+import * as path from "node:path";
 import type { Collection, Entry } from "../model";
 import {
   buildExcludeSet,
@@ -93,6 +94,17 @@ type MenuOptions = {
   entriesLink?: boolean;
 };
 
+function findCurrentCollectionItem(items: NavigationItem[]): NavigationItem | undefined {
+  for (const item of items) {
+    if (item.kind === "collection" && item.isCurrent) return item;
+    if (item.children?.length) {
+      const found = findCurrentCollectionItem(item.children);
+      if (found) return found;
+    }
+  }
+  return undefined;
+}
+
 const buildEntryItem = (collection: Collection, entry: Entry): NavigationItem => ({
   kind: "entry",
   route: entry.route,
@@ -139,6 +151,30 @@ const buildCollectionItem = (collection: Collection, children: NavigationItem[])
   ...(children.length ? { children } : {}),
 });
 
+const ROOT_MENU_COLLECTION: Collection = {
+  id: "__root__",
+  rawName: "(root)",
+  name: "Root",
+  slug: "root",
+  path: "",
+  route: "/",
+  entries: [],
+};
+
+const buildRootEntryItem = (entry: Entry): NavigationItem =>
+  buildEntryItem(ROOT_MENU_COLLECTION, entry);
+
+function normalizeCollectionPathKey(value: string | undefined): string {
+  return (value ?? "").replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+}
+
+function parentCollectionPathKey(collectionPath: string): string {
+  const normalized = normalizeCollectionPathKey(collectionPath);
+  if (!normalized) return "";
+  const parent = path.posix.dirname(normalized);
+  return parent === "." ? "" : parent;
+}
+
 export function registerMenuHelper(handlebars: typeof Handlebars) {
   if (handlebars.helpers.menu) return;
 
@@ -151,6 +187,9 @@ export function registerMenuHelper(handlebars: typeof Handlebars) {
     const collections: Collection[] = Array.isArray((model as any).collections)
       ? (model as any).collections
       : [];
+    const rootEntries: Entry[] = Array.isArray((model as any).rootEntries)
+      ? (model as any).rootEntries
+      : [];
     const currentCollection = (root as any).collection;
     const currentEntry = (root as any).entry;
 
@@ -160,7 +199,7 @@ export function registerMenuHelper(handlebars: typeof Handlebars) {
     const hasDrafts =
       collections.some((collection) =>
         (collection.entries ?? []).some((entry) => entry.isDraft)
-      ) || false;
+      ) || rootEntries.some((entry) => entry.isDraft);
     // If drafts exist in the model (serve mode), show them unless explicitly disabled.
     const includeDrafts =
       typeof includeDraftsRaw === "boolean" ? includeDraftsRaw : hasDrafts;
@@ -263,14 +302,44 @@ export function registerMenuHelper(handlebars: typeof Handlebars) {
         return { ...withChildren, depth };
       });
 
-    let items: NavigationItem[] = collections
-      .filter((collection) => shouldIncludeCollectionItem(collection))
-      .map((collection) => {
-        const children = (collection.entries ?? [])
-          .filter((entry) => shouldIncludeEntryItem(entry, collection))
-          .map((entry) => buildEntryItem(collection, entry));
-        return buildCollectionItem(collection, children);
-      });
+    const buildCollectionForest = (allCollections: Collection[]): NavigationItem[] => {
+      const byPath = new Map<string, Collection>();
+      for (const collection of allCollections) {
+        byPath.set(normalizeCollectionPathKey(collection.path), collection);
+      }
+
+      const childrenByParent = new Map<string, Collection[]>();
+      for (const collection of allCollections) {
+        const key = normalizeCollectionPathKey(collection.path);
+        const parentKey = parentCollectionPathKey(key);
+        const effectiveParentKey = parentKey && byPath.has(parentKey) ? parentKey : "";
+        const siblings = childrenByParent.get(effectiveParentKey) ?? [];
+        siblings.push(collection);
+        childrenByParent.set(effectiveParentKey, siblings);
+      }
+
+      const buildNode = (collection: Collection): NavigationItem => {
+        const collectionKey = normalizeCollectionPathKey(collection.path);
+        const entryChildren = (collection.entries ?? []).map((entry) =>
+          buildEntryItem(collection, entry)
+        );
+        const nestedCollectionChildren = (childrenByParent.get(collectionKey) ?? []).map(
+          buildNode
+        );
+        return buildCollectionItem(collection, [...entryChildren, ...nestedCollectionChildren]);
+      };
+
+      return (childrenByParent.get("") ?? []).map(buildNode);
+    };
+
+    let items: NavigationItem[] = buildCollectionForest(collections);
+
+    if (rootEntries.length) {
+      const rootEntryItems = rootEntries
+        .filter((entry) => shouldIncludeEntryItem(entry))
+        .map((entry) => buildRootEntryItem(entry));
+      items = [...rootEntryItems, ...items];
+    }
 
     items = applyVisibility(items);
 
@@ -280,9 +349,12 @@ export function registerMenuHelper(handlebars: typeof Handlebars) {
 
     items = applyState(items);
 
+    const currentCollectionItem = findCurrentCollectionItem(items);
+
     // Provide current context so layouts can render collection indexes without extra lookups.
     return options.fn({
       items,
+      ...(currentCollectionItem ? { currentCollectionItem } : {}),
       collection: currentCollection,
       entry: currentEntry,
       current: { collection: currentCollection, entry: currentEntry },

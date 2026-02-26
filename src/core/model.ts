@@ -54,6 +54,40 @@ export interface Collection {
   fingerprint?: string; // stable hash of the collection content/structure
 }
 
+export interface SiteStructureIgnoredFolder {
+  path: string;                    // path relative to the site root
+  reason: "empty-folder" | "meta-only-folder";
+}
+
+export interface SiteStructureEntryNode {
+  kind: "entry";
+  rawName: string;
+  path: string;                    // path relative to the site root
+  blocks: Block[];                 // scanned blocks for classification evidence
+  displayName?: string;
+  description?: string;
+  isDraft?: boolean;
+  isUnlisted?: boolean;
+}
+
+export interface SiteStructureCollectionNode {
+  kind: "collection";
+  rawName: string;
+  path: string;                    // path relative to the site root
+  children: SiteStructureNode[];   // nested collections/entries
+  displayName?: string;
+  description?: string;
+  isUnlisted?: boolean;
+}
+
+export type SiteStructureNode = SiteStructureCollectionNode | SiteStructureEntryNode;
+
+export interface SiteStructureRoot {
+  kind: "root";
+  children: SiteStructureNode[];
+  ignoredFolders?: SiteStructureIgnoredFolder[];
+}
+
 export interface Site {
   rootDir: string;                  // absolute path to the site root
   site: Record<string, unknown>;    // "site" section from webette.config.ts
@@ -66,7 +100,9 @@ export interface Site {
     root?: Entry;
     collections?: Record<string, Entry>;
   };
-  collections?: Collection[];       // discovered collections with their entries/blocks
+  structure?: SiteStructureRoot;    // recursive source of truth for scanned content structure
+  rootEntries?: Entry[];            // derived root-level entry view for consumers/templates/export
+  collections?: Collection[];       // derived flat collection view (entries/assets) for consumers/templates/export
   route?: string;                   // root route, usually "/"
   createdAt?: string;               // ISO timestamp of first appearance in the model
   updatedAt?: string;               // ISO timestamp of last change in the model

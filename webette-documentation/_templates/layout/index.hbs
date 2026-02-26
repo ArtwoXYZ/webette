@@ -5,13 +5,9 @@
         <h2>{{displayName collection}}</h2>
         <p>Collection index.</p>
 
-        {{#each items}}
-          {{#if (eq kind "collection")}}
-            {{#if isCurrent}}
-              {{> navigation-items items=children}}
-            {{/if}}
-          {{/if}}
-        {{/each}}
+        {{#if currentCollectionItem.children}}
+          {{> navigation-items items=currentCollectionItem.children}}
+        {{/if}}
       {{else}}
         <h2>Site index</h2>
         <p>You can browse all collections and entries of this demo site.</p>

@@ -61,6 +61,17 @@
 
             <div class="top-menu-tabs">
               {{#each items}}
+                {{#if (eq kind "entry")}}
+                  <div class="top-menu-tabwrap">
+                    <a
+                      class="top-menu-tab top-menu-tab--link {{#if isActive}}is-current{{/if}}"
+                      href="{{route}}"
+                      {{#if isActive}}aria-current="page"{{/if}}
+                    >
+                      {{#if title}}{{title}}{{else}}{{displayName entry}}{{/if}}
+                    </a>
+                  </div>
+                {{/if}}
                 {{#if (eq kind "collection")}}
                   <div class="top-menu-tabwrap">
                     {{#if (eq collection.entriesCount 1)}}
@@ -106,6 +117,18 @@
                               {{#if entry.isDraft}}
                                 <span class="draft-pill">draft</span>
                               {{/if}}
+                            </li>
+                          {{/if}}
+                          {{#if (eq kind "collection")}}
+                            <li class="top-menu-tree-item">
+                              <span class="tree-line {{#if isActive}}is-active{{/if}} {{#if @last}}last-tree-line{{/if}}">&#8195;&#8195;&#8195;</span>
+                              <a
+                                class="top-menu-entry top-menu-entry--collection {{#if isActive}}is-active{{/if}}"
+                                href="{{route}}"
+                                {{#if isActive}}aria-current="page"{{/if}}
+                              >
+                                <span class="tree-ascii">&#9492;&#9472;&#9472;</span> {{#if title}}{{title}}{{else}}{{displayName collection}}{{/if}}
+                              </a>
                             </li>
                           {{/if}}
                         {{/each}}

@@ -252,27 +252,44 @@ export async function serve(
 
     await keepProcessAlive();
   } catch (error) {
+    const normalizedError =
+      error instanceof Error &&
+        /^Failed to start server\. Is port \d+ in use\?$/.test(error.message)
+        ? (() => {
+          // Bun can throw a generic message with a stale hardcoded port number.
+          error.message = `Failed to start server. Is port ${port} in use?`;
+          return error;
+        })()
+        : error;
+
+    const errorMessage =
+      normalizedError instanceof Error ? normalizedError.message : String(normalizedError);
+    const looksLikePortInUse =
+      normalizedError instanceof Error &&
+      (errorMessage.includes("EADDRINUSE") ||
+        /^Failed to start server\. Is port \d+ in use\?$/.test(errorMessage));
+
     // Check if this is a port-in-use error
-    if (error instanceof Error && error.message.includes("EADDRINUSE")) {
+    if (looksLikePortInUse) {
       scoped.error("serve.portInUse", {
         port: port,
-        error: error.message,
+        error: errorMessage,
       });
       console.error(`\n${"=".repeat(60)}`);
-      console.error("ERROR: Port ${port} is already in use!");
+      console.error(`ERROR: Port ${port} is already in use!`);
       console.error("\nPossible solutions:");
-      console.error("  1. Kill the process using port ${port}");
-      console.error("  2. Change the port in src/config/env.ts");
+      console.error(`  1. Kill the process using port ${port}`);
+      console.error("  2. Change the port in webette.tool.ts (or src/config/env.ts default)");
       console.error("  3. Wait for the port to be freed");
       console.error(`${"=".repeat(60)}\n`);
     } else {
       // For other errors, log with details
       scoped.error("serve.startFailed", {
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
+        error: errorMessage,
+        stack: normalizedError instanceof Error ? normalizedError.stack : undefined,
       });
     }
     // Re-throw to let the outer handler deal with it
-    throw error;
+    throw normalizedError;
   }
 }

@@ -14,6 +14,12 @@ const PREFERRED_KEYS = [
   "rootDir",
   "site",
   "config",
+  "structure",
+  "rootEntries",
+  "kind",
+  "children",
+  "ignoredFolders",
+  "reason",
   "collections",
   "id",
   "rawName",
@@ -66,6 +72,21 @@ export async function writeModelExport(options: {
 
   const siteSummary = {
     ...siteBase,
+    rootEntries: site.rootEntries?.map((entry) => ({
+      id: entry.id,
+      rawName: entry.rawName,
+      path: entry.path,
+      name: entry.name,
+      displayName: entry.displayName,
+      description: entry.description,
+      slug: entry.slug,
+      route: entry.route,
+      isDraft: entry.isDraft,
+      isUnlisted: entry.isUnlisted,
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt,
+      fingerprint: entry.fingerprint,
+    })),
     collections: site.collections?.map((collection) => {
       const { entries, ...rest } = collection;
       const entrySummaries = entries.map((entry) => ({

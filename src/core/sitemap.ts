@@ -10,7 +10,7 @@ import type { Site } from "./model";
 type SitemapUrl = {
   loc: string;
   lastmod?: string;
-  source: "entry" | "collection" | "root";
+  source: "entry" | "collection" | "root" | "root-entry";
 };
 
 export async function writeSitemap(options: {
@@ -56,6 +56,14 @@ export async function writeSitemap(options: {
       const colLastmod = collection.updatedAt ?? collection.createdAt;
       addUrl(collection.route ?? `/${collection.slug || collection.id}`, colLastmod, "collection");
     }
+  }
+
+  // Root entries are first-class pages in the recursive model and must appear in the sitemap.
+  for (const entry of siteModel.rootEntries ?? []) {
+    if (!includeDrafts && entry.isDraft) continue;
+    if (entry.isUnlisted) continue;
+    const lastmod = entry.updatedAt ?? entry.createdAt;
+    addUrl(entry.route, lastmod, "root-entry");
   }
 
   for (const collection of siteModel.collections ?? []) {

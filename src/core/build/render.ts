@@ -166,6 +166,19 @@ export async function renderSite(options: {
   };
 
   // Entry pages
+  for (const entry of site.rootEntries ?? []) {
+    if (!includeDrafts && entry.isDraft) continue;
+    if (entry.isIndex) continue;
+
+    const entryRouteRelative = entry.route
+      ? entry.route.replace(/^\/+/, "")
+      : (entry.slug || entry.id);
+    const entryOutputDir = path.join(outputDir, entryRouteRelative);
+
+    const wrote = await renderEntryTo(entry, undefined, entryOutputDir);
+    if (wrote) renderedPages += 1;
+  }
+
   for (const collection of site.collections ?? []) {
     for (const entry of collection.entries) {
       if (!includeDrafts && entry.isDraft) continue;
@@ -218,6 +231,13 @@ export async function renderSite(options: {
       layoutName: rootIndexLayoutName,
       entry: rootIndexEntry ? { ...rootIndexEntry, route: "/" } : { name: "Index", route: "/" },
       ...(rootIndexEntry ? { blocks: filterRenderableBlocks(rootIndexEntry.blocks) } : {}),
+      ...(site.rootEntries
+        ? {
+            rootEntries: site.rootEntries.filter(
+              (entry) => !entry.isUnlisted && (includeDrafts || !entry.isDraft)
+            ),
+          }
+        : {}),
       collections: visibleCollections,
     };
     const rootHtml = templateRenderer.render(rootContext);

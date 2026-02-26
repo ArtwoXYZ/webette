@@ -59,14 +59,23 @@ function resolveEntryRoutes(entry: Entry, collectionRoute: string): Entry {
   };
 }
 
+function resolveRootEntryRoutes(entry: Entry): Entry {
+  const parentSegments = [entry.slug];
+  const route = ensureLeadingSlash(`${joinRoute(...parentSegments)}/`);
+  const blocks = entry.blocks.map((block) => resolveBlockRoutes(block, parentSegments));
+
+  return {
+    ...entry,
+    route,
+    blocks,
+  };
+}
+
 function resolveCollectionRoutes(
   collection: Collection,
-  config?: Record<string, unknown>
+  config: Record<string, unknown> | undefined,
+  baseRoute: string
 ): Collection {
-  const collectionConfig = config as CollectionConfig | undefined;
-  const configuredRoute = normalizeRouteSegment(collectionConfig?.route);
-
-  const baseRoute = configuredRoute ?? collection.slug;
   const route = ensureLeadingSlash(`${joinRoute(baseRoute)}/`);
   const entries = collection.entries.map((entry) =>
     resolveEntryRoutes(entry, baseRoute)
@@ -110,21 +119,56 @@ function buildConfigIndex(site: Site): Map<string, CollectionConfig> {
 
 export function resolveRoutes(site: Site): Site {
   const configIndex = buildConfigIndex(site);
+  const collectionList = site.collections ?? [];
+  const collectionsByPath = new Map<string, Collection>(
+    collectionList.map((collection) => [normalizePath(collection.path) ?? collection.path, collection])
+  );
+  const resolvedCollectionByPath = new Map<string, Collection>();
 
-  const collections = site.collections?.map((collection) => {
-    // Match config by normalized path (preferred) or rawName as fallback.
+  const resolveCollectionBaseRoute = (collection: Collection): string => {
+    const pathKey = normalizePath(collection.path) ?? collection.path;
+    const cached = resolvedCollectionByPath.get(pathKey);
+    if (cached?.route) {
+      return cached.route.replace(/^\/+|\/+$/g, "");
+    }
+
+    // Match config by full path (preferred) or rawName as fallback.
     const matchConfig =
       configIndex.get(collection.path) ??
       configIndex.get(normalizePath(collection.rawName) ?? "");
-    return resolveCollectionRoutes(collection, matchConfig);
+    const collectionConfig = matchConfig as CollectionConfig | undefined;
+    const configuredRoute = normalizeRouteSegment(collectionConfig?.route);
+    const localSegment = configuredRoute ?? collection.slug;
+
+    const parentPathRaw = normalizePath(collection.path)
+      ?.split("/")
+      .slice(0, -1)
+      .join("/");
+    const parentPath = parentPathRaw && parentPathRaw.trim() ? parentPathRaw : undefined;
+    const parentCollection = parentPath ? collectionsByPath.get(parentPath) : undefined;
+    const parentBaseRoute = parentCollection ? resolveCollectionBaseRoute(parentCollection) : "";
+    return joinRoute(parentBaseRoute, localSegment);
+  };
+
+  const collections = collectionList.map((collection) => {
+    const matchConfig =
+      configIndex.get(collection.path) ??
+      configIndex.get(normalizePath(collection.rawName) ?? "");
+    const baseRoute = resolveCollectionBaseRoute(collection);
+    const resolved = resolveCollectionRoutes(collection, matchConfig, baseRoute);
+    const pathKey = normalizePath(collection.path) ?? collection.path;
+    resolvedCollectionByPath.set(pathKey, resolved);
+    return resolved;
   });
+
+  const rootEntries = site.rootEntries?.map((entry) => resolveRootEntryRoutes(entry));
 
   const rootIndex = site.indexes?.root ? resolveRootIndexRoutes(site.indexes.root) : undefined;
   const collectionIndexes = site.indexes?.collections
     ? Object.fromEntries(
       Object.entries(site.indexes.collections).map(([key, entry]) => {
         const collection = collections?.find(
-          (col) => (col.slug || col.id) === key
+          (col) => (col.slug || col.id) === key || col.path === key
         );
         if (!collection) return [key, entry];
         const baseRoute = (collection.route ?? "")
@@ -139,6 +183,7 @@ export function resolveRoutes(site: Site): Site {
   return {
     ...site,
     route: "/",
+    ...(rootEntries ? { rootEntries } : {}),
     ...(collections ? { collections } : {}),
     ...((rootIndex || collectionIndexes)
       ? {

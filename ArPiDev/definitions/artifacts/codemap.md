@@ -1,23 +1,24 @@
-# ArPiDev Artifact — CODEMAP.md
+# ArPiDev Artifact — CODEMAP.md (V2)
 
 ## Purpose
 
-`CODEMAP.md` is a compact, long-lived snapshot of the current codebase.
+`CODEMAP.md` is a compact, long-lived snapshot of the codebase for navigation.
 
-It exists to avoid re-reviewing the entire repository on every session, especially when ArPiDev is adopted mid-project.
+Use it to store pointers, entry points, and pitfalls that save time across sessions.
+Do not turn it into an exhaustive repo dump.
 
 ## Who writes it
 
-* Typically created by the **Architect** after a code review.
-* Updated only when major structures change.
+* Typically the Architect after a focused code review.
+* Updated only when major structures or workflows change.
 
 ## Minimum content rule (non-empty)
 
-A `CODEMAP.md` is considered **non-empty** only if it contains at least:
+A `CODEMAP.md` is considered non-empty only if it contains at least:
 
-* an entry point section,
-* a component/module map,
-* a "how to run" section,
+* an entry points section,
+* a module/component map,
+* a how-to-run section,
 * at least one known pitfall.
 
 Placeholder markers include (but are not limited to): `TBD`, `TODO`, `<TBD>`, `...`, `?`.
@@ -86,4 +87,5 @@ Placeholder markers include (but are not limited to): `TBD`, `TODO`, `<TBD>`, `.
 
 * Keep it short and navigable.
 * Prefer pointers to paths over long explanations.
-* This template lives here; create `ArPiDev/CODEMAP.md` when needed.
+* Prefer non-obvious traps over obvious folder listings.
+* Older CODEMAP variants are acceptable if they remain useful.

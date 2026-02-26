@@ -1,4 +1,4 @@
-# T4-S01 — Plugin TOC (spec + plugin minimal + doc d’usage)
+# T5-S01 — Plugin TOC (spec + plugin minimal + doc d’usage)
 
 Created: 2026-02-22 21h37m41s
 Closed:
@@ -69,6 +69,7 @@ Why these scopes:
 
 ## Pilot exchange
 - 2026-02-22 21h37m41s — Pilot -> User — Story créée après validation de T3-S04. Merci de valider le contenu avant activation Dev.
+- 2026-02-26 18h17m14s — Pilot -> User — Story renumérotée de `T4-S01` vers `T5-S01` après insertion d’un nouveau chantier `T4` (refonte du modèle arborescent).
 
 ## Dev log
 - (à compléter par Dev pendant l’implémentation)

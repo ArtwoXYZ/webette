@@ -166,6 +166,11 @@ export function matchCollection(site: Site, name: string): Collection | undefine
   });
 }
 
+// Reserved keyword to explicitly target root entries (entries without collection).
+export function isRootCollectionName(name: string): boolean {
+  return normalizeName(name) === "root";
+}
+
 export function matchEntry(collection: Collection, name: string): Entry | undefined {
   const target = normalizeName(name);
   return collection.entries.find((entry) => {

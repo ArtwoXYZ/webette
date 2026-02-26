@@ -109,6 +109,21 @@ export function collectProtectedDirs(options: {
       visitBlocks(entry.blocks);
     }
   }
+  for (const entry of site.rootEntries ?? []) {
+    if (!includeDrafts && entry.isDraft) continue;
+    const visitBlocks = (blocks: Block[]) => {
+      for (const blk of blocks) {
+        collectDirForRoute(blk.route);
+        if (blk.content?.variants) {
+          for (const variant of blk.content.variants) {
+            collectDirForRoute(variant.route);
+          }
+        }
+        if (blk.subBlocks) visitBlocks(blk.subBlocks);
+      }
+    };
+    visitBlocks(entry.blocks);
+  }
 
   const visitIndexEntry = (entry: Entry | undefined) => {
     if (!entry) return;
@@ -199,10 +214,12 @@ export async function pruneOrphans(options: {
     }
   }
 
-  const addEntryPage = (entry: Entry, collection: Collection) => {
+  const addEntryPage = (entry: Entry, collection?: Collection) => {
     const routeRelative = entry.route
       ? entry.route.replace(/^\/+/, "")
-      : path.join(collection.slug || collection.id, entry.slug || entry.id);
+      : collection
+        ? path.join(collection.slug || collection.id, entry.slug || entry.id)
+        : (entry.slug || entry.id);
     addOutput(path.join(routeRelative, "index.html"));
   };
 
@@ -242,6 +259,11 @@ export async function pruneOrphans(options: {
       collectBlocks(entry.blocks);
       addEntryPage(entry, collection);
     }
+  }
+  for (const entry of site.rootEntries ?? []) {
+    if (!includeDrafts && entry.isDraft) continue;
+    collectBlocks(entry.blocks);
+    addEntryPage(entry);
   }
 
   if (site.indexes?.root) {

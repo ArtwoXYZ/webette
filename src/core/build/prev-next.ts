@@ -35,6 +35,47 @@ export function getPrevNextEntry(options: {
 }): { prevEntry?: EntryNavRef; nextEntry?: EntryNavRef } {
   const { site, entry, renderCollection, includeDrafts } = options;
 
+  const rootEntries = site.rootEntries ?? [];
+  if (!renderCollection && rootEntries.some((e) => e.id === entry.id)) {
+    const orderedRootEntries = rootEntries.filter(
+      (e) => !e.isUnlisted && (includeDrafts || !e.isDraft)
+    );
+    const index = orderedRootEntries.findIndex((e) => e.id === entry.id);
+    if (index < 0) return {};
+
+    const prev = index > 0 ? orderedRootEntries[index - 1] : undefined;
+    const next = index < orderedRootEntries.length - 1 ? orderedRootEntries[index + 1] : undefined;
+    const routeForRootEntry = (target: Entry): string => {
+      if (typeof target.route === "string" && target.route.trim()) {
+        return normalizeEntryRoute(target.route.trim());
+      }
+      return normalizeEntryRoute(target.slug || target.id);
+    };
+
+    return {
+      ...(prev
+        ? {
+            prevEntry: {
+              id: prev.id,
+              name: prev.name,
+              ...(prev.displayName ? { displayName: prev.displayName } : {}),
+              route: routeForRootEntry(prev),
+            },
+          }
+        : {}),
+      ...(next
+        ? {
+            nextEntry: {
+              id: next.id,
+              name: next.name,
+              ...(next.displayName ? { displayName: next.displayName } : {}),
+              route: routeForRootEntry(next),
+            },
+          }
+        : {}),
+    };
+  }
+
   const collection =
     renderCollection ??
     site.collections?.find((c) => c.entries.some((e) => e.id === entry.id));
@@ -72,4 +113,3 @@ export function getPrevNextEntry(options: {
       : {}),
   };
 }
-
