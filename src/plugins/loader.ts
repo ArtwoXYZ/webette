@@ -28,7 +28,9 @@ export async function loadPlugins(options: {
   for (const [index, rel] of pluginPaths.entries()) {
     const absPath = path.isAbsolute(rel) ? rel : path.join(rootDir, rel);
     const plugin = await importPlugin(absPath);
-    if (!plugin) continue;
+    if (!plugin) {
+      continue;
+    }
     // Derive a stable id from plugin or filename
     const fallbackId = plugin.pluginId ?? path.parse(absPath).name ?? `plugin_${index + 1}`;
     loaded.push({ ...plugin, pluginId: fallbackId });

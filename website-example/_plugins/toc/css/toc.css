@@ -1,0 +1,58 @@
+/* TOC Plugin - Minimal structural styling only */
+.webette-toc {
+  margin: 1.5em 0;
+}
+
+.webette-toc__inner {
+  padding: 0;
+}
+
+.webette-toc__list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.webette-toc__item {
+  margin: 0 0 0.5em 0;
+  padding-left: 1em;
+}
+
+.webette-toc__item--level-1 {
+  font-weight: 600;
+  padding-left: 0;
+}
+
+.webette-toc__item--level-2 {
+  font-weight: 500;
+  padding-left: 1em;
+}
+
+.webette-toc__item--level-3 {
+  padding-left: 2em;
+}
+
+.webette-toc__item--level-4 {
+  padding-left: 3em;
+  font-size: 0.95em;
+}
+
+.webette-toc__item--level-5 {
+  padding-left: 4em;
+  font-size: 0.9em;
+}
+
+.webette-toc__item--level-6 {
+  padding-left: 5em;
+  font-size: 0.85em;
+}
+
+.webette-toc__link {
+  text-decoration: none;
+  padding: 0.2em 0;
+  display: block;
+}
+
+.webette-toc__link:hover {
+  text-decoration: underline;
+}

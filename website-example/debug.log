@@ -1,0 +1,4 @@
+[2026-03-05T15:15:36.483Z] [webette.cli.build.build] Scan : 0 collections, 0 entrées, 0 blocs.
+[2026-03-05T15:15:36.485Z] [webette.cli.build.build] Modèle exporté vers --log-level/_public/_model.
+[2026-03-05T15:15:36.510Z] [webette.cli.build.build] Nettoyage des fichiers orphelins (overwrite != replace-all)…
+[2026-03-05T15:15:36.513Z] [webette.cli.build.build] ✅ Build terminé : --log-level/_public

@@ -1,0 +1,17 @@
+$ bun run src/cli.ts build
+[2026-03-05T15:15:12.382Z] [webette.cli.build.build] Racine des templates du site non configurée ; fallback sur les templates de l'outil.
+[2026-03-05T15:15:12.382Z] [webette.cli.build.build] Defaults de templates manquants dans la config du site : wrapper, layout, index, notFound, accessForbidden ; fallback sur ceux de l'outil.
+[2026-03-05T15:15:12.384Z] [webette.cli.build.build.scan] scan.folderIgnored
+[2026-03-05T15:15:12.384Z] [webette.cli.build.build.scan] scan.folderIgnored
+[2026-03-05T15:15:12.384Z] [webette.cli.build.build.scan] scan.folderIgnored
+[2026-03-05T15:15:12.455Z] [webette.cli.build.build.scan] Bloc 02 Risshō Kōsei Kai Temple - Reception Room.jpg marqué en non-rendu dans l'entrée website-example/01 Playground/07 Ignore a Block (ignore.webt).
+[2026-03-05T15:15:12.545Z] [webette.cli.build.build] Scan : 8 collections, 155 entrées, 4013 blocs.
+[2026-03-05T15:15:13.974Z] [webette.cli.build.build.resolve] reference.targetNotFound
+[2026-03-05T15:15:13.976Z] [webette.cli.build.build.resolve] reference.targetNotFound
+[2026-03-05T15:15:13.976Z] [webette.cli.build.build.resolve] reference.targetNotFound
+[2026-03-05T15:15:13.977Z] [webette.cli.build.build.resolve] reference.targetNotFound
+[2026-03-05T15:15:13.983Z] [webette.cli.build.build.resolve] reference.targetNotFound
+[2026-03-05T15:15:15.143Z] [webette.cli.build.build] Modèle exporté vers /Users/artwo/Documents/Bun Websites/webette/_public/_model.
+[2026-03-05T15:15:16.269Z] [webette.cli.build.build] Sitemap écrit (164 urls, brouillons inclus : false, urls absolues : false) : /Users/artwo/Documents/Bun Websites/webette/_public/sitemap.xml
+[2026-03-05T15:15:16.271Z] [webette.cli.build.build] Nettoyage des fichiers orphelins (overwrite != replace-all)…
+[2026-03-05T15:15:16.290Z] [webette.cli.build.build] ✅ Build terminé : /Users/artwo/Documents/Bun Websites/webette/_public

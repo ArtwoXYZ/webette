@@ -68,7 +68,14 @@ export default {
     },
   },
 
-  plugins: ['_plugins/demo.js'],
+  plugins: ['_plugins/toc/toc.js'],
+  pluginConfig: {
+    toc: {
+      forAllEntries: false,
+      minLevel: 2,
+      maxLevel: 4,
+    },
+  },
 
   markdown: {
     treatTxtAsMarkdown: false, // keep .txt blocks as plain text in this showcase

@@ -32,6 +32,7 @@ const PREFERRED_KEYS = [
   "slug",
   "route",
   "isDraft",
+  "isUnlisted",
   "createdAt",
   "updatedAt",
   "fingerprint",

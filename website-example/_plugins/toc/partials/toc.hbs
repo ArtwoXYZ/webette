@@ -1,0 +1,42 @@
+{{!--
+  Webette TOC Plugin - Default Partial
+
+  This partial provides a complete TOC structure with:
+  - Semantic HTML5 navigation
+  - Accessible aria-label
+  - BEM-style CSS classes for easy styling
+  - Hierarchical heading structure
+  - Conditional rendering
+  - Recursive nesting for unlimited depth
+--}}
+
+{{#if toc}}
+<nav class="webette-toc" aria-label="Table of contents">
+  <div class="webette-toc__inner">
+    <ul class="webette-toc__list">
+      {{#each toc.items}}
+        <li class="webette-toc__item webette-toc__item--level-{{level}}">
+          <a href="#{{slug}}" class="webette-toc__link">{{text}}</a>
+          {{#if items}}
+            {{> toc-items items=items }}
+          {{/if}}
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+</nav>
+{{/if}}
+
+{{!-- Recursive partial for nested items --}}
+{{#*inline "toc-items"}}
+<ul class="webette-toc__list">
+  {{#each items}}
+    <li class="webette-toc__item webette-toc__item--level-{{level}}">
+      <a href="#{{slug}}" class="webette-toc__link">{{text}}</a>
+      {{#if items}}
+        {{> toc-items items=items }}
+      {{/if}}
+    </li>
+  {{/each}}
+</ul>
+{{/inline}}
