@@ -68,7 +68,9 @@ export default {
     },
   },
 
-  plugins: ['_plugins/toc/toc.js'],
+  plugins: {
+    dir: '_plugins'
+  },
   pluginConfig: {
     toc: {
       forAllEntries: false,

@@ -6,6 +6,7 @@ import type { Root, Content, Parent, Link as MdastLink } from "mdast";
 import { renderMarkdownToHtml } from "../block-types/markdown/processor";
 import type { Logger } from "../../logging/logger";
 import type { Site, Entry, Collection } from "../model";
+import { SiteModelTransformer } from "../transformations/site-model-transformer";
 import {
   isRootCollectionName,
   parseInternalReference,
@@ -305,8 +306,8 @@ export async function rewriteInternalLinks(options: {
     )
     : undefined;
 
-  return {
-    ...site,
+  // Use SiteModelTransformer to ensure all properties are preserved during transformation
+  return SiteModelTransformer.fromPartialUpdate(site, {
     ...(rootEntries ? { rootEntries } : {}),
     ...(collections ? { collections } : {}),
     ...((rootIndex || collectionIndexes)
@@ -318,5 +319,5 @@ export async function rewriteInternalLinks(options: {
         },
       }
       : {}),
-  };
+  }).build();
 }

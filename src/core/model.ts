@@ -93,8 +93,9 @@ export interface Site {
   site: Record<string, unknown>;    // "site" section from webette.config.ts
   config?: {
     collections?: Record<string, unknown>; // raw collections config from webette.config.ts
-    plugins?: string[];             // plugin paths from webette.config.ts
+    plugins?: string[] | { dir: string };  // plugin paths or directory from webette.config.ts
     templates?: Record<string, unknown>; // raw templates config from webette.config.ts
+    pluginConfig?: Record<string, unknown>; // plugin-specific configuration
   };
   indexes?: {
     root?: Entry;
@@ -107,6 +108,14 @@ export interface Site {
   createdAt?: string;               // ISO timestamp of first appearance in the model
   updatedAt?: string;               // ISO timestamp of last change in the model
   fingerprint?: string;             // stable hash of the site content/structure
+  plugins?: Array<{
+    id: string;
+    name: string;
+    author?: string;
+    license?: string;
+    version?: string;
+    folder: string;
+  }>; // loaded plugins metadata
 }
 
 export type ImageVariantName = "default" | "small" | "medium" | "large";

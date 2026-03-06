@@ -1,10 +1,10 @@
 # T5-S01 — Plugin TOC (spec + plugin minimal + doc d'usage)
 
 Created: 2026-02-22 21h37m41s
-Closed:
+Closed: 2026-03-05 19h30m10s
 Acceptance: User
 
-Status: Ready for Development
+Status: Done, Validated
 
 ## Context
 La roadmap beta impose une capacité plugin minimale, avec un premier cas concret TOC (table des matières). Aujourd'hui, cette capacité n'est pas cadrée de façon exécutable dans une story dédiée. Ce plugin servira d'exemple de référence pour la structure et l'intégration des futurs plugins Webette.

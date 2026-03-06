@@ -4,6 +4,7 @@
 
 import type { Root, Content, Image as MdastImage, Html } from "mdast";
 import type { Site, Block, Entry, Collection } from "../model";
+import { SiteModelTransformer } from "../transformations/site-model-transformer";
 import { renderMarkdownToHtml } from "../block-types/markdown/processor";
 import type { Logger } from "../../logging/logger";
 import {
@@ -331,8 +332,8 @@ export async function rewriteInternalImages(options: {
     )
     : undefined;
 
-  return {
-    ...site,
+  // Build the update object
+  const update: Partial<Site> = {
     ...(rootEntries ? { rootEntries } : {}),
     ...(collections ? { collections } : {}),
     ...((rootIndex || collectionIndexes)
@@ -345,4 +346,7 @@ export async function rewriteInternalImages(options: {
       }
       : {}),
   };
+
+  // Use SiteModelTransformer to ensure all properties are preserved
+  return SiteModelTransformer.fromPartialUpdate(site, update).build();
 }

@@ -8,7 +8,9 @@ import { resolveRoutes } from "../routes";
 import type {
   Site,
 } from "../model";
+import { SiteModelTransformer } from "../transformations/site-model-transformer";
 import type { Logger } from "../../logging/logger";
+
 import { resolveTemplatesConfig } from "../templates/config";
 import { buildStructureRoot, deriveFlatRawViewsFromStructure } from "./derived-views";
 import { buildConfigIndex, enrichCollections, enrichEntries } from "./enrich";
@@ -93,13 +95,13 @@ export async function scanSite(site: Site, logger?: Logger): Promise<Site> {
     return { ...enriched, isIndex: true };
   })();
 
-  const scannedSite: Site = {
-    ...site,
+  // Build the scanned site using SiteModelTransformer for clean architecture
+  const scannedSite = SiteModelTransformer.fromPartialUpdate(site, {
     structure,
     ...(rootEntries.length ? { rootEntries } : {}),
     collections,
     ...(rootIndexEntry ? { indexes: { root: rootIndexEntry } } : {}),
-  };
+  }).build();
 
   return resolveRoutes(scannedSite);
 }

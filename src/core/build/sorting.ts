@@ -3,6 +3,7 @@
  */
 
 import type { Site, Collection, Entry, Block } from "../model";
+import { SiteModelTransformer } from "../transformations/site-model-transformer";
 import type { Logger } from "../../logging/logger";
 import { cleanName, orderKey, slugify } from "../../utils/naming";
 import { toPosix } from "../../utils/path";
@@ -387,8 +388,8 @@ export function applySorting(site: Site, logger?: Logger): Site {
     )
     : undefined;
 
-  return {
-    ...site,
+  // Build the update object
+  const update: Partial<Site> = {
     ...(rootEntries ? { rootEntries } : {}),
     collections: sortedCollections,
     ...((sortedRootIndex || sortedCollectionIndexes)
@@ -401,4 +402,7 @@ export function applySorting(site: Site, logger?: Logger): Site {
       }
       : {}),
   };
+
+  // Use SiteModelTransformer to ensure all properties are preserved
+  return SiteModelTransformer.fromPartialUpdate(site, update).build();
 }

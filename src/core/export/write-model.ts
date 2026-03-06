@@ -73,6 +73,7 @@ export async function writeModelExport(options: {
 
   const siteSummary = {
     ...siteBase,
+    plugins: site.plugins, // Include plugin metadata in the exported model
     rootEntries: site.rootEntries?.map((entry) => ({
       id: entry.id,
       rawName: entry.rawName,

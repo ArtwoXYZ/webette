@@ -16,6 +16,8 @@ export type PluginContext = {
   pluginId: string;
   addExpectedOutput: (relativePath: string) => void;
   addExpectedDir: (relativeDir: string) => void;
+  siteConfig?: Record<string, unknown>; // Full site configuration
+  pluginConfig?: Record<string, unknown>; // Plugin-specific configuration
 };
 
 export interface Plugin {
@@ -35,4 +37,13 @@ export interface Plugin {
   extendTemplates?: (hb: typeof Handlebars, ctx: PluginContext) => Promise<void> | void;
 }
 
-export type LoadedPlugin = Plugin & { pluginId: string };
+export type LoadedPlugin = Plugin & {
+  pluginId: string;
+  metadata?: {
+    name?: string;
+    author?: string;
+    license?: string;
+    version?: string;
+    folder?: string;
+  };
+};

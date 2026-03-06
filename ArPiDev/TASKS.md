@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: T5-S01 (Ready for Dev - Plugin TOC implementation)
+Active story:
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -33,8 +33,8 @@ Active story: T5-S01 (Ready for Dev - Plugin TOC implementation)
 - [x] T4-S08 Campagne de tests de confiance du nouveau système (checks techniques + tests manuels ciblés IA/user sur cas réels/edge cases).
 
 ## T5 — Plugins & configuration (beta)
-- [ ] T5-S01 Plugin TOC (spec + plugin minimal + doc d’usage). [ACTIVE - Ready for Dev]
-- [ ] T5-S02 Chargement des plugins automatique dans le fichier de config en précisant seulement le dossier où les dossiers des plugins se trouvent
+- [x] T5-S01 Plugin TOC (spec + plugin minimal + doc d’usage).
+- [x] T5-S02 Chargement des plugins automatique dans le fichier de config en précisant seulement le dossier où les dossiers des plugins se trouvent
 - [ ] T5-S03 Faire en sorte que Webette passe proprement la configuration du site (y compris pluginConfig) aux plugins via le contexte
 - [ ] T5-S02 Tags pour entries (modèle + rendu/filtre minimal).
 - [ ] T5-S03 Séparer clairement config tool vs config site (format + migration + doc).

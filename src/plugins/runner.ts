@@ -15,7 +15,13 @@ export async function runOnInit(plugins: LoadedPlugin[], ctx: PluginContext) {
   for (const plugin of plugins) {
     if (!plugin.onInit) continue;
     try {
-      await plugin.onInit({ ...ctx, pluginId: plugin.pluginId });
+      const pluginCtx = {
+        ...ctx,
+        pluginId: plugin.pluginId,
+        siteConfig: ctx.siteConfig,
+        pluginConfig: ctx.pluginConfig?.[plugin.pluginId] as Record<string, unknown> | undefined
+      };
+      await plugin.onInit(pluginCtx);
     } catch (err) {
       logError(ctx.logger, plugin.pluginId, "onInit", err);
     }
@@ -27,7 +33,13 @@ export async function runOnScan(plugins: LoadedPlugin[], site: Site, ctx: Plugin
   for (const plugin of plugins) {
     if (!plugin.onScan) continue;
     try {
-      const result = await plugin.onScan(current, { ...ctx, pluginId: plugin.pluginId });
+      const pluginCtx = {
+        ...ctx,
+        pluginId: plugin.pluginId,
+        siteConfig: ctx.siteConfig,
+        pluginConfig: ctx.pluginConfig?.[plugin.pluginId] as Record<string, unknown> | undefined
+      };
+      const result = await plugin.onScan(current, pluginCtx);
       if (result && typeof result === "object") {
         current = result as Site;
       }
@@ -43,7 +55,13 @@ export async function runOnResolved(plugins: LoadedPlugin[], site: Site, ctx: Pl
   for (const plugin of plugins) {
     if (!plugin.onResolved) continue;
     try {
-      const result = await plugin.onResolved(current, { ...ctx, pluginId: plugin.pluginId });
+      const pluginCtx = {
+        ...ctx,
+        pluginId: plugin.pluginId,
+        siteConfig: ctx.siteConfig,
+        pluginConfig: ctx.pluginConfig?.[plugin.pluginId] as Record<string, unknown> | undefined
+      };
+      const result = await plugin.onResolved(current, pluginCtx);
       if (result && typeof result === "object") {
         current = result as Site;
       }

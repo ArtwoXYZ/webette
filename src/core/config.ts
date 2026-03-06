@@ -15,7 +15,7 @@ interface WebetteConfigFile {
   markdown?: Record<string, unknown>;
   sorting?: Record<string, unknown>;
   video?: Record<string, unknown>;
-  plugins?: string[];
+  plugins?: string[] | { dir: string };
 }
 
 // Build the in-memory Site object based on the project folder and config file
@@ -65,6 +65,8 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
     const plugins =
       Array.isArray(raw.plugins) && raw.plugins.every((p: unknown) => typeof p === "string")
         ? [...raw.plugins]
+        : typeof raw.plugins === "object" && raw.plugins !== null && typeof (raw.plugins as { dir?: string }).dir === "string"
+        ? { dir: (raw.plugins as { dir: string }).dir }
         : undefined;
 
     return {
@@ -127,9 +129,11 @@ export async function createSite(rootDir: string): Promise<Site> {
       ...config.sorting,
     };
   }
-  const plugins: string[] | undefined =
+  const plugins: string[] | { dir: string } | undefined =
     Array.isArray((config as any).plugins) && (config as any).plugins.every((p: unknown) => typeof p === "string")
       ? ((config as any).plugins as string[])
+      : typeof (config as any).plugins === "object" && (config as any).plugins !== null && typeof ((config as any).plugins as { dir?: string }).dir === "string"
+      ? { dir: ((config as any).plugins as { dir: string }).dir }
       : undefined;
   const collectionsConfig: Record<string, unknown> | undefined =
     config.collections && typeof config.collections === "object"

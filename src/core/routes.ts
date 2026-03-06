@@ -2,6 +2,8 @@
  * Route generation for collections/entries/blocks (slug-based, config-aware).
  */
 import type { Block, Collection, Entry, Site } from "./model";
+import { SiteModelTransformer } from "./transformations/site-model-transformer";
+
 
 type CollectionConfig = {
   path?: string;
@@ -180,8 +182,8 @@ export function resolveRoutes(site: Site): Site {
     )
     : undefined;
 
-  return {
-    ...site,
+  // Use SiteModelTransformer for clean site transformation
+  return SiteModelTransformer.fromPartialUpdate(site, {
     route: "/",
     ...(rootEntries ? { rootEntries } : {}),
     ...(collections ? { collections } : {}),
@@ -194,5 +196,5 @@ export function resolveRoutes(site: Site): Site {
         },
       }
       : {}),
-  };
+  }).build();
 }

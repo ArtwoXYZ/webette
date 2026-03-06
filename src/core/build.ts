@@ -24,6 +24,7 @@ import {
   runTransformEntry,
 } from '../plugins/runner'
 import type { PluginContext } from '../plugins/types'
+import { SiteModelTransformer } from './transformations/site-model-transformer'
 import { rewriteInternalLinks } from './postprocess/markdown-links'
 import { rewriteInternalImages } from './postprocess/markdown-images'
 import { writeSitemap } from './sitemap'
@@ -184,6 +185,28 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     registerExpectedDir(assetsBaseRelative)
   }
 
+  // Load plugins before scanning so they can be used during scan
+  const plugins = await loadPlugins({
+    rootDir,
+    pluginPaths: Array.isArray(site.config?.plugins) ? (site.config?.plugins as string[]) : undefined,
+    pluginsDir: typeof site.config?.plugins === 'object' && site.config.plugins !== null && typeof (site.config.plugins as { dir?: string }).dir === 'string' 
+      ? (site.config.plugins as { dir: string }).dir 
+      : undefined,
+  })
+  
+  // Store plugin metadata in the site model before scanning
+  if (plugins.length > 0) {
+    site.plugins = plugins.map(plugin => ({
+      id: plugin.pluginId,
+      name: plugin.metadata?.name ?? plugin.pluginId,
+      author: plugin.metadata?.author,
+      license: plugin.metadata?.license,
+      version: plugin.metadata?.version,
+      folder: plugin.metadata?.folder ?? plugin.pluginId
+    }));
+    scoped.debug('build.pluginsStoredInSite', { count: site.plugins.length });
+  }
+
   const scanLogger = scoped.child('scan')
   const scannedSiteRaw = await scanSite(site, scanLogger)
   const draftCount = countDraftEntries(scannedSiteRaw)
@@ -198,10 +221,6 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     }
   }
   const scannedSite = filterDraftEntries(scannedSiteRaw, includeDrafts)
-  const plugins = await loadPlugins({
-    rootDir,
-    pluginPaths: Array.isArray(site.config?.plugins) ? (site.config?.plugins as string[]) : [],
-  })
   scoped.debug('build.pluginsLoaded', {
     count: plugins.length,
     ids: plugins.map((p) => p.pluginId),
@@ -238,6 +257,8 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     pluginId: '',
     addExpectedOutput: registerExpectedOutput,
     addExpectedDir: registerExpectedDir,
+    siteConfig: site.site, // Pass full site configuration
+    pluginConfig: (site.config?.pluginConfig as Record<string, unknown> | undefined) ?? undefined, // Pass plugin-specific config
   }
   await runOnInit(
     plugins.map((p, idx) => ({ ...p, pluginId: p.pluginId ?? `plugin_${idx + 1}` })),
@@ -489,12 +510,11 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
         nextIndexes = { ...nextIndexes, collections: updatedCollectionIndexes }
       }
 
-      resolvedSiteWithPlugins = {
-        ...resolvedSiteWithPlugins,
+      resolvedSiteWithPlugins = SiteModelTransformer.fromPartialUpdate(resolvedSiteWithPlugins, {
         ...(resolvedSiteWithPlugins.collections ? { collections: updatedCollections } : {}),
         ...(updatedRootEntries ? { rootEntries: updatedRootEntries } : {}),
         ...(nextIndexes ? { indexes: nextIndexes } : {}),
-      }
+      }).build()
     }
   }
 
