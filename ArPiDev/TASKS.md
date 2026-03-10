@@ -40,21 +40,46 @@ Active story: Aucune. Prochaine => T5-S04
 - [ ] T5-S05 Séparer clairement config tool vs config site (format + migration + doc).
 - [ ] T5-S06 Option pour retirer les templates embarqués du tool (décision + plan de migration).
 
-## T6 — Webette UI (beta)
-- [ ] T6-S01 POC serveur + build + logs (API locale minimale).
-- [ ] T6-S02 Alpha: build/serve/stop + gestion process + status.
-- [ ] T6-S03 UI minimale (boutons + logs + lien local).
-- [ ] T6-S04 Packaging/exécutable multi‑OS (alpha).
-- [ ] T6-S05 Éditeur de config + persistance (beta).
+## T6 — Refacto pre-beta
 
-## T7 — Starters & hub
-- [ ] T7-S01 Starter blog pour la beta (structure + assets + README).
-- [ ] T7-S02 Format de distribution starters (zip + métadonnées).
-- [ ] T7-S03 Site `hub.webette.org` listant starters/plugins.
+### Risques beta (priorité haute)
+- [ ] T6-S01 Shared utils : centraliser parseBoolean/normalizeClass dupliqués dans postprocess markdown (markdown-links.ts + markdown-images.ts + navigation).
+- [ ] T6-S02 HandlebarsContext typé : supprimer les `as any` dans helpers.ts et créer un type strict pour le contexte passé aux templates.
+- [ ] T6-S03 Config env validation : centraliser la validation de webette.config.ts (schéma + erreurs explicites à la place des silences).
+- [ ] T6-S04a Navigation resolver — parser : extraire la logique de lecture/interprétation du fichier navigation.webt (parseNavigationNameLine, parseItemLine, boucle stack-based…) vers navigation-parser.ts.
+- [ ] T6-S04b Navigation resolver — builder/filters : extraire la logique de visibilité/inclusion et la construction des nœuds vers navigation-filters.ts + navigation-builder.ts ; navigation.ts ne garde que l'orchestration.
 
-## T8 — Documentation & démo
-- [ ] T8-S01 Terminer le site de doc “EN COURS” (Concept + Features core).
-- [ ] T8-S02 Corriger les liens du site de démo une fois la doc en ligne.
+### Confort dev (priorité normale)
+- [ ] T6-S05 Build orchestration : extraire les étapes de build() en fonctions nommées pour réduire la fonction de 620 lignes.
+- [ ] T6-S06 Sorting : typer SortConfig strictement, dédupliquer findCustomSortingForCollection/Entry.
+- [ ] T6-S07 Plugin loader : consolider les deux chemins de chargement (pluginsDir + pluginPaths), robustifier le parsing metadata du README.
+- [ ] T6-S08 Nommage : audit et harmonisation des verbes (normalizeXyz, resolve vs create) + dédupliquer splitRouteSegments.
+
+### Structure repo (avant beta publique)
+- [ ] T6-S09 Cadrage monorepo (Pilot) : décider la structure cible (engine / app / website / releases), plan de migration, contraintes Bun workspaces, stratégie releases pour Tangled. [PILOT ONLY]
+- [ ] T6-S10 Migration monorepo : exécuter la restructuration selon le plan T6-S09 (déplacer engine, configurer workspaces Bun, vérifier imports/build/CI).
+
+## T7 — Webette UI (beta)
+
+> Note : explorer ElectroBun comme base pour l'app desktop avant de démarrer cette tâche.
+
+- [ ] T7-S01 POC serveur + build + logs (API locale minimale).
+- [ ] T7-S02 Alpha: build/serve/stop + gestion process + status.
+- [ ] T7-S03 UI minimale (boutons + logs + lien local).
+- [ ] T7-S04 Packaging/exécutable multi‑OS (alpha).
+- [ ] T7-S05 Éditeur de config + persistance (beta).
+
+## T8 — Starters & hub
+
+> Note : prévoir la stratégie de distribution pour Tangled (pas de GitHub Releases) — dossier `releases/` dans le monorepo ou repo dédié à décider en T6-S09.
+
+- [ ] T8-S01 Starter blog pour la beta (structure + assets + README).
+- [ ] T8-S02 Format de distribution starters (zip + métadonnées).
+- [ ] T8-S03 Site `hub.webette.org` listant starters/plugins.
+
+## T9 — Documentation & démo
+- [ ] T9-S01 Terminer le site de doc “EN COURS” (Concept + Features core).
+- [ ] T9-S02 Corriger les liens du site de démo une fois la doc en ligne.
 
 ## Pending stories
 - T2-S06 — Reason: integration should be a plugin; deferred until plugin path is ready — Remaining: define plugin scope/mapping and implement opt-in behavior — Owner: User/Pilot — Resume condition: plugin system is available or a dedicated plugin story is scheduled.
