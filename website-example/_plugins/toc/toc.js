@@ -5,46 +5,6 @@
  * a simple {{toc}} helper for template integration.
  */
 
-/**
- * Load plugin configuration from webette.config.ts
- * @param {string} rootDir - Site root directory
- * @returns {object} - Plugin configuration
- */
-async function loadConfig(rootDir) {
-  try {
-    // Try to load config from webette.config.ts
-    const configPath = path.join(rootDir, "webette.config.ts");
-    const configContent = await readFile(configPath, "utf8");
-    
-    // Simple regex to extract toc configuration
-    const tocConfigMatch = configContent.match(/pluginConfig:\s*\{[^}]*toc:\s*\{[^}]*\}/s);
-    
-    if (tocConfigMatch) {
-      const tocConfigStr = tocConfigMatch[0].replace("pluginConfig:", "");
-      
-      // Simple parsing of the config object
-      const forAllEntriesMatch = tocConfigStr.match(/forAllEntries:\s*(true|false)/);
-      const minLevelMatch = tocConfigStr.match(/minLevel:\s*(\d+)/);
-      const maxLevelMatch = tocConfigStr.match(/maxLevel:\s*(\d+)/);
-      
-      return {
-        forAllEntries: forAllEntriesMatch ? forAllEntriesMatch[1] === "true" : false,
-        minLevel: minLevelMatch ? parseInt(minLevelMatch[1], 10) : 1,
-        maxLevel: maxLevelMatch ? parseInt(maxLevelMatch[1], 10) : 6
-      };
-    }
-  } catch (error) {
-    console.warn("⚠️  Could not load TOC config:", error.message);
-  }
-  
-  // Return defaults if config not found
-  return {
-    forAllEntries: false,
-    minLevel: 1,
-    maxLevel: 6
-  };
-}
-
 import * as path from "node:path";
 import { readFile, stat } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
@@ -144,7 +104,7 @@ function extractSlugsFromHtml(html, headings) {
  * @returns {object} - Hierarchical TOC structure
  */
 function generateToc(headings, config) {
-  const { minLevel = 1, maxLevel = 6 } = config || {};
+  const { minLevel = 2, maxLevel = 4 } = config || {};
   
   // Filter headings by level
   const filtered = headings.filter(h => h.level >= minLevel && h.level <= maxLevel);
@@ -202,8 +162,7 @@ export default {
    * Add TOC data to entries
    */
   async transformEntry(entry, ctx) {
-    // Load configuration manually since Webette doesn't pass it automatically
-    const config = await loadConfig(ctx.rootDir);
+    const config = ctx.thisPluginConfig || {};
     const forAllEntries = config.forAllEntries === true;
     
     // Check for toc.webt marker file (similar to draft.webt, unlisted.webt)
@@ -257,7 +216,7 @@ export default {
     // Register the complete partial with HTML structure
     let tocPartial = "";
     let cssContent = "";
-    let config = ctx.env.pluginConfig?.toc || {};
+    let config = ctx.thisPluginConfig || {};
     
     try {
       // Use import.meta.url to get the current module's URL

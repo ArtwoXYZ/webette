@@ -1,6 +1,6 @@
 # TASKS
 
-Active story:
+Active story: Aucune. Prochaine => T5-S04
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -33,12 +33,12 @@ Active story:
 - [x] T4-S08 Campagne de tests de confiance du nouveau système (checks techniques + tests manuels ciblés IA/user sur cas réels/edge cases).
 
 ## T5 — Plugins & configuration (beta)
-- [x] T5-S01 Plugin TOC (spec + plugin minimal + doc d’usage).
+- [x] T5-S01 Plugin TOC (spec + plugin minimal + doc d'usage).
 - [x] T5-S02 Chargement des plugins automatique dans le fichier de config en précisant seulement le dossier où les dossiers des plugins se trouvent
-- [ ] T5-S03 Faire en sorte que Webette passe proprement la configuration du site (y compris pluginConfig) aux plugins via le contexte
-- [ ] T5-S02 Tags pour entries (modèle + rendu/filtre minimal).
-- [ ] T5-S03 Séparer clairement config tool vs config site (format + migration + doc).
-- [ ] T5-S04 Option pour retirer les templates embarqués du tool (décision + plan de migration).
+- [x] T5-S03 Faire en sorte que Webette passe proprement la configuration du site aux plugins via le contexte (webetteConfig = toute la config, siteConfig = section site, pluginConfig = section plugin, thisPluginConfig = config de ce plugin spécifiquement)
+- [ ] T5-S04 Tags pour entries (modèle + rendu/filtre minimal).
+- [ ] T5-S05 Séparer clairement config tool vs config site (format + migration + doc).
+- [ ] T5-S06 Option pour retirer les templates embarqués du tool (décision + plan de migration).
 
 ## T6 — Webette UI (beta)
 - [ ] T6-S01 POC serveur + build + logs (API locale minimale).

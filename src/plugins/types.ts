@@ -16,8 +16,10 @@ export type PluginContext = {
   pluginId: string;
   addExpectedOutput: (relativePath: string) => void;
   addExpectedDir: (relativeDir: string) => void;
-  siteConfig?: Record<string, unknown>; // Full site configuration
-  pluginConfig?: Record<string, unknown>; // Plugin-specific configuration
+  webetteConfig?: Record<string, unknown>; // Full webette.config.ts (all sections, raw)
+  siteConfig?: Record<string, unknown>; // The "site" section of webette.config.ts
+  pluginConfig?: Record<string, unknown>; // The "pluginConfig" section (map pluginId → config)
+  thisPluginConfig?: Record<string, unknown>; // Config of this specific plugin
 };
 
 export interface Plugin {

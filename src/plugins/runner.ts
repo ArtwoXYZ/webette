@@ -19,7 +19,8 @@ export async function runOnInit(plugins: LoadedPlugin[], ctx: PluginContext) {
         ...ctx,
         pluginId: plugin.pluginId,
         siteConfig: ctx.siteConfig,
-        pluginConfig: ctx.pluginConfig?.[plugin.pluginId] as Record<string, unknown> | undefined
+        pluginConfig: ctx.pluginConfig,
+        thisPluginConfig: ctx.pluginConfig?.[plugin.pluginId] as Record<string, unknown> | undefined
       };
       await plugin.onInit(pluginCtx);
     } catch (err) {
@@ -37,7 +38,8 @@ export async function runOnScan(plugins: LoadedPlugin[], site: Site, ctx: Plugin
         ...ctx,
         pluginId: plugin.pluginId,
         siteConfig: ctx.siteConfig,
-        pluginConfig: ctx.pluginConfig?.[plugin.pluginId] as Record<string, unknown> | undefined
+        pluginConfig: ctx.pluginConfig,
+        thisPluginConfig: ctx.pluginConfig?.[plugin.pluginId] as Record<string, unknown> | undefined
       };
       const result = await plugin.onScan(current, pluginCtx);
       if (result && typeof result === "object") {
@@ -59,7 +61,8 @@ export async function runOnResolved(plugins: LoadedPlugin[], site: Site, ctx: Pl
         ...ctx,
         pluginId: plugin.pluginId,
         siteConfig: ctx.siteConfig,
-        pluginConfig: ctx.pluginConfig?.[plugin.pluginId] as Record<string, unknown> | undefined
+        pluginConfig: ctx.pluginConfig,
+        thisPluginConfig: ctx.pluginConfig?.[plugin.pluginId] as Record<string, unknown> | undefined
       };
       const result = await plugin.onResolved(current, pluginCtx);
       if (result && typeof result === "object") {
@@ -89,6 +92,7 @@ export async function runTransformBlocks(
           entry,
           collection,
           pluginId: plugin.pluginId,
+          thisPluginConfig: ctx.pluginConfig?.[plugin.pluginId] as Record<string, unknown> | undefined,
         });
         if (res && typeof res === "object") {
           current = res as Block;
@@ -123,6 +127,7 @@ export async function runTransformEntry(
         ...ctx,
         collection,
         pluginId: plugin.pluginId,
+        thisPluginConfig: ctx.pluginConfig?.[plugin.pluginId] as Record<string, unknown> | undefined,
       });
       if (res && typeof res === "object") {
         current = res as Entry;
@@ -138,7 +143,11 @@ export async function runExtendTemplates(plugins: LoadedPlugin[], ctx: PluginCon
   for (const plugin of plugins) {
     if (!plugin.extendTemplates) continue;
     try {
-      await plugin.extendTemplates(Handlebars, { ...ctx, pluginId: plugin.pluginId });
+      await plugin.extendTemplates(Handlebars, {
+        ...ctx,
+        pluginId: plugin.pluginId,
+        thisPluginConfig: ctx.pluginConfig?.[plugin.pluginId] as Record<string, unknown> | undefined,
+      });
     } catch (err) {
       logError(ctx.logger, plugin.pluginId, "extendTemplates", err);
     }

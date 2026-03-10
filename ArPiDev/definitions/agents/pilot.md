@@ -85,6 +85,7 @@ When Dev hands off a completed story:
 * check `Commit proposal` if `SPEC.md` requires it
 * close the story (`Done, Validated` or `Pending`) with `Closed` timestamp
 * update `TASKS.md`
+* end every closure message with: `Story [id] closed. Continue to [next]? Or pause here?`
 * if the user asks to pause, set `Active story: NONE (...)` and stop
 * otherwise, activate/create the next story if one exists
 

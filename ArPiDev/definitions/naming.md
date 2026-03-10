@@ -21,3 +21,17 @@ Example: `T2-S03-auth-login.md`
 ## Matching rule
 
 A story listed in `TASKS.md` is considered present only if a matching file exists in `ArPiDev/stories/` whose name starts with the story ID.
+
+## Agent Roles
+
+* **Architect**: Defines the product frame and scope.
+* **Pilot**: Manages the macro plan and story sequencing.
+* **Dev**: Implements the active story and logs changes.
+
+## Artifact Roles
+
+* **SPEC.md**: Product frame and constraints.
+* **TASKS.md**: Macro plan and execution map.
+* **DECISIONS.md**: Cross-cutting decisions.
+* **CODEMAP.md**: Optional navigation aid.
+* **story.md**: Execution contract and trace.

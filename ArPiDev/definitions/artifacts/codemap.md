@@ -1,91 +1,36 @@
-# ArPiDev Artifact — CODEMAP.md (V2)
+# ArPiDev Artifact — CODEMAP.md (Optional)
 
 ## Purpose
 
-`CODEMAP.md` is a compact, long-lived snapshot of the codebase for navigation.
+`CODEMAP.md` is an optional artifact that provides a high-level overview of the codebase structure. It is only created when it materially helps navigation in large or legacy repositories.
 
-Use it to store pointers, entry points, and pitfalls that save time across sessions.
-Do not turn it into an exhaustive repo dump.
+## Core required sections
 
-## Who writes it
-
-* Typically the Architect after a focused code review.
-* Updated only when major structures or workflows change.
-
-## Minimum content rule (non-empty)
-
-A `CODEMAP.md` is considered non-empty only if it contains at least:
-
-* an entry points section,
-* a module/component map,
-* a how-to-run section,
-* at least one known pitfall.
-
-Placeholder markers include (but are not limited to): `TBD`, `TODO`, `<TBD>`, `...`, `?`.
+* Overview
+* Key directories and their purposes
+* Key files and their roles
+* Dependencies and their purposes
 
 ## Template
 
 ```text
 # CODEMAP
 
-## Snapshot
-- Date: 2026-02-05
-- Reviewed by: Architect
-- Scope: <what was reviewed>
+## Overview
+- <brief description of the codebase structure>
 
-## How to run
-- Install: <command>
-- Dev: <command>
-- Test: <command>
-- Build: <command>
+## Key directories
+- <directory path>: <purpose>
 
-## Entry points
-- Backend: <path / main module>
-- Frontend: <path / main module>
-- Jobs/Workers: <path>
+## Key files
+- <file path>: <role>
 
-## High-level architecture
-- <1-2 paragraphs>
-
-## Module / component map
-- <area>: <what it does> (key paths)
-
-## Data model
-- DB: <type>
-- Key entities: <list>
-- Migrations: <where>
-
-## Integrations
-- External services: <list>
-- Webhooks/queues: <where>
-
-## Configuration
-- Env vars: <where documented>
-- Config files: <paths>
-
-## Logging / Observability
-- Logs: <where>
-- Metrics/Tracing: <where>
-
-## Security / Auth
-- Authn/authz: <where + approach>
-
-## Known pitfalls
-- <gotcha + where>
-
-## Fast answers
-- "Where do I change X?" -> <path>
-- "Where is Y configured?" -> <path>
-
-## Open questions
-- Q: ...
-- FIXED: <question>
-  - Answer: <answer>
+## Dependencies
+- <dependency name>: <purpose>
 ```
 
 ## Notes
 
-* Keep it short and navigable.
-* Prefer pointers to paths over long explanations.
-* Prefer non-obvious traps over obvious folder listings.
-* Older CODEMAP variants are acceptable if they remain useful.
+* Keep it concise and focused on navigation.
+* Do not create this artifact unless it provides clear value for navigation.
+* Update it only when the codebase structure changes significantly.

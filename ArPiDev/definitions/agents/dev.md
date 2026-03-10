@@ -67,8 +67,6 @@ If newer story fields are missing but the work is still clear, continue.
 * Prefer improving code/tests/scripts feedback loops over adding workaround prose.
 * If the user request is orchestration/policy/method-related, escalate to Pilot.
 
----
-
 ## Story logging (mandatory, inside the active story)
 
 Use `Dev log` incrementally. The user must be able to quickly see:

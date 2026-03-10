@@ -16,6 +16,7 @@ interface WebetteConfigFile {
   sorting?: Record<string, unknown>;
   video?: Record<string, unknown>;
   plugins?: string[] | { dir: string };
+  pluginConfig?: Record<string, unknown>;
 }
 
 // Build the in-memory Site object based on the project folder and config file
@@ -69,6 +70,11 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
         ? { dir: (raw.plugins as { dir: string }).dir }
         : undefined;
 
+    const pluginConfig =
+      raw.pluginConfig && typeof raw.pluginConfig === 'object' && !Array.isArray(raw.pluginConfig)
+        ? { ...(raw.pluginConfig as Record<string, unknown>) }
+        : undefined;
+
     return {
       site: site as Record<string, unknown> | undefined,
       collections: collections as Record<string, unknown> | undefined,
@@ -79,6 +85,7 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
       markdown: markdown as Record<string, unknown> | undefined,
       sorting: sorting as Record<string, unknown> | undefined,
       plugins,
+      pluginConfig,
     };
   } catch {
     // no file or invalid module -> empty config
@@ -129,12 +136,7 @@ export async function createSite(rootDir: string): Promise<Site> {
       ...config.sorting,
     };
   }
-  const plugins: string[] | { dir: string } | undefined =
-    Array.isArray((config as any).plugins) && (config as any).plugins.every((p: unknown) => typeof p === "string")
-      ? ((config as any).plugins as string[])
-      : typeof (config as any).plugins === "object" && (config as any).plugins !== null && typeof ((config as any).plugins as { dir?: string }).dir === "string"
-      ? { dir: ((config as any).plugins as { dir: string }).dir }
-      : undefined;
+  const plugins: string[] | { dir: string } | undefined = config.plugins;
   const collectionsConfig: Record<string, unknown> | undefined =
     config.collections && typeof config.collections === "object"
       ? { ...config.collections }
@@ -152,6 +154,19 @@ export async function createSite(rootDir: string): Promise<Site> {
     siteSection.lang = "en";
   }
 
+  const rawConfig: Record<string, unknown> = {
+    ...(config.site ? { site: config.site } : {}),
+    ...(config.collections ? { collections: config.collections } : {}),
+    ...(config.templates ? { templates: config.templates } : {}),
+    ...(config.images ? { images: config.images } : {}),
+    ...(config.audio ? { audio: config.audio } : {}),
+    ...(config.video ? { video: config.video } : {}),
+    ...(config.markdown ? { markdown: config.markdown } : {}),
+    ...(config.sorting ? { sorting: config.sorting } : {}),
+    ...(plugins ? { plugins } : {}),
+    ...(config.pluginConfig ? { pluginConfig: config.pluginConfig } : {}),
+  };
+
   const site: Site = {
     rootDir,
     site: siteSection,
@@ -159,6 +174,8 @@ export async function createSite(rootDir: string): Promise<Site> {
       collections: collectionsConfig,
       ...(plugins ? { plugins } : {}),
       ...(templatesConfig ? { templates: templatesConfig } : {}),
+      ...(config.pluginConfig ? { pluginConfig: config.pluginConfig } : {}),
+      rawConfig,
     },
   };
 

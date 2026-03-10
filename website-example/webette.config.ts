@@ -69,13 +69,11 @@ export default {
   },
 
   plugins: {
-    dir: '_plugins'
+    dir: '_plugins',
   },
   pluginConfig: {
     toc: {
       forAllEntries: false,
-      minLevel: 2,
-      maxLevel: 4,
     },
   },
 

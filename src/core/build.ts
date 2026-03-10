@@ -257,8 +257,9 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     pluginId: '',
     addExpectedOutput: registerExpectedOutput,
     addExpectedDir: registerExpectedDir,
-    siteConfig: site.site, // Pass full site configuration
-    pluginConfig: (site.config?.pluginConfig as Record<string, unknown> | undefined) ?? undefined, // Pass plugin-specific config
+    webetteConfig: site.config?.rawConfig,
+    siteConfig: site.site,
+    pluginConfig: site.config?.pluginConfig,
   }
   await runOnInit(
     plugins.map((p, idx) => ({ ...p, pluginId: p.pluginId ?? `plugin_${idx + 1}` })),
