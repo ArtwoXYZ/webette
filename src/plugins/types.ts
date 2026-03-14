@@ -6,6 +6,7 @@ import type { Logger } from "../logging/logger";
 import type { Site, Collection, Entry, Block } from "../core/model";
 import Handlebars from "handlebars";
 import type { WebetteEnv } from "../config/env";
+import type { TagFilterOptions } from "../core/tags/filter";
 
 export type PluginContext = {
   rootDir: string;
@@ -20,6 +21,12 @@ export type PluginContext = {
   siteConfig?: Record<string, unknown>; // The "site" section of webette.config.ts
   pluginConfig?: Record<string, unknown>; // The "pluginConfig" section (map pluginId → config)
   thisPluginConfig?: Record<string, unknown>; // Config of this specific plugin
+  tags: {
+    filter: (entries: Entry[], options: TagFilterOptions) => Entry[];
+    collect: (collections: Collection[], rootEntries?: Entry[]) => Entry[];
+    getAllTags: (entries: Entry[]) => string[];
+    normalizeTags: (input: string | string[]) => string[];
+  };
 };
 
 export interface Plugin {

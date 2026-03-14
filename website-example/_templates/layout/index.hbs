@@ -70,6 +70,19 @@
       {{/if}}
     {{/menu}}
   </article>
+
+  {{#if collection}}
+    {{#with (getCollectionTags collection)}}
+      <aside class="collection-tags">
+        <h3 class="collection-tags-title">Tags in this collection</h3>
+        <div class="entry-tags">
+          {{#each this}}
+            <span class="tag">{{this}}</span>
+          {{/each}}
+        </div>
+      </aside>
+    {{/with}}
+  {{/if}}
 </main>
 
 {{> footer}}

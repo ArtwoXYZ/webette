@@ -86,6 +86,7 @@ export function enrichEntries(rawEntries: RawEntry[]): Entry[] {
       blocks,
       ...(raw.description ? { description: raw.description } : {}),
       ...(raw.displayName ? { displayName: raw.displayName } : {}),
+      ...(raw.tags ? { tags: raw.tags } : {}),
       ...(raw.isDraft ? { isDraft: true } : {}),
       ...(raw.isUnlisted ? { isUnlisted: true } : {}),
     };

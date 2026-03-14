@@ -83,6 +83,21 @@ export async function readNameFile(dir: string): Promise<string | undefined> {
   }
 }
 
+export async function readTagsFile(dir: string): Promise<string[] | undefined> {
+  const tagsPath = path.join(dir, "tag.webt");
+  try {
+    const content = await readFile(tagsPath, "utf8");
+    const tags = [...new Set(
+      content.split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0)
+    )];
+    return tags.length ? tags : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function listCollectionAssetsRaw(
   rootDir: string,
   collectionPath: string
@@ -247,6 +262,7 @@ export async function scanStructureFolderRaw(options: {
   const isUnlisted = await isUnlistedCollection(absolute);
   const description = await readDescriptionFile(absolute);
   const displayName = await readNameFile(absolute);
+  const tags = await readTagsFile(absolute);
 
   if (classification.kind === "entry") {
     const blocks = await listBlocksRaw(
@@ -266,6 +282,7 @@ export async function scanStructureFolderRaw(options: {
       ...(isUnlisted ? { isUnlisted: true } : {}),
       ...(description ? { description } : {}),
       ...(displayName ? { displayName } : {}),
+      ...(tags ? { tags } : {}),
     };
   }
 
@@ -405,6 +422,7 @@ export async function listRootIndexRaw(
   const isUnlisted = await isUnlistedEntry(absoluteEntry);
   const description = await readDescriptionFile(absoluteEntry);
   const displayName = await readNameFile(absoluteEntry);
+  const tags = await readTagsFile(absoluteEntry);
 
   return {
     rawName: target.rawName,
@@ -414,5 +432,6 @@ export async function listRootIndexRaw(
     ...(isUnlisted ? { isUnlisted: true } : {}),
     ...(description ? { description } : {}),
     ...(displayName ? { displayName } : {}),
+    ...(tags ? { tags } : {}),
   };
 }

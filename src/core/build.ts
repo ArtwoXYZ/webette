@@ -41,6 +41,12 @@ import { collectProtectedDirs, createExpectedOutputsRegistry, pruneOrphans } fro
 import { renderSite } from './build/render'
 import { buildIcons } from './build/icons'
 import { writeNginxSampleFile, writeRootHtaccessFile } from './build/server-files'
+import {
+  filterEntriesByTags,
+  collectAllEntries,
+  getAllTags,
+  normalizeTags,
+} from './tags/filter'
 
 export interface BuildOptions {
   verbose: boolean
@@ -260,6 +266,12 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     webetteConfig: site.config?.rawConfig,
     siteConfig: site.site,
     pluginConfig: site.config?.pluginConfig,
+    tags: {
+      filter: filterEntriesByTags,
+      collect: collectAllEntries,
+      getAllTags,
+      normalizeTags,
+    },
   }
   await runOnInit(
     plugins.map((p, idx) => ({ ...p, pluginId: p.pluginId ?? `plugin_${idx + 1}` })),

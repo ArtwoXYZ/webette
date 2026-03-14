@@ -29,6 +29,7 @@ export interface Entry {
   route?: string;      // route relative to site root (trailing slash)
   blocks: Block[];     // files/blocks contained in the entry
   description?: string; // raw description from description.webt (entry-level)
+  tags?: string[];     // tags from tags.webt (one tag per line)
   isDraft?: boolean;   // flagged when draft.webt is present in the entry folder
   isUnlisted?: boolean; // flagged when unlisted.webt is present in the entry folder
   isIndex?: boolean;   // flagged when entry is a custom index folder
@@ -66,6 +67,7 @@ export interface SiteStructureEntryNode {
   blocks: Block[];                 // scanned blocks for classification evidence
   displayName?: string;
   description?: string;
+  tags?: string[];
   isDraft?: boolean;
   isUnlisted?: boolean;
 }

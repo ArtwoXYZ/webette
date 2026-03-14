@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: Aucune. Prochaine => T5-S04
+Active story: —
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -36,11 +36,14 @@ Active story: Aucune. Prochaine => T5-S04
 - [x] T5-S01 Plugin TOC (spec + plugin minimal + doc d'usage).
 - [x] T5-S02 Chargement des plugins automatique dans le fichier de config en précisant seulement le dossier où les dossiers des plugins se trouvent
 - [x] T5-S03 Faire en sorte que Webette passe proprement la configuration du site aux plugins via le contexte (webetteConfig = toute la config, siteConfig = section site, pluginConfig = section plugin, thisPluginConfig = config de ce plugin spécifiquement)
-- [ ] T5-S04 Tags pour entries (modèle + rendu/filtre minimal).
+- [x] T5-S04 Tags pour entries (modèle + rendu/filtre minimal).
+- [ ] T5-S04-b Tags cliquables + pages de tags statiques (config + génération build-time). Specs dans Pilot exchange de T5-S04.
 - [ ] T5-S05 Séparer clairement config tool vs config site (format + migration + doc).
 - [ ] T5-S06 Option pour retirer les templates embarqués du tool (décision + plan de migration).
 
 ## T6 — Refacto pre-beta
+
+> Workflow suggéré : après validation Dev de chaque story, lancer `/simplify` avant le commit pour détecter duplication résiduelle ou qualité manquée. À utiliser avec jugement (ne pas laisser `/simplify` élargir le scope au-delà de la story).
 
 ### Risques beta (priorité haute)
 - [ ] T6-S01 Shared utils : centraliser parseBoolean/normalizeClass dupliqués dans postprocess markdown (markdown-links.ts + markdown-images.ts + navigation).

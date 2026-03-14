@@ -25,6 +25,7 @@ export type RawEntry = {
   isUnlisted?: boolean;
   description?: string;
   displayName?: string;
+  tags?: string[];
 };
 
 export type RawCollection = {

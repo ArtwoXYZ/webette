@@ -8,6 +8,12 @@
       <p class="draft-badge">Brouillon (non publié)</p>
     {{/if}}
 
+    {{#if entry.tags}}
+    <div class="entry-tags">
+      {{#each entry.tags}}<span class="tag">{{this}}</span>{{/each}}
+    </div>
+    {{/if}}
+
     {{#each blocks}}
       {{#if (eq type "markdown")}}
         {{{safe content.html}}}

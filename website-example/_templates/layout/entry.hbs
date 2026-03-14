@@ -4,6 +4,12 @@
       <p class="draft-badge">Draft (unpublished)</p>
     {{/if}}
 
+    {{#if entry.tags}}
+    <div class="entry-tags">
+      {{#each entry.tags}}<span class="tag">{{this}}</span>{{/each}}
+    </div>
+    {{/if}}
+
     {{{toc}}}
 
     {{#each blocks}}

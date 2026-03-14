@@ -27,6 +27,7 @@ const PREFERRED_KEYS = [
   "name",
   "displayName",
   "description",
+  "tags",
   "type",
   "ext",
   "slug",

@@ -34,15 +34,8 @@ export function enrichStructureNodes(rawNodes: RawStructureNode[]): SiteStructur
 }
 
 function rawEntryFromStructure(node: RawStructureEntryNode): RawEntry {
-  return {
-    rawName: node.rawName,
-    path: node.path,
-    blocks: node.blocks,
-    ...(node.isDraft ? { isDraft: true } : {}),
-    ...(node.isUnlisted ? { isUnlisted: true } : {}),
-    ...(node.description ? { description: node.description } : {}),
-    ...(node.displayName ? { displayName: node.displayName } : {}),
-  };
+  const { kind: _kind, ...rest } = node;
+  return rest;
 }
 
 export async function deriveFlatRawViewsFromStructure(options: {

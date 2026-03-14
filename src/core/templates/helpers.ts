@@ -5,6 +5,13 @@
 import Handlebars from 'handlebars'
 import type { Collection, Entry } from '../model'
 import {
+  filterEntriesByTags,
+  collectAllEntries as collectAllEntriesUtil,
+  getCollectionTags as getCollectionTagsUtil,
+  getSiteTags as getSiteTagsUtil,
+  type TagFilterMode,
+} from '../tags/filter'
+import {
   buildImageHtml,
   normalizeVariantName,
   pickImageSource,
@@ -373,6 +380,56 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     const data = { ...(options.data || {}), collection: foundCollection }
     return options.fn(foundEntry, { data })
   })
+
+  Handlebars.registerHelper(
+    'filterByTag',
+    function (this: Record<string, unknown>, entries: unknown, options: Handlebars.HelperOptions) {
+      if (!Array.isArray(entries)) return []
+      const tags = options.hash?.tags ?? ''
+      const mode: TagFilterMode = options.hash?.mode === 'and' ? 'and' : 'or'
+      return filterEntriesByTags(entries as Entry[], { tags, mode })
+    },
+  )
+
+  Handlebars.registerHelper(
+    'collectAllEntries',
+    function (this: Record<string, unknown>, collections?: unknown) {
+      const cols = Array.isArray(collections)
+        ? collections
+        : Array.isArray(this.collections)
+          ? this.collections
+          : []
+      const rootEntries = Array.isArray(
+        (this.model as Record<string, unknown>)?.rootEntries,
+      )
+        ? ((this.model as Record<string, unknown>).rootEntries as Entry[])
+        : undefined
+      return collectAllEntriesUtil(cols as Collection[], rootEntries)
+    },
+  )
+
+  // Returns all unique tags (sorted) from a single collection's entries.
+  // Usage: {{getCollectionTags collection}}
+  Handlebars.registerHelper(
+    'getCollectionTags',
+    function (collection: unknown) {
+      if (!collection || typeof collection !== 'object') return []
+      return getCollectionTagsUtil(collection as Collection)
+    },
+  )
+
+  // Returns all unique tags (sorted) across the entire site (all collections + root entries).
+  // Usage: {{getSiteTags}} — reads collections and model.rootEntries from context automatically.
+  Handlebars.registerHelper(
+    'getSiteTags',
+    function (this: Record<string, unknown>) {
+      const cols = Array.isArray(this.collections) ? (this.collections as Collection[]) : []
+      const rootEntries = Array.isArray((this.model as Record<string, unknown>)?.rootEntries)
+        ? ((this.model as Record<string, unknown>).rootEntries as Entry[])
+        : undefined
+      return getSiteTagsUtil(cols, rootEntries)
+    },
+  )
 
   registerMenuHelper(Handlebars)
 
