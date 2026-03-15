@@ -1,0 +1,16 @@
+<main>
+  <article>
+    <header class="index-header">
+      <h1>{{#if collection}}Tags — {{displayName collection}}{{else}}All tags{{/if}}</h1>
+    </header>
+    <section class="navigation">
+      <div class="entry-tags">
+        {{#each tags}}
+          <a class="tag" href="{{tagRoute this ../collection}}">{{this}}</a>
+        {{/each}}
+      </div>
+    </section>
+  </article>
+</main>
+
+{{> footer}}

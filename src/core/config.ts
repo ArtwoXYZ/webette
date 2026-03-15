@@ -17,6 +17,7 @@ interface WebetteConfigFile {
   video?: Record<string, unknown>;
   plugins?: string[] | { dir: string };
   pluginConfig?: Record<string, unknown>;
+  tags?: Record<string, unknown>;
 }
 
 // Build the in-memory Site object based on the project folder and config file
@@ -75,6 +76,11 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
         ? { ...(raw.pluginConfig as Record<string, unknown>) }
         : undefined;
 
+    const tags =
+      raw.tags && typeof raw.tags === 'object' && !Array.isArray(raw.tags)
+        ? { ...(raw.tags as Record<string, unknown>) }
+        : undefined;
+
     return {
       site: site as Record<string, unknown> | undefined,
       collections: collections as Record<string, unknown> | undefined,
@@ -86,6 +92,7 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
       sorting: sorting as Record<string, unknown> | undefined,
       plugins,
       pluginConfig,
+      tags,
     };
   } catch {
     // no file or invalid module -> empty config
@@ -165,6 +172,7 @@ export async function createSite(rootDir: string): Promise<Site> {
     ...(config.sorting ? { sorting: config.sorting } : {}),
     ...(plugins ? { plugins } : {}),
     ...(config.pluginConfig ? { pluginConfig: config.pluginConfig } : {}),
+    ...(config.tags ? { tags: config.tags } : {}),
   };
 
   const site: Site = {
@@ -175,6 +183,7 @@ export async function createSite(rootDir: string): Promise<Site> {
       ...(plugins ? { plugins } : {}),
       ...(templatesConfig ? { templates: templatesConfig } : {}),
       ...(config.pluginConfig ? { pluginConfig: config.pluginConfig } : {}),
+      ...(config.tags ? { tags: config.tags } : {}),
       rawConfig,
     },
   };

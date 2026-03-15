@@ -12,6 +12,7 @@ import type { Collection, Entry, Site, Block } from "../model";
 import { resolveTemplatesRoots } from "../template";
 import { createTemplateFileResolver } from "../templates/resolve-file";
 import { getPrevNextEntry } from "./prev-next";
+import { stripRouteSlashes } from "../../utils/path";
 
 type TemplateRenderer = {
   render: (context: Record<string, unknown>) => string;
@@ -171,7 +172,7 @@ export async function renderSite(options: {
     if (entry.isIndex) continue;
 
     const entryRouteRelative = entry.route
-      ? entry.route.replace(/^\/+/, "")
+      ? stripRouteSlashes(entry.route)
       : (entry.slug || entry.id);
     const entryOutputDir = path.join(outputDir, entryRouteRelative);
 
@@ -185,7 +186,7 @@ export async function renderSite(options: {
       if (entry.isIndex) continue;
 
       const entryRouteRelative = entry.route
-        ? entry.route.replace(/^\/+/, "")
+        ? stripRouteSlashes(entry.route)
         : path.join(collection.slug || collection.id, entry.slug || entry.id);
       const entryOutputDir = path.join(outputDir, entryRouteRelative);
 
@@ -250,7 +251,7 @@ export async function renderSite(options: {
     for (const collection of site.collections ?? []) {
       if (collection.isUnlisted) {
         const routeRelative = collection.route
-          ? collection.route.replace(/^\/+/, "").replace(/\/+$/, "")
+          ? stripRouteSlashes(collection.route)
           : collection.slug || collection.id;
         const collectionIndexDir = routeRelative ? path.join(outputDir, routeRelative) : outputDir;
         const collectionIndexPath = path.join(collectionIndexDir, "index.html");
@@ -286,7 +287,7 @@ export async function renderSite(options: {
         ]
       );
       const routeRelative = collection.route
-        ? collection.route.replace(/^\/+/, "").replace(/\/+$/, "")
+        ? stripRouteSlashes(collection.route)
         : collection.slug || collection.id;
       const collectionIndexDir = routeRelative ? path.join(outputDir, routeRelative) : outputDir;
       const collectionIndexPath = path.join(collectionIndexDir, "index.html");

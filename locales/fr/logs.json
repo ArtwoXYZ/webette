@@ -64,5 +64,8 @@
   "build.sitemap": "Sitemap écrit ({count} urls, brouillons inclus : {includeDrafts}, urls absolues : {absolute}) : {path}",
   "reference.resolveError": "Échec de la résolution du bloc de référence {block} : {error}",
   "serve.portInUse": "Échec du démarrage du serveur : le port {port} est déjà utilisé",
-  "serve.serverStartFailed": "Échec du démarrage du serveur : {error}"
+  "serve.serverStartFailed": "Échec du démarrage du serveur : {error}",
+  "build.tags.slugRenamed": "Collision de route système : le slug {kind} '{oldSlug}' entre en conflit avec la route '/tag/' et a été automatiquement renommé en '{newSlug}'.",
+  "build.tags.slugRenamedInCollection": "Collision de route système : le slug d'entrée '{oldSlug}' dans la collection '{collection}' entre en conflit avec la route de tag et a été automatiquement renommé en '{newSlug}'.",
+  "build.tagPages.done": "Pages de tags générées : {count}"
 }

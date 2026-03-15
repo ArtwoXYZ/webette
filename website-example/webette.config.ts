@@ -68,6 +68,10 @@ export default {
     },
   },
 
+  tags: {
+    enabled: true,
+  },
+
   plugins: {
     dir: '_plugins',
   },

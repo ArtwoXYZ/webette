@@ -39,6 +39,8 @@ import { applySorting } from './build/sorting'
 import { writeModelExport } from './export/write-model'
 import { collectProtectedDirs, createExpectedOutputsRegistry, pruneOrphans } from './build/prune'
 import { renderSite } from './build/render'
+import { renderTagPages } from './build/tag-pages'
+import { resolveSystemSlugCollisions } from './build/resolve-system-slugs'
 import { buildIcons } from './build/icons'
 import { writeNginxSampleFile, writeRootHtaccessFile } from './build/server-files'
 import {
@@ -47,6 +49,7 @@ import {
   getAllTags,
   normalizeTags,
 } from './tags/filter'
+import { stripRouteSlashes } from '../utils/path'
 
 export interface BuildOptions {
   verbose: boolean
@@ -62,6 +65,25 @@ export interface BuildOptions {
   protectAssets?: boolean
   writeHtaccess?: boolean
   writeNginxSample?: boolean
+}
+
+function readTagsConfig(raw?: Record<string, unknown>) {
+  const enabled = raw?.enabled !== false
+  const generatePages = enabled && raw?.generatePages !== false
+  const pages = (raw?.pages ?? {}) as Record<string, unknown>
+  const collectionTag = generatePages && pages.collectionTag !== false
+  return {
+    enabled,
+    generatePages,
+    anyPageEnabled: generatePages,
+    siteIndex: generatePages && pages.siteIndex !== false,
+    siteTag: generatePages && pages.siteTag !== false,
+    collectionIndex: generatePages && pages.collectionIndex !== false,
+    collectionTag,
+    // When true, tag links in entries point to /{collection}/tag/{slug}/ instead of /tag/{slug}/.
+    // Falls back to false if collection tag pages are disabled.
+    scopedLinks: collectionTag && raw?.scopedLinks !== false,
+  }
 }
 
 function countBlocks(blocks: Block[] = []): number {
@@ -110,6 +132,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
   scoped.debug('build.start', { rootDir })
 
   const site = await createSite(rootDir)
+  const tagsConfig = readTagsConfig(site.config?.tags)
   const {
     templates,
     siteTemplatesRoot,
@@ -574,8 +597,13 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
   })
   const sortedSite = applySorting(resolvedSiteWithHistory, scoped.child('sorting'))
 
+  // Rename any slug that collides with a system tag route (e.g. 'tag').
+  const finalSite = tagsConfig.anyPageEnabled
+    ? resolveSystemSlugCollisions(sortedSite, scoped)
+    : sortedSite
+
   scoped.debug('build.exportModel.start', { path: exportDir })
-  await writeModelExport({ exportDir, site: sortedSite, logger: scoped })
+  await writeModelExport({ exportDir, site: finalSite, logger: scoped })
 
   if (exportModel.only) {
     if (options.quiet) {
@@ -589,7 +617,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
   const iconsResult = await buildIcons({
     rootDir,
     outputDir,
-    site: sortedSite,
+    site: finalSite,
     logger: scoped.child('icons'),
     registerExpectedOutput,
   })
@@ -607,20 +635,22 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
   })
 
   const renderBaseContext = {
-    model: sortedSite,
+    model: finalSite,
     // Expose site timestamps/fingerprint directly on `site` for templates
     site: {
-      ...sortedSite.site,
-      createdAt: sortedSite.createdAt,
-      updatedAt: sortedSite.updatedAt,
-      fingerprint: sortedSite.fingerprint,
+      ...finalSite.site,
+      createdAt: finalSite.createdAt,
+      updatedAt: finalSite.updatedAt,
+      fingerprint: finalSite.fingerprint,
     },
-    collections: sortedSite.collections ?? [],
+    collections: finalSite.collections ?? [],
     layoutName: layoutPartialName,
     buildTime,
     liveReloadScript,
     ...(assetsBase ? { templates: { assetsBase } } : {}),
     ...(iconsResult.headHtml ? { iconsHead: iconsResult.headHtml } : { iconsHead: '' }),
+    tagPagesEnabled: tagsConfig.anyPageEnabled,
+    tagScopeByCollection: tagsConfig.scopedLinks,
   }
 
   const injectLiveReload = (rawHtml: string): string => {
@@ -638,7 +668,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     rootDir,
     outputDir,
     env: toolEnv,
-    site: sortedSite,
+    site: finalSite,
     templatesDefault: templates.default,
     templatesCustom,
     siteTemplatesRoot,
@@ -654,9 +684,22 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     logger: scoped,
   })
 
+  if (tagsConfig.anyPageEnabled) {
+    await renderTagPages({
+      outputDir,
+      site: finalSite,
+      tagsConfig,
+      templateRenderer,
+      renderBaseContext,
+      writeIfChanged,
+      formatHtml,
+      logger: scoped,
+    })
+  }
+
   await writeSitemap({
     outputDir,
-    site: sortedSite,
+    site: finalSite,
     generateIndex,
     includeDrafts,
     logger: scoped,
@@ -665,13 +708,28 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     outputDir,
     exportDir,
     env: toolEnv,
-    site: sortedSite,
+    site: finalSite,
     includeDrafts,
   })
+  // Register tag output dirs as expected so pruneOrphans does not delete them.
+  // Uses expectedPrefixes (addExpectedDir) to cover the full subtree.
+  if (tagsConfig.siteIndex || tagsConfig.siteTag) {
+    registerExpectedDir('tag')
+  }
+  if (tagsConfig.collectionIndex || tagsConfig.collectionTag) {
+    for (const collection of finalSite.collections ?? []) {
+      const routeRelative = collection.route
+        ? stripRouteSlashes(collection.route)
+        : collection.slug || collection.id
+      if (routeRelative) {
+        registerExpectedDir(path.join(routeRelative, 'tag'))
+      }
+    }
+  }
   await pruneOrphans({
     outputDir,
     exportDir,
-    site: sortedSite,
+    site: finalSite,
     includeDrafts,
     overwrite,
     generateIndex,
@@ -691,8 +749,8 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     outputDir,
     protectAssets,
     dirsToCover: protectedDirs,
-    siteTitle: sortedSite.site.title,
-    siteLang: sortedSite.site.lang,
+    siteTitle: finalSite.site.title,
+    siteLang: finalSite.site.lang,
     assetsBase,
     accessForbiddenLayoutName,
     templateRenderer,

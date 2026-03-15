@@ -11,6 +11,7 @@ import {
   getSiteTags as getSiteTagsUtil,
   type TagFilterMode,
 } from '../tags/filter'
+import { slugify } from '../../utils/naming'
 import {
   buildImageHtml,
   normalizeVariantName,
@@ -19,6 +20,7 @@ import {
 } from './image-utils'
 import { buildSocialHead } from './social-head'
 import { registerMenuHelper } from './menu'
+import { stripRouteSlashes } from '../../utils/path'
 
 let helpersRegistered = false
 
@@ -176,7 +178,7 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     const raw = value == null ? '' : String(value)
     const base = resolveAssetsBaseFromContext(options)
     if (!base) return raw
-    const clean = raw.replace(/^\/+/, '')
+    const clean = stripRouteSlashes(raw)
     return clean ? `${base}/${clean}` : base
   })
 
@@ -430,6 +432,53 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
       return getSiteTagsUtil(cols, rootEntries)
     },
   )
+
+  // Slugifies a tag for use in URLs: lowercase, spaces → dashes, non-alphanumeric removed.
+  Handlebars.registerHelper('slugifyTag', (tag: unknown) => {
+    if (tag == null) return ''
+    return slugify(String(tag))
+  })
+
+  // Returns the URL of a tag page.
+  // {{tagRoute tag}}            → /tag/{slug}/ (or scoped if tagScopeByCollection is set in root context)
+  // {{tagRoute tag collection}} → /{collection.slug}/tag/{slug}/ (explicit override)
+  Handlebars.registerHelper('tagRoute', (tag: unknown, collectionOrOptions: unknown, maybeOptions: unknown) => {
+    if (tag == null) return ''
+    const slug = slugify(String(tag))
+    if (!slug) return ''
+
+    // Handlebars options objects always have both `hash` and `data`; collection objects never do.
+    const isHbsOptions = (v: unknown): v is { hash: unknown; data?: { root?: Record<string, unknown> } } =>
+      v != null && typeof v === 'object' && 'hash' in (v as object) && 'data' in (v as object)
+
+    const hbsOptions = isHbsOptions(maybeOptions) ? maybeOptions
+      : isHbsOptions(collectionOrOptions) ? collectionOrOptions as { hash: unknown; data?: { root?: Record<string, unknown> } }
+      : null
+    const root = hbsOptions?.data?.root
+
+    const resolveColRoute = (col: Record<string, unknown>): string =>
+      typeof col.route === 'string'
+        ? stripRouteSlashes(col.route)
+        : typeof col.slug === 'string' ? col.slug : ''
+
+    // Second arg is explicit collection when it's an object but NOT Handlebars options
+    const isExplicitCollection = collectionOrOptions != null && typeof collectionOrOptions === 'object' && !isHbsOptions(collectionOrOptions)
+    if (isExplicitCollection) {
+      const col = collectionOrOptions as Record<string, unknown>
+      const colRoute = resolveColRoute(col)
+      if (colRoute) return `/${colRoute}/tag/${slug}/`
+      return `/tag/${slug}/`
+    }
+
+    // No explicit collection — use tagScopeByCollection + collection from root context
+    if (root?.tagScopeByCollection && root?.collection != null) {
+      const col = root.collection as Record<string, unknown>
+      const colRoute = resolveColRoute(col)
+      if (colRoute) return `/${colRoute}/tag/${slug}/`
+    }
+
+    return `/tag/${slug}/`
+  })
 
   registerMenuHelper(Handlebars)
 

@@ -10,6 +10,7 @@ import type { Logger } from "../../logging/logger";
 import type { WebetteEnv } from "../../config/env";
 import type { Block, Collection, Entry, Site } from "../model";
 import { removeEmptyDirectories, rmWithRetries } from "../../utils/fs";
+import { stripRouteSlashes } from "../../utils/path";
 
 export type ExpectedOutputsRegistry = {
   addExpectedOutput: (relativePath: string) => void;
@@ -216,7 +217,7 @@ export async function pruneOrphans(options: {
 
   const addEntryPage = (entry: Entry, collection?: Collection) => {
     const routeRelative = entry.route
-      ? entry.route.replace(/^\/+/, "")
+      ? stripRouteSlashes(entry.route)
       : collection
         ? path.join(collection.slug || collection.id, entry.slug || entry.id)
         : (entry.slug || entry.id);
@@ -227,7 +228,7 @@ export async function pruneOrphans(options: {
     addOutput("index.html");
     for (const collection of site.collections ?? []) {
       const routeRelative = collection.route
-        ? collection.route.replace(/^\/+/, "").replace(/\/+$/, "")
+        ? stripRouteSlashes(collection.route)
         : collection.slug || collection.id;
       const collectionIndex = routeRelative
         ? path.join(routeRelative, "index.html")

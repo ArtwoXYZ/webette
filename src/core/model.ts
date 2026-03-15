@@ -98,6 +98,7 @@ export interface Site {
     plugins?: string[] | { dir: string };  // plugin paths or directory from webette.config.ts
     templates?: Record<string, unknown>; // raw templates config from webette.config.ts
     pluginConfig?: Record<string, unknown>; // plugin-specific configuration (map pluginId → config)
+    tags?: Record<string, unknown>; // raw tags config from webette.config.ts
     rawConfig?: Record<string, unknown>; // full raw webette.config.ts before processing
   };
   indexes?: {

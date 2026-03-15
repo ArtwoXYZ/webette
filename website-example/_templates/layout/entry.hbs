@@ -6,7 +6,13 @@
 
     {{#if entry.tags}}
     <div class="entry-tags">
-      {{#each entry.tags}}<span class="tag">{{this}}</span>{{/each}}
+      {{#each entry.tags}}
+        {{#if ../tagPagesEnabled}}
+          <a class="tag" href="{{tagRoute this}}">{{this}}</a>
+        {{else}}
+          <span class="tag">{{this}}</span>
+        {{/if}}
+      {{/each}}
     </div>
     {{/if}}
 

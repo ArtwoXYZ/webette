@@ -7,7 +7,7 @@ import * as path from 'node:path'
 import type { Site } from '../model'
 import type { Logger } from '../../logging/logger'
 import { writeIfChanged } from '../../utils/fs'
-import { toPosix } from '../../utils/path'
+import { toPosix, stripRouteSlashes } from '../../utils/path'
 import { buildIconsHead } from '../templates/icons-head'
 
 type SharpModule = typeof import('sharp')
@@ -127,7 +127,7 @@ function normalizeIconsConfig(site: Site, logger?: Logger): IconsConfig | null {
 
   // Normalize output dir (strip leading/trailing slashes).
   const rawOutput = pickString(icons.outputDir) ?? DEFAULT_OUTPUT_DIR
-  const cleaned = toPosix(rawOutput).replace(/^\/+/, '').replace(/\/+$/, '')
+  const cleaned = stripRouteSlashes(toPosix(rawOutput))
   const outputRel = cleaned || DEFAULT_OUTPUT_DIR
   const publicBase = `/${outputRel}`
 

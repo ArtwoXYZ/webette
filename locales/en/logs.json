@@ -64,5 +64,8 @@
   "build.sitemap": "Sitemap written ({count} urls, drafts included: {includeDrafts}, absolute urls: {absolute}): {path}",
   "reference.resolveError": "Failed to resolve reference block {block}: {error}",
   "serve.portInUse": "Server failed to start: port {port} is already in use",
-  "serve.serverStartFailed": "Server failed to start: {error}"
+  "serve.serverStartFailed": "Server failed to start: {error}",
+  "build.tags.slugRenamed": "System route collision: {kind} slug '{oldSlug}' conflicts with the system '/tag/' route and was automatically renamed to '{newSlug}'.",
+  "build.tags.slugRenamedInCollection": "System route collision: entry slug '{oldSlug}' in collection '{collection}' conflicts with the system tag route and was automatically renamed to '{newSlug}'.",
+  "build.tagPages.done": "Tag pages generated: {count}"
 }
