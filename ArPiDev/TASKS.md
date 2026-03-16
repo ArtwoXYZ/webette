@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: T5-S05
+Active story: T5-S04-c
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -38,6 +38,7 @@ Active story: T5-S05
 - [x] T5-S03 Faire en sorte que Webette passe proprement la configuration du site aux plugins via le contexte (webetteConfig = toute la config, siteConfig = section site, pluginConfig = section plugin, thisPluginConfig = config de ce plugin spécifiquement)
 - [x] T5-S04 Tags pour entries (modèle + rendu/filtre minimal).
 - [x] T5-S04-b Tags cliquables + pages de tags statiques (config + génération build-time).
+- [ ] T5-S04-c API interne de génération de pages synthétiques (hook plugin `onGeneratePages` + refactor `renderTagPages`).
 - [ ] T5-S05 Séparer clairement config tool vs config site (format + migration + doc).
 - [ ] T5-S06 Option pour retirer les templates embarqués du tool (décision + plan de migration).
 
@@ -53,14 +54,15 @@ Active story: T5-S05
 - [ ] T6-S04b Navigation resolver — builder/filters : extraire la logique de visibilité/inclusion et la construction des nœuds vers navigation-filters.ts + navigation-builder.ts ; navigation.ts ne garde que l'orchestration.
 
 ### Confort dev (priorité normale)
-- [ ] T6-S05 Build orchestration : extraire les étapes de build() en fonctions nommées pour réduire la fonction de 620 lignes.
-- [ ] T6-S06 Sorting : typer SortConfig strictement, dédupliquer findCustomSortingForCollection/Entry.
-- [ ] T6-S07 Plugin loader : consolider les deux chemins de chargement (pluginsDir + pluginPaths), robustifier le parsing metadata du README.
-- [ ] T6-S08 Nommage : audit et harmonisation des verbes (normalizeXyz, resolve vs create) + dédupliquer splitRouteSegments.
+- [ ] T6-S05 Primitif de rendu de page : partager le primitif FS (render+mkdir+formatHtml+writeIfChanged) entre `renderSite/renderEntryTo` et `createRenderPage` — dédupliquer les 3 implémentations locales identiques.
+- [ ] T6-S06 Build orchestration : extraire les étapes de build() en fonctions nommées pour réduire la fonction de 620 lignes.
+- [ ] T6-S07 Sorting : typer SortConfig strictement, dédupliquer findCustomSortingForCollection/Entry.
+- [ ] T6-S08 Plugin loader : consolider les deux chemins de chargement (pluginsDir + pluginPaths), robustifier le parsing metadata du README.
+- [ ] T6-S09 Nommage : audit et harmonisation des verbes (normalizeXyz, resolve vs create) + dédupliquer splitRouteSegments.
 
 ### Structure repo (avant beta publique)
-- [ ] T6-S09 Cadrage monorepo (Pilot) : décider la structure cible (engine / app / website / releases), plan de migration, contraintes Bun workspaces, stratégie releases pour Tangled. [PILOT ONLY]
-- [ ] T6-S10 Migration monorepo : exécuter la restructuration selon le plan T6-S09 (déplacer engine, configurer workspaces Bun, vérifier imports/build/CI).
+- [ ] T6-S10 Cadrage monorepo (Pilot) : décider la structure cible (engine / app / website / releases), plan de migration, contraintes Bun workspaces, stratégie releases pour Tangled. [PILOT ONLY]
+- [ ] T6-S11 Migration monorepo : exécuter la restructuration selon le plan T6-S10 (déplacer engine, configurer workspaces Bun, vérifier imports/build/CI).
 
 ## T7 — Webette UI (beta)
 
@@ -74,7 +76,7 @@ Active story: T5-S05
 
 ## T8 — Starters & hub
 
-> Note : prévoir la stratégie de distribution pour Tangled (pas de GitHub Releases) — dossier `releases/` dans le monorepo ou repo dédié à décider en T6-S09.
+> Note : prévoir la stratégie de distribution pour Tangled (pas de GitHub Releases) — dossier `releases/` dans le monorepo ou repo dédié à décider en T6-S10.
 
 - [ ] T8-S01 Starter blog pour la beta (structure + assets + README).
 - [ ] T8-S02 Format de distribution starters (zip + métadonnées).
