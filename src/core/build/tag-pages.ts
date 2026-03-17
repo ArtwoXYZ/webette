@@ -11,10 +11,9 @@
  * Collections with no tagged entries are skipped to avoid empty pages.
  */
 
-import { mkdir } from 'node:fs/promises'
-import * as path from 'node:path'
 import type { Logger } from '../../logging/logger'
 import type { Site } from '../model'
+import type { RenderPage } from '../../plugins/types'
 import {
   collectAllEntries,
   getAllTags,
@@ -24,15 +23,10 @@ import {
 import { slugify } from '../../utils/naming'
 import { stripRouteSlashes } from '../../utils/path'
 
-type HandlebarsRenderer = {
-  render: (context: Record<string, unknown>) => string
-}
-
 const TAG_INDEX_LAYOUT = 'tag-index'
 const TAG_PAGE_LAYOUT = 'tag-page'
 
 export async function renderTagPages(options: {
-  outputDir: string
   site: Site
   tagsConfig: {
     siteIndex: boolean
@@ -40,35 +34,12 @@ export async function renderTagPages(options: {
     collectionIndex: boolean
     collectionTag: boolean
   }
-  templateRenderer: HandlebarsRenderer
-  renderBaseContext: Record<string, unknown>
-  writeIfChanged: (filePath: string, content: string) => Promise<boolean>
-  formatHtml: (html: string, filePath: string) => Promise<string>
+  renderPage: RenderPage
   logger: Logger
 }): Promise<number> {
-  const {
-    outputDir,
-    site,
-    tagsConfig,
-    templateRenderer,
-    renderBaseContext,
-    writeIfChanged,
-    formatHtml,
-    logger,
-  } = options
+  const { site, tagsConfig, renderPage, logger } = options
 
   let count = 0
-
-  const renderPage = async (
-    targetDir: string,
-    context: Record<string, unknown>,
-  ): Promise<boolean> => {
-    const html = templateRenderer.render(context)
-    await mkdir(targetDir, { recursive: true })
-    const indexPath = path.join(targetDir, 'index.html')
-    const finalHtml = await formatHtml(html, indexPath)
-    return writeIfChanged(indexPath, finalHtml)
-  }
 
   const allEntries = collectAllEntries(site.collections ?? [], site.rootEntries)
   const allTags = getAllTags(allEntries)
@@ -78,32 +49,32 @@ export async function renderTagPages(options: {
 
   // /tag/ — site-level tag index
   if (tagsConfig.siteIndex) {
-    const tags = allTags
-    const context = {
-      ...renderBaseContext,
+    const wrote = await renderPage({
+      route: '/tag/',
       layoutName: TAG_INDEX_LAYOUT,
-      tags,
-      entry: { name: 'Tags', route: '/tag/' },
-    }
-    const wrote = await renderPage(path.join(outputDir, 'tag'), context)
+      context: {
+        tags: allTags,
+        entry: { name: 'Tags', route: '/tag/' },
+      },
+    })
     if (wrote) count++
   }
 
   // /tag/{slug}/ — site-level tag pages (one per tag)
   if (tagsConfig.siteTag) {
-    const tags = allTags
-    for (const tag of tags) {
+    for (const tag of allTags) {
       const slug = slugify(tag)
       if (!slug) continue
       const entries = filterEntriesByTags(allEntries, { tags: tag, mode: 'or' })
-      const context = {
-        ...renderBaseContext,
+      const wrote = await renderPage({
+        route: `/tag/${slug}/`,
         layoutName: TAG_PAGE_LAYOUT,
-        tag,
-        entries,
-        entry: { name: `#${tag}`, route: `/tag/${slug}/` },
-      }
-      const wrote = await renderPage(path.join(outputDir, 'tag', slug), context)
+        context: {
+          tag,
+          entries,
+          entry: { name: `#${tag}`, route: `/tag/${slug}/` },
+        },
+      })
       if (wrote) count++
     }
   }
@@ -120,17 +91,18 @@ export async function renderTagPages(options: {
 
     // /{collection}/tag/ — collection tag index
     if (tagsConfig.collectionIndex) {
-      const context = {
-        ...renderBaseContext,
+      const wrote = await renderPage({
+        route: `/${routeRelative}/tag/`,
         layoutName: TAG_INDEX_LAYOUT,
-        tags: collectionTags,
-        collection,
-        entry: {
-          name: `Tags — ${collection.name}`,
-          route: `/${routeRelative}/tag/`,
+        context: {
+          tags: collectionTags,
+          collection,
+          entry: {
+            name: `Tags — ${collection.name}`,
+            route: `/${routeRelative}/tag/`,
+          },
         },
-      }
-      const wrote = await renderPage(path.join(outputDir, routeRelative, 'tag'), context)
+      })
       if (wrote) count++
     }
 
@@ -140,21 +112,19 @@ export async function renderTagPages(options: {
         const slug = slugify(tag)
         if (!slug) continue
         const entries = filterEntriesByTags(collection.entries, { tags: tag, mode: 'or' })
-        const context = {
-          ...renderBaseContext,
+        const wrote = await renderPage({
+          route: `/${routeRelative}/tag/${slug}/`,
           layoutName: TAG_PAGE_LAYOUT,
-          tag,
-          entries,
-          collection,
-          entry: {
-            name: `#${tag}`,
-            route: `/${routeRelative}/tag/${slug}/`,
+          context: {
+            tag,
+            entries,
+            collection,
+            entry: {
+              name: `#${tag}`,
+              route: `/${routeRelative}/tag/${slug}/`,
+            },
           },
-        }
-        const wrote = await renderPage(
-          path.join(outputDir, routeRelative, 'tag', slug),
-          context,
-        )
+        })
         if (wrote) count++
       }
     }

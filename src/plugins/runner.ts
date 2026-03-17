@@ -3,7 +3,7 @@
  */
 
 import type { Block, Collection, Entry, Site } from "../core/model";
-import type { LoadedPlugin, PluginContext } from "./types";
+import type { LoadedPlugin, PluginContext, RenderPage } from "./types";
 import Handlebars from "handlebars";
 
 const logError = (logger: PluginContext["logger"], pluginId: string, hook: string, error: unknown) => {
@@ -150,6 +150,32 @@ export async function runExtendTemplates(plugins: LoadedPlugin[], ctx: PluginCon
       });
     } catch (err) {
       logError(ctx.logger, plugin.pluginId, "extendTemplates", err);
+    }
+  }
+}
+
+export async function runOnGeneratePages(
+  plugins: LoadedPlugin[],
+  site: Site,
+  ctx: PluginContext,
+  renderPage: RenderPage,
+): Promise<void> {
+  const tooLateAddReservedRoute = (segment: string) => {
+    ctx.logger.warn("plugin.addReservedRoute.tooLate", { segment });
+  };
+  for (const plugin of plugins) {
+    if (!plugin.onGeneratePages) continue;
+    try {
+      const pluginCtx = {
+        ...ctx,
+        pluginId: plugin.pluginId,
+        thisPluginConfig: ctx.pluginConfig?.[plugin.pluginId] as Record<string, unknown> | undefined,
+        addReservedRoute: tooLateAddReservedRoute,
+        renderPage,
+      };
+      await plugin.onGeneratePages(site, pluginCtx);
+    } catch (err) {
+      logError(ctx.logger, plugin.pluginId, "onGeneratePages", err);
     }
   }
 }

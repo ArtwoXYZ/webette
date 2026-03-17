@@ -25,13 +25,17 @@ function findUniqueSlug(base: string, taken: Set<string>): string {
 /**
  * Returns a new Site where any slug colliding with a system route has been renamed.
  * Emits a warning for each rename via the provided logger.
+ *
+ * `extraReserved` allows plugins to declare additional reserved top-level segments
+ * (via `ctx.addReservedRoute`). These are merged with `SYSTEM_SLUGS` additively.
  */
-export function resolveSystemSlugCollisions(site: Site, logger: Logger): Site {
-  const systemSet = new Set(SYSTEM_SLUGS)
+export function resolveSystemSlugCollisions(site: Site, logger: Logger, extraReserved: string[] = []): Site {
+  const systemSet = new Set([...SYSTEM_SLUGS, ...extraReserved])
 
-  // Set of all top-level slugs (system + collections + root entries) used to ensure uniqueness.
+  // Set of all top-level slugs (system + plugin reserved + collections + root entries) used to ensure uniqueness.
   const topLevelSlugs = new Set<string>([
     ...SYSTEM_SLUGS,
+    ...extraReserved,
     ...(site.collections ?? []).map(c => c.slug || c.id),
     ...(site.rootEntries ?? []).map(e => e.slug || e.id),
   ])

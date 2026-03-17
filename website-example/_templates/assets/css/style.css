@@ -232,6 +232,7 @@ strong {
     padding: 0 0.35rem;
     border: 1px solid var(--border);
     background: var(--surface-1);
+    font-family: var(--font-mono);
     font-size: 0.9rem;
     color: var(--text-code);
     line-height: 1.6;

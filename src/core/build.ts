@@ -22,6 +22,7 @@ import {
   runOnScan,
   runTransformBlocks,
   runTransformEntry,
+  runOnGeneratePages,
 } from '../plugins/runner'
 import type { PluginContext } from '../plugins/types'
 import { SiteModelTransformer } from './transformations/site-model-transformer'
@@ -41,6 +42,7 @@ import { collectProtectedDirs, createExpectedOutputsRegistry, pruneOrphans } fro
 import { renderSite } from './build/render'
 import { renderTagPages } from './build/tag-pages'
 import { resolveSystemSlugCollisions } from './build/resolve-system-slugs'
+import { createRenderPage } from './build/render-synthetic-page'
 import { buildIcons } from './build/icons'
 import { writeNginxSampleFile, writeRootHtaccessFile } from './build/server-files'
 import {
@@ -49,7 +51,6 @@ import {
   getAllTags,
   normalizeTags,
 } from './tags/filter'
-import { stripRouteSlashes } from '../utils/path'
 
 export interface BuildOptions {
   verbose: boolean
@@ -277,6 +278,8 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     blocks: {},
   }))
 
+  const pluginReservedRoutes: string[] = []
+
   const pluginContextBase: PluginContext = {
     rootDir,
     env: toolEnv,
@@ -286,6 +289,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     pluginId: '',
     addExpectedOutput: registerExpectedOutput,
     addExpectedDir: registerExpectedDir,
+    addReservedRoute: (segment: string) => pluginReservedRoutes.push(segment),
     webetteConfig: site.config?.rawConfig,
     siteConfig: site.site,
     pluginConfig: site.config?.pluginConfig,
@@ -597,9 +601,9 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
   })
   const sortedSite = applySorting(resolvedSiteWithHistory, scoped.child('sorting'))
 
-  // Rename any slug that collides with a system tag route (e.g. 'tag').
-  const finalSite = tagsConfig.anyPageEnabled
-    ? resolveSystemSlugCollisions(sortedSite, scoped)
+  // Rename any slug that collides with a system tag route (e.g. 'tag') or a plugin-reserved segment.
+  const finalSite = tagsConfig.anyPageEnabled || pluginReservedRoutes.length > 0
+    ? resolveSystemSlugCollisions(sortedSite, scoped, pluginReservedRoutes)
     : sortedSite
 
   scoped.debug('build.exportModel.start', { path: exportDir })
@@ -664,6 +668,15 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
   const formatHtml = (rawHtml: string, targetPath: string): Promise<string> =>
     formatHtmlFs(injectLiveReload(rawHtml), targetPath, { prettyPrint, logger: scoped })
 
+  const renderSyntheticPage = createRenderPage({
+    outputDir,
+    templateRenderer,
+    renderBaseContext,
+    writeIfChanged,
+    formatHtml,
+    addExpectedOutput: registerExpectedOutput,
+  })
+
   const { renderedPages } = await renderSite({
     rootDir,
     outputDir,
@@ -686,15 +699,15 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
 
   if (tagsConfig.anyPageEnabled) {
     await renderTagPages({
-      outputDir,
       site: finalSite,
       tagsConfig,
-      templateRenderer,
-      renderBaseContext,
-      writeIfChanged,
-      formatHtml,
+      renderPage: renderSyntheticPage,
       logger: scoped,
     })
+  }
+
+  if (plugins.length) {
+    await runOnGeneratePages(plugins, finalSite, pluginContextBase, renderSyntheticPage)
   }
 
   await writeSitemap({
@@ -711,21 +724,6 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     site: finalSite,
     includeDrafts,
   })
-  // Register tag output dirs as expected so pruneOrphans does not delete them.
-  // Uses expectedPrefixes (addExpectedDir) to cover the full subtree.
-  if (tagsConfig.siteIndex || tagsConfig.siteTag) {
-    registerExpectedDir('tag')
-  }
-  if (tagsConfig.collectionIndex || tagsConfig.collectionTag) {
-    for (const collection of finalSite.collections ?? []) {
-      const routeRelative = collection.route
-        ? stripRouteSlashes(collection.route)
-        : collection.slug || collection.id
-      if (routeRelative) {
-        registerExpectedDir(path.join(routeRelative, 'tag'))
-      }
-    }
-  }
   await pruneOrphans({
     outputDir,
     exportDir,

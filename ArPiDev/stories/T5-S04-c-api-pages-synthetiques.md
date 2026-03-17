@@ -2,8 +2,8 @@
 
 **Story ID**: T5-S04-c
 **Parent**: T5 — Plugins & configuration (beta)
-**Status**: To Do, Validated
-**Active**: no
+**Status**: Done, Waiting for Validation
+**Active**: yes
 **Created**: 2026-03-16
 **Closed**: —
 
@@ -257,8 +257,6 @@ Chercher l'emplacement de la doc plugin existante (website-example, docs/, READM
 
 ## Commit proposal
 
-*(à finaliser à la clôture — peut évoluer pendant l'implémentation)*
-
 ```
 feat(plugins): add onGeneratePages hook and shared renderPage utility
 
@@ -269,10 +267,49 @@ feat(plugins): add onGeneratePages hook and shared renderPage utility
 - Wire runOnGeneratePages in build pipeline (after tag pages, before sitemap)
 - Add test-generate-pages example plugin in website-example
 - Document onGeneratePages, renderPage and addReservedRoute for plugin authors
+- Fix inline code font in .prose: apply --font-mono instead of bare monospace
 ```
 
 ---
 
 ## Dev log
 
-*(entrées ajoutées au fil de l'implémentation)*
+### 2026-03-17 — Implémentation complète
+
+**Étape 1 — Factory `createRenderPage`**
+Créé `src/core/build/render-synthetic-page.ts`. La factory capture `outputDir`, `templateRenderer`, `renderBaseContext`, `writeIfChanged`, `formatHtml`, `addExpectedOutput`. Le merge est `{ ...renderBaseContext, ...context, layoutName }` — `layoutName` en dernière position pour ne jamais être écrasé. `addExpectedOutput` est appelé avant `writeIfChanged` pour protéger même les fichiers non-réécrits (contenu identique = fichier existant).
+
+**Étape 2 — Refactor `renderTagPages`**
+`outputDir`, `templateRenderer`, `renderBaseContext`, `writeIfChanged`, `formatHtml` ont été retirés des options de `renderTagPages`. La fonction locale `renderPage` supprimée, remplacée par le param `renderPage: RenderPage`. Les appels FS path → route string (ex: `path.join(outputDir, 'tag', slug)` → `'/tag/${slug}/'`). Imports `mkdir` et `path` supprimés (non plus nécessaires).
+
+**Étapes 3+6+7 — `build.ts`**
+- `pluginReservedRoutes: string[]` collecte les segments via `addReservedRoute` dans `pluginContextBase`.
+- `resolveSystemSlugCollisions` reçoit `pluginReservedRoutes` en 3e param (nouveau param optionnel).
+- `renderSyntheticPage` instancié après `formatHtml` (dépendance nécessaire — instanciation mal placée initialement avant `formatHtml`, corrigée).
+- `renderTagPages` : signature réduite à `{ site, tagsConfig, renderPage, logger }`.
+- `runOnGeneratePages` branché après `renderTagPages`, avant `writeSitemap`.
+- Import `stripRouteSlashes` supprimé (plus utilisé dans `build.ts`).
+- Bloc `registerExpectedDir` tags (14 lignes) supprimé — remplacé par `addExpectedOutput` par fichier dans la factory.
+
+**Étape 4+5 — `types.ts` + `runner.ts`**
+`RenderPage` exporté depuis `types.ts` avec JSDoc. `addReservedRoute` ajouté à `PluginContext` avec note de timing. `onGeneratePages` ajouté à `Plugin` interface. `runOnGeneratePages` dans `runner.ts` : `addReservedRoute` overridé par une version warning-only dans ce contexte (trop tard pour avoir un effet).
+
+**Étape 7 — `resolve-system-slugs.ts`**
+Paramètre `extraReserved: string[] = []` ajouté. `systemSet` et `topLevelSlugs` mergent `SYSTEM_SLUGS + extraReserved`. `SYSTEM_SLUGS` reste la source de vérité core, inchangée.
+
+**Étape 8 — Plugin `test-generate-pages`**
+`website-example/_plugins/test-generate-pages/test-generate-pages.js` : appelle `addReservedRoute('demo-plugin')` dans `onInit`, génère 2 pages dans `onGeneratePages`. Layout `entry` (confirmé existant dans `_templates/layout/`). README ajouté.
+
+**Étapes checks (Done when)**
+
+1. ✅ `renderTagPages` utilise `RenderPage` — pages `/tag/` et sous-pages présentes après build, inchangées.
+2. ✅ `registerExpectedDir` tags supprimés. Second build sans orphelin supprimé sous `_public/tag/`. Bonus : les stale tag pages (tags supprimés) sont maintenant correctement prunées (per-file vs subtree-prefix — comportement plus correct qu'avant).
+3. ✅ TypeScript compile sans erreur (`bunx tsc --noEmit` clean). Pages `_public/demo-plugin/index.html` et `_public/demo-plugin/sub-page/index.html` générées et non supprimées au second build.
+4. ✅ `addReservedRoute('demo-plugin')` dans `onInit` → warning `build.tags.slugRenamed` affiché quand une collection `demo-plugin` est créée. (Le message i18n mentionne `/tag/` mais c'est un libellé pre-existant lié à la clé ; la logique est correcte.)
+5. ✅ Doc présente dans `docs/plugins.md` (section "Generating static pages", `ctx.renderPage`, `ctx.addReservedRoute`, exemple minimal, pointer vers plugin) et dans `docs/build-pipeline-and-hooks.md` (hook 8, ctx mis à jour). README plugin dans `website-example/_plugins/test-generate-pages/README.md`.
+
+**Nettoyage des commentaires**
+Commentaires "narrative du changement" retirés des fichiers modifiés (`build.ts`, `runner.ts`, `types.ts`, `render-synthetic-page.ts`). Seuls restent les commentaires qui apportent une précision non évidente sur le comportement (ex : note de timing sur `addReservedRoute`, spread order de `layoutName`).
+
+**Fix CSS — font inline code**
+`.prose :not(pre)>code` dans `website-example/_templates/assets/css/style.css` ne déclarait pas `font-family` : seul le reset `init.css` (`font-family: monospace`) s'appliquait, sans la stack `--font-mono` (`"Drafting Mono"`, Consolas…). Ajout de `font-family: var(--font-mono)` — découvert via la page `/demo-plugin/` générée par le plugin de test.

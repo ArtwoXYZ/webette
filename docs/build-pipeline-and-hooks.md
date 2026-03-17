@@ -277,10 +277,12 @@ Plugins are plain ESM modules (`.js`/`.mjs`) listed in `webette.config.ts` under
 - `transformBlock(block, ctx)` – per-block mutation (depth-first). Return a new block or mutate.
 - `transformEntry(entry, ctx)` – per-entry mutation after blocks. Return a new entry or mutate.
 - `extendTemplates(handlebars, ctx)` – register helpers/partials/layouts before templates are compiled.
+- `onGeneratePages(site, ctx)` – after tag pages are rendered, before sitemap. Use `ctx.renderPage` to generate arbitrary static pages. See `docs/plugins.md` for the full API.
 - `ctx.addExpectedOutput(relativePath)` — register extra files/assets you generate outside the model (paths relative to the build output dir) so the prune step (`overwrite=replace-files`) does not delete them.
 - `ctx.addExpectedDir(relativeDir)` — whitelist an entire directory/prefix under the build output so prune keeps everything inside (useful for plugins that emit many assets).
+- `ctx.addReservedRoute(segment)` — declare a top-level route segment as reserved. Call in `onInit`/`onScan`/`onResolved`; calling it in `onGeneratePages` is too late and emits a warning.
 
-Context (`ctx`) includes: `rootDir`, tool `env`, `logger`, `readContent`, `exportDir`, and `pluginId`. For `transformBlock` you also get `entry` and `collection`; for `transformEntry` you get `collection`.
+Context (`ctx`) includes: `rootDir`, tool `env`, `logger`, `readContent`, `exportDir`, and `pluginId`. For `transformBlock` you also get `entry` and `collection`; for `transformEntry` you get `collection`; for `onGeneratePages` you get `renderPage`.
 
 Order of execution:
 
@@ -291,6 +293,7 @@ Order of execution:
 5. `transformBlock` (with recursion on subBlocks)
 6. `transformEntry`
 7. `extendTemplates` (during template setup)
+8. `onGeneratePages` (after tag pages, before sitemap)
 
 Notes:
 

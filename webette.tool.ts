@@ -1,9 +1,9 @@
 // Tool config (TS) loaded by src/config/env.ts
 export default {
   logging: {
-    level: "info", // "debug" | "info" | "warn" | "error"
-    locale: "fr", // "fr" | "en"
-    dirName: ".webette", // site-local logs folder
+    level: 'info', // "debug" | "info" | "warn" | "error"
+    locale: 'fr', // "fr" | "en"
+    dirName: '.webette', // site-local logs folder
   },
   serve: {
     port: 4173, // dev server port
@@ -11,8 +11,8 @@ export default {
     watcherDebounceMs: 300, // watcher debounce (ms)
   },
   build: {
-    outputDirName: "_public", // build output directory
-    overwrite: "replace-files", // "none" | "replace-all" | "replace-files"
+    outputDirName: '_public', // build output directory
+    overwrite: 'replace-files', // "none" | "replace-all" | "replace-files"
     protectAssets: true, // generate forbidden placeholders in asset folders
     writeHtaccess: true, // write a root .htaccess with ErrorDocument 404 and Options -Indexes (Apache only)
     writeNginxSample: true, // write a sample nginx.conf in the build output
@@ -23,13 +23,13 @@ export default {
     },
   },
   templates: {
-    root: "templates", // default templates folder
+    root: 'templates', // default templates folder
     default: {
-      wrapper: "wrapper/wrapper.hbs", // default wrapper
-      layout: "layout/post.hbs", // default layout
-      index: "layout/index.hbs", // default index layout
-      notFound: "layout/not-found.hbs", // default 404 layout
-      accessForbidden: "layout/access-forbidden.hbs", // default forbidden layout
+      wrapper: 'wrapper/wrapper.hbs', // default wrapper
+      layout: 'layout/post.hbs', // default layout
+      index: 'layout/index.hbs', // default index layout
+      notFound: 'layout/not-found.hbs', // default 404 layout
+      accessForbidden: 'layout/access-forbidden.hbs', // default forbidden layout
     },
   },
   images: {
@@ -39,20 +39,20 @@ export default {
       medium: 960, // max width for medium
       large: 1440, // max width for large
     },
-    format: "webp", // target format for variants
+    format: 'webp', // target format for variants
     quality: 80, // quality (1-100)
-    fit: "cover", // resize strategy: cover/contain/fill/inside/outside
-    outputDir: "assets/images", // relative path under output dir
+    fit: 'cover', // resize strategy: cover/contain/fill/inside/outside
+    outputDir: 'assets/images', // relative path under output dir
     reencodeDefault: false, // re-encode the default variant without resize
   },
   video: {
-    outputDir: "assets/video", // relative path under output dir
+    outputDir: 'assets/video', // relative path under output dir
   },
   markdown: {
     remarkPlugins: [], // shared plugins applied to markdown parsing/rendering
     treatTxtAsMarkdown: true, // when true, .txt files use the markdown pipeline
   },
   audio: {
-    outputDir: "assets/audio", // relative path under output dir
+    outputDir: 'assets/audio', // relative path under output dir
   },
-};
+}
