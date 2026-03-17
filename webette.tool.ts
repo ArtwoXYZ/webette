@@ -22,37 +22,4 @@ export default {
       only: false, // if true, only write the model
     },
   },
-  templates: {
-    root: 'templates', // default templates folder
-    default: {
-      wrapper: 'wrapper/wrapper.hbs', // default wrapper
-      layout: 'layout/post.hbs', // default layout
-      index: 'layout/index.hbs', // default index layout
-      notFound: 'layout/not-found.hbs', // default 404 layout
-      accessForbidden: 'layout/access-forbidden.hbs', // default forbidden layout
-    },
-  },
-  images: {
-    requiresImageEngine: true, // enable variant generation via sharp
-    sizes: {
-      small: 480, // max width for small
-      medium: 960, // max width for medium
-      large: 1440, // max width for large
-    },
-    format: 'webp', // target format for variants
-    quality: 80, // quality (1-100)
-    fit: 'cover', // resize strategy: cover/contain/fill/inside/outside
-    outputDir: 'assets/images', // relative path under output dir
-    reencodeDefault: false, // re-encode the default variant without resize
-  },
-  video: {
-    outputDir: 'assets/video', // relative path under output dir
-  },
-  markdown: {
-    remarkPlugins: [], // shared plugins applied to markdown parsing/rendering
-    treatTxtAsMarkdown: true, // when true, .txt files use the markdown pipeline
-  },
-  audio: {
-    outputDir: 'assets/audio', // relative path under output dir
-  },
 }

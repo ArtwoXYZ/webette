@@ -305,10 +305,7 @@ function sortBlocks(blocks: Block[] | undefined, sort: SortSpec): Block[] | unde
 }
 
 export function applySorting(site: Site, logger?: Logger): Site {
-  const sortingRaw =
-    site?.site && typeof site.site === "object"
-      ? (site.site as Record<string, unknown>).sorting
-      : undefined;
+  const sortingRaw = site?.config?.sorting;
   const sorting =
     sortingRaw && typeof sortingRaw === "object"
       ? (sortingRaw as SortingConfig)

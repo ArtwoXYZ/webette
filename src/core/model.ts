@@ -90,6 +90,9 @@ export interface SiteStructureRoot {
   ignoredFolders?: SiteStructureIgnoredFolder[];
 }
 
+export type ImageFormat = "webp" | "avif" | "jpeg" | "png";
+export type ImageFit = "cover" | "contain" | "fill" | "inside" | "outside";
+
 export interface Site {
   rootDir: string;                  // absolute path to the site root
   site: Record<string, unknown>;    // "site" section from webette.config.ts
@@ -99,6 +102,11 @@ export interface Site {
     templates?: Record<string, unknown>; // raw templates config from webette.config.ts
     pluginConfig?: Record<string, unknown>; // plugin-specific configuration (map pluginId → config)
     tags?: Record<string, unknown>; // raw tags config from webette.config.ts
+    images?: Record<string, unknown>; // raw images config from webette.config.ts
+    audio?: Record<string, unknown>; // raw audio config from webette.config.ts
+    video?: Record<string, unknown>; // raw video config from webette.config.ts
+    markdown?: Record<string, unknown>; // raw markdown config from webette.config.ts
+    sorting?: Record<string, unknown>; // raw sorting config from webette.config.ts
     rawConfig?: Record<string, unknown>; // full raw webette.config.ts before processing
   };
   indexes?: {

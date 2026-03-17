@@ -19,10 +19,7 @@ export const resolveMarkdown: Resolver = async (block, ctx) => {
 
   try {
     const remarkPlugins = ctx.remarkPlugins ?? [];
-    const siteMarkdown =
-      ctx.site?.site && typeof ctx.site.site === "object"
-        ? (ctx.site.site as Record<string, unknown>).markdown
-        : undefined;
+    const siteMarkdown = ctx.site?.config?.markdown;
     const headingShiftRaw =
       siteMarkdown && typeof siteMarkdown === "object"
         ? (siteMarkdown as Record<string, unknown>).headingShift
@@ -41,9 +38,9 @@ export const resolveMarkdown: Resolver = async (block, ctx) => {
       ? [...remarkPlugins, shiftPlugin]
       : remarkPlugins;
     const enableExternalLinks =
-      ctx.toolEnv?.markdown &&
-        typeof ctx.toolEnv.markdown === "object" &&
-        (ctx.toolEnv.markdown as any).externalLinks === false
+      ctx.site?.config?.markdown &&
+        typeof ctx.site.config.markdown === "object" &&
+        (ctx.site.config.markdown as Record<string, unknown>).externalLinks === false
         ? false
         : true;
     const ast = await parseMarkdownToAst(raw, combinedRemarkPlugins);

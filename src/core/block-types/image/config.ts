@@ -4,7 +4,8 @@
 
 import * as path from "node:path";
 import type { Site } from "../../model";
-import type { ImageFit, ImageFormat, WebetteEnv } from "../../../config/env";
+import type { ImageFit, ImageFormat } from "../../model";
+import type { WebetteEnv } from "../../../config/env";
 
 // Fixed set of generated variants to keep themes and sites aligned
 export type GeneratedVariantName = "small" | "medium" | "large";
@@ -29,6 +30,11 @@ export interface ImagePipelineConfig {
 const MAX_DIMENSION = 4000;
 const DEFAULT_FORMAT: ImageFormat = "webp";
 const DEFAULT_FIT: ImageFit = "cover";
+const DEFAULT_REQUIRES_IMAGE_ENGINE = false;
+const DEFAULT_SIZES = { small: 480, medium: 960, large: 1440 };
+const DEFAULT_QUALITY = 80;
+const DEFAULT_REENCODE_DEFAULT = false;
+const DEFAULT_IMAGES_OUTPUT_DIR = "assets/images";
 
 function clampDimension(value: number | undefined): number | undefined {
   if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return undefined;
@@ -92,18 +98,13 @@ export function resolveImageConfig(
   env: WebetteEnv,
   site: Site
 ): ImagePipelineConfig {
-  // Site overrides live under site.images; tool defaults come from env.images.
-  const rawSiteImages =
-    site?.site && typeof site.site === "object"
-      ? (site.site as Record<string, unknown>).images
-      : undefined;
-
-  const envImages = env.images;
+  // Site overrides live under site.config.images; inline defaults apply as fallback.
+  const rawSiteImages = site?.config?.images;
 
   const fallbackVariants = {
-    small: { width: clampDimension(envImages.sizes.small) ?? 480 },
-    medium: { width: clampDimension(envImages.sizes.medium) ?? 960 },
-    large: { width: clampDimension(envImages.sizes.large) ?? 1440 },
+    small: { width: clampDimension(DEFAULT_SIZES.small) ?? 480 },
+    medium: { width: clampDimension(DEFAULT_SIZES.medium) ?? 960 },
+    large: { width: clampDimension(DEFAULT_SIZES.large) ?? 1440 },
   } as Record<GeneratedVariantName, ImageVariantSize>;
 
   const siteSizes =
@@ -127,13 +128,13 @@ export function resolveImageConfig(
         "boolean"
       ? (rawSiteImages as Record<string, unknown>).requiresImageEngine
       : undefined) ??
-    envImages.requiresImageEngine;
+    DEFAULT_REQUIRES_IMAGE_ENGINE;
 
   const format = normalizeFormat(
     rawSiteImages && typeof rawSiteImages === "object"
       ? (rawSiteImages as Record<string, unknown>).format
       : undefined,
-    envImages.format ?? DEFAULT_FORMAT
+    DEFAULT_FORMAT
   );
 
   const qualityRaw =
@@ -143,38 +144,38 @@ export function resolveImageConfig(
   const quality =
     typeof qualityRaw === "number" && Number.isFinite(qualityRaw)
       ? Math.min(Math.max(Math.round(qualityRaw), 1), 100)
-      : Math.min(Math.max(Math.round(envImages.quality ?? 80), 1), 100);
+      : Math.min(Math.max(Math.round(DEFAULT_QUALITY), 1), 100);
 
   const fit = normalizeFit(
     rawSiteImages && typeof rawSiteImages === "object"
       ? (rawSiteImages as Record<string, unknown>).fit
       : undefined,
-    envImages.fit ?? DEFAULT_FIT
+    DEFAULT_FIT
   );
 
   const reencodeDefault =
     rawSiteImages && typeof rawSiteImages === "object" &&
     typeof (rawSiteImages as Record<string, unknown>).reencodeDefault === "boolean"
       ? ((rawSiteImages as Record<string, unknown>).reencodeDefault as boolean)
-      : envImages.reencodeDefault;
+      : DEFAULT_REENCODE_DEFAULT;
 
   const outputDirSegment =
     (rawSiteImages && typeof rawSiteImages === "object"
       ? (rawSiteImages as Record<string, unknown>).outputDir
-      : undefined) ?? envImages.outputDir;
+      : undefined) ?? DEFAULT_IMAGES_OUTPUT_DIR;
 
   const outputDir = normalizeOutputDir(
     rootDir,
     env.build.outputDirName,
     outputDirSegment,
-    envImages.outputDir
+    DEFAULT_IMAGES_OUTPUT_DIR
   );
 
   // Public base mirrors the outputDir segment so routes reflect the static path
   const publicBase =
     typeof outputDirSegment === "string" && outputDirSegment.trim()
       ? outputDirSegment.replace(/^\/+|\/+$/g, "")
-      : envImages.outputDir.replace(/^\/+|\/+$/g, "");
+      : DEFAULT_IMAGES_OUTPUT_DIR.replace(/^\/+|\/+$/g, "");
 
   return {
     requiresImageEngine: Boolean(requiresImageEngine),

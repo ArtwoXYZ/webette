@@ -106,43 +106,7 @@ export async function createSite(rootDir: string): Promise<Site> {
 
   const siteSection: Record<string, unknown> =
     config.site && typeof config.site === "object" ? { ...config.site } : {};
-  // Merge top-level sections into site metadata to keep consumers simple.
-  if (config.images && typeof config.images === "object") {
-    siteSection.images = {
-      ...(siteSection.images as Record<string, unknown> | undefined),
-      ...config.images,
-    };
-    const img = siteSection.images as Record<string, unknown>;
-    if (typeof img.defaultVariant !== "string" || !img.defaultVariant.trim()) {
-      img.defaultVariant = "default";
-    } else {
-      img.defaultVariant = img.defaultVariant.toLowerCase();
-    }
-  }
-  if (config.audio && typeof config.audio === "object") {
-    siteSection.audio = {
-      ...(siteSection.audio as Record<string, unknown> | undefined),
-      ...config.audio,
-    };
-  }
-  if (config.video && typeof config.video === "object") {
-    siteSection.video = {
-      ...(siteSection.video as Record<string, unknown> | undefined),
-      ...config.video,
-    };
-  }
-  if (config.markdown && typeof config.markdown === "object") {
-    siteSection.markdown = {
-      ...(siteSection.markdown as Record<string, unknown> | undefined),
-      ...config.markdown,
-    };
-  }
-  if (config.sorting && typeof config.sorting === "object") {
-    siteSection.sorting = {
-      ...(siteSection.sorting as Record<string, unknown> | undefined),
-      ...config.sorting,
-    };
-  }
+
   const plugins: string[] | { dir: string } | undefined = config.plugins;
   const collectionsConfig: Record<string, unknown> | undefined =
     config.collections && typeof config.collections === "object"
@@ -184,6 +148,11 @@ export async function createSite(rootDir: string): Promise<Site> {
       ...(templatesConfig ? { templates: templatesConfig } : {}),
       ...(config.pluginConfig ? { pluginConfig: config.pluginConfig } : {}),
       ...(config.tags ? { tags: config.tags } : {}),
+      ...(config.images ? { images: config.images } : {}),
+      ...(config.audio ? { audio: config.audio } : {}),
+      ...(config.video ? { video: config.video } : {}),
+      ...(config.markdown ? { markdown: config.markdown } : {}),
+      ...(config.sorting ? { sorting: config.sorting } : {}),
       rawConfig,
     },
   };

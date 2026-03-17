@@ -10,32 +10,6 @@ import { loadDefaultExportFresh } from "../utils/load-module";
 
 export type LogLevel = "debug" | "info" | "warn" | "error";
 export type OverwritePolicy = "none" | "replace-all" | "replace-files";
-export type ImageFormat = "webp" | "avif" | "jpeg" | "png";
-export type ImageFit = "cover" | "contain" | "fill" | "inside" | "outside";
-export type ImageVariantChoice = "default" | "small" | "medium" | "large";
-
-export interface ImagesEnv {
-  requiresImageEngine: boolean;
-  sizes: {
-    small: number;
-    medium: number;
-    large: number;
-  };
-  format: ImageFormat;
-  quality: number;
-  fit: ImageFit;
-  outputDir: string; // relative to the output directory (e.g. "assets/images")
-  reencodeDefault: boolean;
-  defaultVariant: ImageVariantChoice;
-}
-
-export interface AudioEnv {
-  outputDir: string; // relative to the output directory (e.g. "assets/audio")
-}
-
-export interface VideoEnv {
-  outputDir: string; // relative to the output directory (e.g. "assets/video")
-}
 
 export interface WebetteEnv {
   logging: {
@@ -72,14 +46,6 @@ export interface WebetteEnv {
       accessForbidden: string;
     };
   };
-  markdown: {
-    remarkPlugins: unknown[];
-    treatTxtAsMarkdown: boolean;
-    externalLinks: boolean;
-  };
-  images: ImagesEnv;
-  audio: AudioEnv;
-  video: VideoEnv;
 }
 
 type WebetteEnvOverrides = Partial<{
@@ -102,23 +68,6 @@ type WebetteEnvOverrides = Partial<{
       | "writeNginxSample"
     >
   >;
-  templates: Partial<
-    {
-      root: string;
-      default: Partial<
-        Pick<
-          WebetteEnv["templates"]["default"],
-          "wrapper" | "layout" | "index" | "notFound" | "accessForbidden"
-        >
-      >;
-    }
-  >;
-  markdown: Partial<
-    Pick<WebetteEnv["markdown"], "remarkPlugins" | "treatTxtAsMarkdown" | "externalLinks">
-  >;
-  images: Partial<ImagesEnv>;
-  audio: Partial<AudioEnv>;
-  video: Partial<VideoEnv>;
 }>;
 
 const defaultEnv: WebetteEnv = {
@@ -155,31 +104,6 @@ const defaultEnv: WebetteEnv = {
       notFound: "layout/not-found.hbs",
       accessForbidden: "layout/access-forbidden.hbs",
     },
-  },
-  markdown: {
-    remarkPlugins: [],
-    treatTxtAsMarkdown: true,
-    externalLinks: true,
-  },
-  images: {
-    requiresImageEngine: false,
-    sizes: {
-      small: 480,
-      medium: 960,
-      large: 1440,
-    },
-    format: "webp",
-    quality: 80,
-    fit: "cover",
-    outputDir: "assets/images",
-    reencodeDefault: false,
-    defaultVariant: "default",
-  },
-  audio: {
-    outputDir: "assets/audio",
-  },
-  video: {
-    outputDir: "assets/video",
   },
 };
 
@@ -259,106 +183,7 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): Webette
       : {}),
   };
 
-  const defaultOverrides =
-    overrides.templates?.default && typeof overrides.templates.default === "object"
-      ? overrides.templates.default
-      : {};
-
-  const templates = {
-    ...defaults.templates,
-    ...(typeof overrides.templates?.root === "string" && overrides.templates.root
-      ? { root: overrides.templates.root }
-      : {}),
-    default: {
-      ...defaults.templates.default,
-      ...(typeof defaultOverrides.wrapper === "string" && defaultOverrides.wrapper
-        ? { wrapper: defaultOverrides.wrapper }
-        : {}),
-      ...(typeof defaultOverrides.layout === "string" && defaultOverrides.layout
-        ? { layout: defaultOverrides.layout }
-        : {}),
-      ...(typeof defaultOverrides.index === "string" && defaultOverrides.index
-        ? { index: defaultOverrides.index }
-        : {}),
-      ...(typeof defaultOverrides.notFound === "string" && defaultOverrides.notFound
-        ? { notFound: defaultOverrides.notFound }
-        : {}),
-      ...(typeof defaultOverrides.accessForbidden === "string" &&
-        defaultOverrides.accessForbidden
-        ? { accessForbidden: defaultOverrides.accessForbidden }
-        : {}),
-    },
-  };
-
-  const markdown = {
-    ...defaults.markdown,
-    ...(Array.isArray(overrides.markdown?.remarkPlugins)
-      ? { remarkPlugins: overrides.markdown.remarkPlugins }
-      : {}),
-    ...(typeof overrides.markdown?.treatTxtAsMarkdown === "boolean"
-      ? { treatTxtAsMarkdown: overrides.markdown.treatTxtAsMarkdown }
-      : {}),
-    ...(typeof overrides.markdown?.externalLinks === "boolean"
-      ? { externalLinks: overrides.markdown.externalLinks }
-      : {}),
-  };
-
-  const images = {
-    ...defaults.images,
-    ...(typeof overrides.images?.requiresImageEngine === "boolean"
-      ? { requiresImageEngine: overrides.images.requiresImageEngine }
-      : {}),
-    sizes: {
-      ...defaults.images.sizes,
-      ...(overrides.images?.sizes &&
-        typeof overrides.images.sizes === "object"
-        ? (["small", "medium", "large"] as const).reduce(
-          (acc, key) => {
-            const value = (overrides.images?.sizes as Record<string, unknown>)[key];
-            if (typeof value === "number" && value > 0) {
-              acc[key] = value;
-            }
-            return acc;
-          },
-          {} as Partial<ImagesEnv["sizes"]>
-        )
-        : {}),
-    },
-    ...(typeof overrides.images?.format === "string" && overrides.images.format
-      ? { format: overrides.images.format }
-      : {}),
-    ...(typeof overrides.images?.quality === "number"
-      ? { quality: overrides.images.quality }
-      : {}),
-    ...(typeof overrides.images?.fit === "string" && overrides.images.fit
-      ? { fit: overrides.images.fit }
-      : {}),
-    ...(typeof overrides.images?.outputDir === "string" && overrides.images.outputDir
-      ? { outputDir: overrides.images.outputDir }
-      : {}),
-    ...(typeof overrides.images?.reencodeDefault === "boolean"
-      ? { reencodeDefault: overrides.images.reencodeDefault }
-      : {}),
-    ...(typeof overrides.images?.defaultVariant === "string" && overrides.images.defaultVariant
-      ? { defaultVariant: overrides.images.defaultVariant as ImageVariantChoice }
-      : {}),
-  };
-
-  const audio = {
-    ...defaults.audio,
-    ...(typeof overrides.audio?.outputDir === "string" && overrides.audio.outputDir
-      ? { outputDir: overrides.audio.outputDir }
-      : {}),
-  };
-
-  const video = {
-    ...defaults.video,
-    ...(typeof overrides.video?.outputDir === "string" && overrides.video.outputDir
-      ? { outputDir: overrides.video.outputDir }
-      : {}),
-  };
-
-  return { logging, serve, build, templates, markdown, images, audio, video };
+  return { logging, serve, build, templates: defaults.templates };
 }
 
 function resolveConfigPath(toolRoot?: string): string | null {

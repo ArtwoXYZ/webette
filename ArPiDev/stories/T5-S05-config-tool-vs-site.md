@@ -2,10 +2,10 @@
 
 **Story ID**: T5-S05
 **Parent**: T5 — Plugins & configuration (beta)
-**Status**: Ready
+**Status**: Closed
 **Active**: no
 **Created**: 2026-03-15
-**Closed**: —
+**Closed**: 2026-03-17
 
 ---
 
@@ -190,7 +190,71 @@ Retirer les sections `## templates`, `## images`, `## audio`, `## video`, `## ma
 
 ---
 
+## Dev log
+
+### 2026-03-17 — Dev — Implémentation complète (étapes A–F)
+
+**Étape A** — `webette.tool.ts` : supprimé `templates`, `images`, `audio`, `video`, `markdown`. Ne contient plus que `logging`, `serve`, `build`.
+
+**Étape B** — `src/config/env.ts` : supprimé `ImageFormat`, `ImageFit`, `ImageVariantChoice`, `ImagesEnv`, `AudioEnv`, `VideoEnv`. Retiré `markdown`, `images`, `audio`, `video` de `WebetteEnv`, `WebetteEnvOverrides`, `defaultEnv`, `mergeEnv()`. Retiré `templates` de `WebetteEnvOverrides` et son bloc merge — `WebetteEnv.templates` et `defaultEnv.templates` préservés comme constants internes.
+
+**Étape D** — `src/core/model.ts` : ajouté `ImageFormat`, `ImageFit` comme types exportés. Ajouté `images?`, `audio?`, `video?`, `markdown?`, `sorting?` à `Site.config`.
+
+**Étape C** — `src/core/config.ts` (`createSite`) : supprimé les 5 blocs qui mergeaient dans `siteSection`. Ces sections sont maintenant passées directement dans `site.config` (comme les autres sections existantes).
+
+**Étape E** — 7 consommateurs migrés :
+- `build/sorting.ts` : `site.site.sorting` → `site.config?.sorting`
+- `resolve/resolvers/markdown.ts` : `ctx.site.site.markdown` → `ctx.site?.config?.markdown` ; `ctx.toolEnv?.markdown.externalLinks` (TypeScript error) → lu depuis `ctx.site?.config?.markdown.externalLinks`
+- `scan/index.ts` : `site.site.markdown` → `site.config?.markdown` ; `toolEnv.markdown.treatTxtAsMarkdown` → inline `true`
+- `block-types/audio/config.ts` : `site.site.audio` → `site.config?.audio` ; `envAudio.outputDir` → constante inline `"assets/audio"`
+- `block-types/video/config.ts` : `site.site.video` → `site.config?.video` ; `envVideo.outputDir` → constante inline `"assets/video"`
+- `block-types/image/config.ts` : `site.site.images` → `site.config?.images` ; tous les `envImages.*` → constantes inline ; import `ImageFit`/`ImageFormat` migré de `env.ts` vers `model.ts`
+
+**Consommateurs découverts hors scope initial** (non listés dans la story, corrigés en passant) :
+- `build.ts:485,588,593` : `toolEnv.markdown.remarkPlugins` → extrait depuis `site.config.markdown.remarkPlugins` dès la création du site, passé comme variable locale `remarkPlugins`
+- `build/prune.ts:57-59` : `env.images/audio/video.outputDir` → lu depuis `site.config?.images/audio/video?.outputDir` avec fallback inline. `env: WebetteEnv` retiré du paramètre de `collectProtectedDirs` (et son call-site dans `build.ts`) car devenu inutilisé.
+
+**Étape F** — `docs/webette.tool.md` : sections `templates`, `images` (et note sur override site) supprimées. Intro mise à jour.
+
+**Vérifications** :
+- `bunx tsc --noEmit` ✅
+- `bun run build -v website-example` ✅ — build terminé, rendu identique (aucune régression observée)
+
+---
+
+## Commit proposal
+
+```
+refactor(config): separate tool config from site config
+```
+
+- Remove `images`, `audio`, `video`, `markdown`, `sorting` from `webette.tool.ts` and `WebetteEnv`; these sections belong only in `webette.config.ts`
+- Move `images`, `audio`, `video`, `markdown`, `sorting` from `site.site.*` to `site.config.*` in the runtime model; fixes the internal inconsistency in `createSite()`
+- Migrate `ImageFormat`, `ImageFit` to `model.ts`; remove `ImageVariantChoice` (duplicate of `ImageVariantName`)
+- Update all consumers (sorting, scan, markdown resolver, image/audio/video config, build, prune) to read from `site.config.*` with inline defaults
+- Update `docs/webette.tool.md` to reflect the narrowed scope of `webette.tool.ts`
+
+---
+
 ## Pilot exchange
 
 - 2026-03-15 — Pilot — Story créée. Recon sur `webette.tool.ts`, `src/config/env.ts`, `src/core/config.ts`, `src/core/model.ts` et les 7 consommateurs. Séparation décidée : `webette.tool.ts` = `logging`/`serve`/`build` uniquement — `templates` retiré sur décision utilisateur (les défauts restent hardcodés dans `env.ts`). Pas de changement de format utilisateur sur `webette.config.ts`.
 - 2026-03-15 — Pilot — Recon complémentaire sur `scan/index.ts` et `resolve/resolvers/markdown.ts`. Deux consommateurs directs de `env.markdown` identifiés : `scan/index.ts:34` (`toolEnv.markdown.treatTxtAsMarkdown` → doit devenir inline default) et `resolve/resolvers/markdown.ts:44-48` (optional-chained, sûr sans migration). Story mise à jour. Périmètre complet confirmé.
+
+## To document
+
+> Références pour le Documenter (Pilot) lors de la closure.
+
+**`webette.tool.ts`** (racine du projet) — ne contient plus que `logging`, `serve`, `build`. Référence doc : `docs/webette.tool.md` (mis à jour).
+
+**`webette.config.ts`** — inchangé côté utilisateur. Les sections `images`, `audio`, `video`, `markdown`, `sorting` restent exactement où elles étaient. Rien à migrer pour les sites existants.
+
+**Comportement runtime modifié** — ces sections sont maintenant accessibles via `site.config.images`, `.audio`, `.video`, `.markdown`, `.sorting` (au lieu de `site.site.*` avant). Impacte tout plugin ou code qui lisait ces sections depuis `site.site`.
+
+**Types déplacés** — `ImageFormat`, `ImageFit` maintenant exportés depuis `src/core/model.ts` (plus depuis `src/config/env.ts`). `ImageVariantChoice` supprimé — utiliser `ImageVariantName` (déjà dans `model.ts`).
+
+**`externalLinks`** (markdown) — la clé `externalLinks` dans la section `markdown` de `webette.config.ts` désactive les liens externes dans le rendu. Elle était auparavant dans `webette.tool.ts`, elle est maintenant lue depuis `site.config.markdown` (i.e. depuis `webette.config.ts` côté utilisateur).
+
+**`remarkPlugins`** — idem, lus depuis `webette.config.ts > markdown.remarkPlugins` (via `site.config.markdown.remarkPlugins`).
+
+**`treatTxtAsMarkdown`** — comportement inchangé : `true` par défaut, peut être surchargé dans `webette.config.ts > markdown.treatTxtAsMarkdown`.

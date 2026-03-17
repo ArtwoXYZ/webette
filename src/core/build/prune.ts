@@ -47,16 +47,15 @@ export function createExpectedOutputsRegistry(): ExpectedOutputsRegistry {
 export function collectProtectedDirs(options: {
   outputDir: string;
   exportDir: string;
-  env: WebetteEnv;
   site: Site;
   includeDrafts: boolean;
 }): Set<string> {
-  const { outputDir, exportDir, env, site, includeDrafts } = options;
+  const { outputDir, exportDir, site, includeDrafts } = options;
   const exportSegment = path.relative(outputDir, exportDir).replace(/^[/\\]+/, "");
   const assetSegments = [
-    env.images.outputDir,
-    env.audio.outputDir,
-    env.video.outputDir,
+    (site.config?.images?.outputDir as string | undefined) ?? "assets/images",
+    (site.config?.audio?.outputDir as string | undefined) ?? "assets/audio",
+    (site.config?.video?.outputDir as string | undefined) ?? "assets/video",
     exportSegment,
   ]
     .map((seg) => seg.replace(/^[/\\]+/, ""))

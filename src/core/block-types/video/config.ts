@@ -26,34 +26,31 @@ function normalizeOutputDir(
   return path.join(rootDir, outputDirName, clean);
 }
 
+const DEFAULT_VIDEO_OUTPUT_DIR = "assets/video";
+
 export function resolveVideoConfig(
   rootDir: string,
   env: WebetteEnv,
   site: Site
 ): VideoPipelineConfig {
-  const rawSiteVideo =
-    site?.site && typeof site.site === "object"
-      ? (site.site as Record<string, unknown>).video
-      : undefined;
-
-  const envVideo = env.video;
+  const rawSiteVideo = site?.config?.video;
 
   const outputDirSegment =
     (rawSiteVideo && typeof rawSiteVideo === "object"
       ? (rawSiteVideo as Record<string, unknown>).outputDir
-      : undefined) ?? envVideo.outputDir;
+      : undefined) ?? DEFAULT_VIDEO_OUTPUT_DIR;
 
   const outputDir = normalizeOutputDir(
     rootDir,
     env.build.outputDirName,
     outputDirSegment,
-    envVideo.outputDir
+    DEFAULT_VIDEO_OUTPUT_DIR
   );
 
   const publicBase =
     typeof outputDirSegment === "string" && outputDirSegment.trim()
       ? outputDirSegment.replace(/^\/+|\/+$/g, "")
-      : envVideo.outputDir.replace(/^\/+|\/+$/g, "");
+      : DEFAULT_VIDEO_OUTPUT_DIR.replace(/^\/+|\/+$/g, "");
 
   return {
     outputDir,

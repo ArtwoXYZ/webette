@@ -26,35 +26,32 @@ function normalizeOutputDir(
   return path.join(rootDir, outputDirName, clean);
 }
 
+const DEFAULT_AUDIO_OUTPUT_DIR = "assets/audio";
+
 // Merge tool defaults with optional site overrides to build the audio pipeline config.
 export function resolveAudioConfig(
   rootDir: string,
   env: WebetteEnv,
   site: Site
 ): AudioPipelineConfig {
-  const rawSiteAudio =
-    site?.site && typeof site.site === "object"
-      ? (site.site as Record<string, unknown>).audio
-      : undefined;
-
-  const envAudio = env.audio;
+  const rawSiteAudio = site?.config?.audio;
 
   const outputDirSegment =
     (rawSiteAudio && typeof rawSiteAudio === "object"
       ? (rawSiteAudio as Record<string, unknown>).outputDir
-      : undefined) ?? envAudio.outputDir;
+      : undefined) ?? DEFAULT_AUDIO_OUTPUT_DIR;
 
   const outputDir = normalizeOutputDir(
     rootDir,
     env.build.outputDirName,
     outputDirSegment,
-    envAudio.outputDir
+    DEFAULT_AUDIO_OUTPUT_DIR
   );
 
   const publicBase =
     typeof outputDirSegment === "string" && outputDirSegment.trim()
       ? outputDirSegment.replace(/^\/+|\/+$/g, "")
-      : envAudio.outputDir.replace(/^\/+|\/+$/g, "");
+      : DEFAULT_AUDIO_OUTPUT_DIR.replace(/^\/+|\/+$/g, "");
 
   return {
     outputDir,

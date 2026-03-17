@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: T5-S04-c
+Active story: NONE
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -38,8 +38,8 @@ Active story: T5-S04-c
 - [x] T5-S03 Faire en sorte que Webette passe proprement la configuration du site aux plugins via le contexte (webetteConfig = toute la config, siteConfig = section site, pluginConfig = section plugin, thisPluginConfig = config de ce plugin spécifiquement)
 - [x] T5-S04 Tags pour entries (modèle + rendu/filtre minimal).
 - [x] T5-S04-b Tags cliquables + pages de tags statiques (config + génération build-time).
-- [ ] T5-S04-c API interne de génération de pages synthétiques (hook plugin `onGeneratePages` + refactor `renderTagPages`).
-- [ ] T5-S05 Séparer clairement config tool vs config site (format + migration + doc).
+- [x] T5-S04-c API interne de génération de pages synthétiques (hook plugin `onGeneratePages` + refactor `renderTagPages`).
+- [x] T5-S05 Séparer clairement config tool vs config site (format + migration + doc).
 - [ ] T5-S06 Option pour retirer les templates embarqués du tool (décision + plan de migration).
 
 ## T6 — Refacto pre-beta

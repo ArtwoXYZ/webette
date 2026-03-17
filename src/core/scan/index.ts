@@ -19,19 +19,10 @@ import { isIndexFolderName, normalizeIndexFolderName } from "./utils";
 
 export async function scanSite(site: Site, logger?: Logger): Promise<Site> {
   const toolEnv = await getEnv();
-  const siteMarkdownConfig =
-    site?.site && typeof site.site === "object"
-      ? (site.site as Record<string, unknown>).markdown
-      : undefined;
-  const siteTreatTxtAsMarkdown =
-    siteMarkdownConfig && typeof siteMarkdownConfig === "object"
-      ? (siteMarkdownConfig as Record<string, unknown>).treatTxtAsMarkdown
-      : undefined;
-  // Site can opt out of the default ".txt as markdown" behavior; tool env is the fallback.
+  const siteTreatTxtAsMarkdown = site?.config?.markdown?.treatTxtAsMarkdown;
+  // Site can opt out of the default ".txt as markdown" behavior; default is true.
   const treatTxtAsMarkdown =
-    typeof siteTreatTxtAsMarkdown === "boolean"
-      ? siteTreatTxtAsMarkdown
-      : toolEnv.markdown.treatTxtAsMarkdown;
+    typeof siteTreatTxtAsMarkdown === "boolean" ? siteTreatTxtAsMarkdown : true;
 
   const { siteTemplatesRoot } = resolveTemplatesConfig(
     toolEnv.templates,

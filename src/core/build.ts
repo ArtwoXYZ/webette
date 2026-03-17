@@ -133,6 +133,9 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
   scoped.debug('build.start', { rootDir })
 
   const site = await createSite(rootDir)
+  const remarkPlugins = Array.isArray(site.config?.markdown?.remarkPlugins)
+    ? (site.config.markdown.remarkPlugins as unknown[])
+    : []
   const tagsConfig = readTagsConfig(site.config?.tags)
   const {
     templates,
@@ -482,7 +485,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
     rootDir,
     readContent,
     logger: scoped.child('resolve'),
-    remarkPlugins: toolEnv.markdown.remarkPlugins,
+    remarkPlugins,
     toolEnv,
   })
 
@@ -585,12 +588,12 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
 
   const siteWithInternalLinks = await rewriteInternalLinks({
     site: resolvedSiteWithPlugins,
-    remarkPlugins: toolEnv.markdown.remarkPlugins,
+    remarkPlugins,
     logger: scoped,
   })
   const siteWithInternalImages = await rewriteInternalImages({
     site: siteWithInternalLinks,
-    remarkPlugins: toolEnv.markdown.remarkPlugins,
+    remarkPlugins,
     logger: scoped,
   })
 
@@ -720,7 +723,6 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
   const protectedDirs = collectProtectedDirs({
     outputDir,
     exportDir,
-    env: toolEnv,
     site: finalSite,
     includeDrafts,
   })
