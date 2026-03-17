@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: NONE
+Active story: T5-S06
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
