@@ -14,11 +14,13 @@ import {
 import { slugify } from '../../utils/naming'
 import {
   buildImageHtml,
+  isImageBlock,
   normalizeVariantName,
   pickImageSource,
   resolveDefaultVariant,
 } from './image-utils'
 import { buildSocialHead } from './social-head'
+import { isHbsOptions, resolveRoot } from './types'
 import { registerMenuHelper } from './menu'
 import { stripRouteSlashes } from '../../utils/path'
 
@@ -29,8 +31,7 @@ function registerMatchHelper() {
   Handlebars.registerHelper(
     'match',
     (value: unknown, pattern: unknown, flags?: unknown, options?: unknown) => {
-      const isOptionsObject =
-        flags && typeof flags === 'object' && ('hash' in (flags as any) || 'loc' in (flags as any))
+      const isOptionsObject = isHbsOptions(flags)
       const normalizedFlags = isOptionsObject ? undefined : flags
       if (value == null || pattern == null) return ''
       const str = String(value)
@@ -62,12 +63,8 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
 
   const safeString = (value: unknown) => (value == null ? '' : String(value))
 
-  Handlebars.registerHelper('displayName', function (this: unknown, value: unknown, options: any) {
-    const isOptionsOnly =
-      value &&
-      typeof value === 'object' &&
-      ('hash' in (value as any) || 'loc' in (value as any)) &&
-      options === undefined
+  Handlebars.registerHelper('displayName', function (this: unknown, value: unknown, options: Handlebars.HelperOptions) {
+    const isOptionsOnly = isHbsOptions(value) && options === undefined
     const target = isOptionsOnly ? (this as unknown) : value
 
     if (!target || typeof target !== 'object') return ''
@@ -102,26 +99,25 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     return null
   }
 
-  const resolveLocaleFromContext = (options: any): string | undefined => {
-    const root = options?.data?.root ?? {}
-    const site = (root as any).site ?? (root as any).model?.site
+  const resolveLocaleFromContext = (options: Handlebars.HelperOptions): string | undefined => {
+    const root = resolveRoot(options)
+    const site = root.site ?? root.model?.site
     const lang = site?.lang || site?.locale || site?.language
     if (typeof lang === 'string' && lang.trim()) return lang.trim()
-    const loggingLocale = (root as any).logging?.locale
+    const loggingLocale = root.logging?.locale
     if (typeof loggingLocale === 'string' && loggingLocale.trim()) return loggingLocale.trim()
     return undefined
   }
 
-  const resolveDefaultVariantFromContext = (options: any) => {
-    const root = options?.data?.root ?? {}
-    const site = (root as any).site ?? (root as any).model?.site
+  const resolveDefaultVariantFromContext = (options: Handlebars.HelperOptions) => {
+    const root = resolveRoot(options)
+    const site = root.site ?? root.model?.site
     return resolveDefaultVariant(site)
   }
 
-  const resolveAssetsBaseFromContext = (options: any): string | undefined => {
-    const root = options?.data?.root ?? {}
-    const templates = (root as any).templates
-    const base = templates?.assetsBase
+  const resolveAssetsBaseFromContext = (options: Handlebars.HelperOptions): string | undefined => {
+    const root = resolveRoot(options)
+    const base = root.templates?.assetsBase
     if (typeof base === 'string' && base.trim()) return base.trim()
     return undefined
   }
@@ -132,21 +128,21 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     return `${value.slice(0, length)}.`
   }
 
-  Handlebars.registerHelper('imageSrc', function (block: any, options) {
-    if (!block || block.type !== 'image') return ''
+  Handlebars.registerHelper('imageSrc', function (block: unknown, options: Handlebars.HelperOptions) {
+    if (!isImageBlock(block)) return ''
     const variant = normalizeVariantName(options?.hash?.variant)
     const defaultVariant = resolveDefaultVariantFromContext(options)
     const picked = pickImageSource(block, variant, defaultVariant)
     return picked.src ?? ''
   })
 
-  Handlebars.registerHelper('image', function (block: any, options) {
-    if (!block || block.type !== 'image') return ''
+  Handlebars.registerHelper('image', function (block: unknown, options: Handlebars.HelperOptions) {
+    if (!isImageBlock(block)) return ''
     const hash = options?.hash ?? {}
 
     const variant = normalizeVariantName(hash.variant)
-    const root = options?.data?.root ?? {}
-    const site = (root as any).site ?? (root as any).model?.site
+    const root = resolveRoot(options)
+    const site = root.site ?? root.model?.site
 
     const dataAttrs: Record<string, string> = {}
     for (const [key, value] of Object.entries(hash)) {
@@ -184,12 +180,8 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
 
   Handlebars.registerHelper(
     'renderSocialHead',
-    function (this: unknown, context: unknown, options: any) {
-      const isOptionsOnly =
-        context &&
-        typeof context === 'object' &&
-        ('hash' in (context as any) || 'loc' in (context as any)) &&
-        options === undefined
+    function (this: unknown, context: unknown, options: Handlebars.HelperOptions) {
+      const isOptionsOnly = isHbsOptions(context) && options === undefined
       const normalizedOptions = isOptionsOnly ? context : options
       const target = isOptionsOnly ? (this as unknown) : context
 
@@ -329,12 +321,9 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
   })
 
   // Block helper: find a collection by slug or id and evaluate the block with it.
-  Handlebars.registerHelper('withCollection', function (slug: string, options) {
-    const root = options.data?.root ?? {}
-    const model = (root as any).model ?? root
-    const collections: Collection[] = Array.isArray((model as any).collections)
-      ? (model as any).collections
-      : []
+  Handlebars.registerHelper('withCollection', function (slug: string, options: Handlebars.HelperOptions) {
+    const root = resolveRoot(options)
+    const collections: Collection[] = root.model?.collections ?? root.collections ?? []
     const match = collections.find(
       (col) => col.slug === slug || col.id === slug || col.route === slug,
     )
@@ -342,15 +331,10 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
   })
 
   // Block helper: find an entry by slug/id/route across collections.
-  Handlebars.registerHelper('withEntry', function (identifier: string, options) {
-    const root = options.data?.root ?? {}
-    const model = (root as any).model ?? root
-    const collections: Collection[] = Array.isArray((model as any).collections)
-      ? (model as any).collections
-      : []
-    const rootEntries: Entry[] = Array.isArray((model as any).rootEntries)
-      ? (model as any).rootEntries
-      : []
+  Handlebars.registerHelper('withEntry', function (identifier: string, options: Handlebars.HelperOptions) {
+    const root = resolveRoot(options)
+    const collections: Collection[] = root.model?.collections ?? root.collections ?? []
+    const rootEntries: Entry[] = root.model?.rootEntries ?? []
 
     let foundEntry: Entry | undefined
     let foundCollection: Collection | undefined
@@ -448,11 +432,8 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     if (!slug) return ''
 
     // Handlebars options objects always have both `hash` and `data`; collection objects never do.
-    const isHbsOptions = (v: unknown): v is { hash: unknown; data?: { root?: Record<string, unknown> } } =>
-      v != null && typeof v === 'object' && 'hash' in (v as object) && 'data' in (v as object)
-
     const hbsOptions = isHbsOptions(maybeOptions) ? maybeOptions
-      : isHbsOptions(collectionOrOptions) ? collectionOrOptions as { hash: unknown; data?: { root?: Record<string, unknown> } }
+      : isHbsOptions(collectionOrOptions) ? collectionOrOptions
       : null
     const root = hbsOptions?.data?.root
 

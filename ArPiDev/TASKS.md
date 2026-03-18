@@ -50,7 +50,7 @@ Active story: NONE
 
 ### Risques beta (priorité haute)
 - [x] T6-S01 Shared utils : centraliser parseBoolean/normalizeClass dupliqués dans postprocess markdown (markdown-links.ts + markdown-images.ts + navigation).
-- [ ] T6-S02 HandlebarsContext typé : supprimer les `as any` dans helpers.ts et créer un type strict pour le contexte passé aux templates.
+- [x] T6-S02 HandlebarsContext typé : supprimer les `as any` dans helpers.ts et créer un type strict pour le contexte passé aux templates.
 - [ ] T6-S03 Config env validation : centraliser la validation de webette.config.ts (schéma + erreurs explicites à la place des silences).
 - [ ] T6-S04a Navigation resolver — parser : extraire la logique de lecture/interprétation du fichier navigation.webt (parseNavigationNameLine, parseItemLine, boucle stack-based…) vers navigation-parser.ts.
 - [ ] T6-S04b Navigation resolver — builder/filters : extraire la logique de visibilité/inclusion et la construction des nœuds vers navigation-filters.ts + navigation-builder.ts ; navigation.ts ne garde que l'orchestration.

@@ -22,6 +22,10 @@ export type ImageBlock = Block & {
   content?: ImageContent;
 };
 
+export function isImageBlock(v: unknown): v is ImageBlock {
+  return !!v && typeof v === "object" && (v as { type?: unknown }).type === "image";
+}
+
 export type ImageRenderOptions = {
   variant?: ImageVariantName;
   alt?: string;
