@@ -327,7 +327,7 @@ export async function scanStructureFolderRaw(options: {
 
 export async function listStructureRootRaw(options: {
   rootDir: string;
-  toolTemplatesRoot: string;
+  siteTemplatesRoot: string;
   outputDirName: string;
   loggingDirName: string;
   indexFolderName: string;
@@ -336,7 +336,7 @@ export async function listStructureRootRaw(options: {
 }): Promise<{ children: RawStructureNode[]; ignoredFolders: RawStructureIgnoredFolder[] }> {
   const {
     rootDir,
-    toolTemplatesRoot,
+    siteTemplatesRoot,
     outputDirName,
     loggingDirName,
     indexFolderName,
@@ -345,7 +345,7 @@ export async function listStructureRootRaw(options: {
   } = options;
 
   const dirEntries = await readdir(rootDir, { withFileTypes: true });
-  const templateDirName = path.basename(toolTemplatesRoot);
+  const templateDirName = path.basename(siteTemplatesRoot);
   const rootCandidates: Array<{ rawName: string; path: string }> = [];
   const ignoredFolders: RawStructureIgnoredFolder[] = [];
 
@@ -381,7 +381,7 @@ export async function listStructureRootRaw(options: {
 
 export async function listRootIndexRaw(
   rootDir: string,
-  toolTemplatesRoot: string,
+  siteTemplatesRoot: string,
   outputDirName: string,
   loggingDirName: string,
   indexFolderName: string,
@@ -389,7 +389,7 @@ export async function listRootIndexRaw(
   logger?: Logger
 ): Promise<RawEntry | undefined> {
   const dirEntries = await readdir(rootDir, { withFileTypes: true });
-  const templateDirName = path.basename(toolTemplatesRoot);
+  const templateDirName = path.basename(siteTemplatesRoot);
   const candidates: Array<{ rawName: string; path: string }> = [];
 
   for (const entry of dirEntries) {

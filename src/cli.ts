@@ -8,6 +8,7 @@ import { build } from "./core/build";
 import { serve } from "./core/serve";
 import { createProjectLogger } from "./logging/logger";
 import { getVersion } from "./version";
+import { WebetteError } from "./core/template";
 
 type CliOptions = {
   verbose: boolean;
@@ -127,7 +128,9 @@ async function main() {
         break;
     }
   } catch (error) {
-    logger.error("error.unexpected", { error: String(error) });
+    if (!(error instanceof WebetteError)) {
+      logger.error("error.unexpected", { error: error instanceof Error ? error.message : String(error) });
+    }
     process.exitCode = 1;
   }
 }

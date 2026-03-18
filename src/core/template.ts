@@ -4,12 +4,19 @@
 
 import { readFile, readdir, stat } from "node:fs/promises";
 import * as path from "node:path";
-import { fileURLToPath } from "node:url";
 import Handlebars from "handlebars";
 import { registerDefaultHelpers } from "./templates/helpers";
 import type { Logger } from "../logging/logger";
 import { runExtendTemplates } from "../plugins/runner";
 import type { LoadedPlugin, PluginContext } from "../plugins/types";
+
+/** Marks an error that has already been logged — the CLI catch-all should not re-log it. */
+export class WebetteError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "WebetteError";
+  }
+}
 
 type TemplateResolution = {
   templatePath: string; // resolved wrapper path
@@ -19,11 +26,7 @@ type TemplateResolution = {
 
 export type TemplatesRoots = {
   siteTemplatesRoot: string;
-  toolTemplatesRoot: string;
-  effectiveRoot: string; // chosen root (site if present, else tool)
-  source: "site" | "tool";
   hasSiteTemplates: boolean;
-  toolRoot: string;
 };
 
 async function pathExists(filePath: string): Promise<boolean> {
@@ -55,12 +58,6 @@ export async function resolveTemplatesRoots(options: {
   siteTemplatesRoot?: string; // optional override for site templates root
   logger?: Logger;
 }): Promise<TemplatesRoots> {
-  const toolRoot = path.join(
-    path.dirname(fileURLToPath(import.meta.url)),
-    "..",
-    ".."
-  );
-
   const siteRootValue =
     typeof options.siteTemplatesRoot === "string" && options.siteTemplatesRoot.trim()
       ? options.siteTemplatesRoot.trim()
@@ -69,22 +66,13 @@ export async function resolveTemplatesRoots(options: {
     ? siteRootValue
     : path.join(options.rootDir, siteRootValue);
 
-  const toolTemplatesRoot = path.isAbsolute(options.templatesRoot)
-    ? options.templatesRoot
-    : path.join(toolRoot, options.templatesRoot);
-
   const hasSiteTemplates = await pathExists(siteTemplatesRoot);
-  const source: TemplatesRoots["source"] = hasSiteTemplates ? "site" : "tool";
-  const effectiveRoot = hasSiteTemplates ? siteTemplatesRoot : toolTemplatesRoot;
+  if (!hasSiteTemplates) {
+    options.logger?.error("template.noTemplatesFolder", { path: siteTemplatesRoot });
+    throw new WebetteError(`webette: no templates folder found at ${siteTemplatesRoot}`);
+  }
 
-  return {
-    siteTemplatesRoot,
-    toolTemplatesRoot,
-    effectiveRoot,
-    source,
-    hasSiteTemplates,
-    toolRoot,
-  };
+  return { siteTemplatesRoot, hasSiteTemplates };
 }
 
 async function registerPartials(templatesRoot: string, logger?: Logger) {
@@ -133,7 +121,7 @@ async function registerLayouts(templatesRoot: string, logger?: Logger) {
   }
 }
 
-// Compile a Handlebars wrapper from site or tool templates (site-first fallback to tool).
+// Compile a Handlebars wrapper from site templates.
 export async function createTemplateRenderer(options: {
   rootDir: string;
   defaultWrapperName: string;
@@ -147,20 +135,13 @@ export async function createTemplateRenderer(options: {
   const layoutPartialName = path.parse(options.defaultLayoutName).name || options.defaultLayoutName;
   registerDefaultHelpers({ defaultLayoutName: layoutPartialName });
 
-  const {
-    siteTemplatesRoot,
-    toolTemplatesRoot,
-    toolRoot,
-  } = await resolveTemplatesRoots({
+  const { siteTemplatesRoot } = await resolveTemplatesRoots({
     rootDir: options.rootDir,
     templatesRoot: options.templatesRoot,
     siteTemplatesRoot: options.siteTemplatesRoot,
     logger: options.logger,
   });
 
-  // Register shared partials and layouts: tool first, then site overrides.
-  await registerLayouts(toolTemplatesRoot, options.logger);
-  await registerPartials(toolTemplatesRoot, options.logger);
   await registerLayouts(siteTemplatesRoot, options.logger);
   await registerPartials(siteTemplatesRoot, options.logger);
 
@@ -168,56 +149,38 @@ export async function createTemplateRenderer(options: {
     await runExtendTemplates(options.plugins, options.pluginContext);
   }
 
-  // Resolve default wrapper (site > tool)
   const wrapperCandidates = [
     path.join(siteTemplatesRoot, options.defaultWrapperName),
-    path.join(toolTemplatesRoot, options.defaultWrapperName),
   ];
 
   const { templatePath, templatesRoot } = await resolveTemplatePath(
     wrapperCandidates,
     options.logger
   );
-  const selectedSource =
-    path.normalize(templatesRoot) === path.normalize(siteTemplatesRoot)
-      ? "site"
-      : "tool";
-  const logBase = selectedSource === "site" ? options.rootDir : toolRoot;
   const templatePathForLog =
-    path.relative(logBase, templatePath) || templatePath;
+    path.relative(options.rootDir, templatePath) || templatePath;
   const templatesRootForLog =
-    path.relative(logBase, templatesRoot) || templatesRoot;
+    path.relative(options.rootDir, templatesRoot) || templatesRoot;
   options.logger?.debug("template.resolved", {
     kind: "wrapper",
     templatePath: templatePathForLog,
     templatesRoot: templatesRootForLog,
-    source: selectedSource,
   });
 
-  // Resolve default layout to confirm availability and log the source.
   const layoutCandidates = [
     path.join(siteTemplatesRoot, options.defaultLayoutName),
-    path.join(toolTemplatesRoot, options.defaultLayoutName),
   ];
   const layoutResolution = await resolveTemplatePath(layoutCandidates, options.logger);
-  const layoutSelectedSource =
-    path.normalize(layoutResolution.templatesRoot) ===
-    path.normalize(siteTemplatesRoot)
-      ? "site"
-      : "tool";
-  const layoutLogBase =
-    layoutSelectedSource === "site" ? options.rootDir : toolRoot;
   const layoutPathForLog =
-    path.relative(layoutLogBase, layoutResolution.templatePath) ||
+    path.relative(options.rootDir, layoutResolution.templatePath) ||
     layoutResolution.templatePath;
   const layoutRootForLog =
-    path.relative(layoutLogBase, layoutResolution.templatesRoot) ||
+    path.relative(options.rootDir, layoutResolution.templatesRoot) ||
     layoutResolution.templatesRoot;
   options.logger?.debug("template.resolved", {
     kind: "layout",
     templatePath: layoutPathForLog,
     templatesRoot: layoutRootForLog,
-    source: layoutSelectedSource,
   });
 
   const templateSource = await readFile(templatePath, "utf8");

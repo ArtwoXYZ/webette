@@ -39,12 +39,13 @@
   "resolve.image.defaultFailed": "Échec de la variante default pour {path} : {error}",
   "resolve.image.variantFailed": "Échec de la variante {variant} pour {path} : {error}",
   "template.notFound": "Aucun template trouvé. Chemins testés : {paths}",
-  "template.resolved": "Template choisi : {templatePath} (racine : {templatesRoot}, source : {source})",
+  "template.resolved": "Template choisi : {templatePath} (racine : {templatesRoot})",
   "template.layoutsLoadFailed": "Chargement des layouts impossible depuis {layoutsDir} : {error}",
-  "template.siteRootNotConfigured": "Racine des templates du site non configurée ; fallback sur les templates de l'outil.",
-  "template.siteRootMissing": "Racine des templates du site introuvable : {path} ; fallback sur les templates de l'outil.",
-  "template.siteDefaultsMissing": "Defaults de templates manquants dans la config du site : {missing} ; fallback sur ceux de l'outil.",
-  "template.siteDefaultsNotFound": "Fichiers de defaults de templates introuvables : {missing} ; fallback sur ceux de l'outil.",
+  "template.noTemplatesFolder": "Dossier de templates introuvable : {path}",
+  "template.siteRootNotConfigured": "Racine des templates du site non configurée ; le chemin par défaut sera utilisé.",
+  "template.siteRootMissing": "Dossier de templates introuvable : {path}. Le build va échouer.",
+  "template.siteDefaultsMissing": "Defaults de templates manquants dans la config du site : {missing}.",
+  "template.siteDefaultsNotFound": "Fichiers de defaults de templates introuvables : {missing}.",
   "navigation.lineInvalid": "Navigation : ligne invalide dans {path} : {line}",
   "navigation.indentTabs": "Navigation : indentation avec tabulation dans {path} : {line}",
   "navigation.indentOdd": "Navigation : l'indentation doit être un multiple de 2 espaces dans {path} : {line}",
@@ -67,5 +68,6 @@
   "serve.serverStartFailed": "Échec du démarrage du serveur : {error}",
   "build.tags.slugRenamed": "Collision de route système : le slug {kind} '{oldSlug}' entre en conflit avec la route '/tag/' et a été automatiquement renommé en '{newSlug}'.",
   "build.tags.slugRenamedInCollection": "Collision de route système : le slug d'entrée '{oldSlug}' dans la collection '{collection}' entre en conflit avec la route de tag et a été automatiquement renommé en '{newSlug}'.",
-  "build.tagPages.done": "Pages de tags générées : {count}"
+  "build.tagPages.done": "Pages de tags générées : {count}",
+  "error.unexpected": "Erreur inattendue : {error}"
 }

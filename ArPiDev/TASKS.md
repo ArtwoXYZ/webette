@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: T5-S06
+Active story: NONE
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -40,7 +40,7 @@ Active story: T5-S06
 - [x] T5-S04-b Tags cliquables + pages de tags statiques (config + génération build-time).
 - [x] T5-S04-c API interne de génération de pages synthétiques (hook plugin `onGeneratePages` + refactor `renderTagPages`).
 - [x] T5-S05 Séparer clairement config tool vs config site (format + migration + doc).
-- [ ] T5-S06 Option pour retirer les templates embarqués du tool (décision + plan de migration).
+- [x] T5-S06 Option pour retirer les templates embarqués du tool (décision + plan de migration).
 
 ## T6 — Refacto pre-beta
 

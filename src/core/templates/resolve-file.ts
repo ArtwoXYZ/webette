@@ -1,7 +1,7 @@
 /**
- * Template file resolution (site-first, tool fallback).
+ * Template file resolution (site-only).
  *
- * Resolves a relative template path and returns its concrete file path + source.
+ * Resolves a relative template path and returns its concrete file path.
  */
 
 import { stat } from "node:fs/promises";
@@ -12,7 +12,6 @@ import type { TemplatesRoots } from "../template";
 export type ResolvedTemplateFile = {
   templatePath: string;
   templatesRoot: string;
-  source: "site" | "tool";
 };
 
 export type TemplateFileResolver = {
@@ -44,7 +43,6 @@ export function createTemplateFileResolver(options: {
 
   const triedPaths = (relPath: string) => [
     path.normalize(path.join(templatesRoots.siteTemplatesRoot, relPath)),
-    path.normalize(path.join(templatesRoots.toolTemplatesRoot, relPath)),
   ];
 
   const resolve = async (relPath: string): Promise<ResolvedTemplateFile | null> => {
@@ -57,18 +55,6 @@ export function createTemplateFileResolver(options: {
       const resolved: ResolvedTemplateFile = {
         templatePath: siteCandidate,
         templatesRoot: templatesRoots.siteTemplatesRoot,
-        source: "site",
-      };
-      cache.set(normalizedRel, resolved);
-      return resolved;
-    }
-
-    const toolCandidate = path.join(templatesRoots.toolTemplatesRoot, normalizedRel);
-    if (await isFile(toolCandidate)) {
-      const resolved: ResolvedTemplateFile = {
-        templatePath: toolCandidate,
-        templatesRoot: templatesRoots.toolTemplatesRoot,
-        source: "tool",
       };
       cache.set(normalizedRel, resolved);
       return resolved;
@@ -86,17 +72,15 @@ export function createTemplateFileResolver(options: {
     const resolved = await resolve(args.relPath);
     if (!resolved) return null;
 
-    const logBase = resolved.source === "site" ? rootDir : templatesRoots.toolRoot;
     const templatePathForLog =
-      path.relative(logBase, resolved.templatePath) || resolved.templatePath;
+      path.relative(rootDir, resolved.templatePath) || resolved.templatePath;
     const templatesRootForLog =
-      path.relative(logBase, resolved.templatesRoot) || resolved.templatesRoot;
+      path.relative(rootDir, resolved.templatesRoot) || resolved.templatesRoot;
 
     logger.debug("template.resolved", {
       kind: args.kind,
       templatePath: templatePathForLog,
       templatesRoot: templatesRootForLog,
-      source: resolved.source,
       ...(args.extra ?? {}),
     });
 

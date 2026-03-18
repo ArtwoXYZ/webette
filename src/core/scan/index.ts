@@ -28,14 +28,14 @@ export async function scanSite(site: Site, logger?: Logger): Promise<Site> {
     toolEnv.templates,
     site.config?.templates
   );
-  const templatesRoot = siteTemplatesRoot ?? toolEnv.templates.root;
+  const resolvedSiteTemplatesRoot = siteTemplatesRoot ?? toolEnv.templates.root;
   const indexFolderName = normalizeIndexFolderName(
     (site.site as Record<string, unknown> | undefined)?.indexFolderName
   );
 
   const rootIndexRaw = await listRootIndexRaw(
     site.rootDir,
-    templatesRoot,
+    resolvedSiteTemplatesRoot,
     toolEnv.build.outputDirName,
     toolEnv.logging.dirName,
     indexFolderName,
@@ -45,7 +45,7 @@ export async function scanSite(site: Site, logger?: Logger): Promise<Site> {
 
   const structureRootRaw = await listStructureRootRaw({
     rootDir: site.rootDir,
-    toolTemplatesRoot: templatesRoot,
+    siteTemplatesRoot: resolvedSiteTemplatesRoot,
     outputDirName: toolEnv.build.outputDirName,
     loggingDirName: toolEnv.logging.dirName,
     indexFolderName,

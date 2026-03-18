@@ -1,12 +1,12 @@
 # Templates (Handlebars), wrapper + layout
 
-Webette renders HTML with Handlebars. Each entry gets its own `index.html`; optional minimal **Automatic Index Pages** (root + collection) can be generated via the index layout (on by default). Templates can live in the site or fall back to the tool.
+Webette renders HTML with Handlebars. Each entry gets its own `index.html`; optional minimal **Automatic Index Pages** (root + collection) can be generated via the index layout (on by default). Sites must provide their own templates folder — Webette is an engine, not a starter.
 
 ## Where templates come from
 
 - Tool defaults are configured in `webette.tool.ts` (`templates.root` and `templates.default.*`).
-- The renderer looks first under the site root (`<site>/<templates.root>/...`), then falls back to the tool templates root (the installed webette package root + `templates.root`).
-- Folder structure: `wrapper/` for the wrapper, `layout/` for layouts (registered as partials), `partial/` for classic partials (e.g. `templates/partial/header.hbs` -> `{{> header}}`). `layout/index.hbs` is the default **Automatic Index Page** layout used for root/collection listings when index generation is enabled. `layout/access-forbidden.hbs` is the default layout used to render forbidden placeholders in asset folders. `layout/not-found.hbs` is the default layout used to render the static `404.html`.
+- Templates are loaded from the site root: `<site>/<templates.root>/...`. If the templates folder is missing, the build fails with a clear error indicating the expected path.
+- Folder structure: `wrapper/` for the wrapper, `layout/` for layouts (registered as partials), `partial/` for classic partials (e.g. `_templates/partial/header.hbs` -> `{{> header}}`). `layout/index.hbs` is the default **Automatic Index Page** layout used for root/collection listings when index generation is enabled. `layout/access-forbidden.hbs` is the default layout used to render forbidden placeholders in asset folders. `layout/not-found.hbs` is the default layout used to render the static `404.html`.
 - Helper: the wrapper calls `{{{renderLayout layoutName}}}` which resolves the layout (partial) by name; `layoutName` defaults to `templates.default.layout`.
 
 ## Template syntax
@@ -65,14 +65,15 @@ Example (layout):
 
 ## Default wrapper + layout
 
-- The fallback wrapper (`templates/wrapper/wrapper.hbs`) envelopes the page and delegates the body to a layout via `renderLayout`.
-- The fallback layout (`templates/layout/post.hbs`) renders an entry (title, markdown/text/image/audio/video blocks) and shows a simple draft badge when `entry.isDraft` is `true`.
-- The fallback index layout (`templates/layout/index.hbs`) renders the Root/Collection **Automatic Index Pages** (simple links + counters).
-- The fallback access-forbidden layout (`templates/layout/access-forbidden.hbs`) renders minimal "Access forbidden" pages in asset folders.
-- The fallback not-found layout (`templates/layout/not-found.hbs`) renders the static `404.html` page.
+Sites must provide the following templates under `<site>/<templates.root>/`:
 
-Sites can override wrapper and layouts by dropping their files under `<site>/<templates.root>/wrapper/...` and `<site>/<templates.root>/layout/...`; resolution order is site > tool.
-If the site config does not declare `templates.root`, Webette logs a warning, but it will still use a site templates folder if it exists at the default location (tool `templates.root`). If the directory is missing, Webette falls back to tool templates. If a site omits any `templates.default.*` key, Webette logs a warning and falls back to the tool defaults for that key.
+- `wrapper/wrapper.hbs` — envelopes the page and delegates the body to a layout via `renderLayout`.
+- `layout/post.hbs` — renders an entry (title, markdown/text/image/audio/video blocks); shows a draft badge when `entry.isDraft` is `true`.
+- `layout/index.hbs` — renders Root/Collection **Automatic Index Pages** (simple links + counters).
+- `layout/access-forbidden.hbs` — renders minimal "Access forbidden" pages in asset folders.
+- `layout/not-found.hbs` — renders the static `404.html` page.
+
+If the templates folder does not exist at the expected path, the build fails immediately with an error message indicating the missing path.
 
 ## Automatic Index Page layouts
 

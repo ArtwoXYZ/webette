@@ -39,12 +39,13 @@
   "resolve.image.defaultFailed": "Failed to prepare default image for {path}: {error}",
   "resolve.image.variantFailed": "Failed to generate variant {variant} for {path}: {error}",
   "template.notFound": "No template found. Looked for: {paths}",
-  "template.resolved": "Using template at {templatePath} (root: {templatesRoot}, source: {source})",
+  "template.resolved": "Using template at {templatePath} (root: {templatesRoot})",
   "template.layoutsLoadFailed": "Failed to load layouts from {layoutsDir}: {error}",
-  "template.siteRootNotConfigured": "Site templates root not configured; falling back to tool templates.",
-  "template.siteRootMissing": "Site templates root not found at {path}; falling back to tool templates.",
-  "template.siteDefaultsMissing": "Site default templates missing in config: {missing}. Falling back to tool defaults.",
-  "template.siteDefaultsNotFound": "Site default template files not found: {missing}. Falling back to tool defaults.",
+  "template.noTemplatesFolder": "Templates folder not found: {path}",
+  "template.siteRootNotConfigured": "Site templates root not configured; default path will be used.",
+  "template.siteRootMissing": "Templates folder not found at {path}. Build will fail.",
+  "template.siteDefaultsMissing": "Site default templates missing in config: {missing}.",
+  "template.siteDefaultsNotFound": "Site default template files not found: {missing}.",
   "navigation.lineInvalid": "Navigation: invalid line in {path}: {line}",
   "navigation.indentTabs": "Navigation: tab indentation found in {path}: {line}",
   "navigation.indentOdd": "Navigation: indentation must be a multiple of 2 spaces in {path}: {line}",
@@ -67,5 +68,6 @@
   "serve.serverStartFailed": "Server failed to start: {error}",
   "build.tags.slugRenamed": "System route collision: {kind} slug '{oldSlug}' conflicts with the system '/tag/' route and was automatically renamed to '{newSlug}'.",
   "build.tags.slugRenamedInCollection": "System route collision: entry slug '{oldSlug}' in collection '{collection}' conflicts with the system tag route and was automatically renamed to '{newSlug}'.",
-  "build.tagPages.done": "Tag pages generated: {count}"
+  "build.tagPages.done": "Tag pages generated: {count}",
+  "error.unexpected": "Unexpected error: {error}"
 }

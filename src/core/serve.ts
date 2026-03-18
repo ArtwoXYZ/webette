@@ -35,7 +35,7 @@ export async function serve(
   const port = toolEnv.serve.port;
   let buildVersion = Date.now().toString();
   const outputDir = path.join(rootDir, toolEnv.build.outputDirName);
-  const { effectiveRoot: templatesRoot } =
+  const { siteTemplatesRoot: templatesRoot } =
     await resolveTemplatesRoots({
       rootDir,
       templatesRoot: toolEnv.templates.root,
