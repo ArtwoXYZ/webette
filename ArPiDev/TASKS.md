@@ -44,10 +44,12 @@ Active story: NONE
 
 ## T6 — Refacto pre-beta
 
-> Workflow suggéré : après validation Dev de chaque story, lancer `/simplify` avant le commit pour détecter duplication résiduelle ou qualité manquée. À utiliser avec jugement (ne pas laisser `/simplify` élargir le scope au-delà de la story).
+> Pas de rétro-compatibilité : T6 est un refacto interne pre-beta. Aucune API publique à préserver — supprimer sans béquille.
+
+> Workflow : après validation Dev de chaque story, rappeler à l'user de lancer `/simplify` avant le commit pour détecter duplication résiduelle ou qualité manquée. À utiliser avec jugement (ne pas laisser `/simplify` élargir le scope au-delà de la story).
 
 ### Risques beta (priorité haute)
-- [ ] T6-S01 Shared utils : centraliser parseBoolean/normalizeClass dupliqués dans postprocess markdown (markdown-links.ts + markdown-images.ts + navigation).
+- [x] T6-S01 Shared utils : centraliser parseBoolean/normalizeClass dupliqués dans postprocess markdown (markdown-links.ts + markdown-images.ts + navigation).
 - [ ] T6-S02 HandlebarsContext typé : supprimer les `as any` dans helpers.ts et créer un type strict pour le contexte passé aux templates.
 - [ ] T6-S03 Config env validation : centraliser la validation de webette.config.ts (schéma + erreurs explicites à la place des silences).
 - [ ] T6-S04a Navigation resolver — parser : extraire la logique de lecture/interprétation du fichier navigation.webt (parseNavigationNameLine, parseItemLine, boucle stack-based…) vers navigation-parser.ts.

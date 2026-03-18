@@ -15,14 +15,7 @@ export type EntryLike = {
   isUnlisted?: boolean;
 };
 
-export function parseBoolean(value: unknown): boolean | undefined {
-  if (typeof value === "boolean") return value;
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim().toLowerCase();
-  if (["true", "yes", "1", "on"].includes(trimmed)) return true;
-  if (["false", "no", "0", "off"].includes(trimmed)) return false;
-  return undefined;
-}
+export { parseBoolean } from "../../utils/parse";
 
 export function parseList(value: unknown): string[] {
   if (Array.isArray(value)) {

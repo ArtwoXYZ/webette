@@ -19,6 +19,7 @@ import {
   normalizeVariantName,
   type ImageBlock,
 } from "../templates/image-utils";
+import { parseBoolean } from "../../utils/parse";
 
 type ImageOptions = {
   variant?: string;
@@ -39,18 +40,7 @@ type MdastNode = Root | Content;
 type MdastHtml = Html;
 type ParentNode = MdastNode & { children: Content[] };
 
-const truthy = new Set(["true", "1", "yes", "on"]);
-const falsy = new Set(["false", "0", "no", "off"]);
 const markdownClassName = "webt-md";
-
-// Parse string flags like "true"/"false" into booleans for markdown options.
-function parseBoolean(raw: string | undefined): boolean | undefined {
-  if (!raw) return undefined;
-  const val = raw.trim().toLowerCase();
-  if (truthy.has(val)) return true;
-  if (falsy.has(val)) return false;
-  return undefined;
-}
 
 // Convert parsed options into the shared image render options.
 function appendClassName(value: string | undefined, className: string): string {

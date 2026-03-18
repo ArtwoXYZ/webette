@@ -14,6 +14,7 @@ import {
   matchEntry,
   matchBlock,
 } from "../targets";
+import { parseBoolean, normalizeClassList } from "../../utils/parse";
 
 export async function rewriteInternalLinks(options: {
   site: Site;
@@ -44,34 +45,6 @@ export async function rewriteInternalLinks(options: {
         const normalizeString = (value: unknown): string =>
           typeof value === "string" ? value.trim() : "";
 
-        const splitList = (value: string): string[] =>
-          value
-            .split(/[\s,]+/)
-            .map((v) => v.trim())
-            .filter(Boolean);
-
-        const normalizeClassValue = (value: unknown): string[] => {
-          if (typeof value === "string") return splitList(value);
-          if (Array.isArray(value)) return value.map(String).flatMap(splitList);
-          return [];
-        };
-
-        const normalizeRelValue = (value: unknown): string[] => {
-          if (typeof value === "string") return splitList(value);
-          if (Array.isArray(value)) return value.map(String).flatMap(splitList);
-          return [];
-        };
-
-        const truthy = new Set(["true", "1", "yes", "on"]);
-        const falsy = new Set(["false", "0", "no", "off"]);
-        const parseBoolean = (raw: string | undefined): boolean | undefined => {
-          if (!raw) return undefined;
-          const val = raw.trim().toLowerCase();
-          if (truthy.has(val)) return true;
-          if (falsy.has(val)) return false;
-          return undefined;
-        };
-
         const applyLinkOptions = (
           node: MdastLink,
           opts: Record<string, string>,
@@ -85,11 +58,11 @@ export async function rewriteInternalLinks(options: {
           const next: Record<string, unknown> = { ...hProps };
 
           // class / className
-          const existingClasses = normalizeClassValue(hProps.className);
+          const existingClasses = normalizeClassList(hProps.className);
           const optionClasses = normalizeString(opts.class || opts.classname);
           const mergedClasses = new Set<string>([
             ...existingClasses,
-            ...normalizeClassValue(optionClasses),
+            ...normalizeClassList(optionClasses),
             "webt-md",
           ]);
           next.className = Array.from(mergedClasses).join(" ");
@@ -119,8 +92,8 @@ export async function rewriteInternalLinks(options: {
           if (target) next.target = target;
 
           // rel
-          const relFromExisting = normalizeRelValue(hProps.rel);
-          const relFromOption = normalizeRelValue(normalizeString(opts.rel));
+          const relFromExisting = normalizeClassList(hProps.rel);
+          const relFromOption = normalizeClassList(normalizeString(opts.rel));
           const relMerged = new Set<string>([...relFromExisting, ...relFromOption]);
           if (target === "_blank") {
             relMerged.add("noopener");
