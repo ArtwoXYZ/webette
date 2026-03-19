@@ -7,6 +7,7 @@
 import { build } from "./core/build";
 import { serve } from "./core/serve";
 import { createProjectLogger } from "./logging/logger";
+import { getEnv } from "./config/env";
 import { getVersion } from "./version";
 import { WebetteError } from "./core/template";
 
@@ -99,12 +100,17 @@ async function main() {
 
   const rootDir = sitePath ?? process.cwd();
 
-  // 🔹 NEW: create a logger for this project + this command
+  // Load env first so warnings can be flushed through the logger after it's created.
+  const { env: toolEnv, warnings: envWarnings } = await getEnv();
   const logger = await createProjectLogger(
     rootDir,
     `webette.cli.${command}`,
-    options.verbose
+    options.verbose,
+    toolEnv
   );
+  for (const w of envWarnings) {
+    logger.warn(w.key, w.params);
+  }
 
   try {
     switch (command) {

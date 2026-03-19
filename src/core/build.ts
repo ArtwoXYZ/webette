@@ -110,7 +110,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
   const registerExpectedOutput = pluginExpected.addExpectedOutput
   const registerExpectedDir = pluginExpected.addExpectedDir
 
-  const toolEnv = await getEnv()
+  const { env: toolEnv } = await getEnv()
   const locale = resolveLocale(toolEnv)
   const buildTime = new Date()
   const prettyPrint =
@@ -132,7 +132,7 @@ export async function build(rootDir: string, options: BuildOptions, logger: Logg
 
   scoped.debug('build.start', { rootDir })
 
-  const site = await createSite(rootDir)
+  const site = await createSite(rootDir, scoped)
   const remarkPlugins = Array.isArray(site.config?.markdown?.remarkPlugins)
     ? (site.config.markdown.remarkPlugins as unknown[])
     : []

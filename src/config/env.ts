@@ -120,35 +120,76 @@ function isOverwritePolicy(value: unknown): value is OverwritePolicy {
   return value === "none" || value === "replace-all" || value === "replace-files";
 }
 
-function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides): WebetteEnv {
+function warnInvalid(
+  warnings: ConfigWarning[],
+  field: string,
+  value: unknown,
+  expected: string,
+  defaultVal: unknown
+) {
+  warnings.push({
+    key: "config.tool.invalidValue",
+    params: { field, value: String(value), expected, default: String(defaultVal) },
+  });
+}
+
+function warnIfNotNumber(
+  warnings: ConfigWarning[],
+  field: string,
+  value: unknown,
+  defaultVal: number
+) {
+  if (value !== undefined && typeof value !== "number") {
+    warnInvalid(warnings, field, value, "number", defaultVal);
+  }
+}
+
+function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides, warnings: ConfigWarning[]): WebetteEnv {
+  const loggingLevel = overrides.logging?.level;
+  const loggingLocale = overrides.logging?.locale;
+
+  if (loggingLevel !== undefined && !isLogLevel(loggingLevel)) {
+    warnInvalid(warnings, "logging.level", loggingLevel, validLogLevels.join(" | "), defaults.logging.level);
+  }
+  if (loggingLocale !== undefined && !isLocale(loggingLocale)) {
+    warnInvalid(warnings, "logging.locale", loggingLocale, "en | fr", defaults.logging.locale);
+  }
+
   const logging = {
     ...defaults.logging,
-    ...(isLogLevel(overrides.logging?.level) ? { level: overrides.logging.level } : {}),
-    ...(isLocale(overrides.logging?.locale) ? { locale: overrides.logging.locale } : {}),
+    ...(isLogLevel(loggingLevel) ? { level: loggingLevel } : {}),
+    ...(isLocale(loggingLocale) ? { locale: loggingLocale } : {}),
     ...(typeof overrides.logging?.dirName === "string" && overrides.logging.dirName
       ? { dirName: overrides.logging.dirName }
       : {}),
   };
 
+  const port = overrides.serve?.port;
+  const liveReloadIntervalMs = overrides.serve?.liveReloadIntervalMs;
+  const watcherDebounceMs = overrides.serve?.watcherDebounceMs;
+
+  warnIfNotNumber(warnings, "serve.port", port, defaults.serve.port);
+  warnIfNotNumber(warnings, "serve.liveReloadIntervalMs", liveReloadIntervalMs, defaults.serve.liveReloadIntervalMs);
+  warnIfNotNumber(warnings, "serve.watcherDebounceMs", watcherDebounceMs, defaults.serve.watcherDebounceMs);
+
   const serve = {
     ...defaults.serve,
-    ...(typeof overrides.serve?.port === "number" ? { port: overrides.serve.port } : {}),
-    ...(typeof overrides.serve?.liveReloadIntervalMs === "number"
-      ? { liveReloadIntervalMs: overrides.serve.liveReloadIntervalMs }
-      : {}),
-    ...(typeof overrides.serve?.watcherDebounceMs === "number"
-      ? { watcherDebounceMs: overrides.serve.watcherDebounceMs }
-      : {}),
+    ...(typeof port === "number" ? { port } : {}),
+    ...(typeof liveReloadIntervalMs === "number" ? { liveReloadIntervalMs } : {}),
+    ...(typeof watcherDebounceMs === "number" ? { watcherDebounceMs } : {}),
   };
+
+  const overwritePolicy = overrides.build?.overwrite;
+  if (overwritePolicy !== undefined && !isOverwritePolicy(overwritePolicy)) {
+    warnInvalid(warnings, "build.overwrite", overwritePolicy, "none | replace-all | replace-files", defaults.build.overwrite);
+  }
 
   const build = {
     ...defaults.build,
     ...(typeof overrides.build?.outputDirName === "string" && overrides.build.outputDirName
       ? { outputDirName: overrides.build.outputDirName }
       : {}),
-    ...(isOverwritePolicy(overrides.build?.overwrite)
-      ? { overwrite: overrides.build.overwrite }
-      : {}),
+    ...(isOverwritePolicy(overwritePolicy) ? { overwrite: overwritePolicy } : {}),
     ...(overrides.build?.exportModel &&
       typeof overrides.build.exportModel === "object"
       ? {
@@ -217,30 +258,32 @@ function resolveConfigPath(toolRoot?: string): string | null {
   return null;
 }
 
+export interface ConfigWarning {
+  key: string;
+  params: Record<string, unknown>;
+}
+
 export const env: WebetteEnv = defaultEnv;
 
-let warnedConfigLoadError = false;
-
-export async function getEnv(toolRoot?: string): Promise<WebetteEnv> {
+export async function getEnv(toolRoot?: string): Promise<{ env: WebetteEnv; warnings: ConfigWarning[] }> {
   const configPath = resolveConfigPath(toolRoot);
 
   let overrides: WebetteEnvOverrides = {};
+  const warnings: ConfigWarning[] = [];
 
   if (configPath) {
     try {
       const parsed = await loadDefaultExportFresh<WebetteEnvOverrides>(configPath);
       overrides = parsed && typeof parsed === "object" ? (parsed as WebetteEnvOverrides) : {};
     } catch (err) {
-      if (!warnedConfigLoadError) {
-        warnedConfigLoadError = true;
-        const message = `webette: failed to load tool config at ${configPath}: ${String(err)}`;
-        // eslint-disable-next-line no-console
-        console.warn(message);
-      }
+      warnings.push({
+        key: "config.tool.loadFailed",
+        params: { path: configPath, error: String(err) },
+      });
     }
   }
 
-  return mergeEnv(defaultEnv, overrides);
+  return { env: mergeEnv(defaultEnv, overrides, warnings), warnings };
 }
 
 export function resolveLocale(config: WebetteEnv): Locale {

@@ -18,7 +18,7 @@ import { listRootIndexRaw, listStructureRootRaw } from "./raw-scan";
 import { isIndexFolderName, normalizeIndexFolderName } from "./utils";
 
 export async function scanSite(site: Site, logger?: Logger): Promise<Site> {
-  const toolEnv = await getEnv();
+  const { env: toolEnv } = await getEnv();
   const siteTreatTxtAsMarkdown = site?.config?.markdown?.treatTxtAsMarkdown;
   // Site can opt out of the default ".txt as markdown" behavior; default is true.
   const treatTxtAsMarkdown =

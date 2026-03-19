@@ -5,6 +5,7 @@
 import * as path from "node:path";
 import type { Site } from "./model";
 import { loadDefaultExportFresh } from "../utils/load-module";
+import type { Logger } from "../logging/logger";
 
 interface WebetteConfigFile {
   site?: Record<string, unknown>;
@@ -23,7 +24,7 @@ interface WebetteConfigFile {
 // Build the in-memory Site object based on the project folder and config file
 
 // reads webette.config.ts if present (default export)
-async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
+async function loadConfigFile(rootDir: string, logger: Logger): Promise<WebetteConfigFile> {
   const configPath = path.join(rootDir, "webette.config.ts");
 
   try {
@@ -64,12 +65,23 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
       raw.sorting && typeof raw.sorting === "object"
         ? { ...raw.sorting }
         : undefined;
-    const plugins =
-      Array.isArray(raw.plugins) && raw.plugins.every((p: unknown) => typeof p === "string")
-        ? [...raw.plugins]
-        : typeof raw.plugins === "object" && raw.plugins !== null && typeof (raw.plugins as { dir?: string }).dir === "string"
-        ? { dir: (raw.plugins as { dir: string }).dir }
-        : undefined;
+
+    let plugins: WebetteConfigFile["plugins"] = undefined;
+    if (raw.plugins !== undefined) {
+      if (Array.isArray(raw.plugins) && raw.plugins.every((p: unknown) => typeof p === "string")) {
+        plugins = [...raw.plugins];
+      } else if (
+        typeof raw.plugins === "object" &&
+        raw.plugins !== null &&
+        typeof (raw.plugins as { dir?: string }).dir === "string"
+      ) {
+        plugins = { dir: (raw.plugins as { dir: string }).dir };
+      } else {
+        logger.warn("config.site.pluginsInvalidFormat", {
+          type: Array.isArray(raw.plugins) ? "array (non-string items)" : typeof raw.plugins,
+        });
+      }
+    }
 
     const pluginConfig =
       raw.pluginConfig && typeof raw.pluginConfig === 'object' && !Array.isArray(raw.pluginConfig)
@@ -94,15 +106,18 @@ async function loadConfigFile(rootDir: string): Promise<WebetteConfigFile> {
       pluginConfig,
       tags,
     };
-  } catch {
-    // no file or invalid module -> empty config
+  } catch (err) {
+    logger.warn("config.site.loadFailed", {
+      path: configPath,
+      error: String(err),
+    });
     return {};
   }
 }
 
 // function used by the rest of the codebase
-export async function createSite(rootDir: string): Promise<Site> {
-  const config = await loadConfigFile(rootDir);
+export async function createSite(rootDir: string, logger: Logger): Promise<Site> {
+  const config = await loadConfigFile(rootDir, logger);
 
   const siteSection: Record<string, unknown> =
     config.site && typeof config.site === "object" ? { ...config.site } : {};

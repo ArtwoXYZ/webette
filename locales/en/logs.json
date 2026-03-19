@@ -69,5 +69,9 @@
   "build.tags.slugRenamed": "System route collision: {kind} slug '{oldSlug}' conflicts with the system '/tag/' route and was automatically renamed to '{newSlug}'.",
   "build.tags.slugRenamedInCollection": "System route collision: entry slug '{oldSlug}' in collection '{collection}' conflicts with the system tag route and was automatically renamed to '{newSlug}'.",
   "build.tagPages.done": "Tag pages generated: {count}",
-  "error.unexpected": "Unexpected error: {error}"
+  "error.unexpected": "Unexpected error: {error}",
+  "config.tool.loadFailed": "Failed to load tool config at {path}: {error}. Using defaults.",
+  "config.tool.invalidValue": "Tool config: invalid value for '{field}': '{value}'. Expected: {expected}. Using default: '{default}'.",
+  "config.site.loadFailed": "Failed to load site config at {path}: {error}. Using empty config.",
+  "config.site.pluginsInvalidFormat": "Site config: 'plugins' has an unrecognized format (got: {type}). Expected: string[] or {{ dir: string }}. Ignored."
 }

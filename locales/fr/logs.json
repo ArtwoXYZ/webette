@@ -69,5 +69,9 @@
   "build.tags.slugRenamed": "Collision de route système : le slug {kind} '{oldSlug}' entre en conflit avec la route '/tag/' et a été automatiquement renommé en '{newSlug}'.",
   "build.tags.slugRenamedInCollection": "Collision de route système : le slug d'entrée '{oldSlug}' dans la collection '{collection}' entre en conflit avec la route de tag et a été automatiquement renommé en '{newSlug}'.",
   "build.tagPages.done": "Pages de tags générées : {count}",
-  "error.unexpected": "Erreur inattendue : {error}"
+  "error.unexpected": "Erreur inattendue : {error}",
+  "config.tool.loadFailed": "Impossible de charger la config outil depuis {path} : {error}. Valeurs par défaut utilisées.",
+  "config.tool.invalidValue": "Config outil : valeur invalide pour '{field}' : '{value}'. Attendu : {expected}. Valeur par défaut : '{default}'.",
+  "config.site.loadFailed": "Impossible de charger la config site depuis {path} : {error}. Config vide utilisée.",
+  "config.site.pluginsInvalidFormat": "Config site : le champ 'plugins' a un format non reconnu (reçu : {type}). Attendu : string[] ou {{ dir: string }}. Ignoré."
 }

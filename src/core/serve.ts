@@ -26,8 +26,8 @@ export async function serve(
   logger: Logger
 ): Promise<void> {
   const scoped = logger.child("serve");
-  const toolEnv = await getEnv();
-  const site = await createSite(rootDir);
+  const { env: toolEnv } = await getEnv();
+  const site = await createSite(rootDir, scoped);
   const { siteTemplatesRoot } = resolveTemplatesConfig(
     toolEnv.templates,
     site.config?.templates

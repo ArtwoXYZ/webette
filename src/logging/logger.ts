@@ -4,7 +4,7 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { getEnv, resolveLocale } from "../config/env";
+import { getEnv, resolveLocale, type WebetteEnv } from "../config/env";
 import { t, normalizeLocale, type Locale } from "./i18n";
 
 export type LogLevel = "debug" | "info" | "warn" | "error";
@@ -146,21 +146,18 @@ export class Logger {
 
 /**
  * Factory used by the CLI.
- * - rootDir = site directory passed to webette
  * - scope = "webette.cli.build" / "webette.cli.serve" etc.
- * - verbose = options.verbose
+ * - precomputedEnv?: pass a pre-loaded env to avoid a redundant getEnv() call
  */
 export async function createProjectLogger(
   rootDir: string,
   scope: string,
-  verbose: boolean
+  verbose: boolean,
+  precomputedEnv?: WebetteEnv
 ): Promise<Logger> {
-  const env = await getEnv();
-  // 1) Locale: env default overridden by environment variables
-  const locale = resolveLocale(env);
-
-  // 2) Log file: <dirName>/logs.jsonl under the project root
-  const logsDir = path.join(rootDir, env.logging.dirName);
+  const resolvedEnv = precomputedEnv ?? (await getEnv()).env;
+  const locale = resolveLocale(resolvedEnv);
+  const logsDir = path.join(rootDir, resolvedEnv.logging.dirName);
   ensureDirExists(logsDir);
   const logFilePath = path.join(logsDir, "logs.jsonl");
 
@@ -168,6 +165,6 @@ export async function createProjectLogger(
     scope,
     locale,
     logFilePath,
-    minLevel: verbose ? "debug" : env.logging.level,
+    minLevel: verbose ? "debug" : resolvedEnv.logging.level,
   });
 }
