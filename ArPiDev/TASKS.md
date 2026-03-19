@@ -53,14 +53,14 @@ Active story: NONE
 - [x] T6-S02 HandlebarsContext typé : supprimer les `as any` dans helpers.ts et créer un type strict pour le contexte passé aux templates.
 - [x] T6-S03 Config env validation : centraliser la validation de webette.config.ts (schéma + erreurs explicites à la place des silences).
 - [x] T6-S04a Navigation resolver — parser : extraire la logique de lecture/interprétation du fichier navigation.webt (parseNavigationNameLine, parseItemLine, boucle stack-based…) vers navigation-parser.ts.
-- [ ] T6-S04b Navigation resolver — builder/filters : extraire la logique de visibilité/inclusion et la construction des nœuds vers navigation-filters.ts + navigation-builder.ts ; navigation.ts ne garde que l'orchestration.
+- [x] T6-S04b Navigation resolver — builder/filters : extraire la logique de visibilité/inclusion et la construction des nœuds vers navigation-filters.ts + navigation-builder.ts ; navigation.ts ne garde que l'orchestration.
 
 ### Confort dev (priorité normale)
 - [ ] T6-S05 Primitif de rendu de page : partager le primitif FS (render+mkdir+formatHtml+writeIfChanged) entre `renderSite/renderEntryTo` et `createRenderPage` — dédupliquer les 3 implémentations locales identiques.
 - [ ] T6-S06 Build orchestration : extraire les étapes de build() en fonctions nommées pour réduire la fonction de 620 lignes.
 - [ ] T6-S07 Sorting : typer SortConfig strictement, dédupliquer findCustomSortingForCollection/Entry.
 - [ ] T6-S08 Plugin loader : consolider les deux chemins de chargement (pluginsDir + pluginPaths), robustifier le parsing metadata du README.
-- [ ] T6-S09 Nommage : audit et harmonisation des verbes (normalizeXyz, resolve vs create) + dédupliquer splitRouteSegments.
+- [ ] T6-S09 Nommage & utils : audit et harmonisation des verbes (normalizeXyz, resolve vs create) + dédupliquer splitRouteSegments + regrouper les utilitaires orphelins (ex: `core/navigation/utils.ts`) dans `src/utils/` nommés par domaine.
 
 ### Structure repo (avant beta publique)
 - [ ] T6-S10 Cadrage monorepo (Pilot) : décider la structure cible (engine / app / website / releases), plan de migration, contraintes Bun workspaces, stratégie releases pour Tangled. [PILOT ONLY]

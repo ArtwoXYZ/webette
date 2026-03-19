@@ -4,8 +4,8 @@
  * Extracts header options and item lines from the raw content of a navigation block.
  */
 
-import type { Logger } from "../../../logging/logger";
-import { parseBoolean, parseList } from "../../navigation/utils";
+import type { Logger } from "../../../../logging/logger";
+import { parseBoolean, parseList } from "../../../navigation/utils";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
