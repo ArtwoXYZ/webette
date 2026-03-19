@@ -4,6 +4,7 @@
 
 import { mkdir } from "node:fs/promises";
 import * as path from "node:path";
+import { DEFAULT_PAGE_FILENAME } from "./render-to-file";
 
 export async function protectAssetDirs(options: {
   outputDir: string;
@@ -52,6 +53,6 @@ export async function protectAssetDirs(options: {
 
   for (const dirPath of Array.from(dirsToCover)) {
     await mkdir(dirPath, { recursive: true });
-    await writeIfChanged(path.join(dirPath, "index.html"), forbiddenHtml);
+    await writeIfChanged(path.join(dirPath, DEFAULT_PAGE_FILENAME), forbiddenHtml);
   }
 }

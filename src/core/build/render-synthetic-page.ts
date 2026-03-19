@@ -3,20 +3,16 @@
  * Used by renderTagPages and the onGeneratePages plugin hook.
  */
 
-import { mkdir } from 'node:fs/promises'
 import * as path from 'node:path'
 import { stripRouteSlashes } from '../../utils/path'
+import { renderToFile, DEFAULT_PAGE_FILENAME, type TemplateRenderer } from './render-to-file'
 import type { RenderPage } from '../../plugins/types'
 
 export type { RenderPage }
 
-type HandlebarsRenderer = {
-  render: (context: Record<string, unknown>) => string
-}
-
 export function createRenderPage(opts: {
   outputDir: string
-  templateRenderer: HandlebarsRenderer
+  templateRenderer: TemplateRenderer
   renderBaseContext: Record<string, unknown>
   writeIfChanged: (filePath: string, content: string) => Promise<boolean>
   formatHtml: (html: string, filePath: string) => Promise<string>
@@ -29,13 +25,16 @@ export function createRenderPage(opts: {
       ...(context ?? {}),
       layoutName,
     }
-    const html = opts.templateRenderer.render(mergedContext)
-    await mkdir(targetDir, { recursive: true })
-    const indexPath = path.join(targetDir, 'index.html')
     if (opts.addExpectedOutput) {
+      const indexPath = path.join(targetDir, DEFAULT_PAGE_FILENAME)
       opts.addExpectedOutput(path.relative(opts.outputDir, indexPath))
     }
-    const finalHtml = await opts.formatHtml(html, indexPath)
-    return opts.writeIfChanged(indexPath, finalHtml)
+    return renderToFile({
+      templateRenderer: opts.templateRenderer,
+      context: mergedContext,
+      targetDir,
+      formatHtml: opts.formatHtml,
+      writeIfChanged: opts.writeIfChanged,
+    })
   }
 }

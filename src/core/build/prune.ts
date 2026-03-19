@@ -8,6 +8,7 @@ import { readdir } from "node:fs/promises";
 import * as path from "node:path";
 import type { Logger } from "../../logging/logger";
 import type { WebetteEnv } from "../../config/env";
+import { DEFAULT_PAGE_FILENAME } from "./render-to-file";
 import type { Block, Collection, Entry, Site } from "../model";
 import { removeEmptyDirectories, rmWithRetries } from "../../utils/fs";
 import { stripRouteSlashes } from "../../utils/path";
@@ -200,7 +201,7 @@ export async function pruneOrphans(options: {
   if (protectedDirs && protectedDirs.size) {
     for (const dirPath of protectedDirs) {
       const rel = path.relative(outputDir, dirPath).replace(/\\+/g, "/");
-      addOutput(path.join(rel, "index.html"));
+      addOutput(path.join(rel, DEFAULT_PAGE_FILENAME));
     }
   }
 
@@ -220,18 +221,18 @@ export async function pruneOrphans(options: {
       : collection
         ? path.join(collection.slug || collection.id, entry.slug || entry.id)
         : (entry.slug || entry.id);
-    addOutput(path.join(routeRelative, "index.html"));
+    addOutput(path.join(routeRelative, DEFAULT_PAGE_FILENAME));
   };
 
   if (generateIndex) {
-    addOutput("index.html");
+    addOutput(DEFAULT_PAGE_FILENAME);
     for (const collection of site.collections ?? []) {
       const routeRelative = collection.route
         ? stripRouteSlashes(collection.route)
         : collection.slug || collection.id;
       const collectionIndex = routeRelative
-        ? path.join(routeRelative, "index.html")
-        : "index.html";
+        ? path.join(routeRelative, DEFAULT_PAGE_FILENAME)
+        : DEFAULT_PAGE_FILENAME;
       addOutput(collectionIndex);
     }
   }

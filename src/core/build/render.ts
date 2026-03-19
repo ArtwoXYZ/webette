@@ -4,7 +4,6 @@
  * Renders entry pages, optional indexes, and a static `404.html`.
  */
 
-import { mkdir } from "node:fs/promises";
 import * as path from "node:path";
 import type { Logger } from "../../logging/logger";
 import type { WebetteEnv } from "../../config/env";
@@ -12,11 +11,8 @@ import type { Collection, Entry, Site, Block } from "../model";
 import { resolveTemplatesRoots } from "../template";
 import { createTemplateFileResolver } from "../templates/resolve-file";
 import { getPrevNextEntry } from "./prev-next";
+import { renderToFile, type TemplateRenderer } from "./render-to-file";
 import { stripRouteSlashes } from "../../utils/path";
-
-type TemplateRenderer = {
-  render: (context: Record<string, unknown>) => string;
-};
 
 export async function renderSite(options: {
   rootDir: string;
@@ -65,6 +61,12 @@ export async function renderSite(options: {
   } = options;
 
   let renderedPages = 0;
+
+  const writeRenderedPage = (
+    context: Record<string, unknown>,
+    targetDir: string,
+    fileName?: string,
+  ) => renderToFile({ templateRenderer, context, targetDir, fileName, formatHtml, writeIfChanged });
 
   const layoutNameFor = (value: string): string => path.parse(value).name || value;
 
@@ -159,11 +161,7 @@ export async function renderSite(options: {
       ...(nextEntry ? { nextEntry } : {}),
     };
 
-    const html = templateRenderer.render(context);
-    await mkdir(targetDir, { recursive: true });
-    const entryIndexPath = path.join(targetDir, "index.html");
-    const finalHtml = await formatHtml(html, entryIndexPath);
-    return writeIfChanged(entryIndexPath, finalHtml);
+    return writeRenderedPage(context, targetDir);
   };
 
   // Entry pages
@@ -241,11 +239,7 @@ export async function renderSite(options: {
         : {}),
       collections: visibleCollections,
     };
-    const rootHtml = templateRenderer.render(rootContext);
-    const rootIndexPath = path.join(outputDir, "index.html");
-    await mkdir(path.dirname(rootIndexPath), { recursive: true });
-    const finalRootHtml = await formatHtml(rootHtml, rootIndexPath);
-    await writeIfChanged(rootIndexPath, finalRootHtml);
+    await writeRenderedPage(rootContext, outputDir);
 
     // Collection indexes
     for (const collection of site.collections ?? []) {
@@ -254,7 +248,6 @@ export async function renderSite(options: {
           ? stripRouteSlashes(collection.route)
           : collection.slug || collection.id;
         const collectionIndexDir = routeRelative ? path.join(outputDir, routeRelative) : outputDir;
-        const collectionIndexPath = path.join(collectionIndexDir, "index.html");
 
         const forbiddenContext = {
           ...renderBaseContext,
@@ -265,10 +258,7 @@ export async function renderSite(options: {
           },
           collection,
         };
-        const forbiddenHtml = templateRenderer.render(forbiddenContext);
-        await mkdir(collectionIndexDir, { recursive: true });
-        const finalForbidden = await formatHtml(forbiddenHtml, collectionIndexPath);
-        await writeIfChanged(collectionIndexPath, finalForbidden);
+        await writeRenderedPage(forbiddenContext, collectionIndexDir);
         continue;
       }
 
@@ -290,7 +280,6 @@ export async function renderSite(options: {
         ? stripRouteSlashes(collection.route)
         : collection.slug || collection.id;
       const collectionIndexDir = routeRelative ? path.join(outputDir, routeRelative) : outputDir;
-      const collectionIndexPath = path.join(collectionIndexDir, "index.html");
 
       const ctx = {
         ...renderBaseContext,
@@ -302,10 +291,7 @@ export async function renderSite(options: {
         entries: visibleEntries,
         ...(indexEntry ? { blocks: filterRenderableBlocks(indexEntry.blocks) } : {}),
       };
-      const colHtml = templateRenderer.render(ctx);
-      await mkdir(collectionIndexDir, { recursive: true });
-      const finalColHtml = await formatHtml(colHtml, collectionIndexPath);
-      await writeIfChanged(collectionIndexPath, finalColHtml);
+      await writeRenderedPage(ctx, collectionIndexDir);
     }
   }
 
@@ -316,11 +302,7 @@ export async function renderSite(options: {
       layoutName: notFoundLayoutName,
       entry: { name: "Not found", route: "/404" },
     };
-    const notFoundHtml = templateRenderer.render(notFoundContext);
-    const notFoundPath = path.join(outputDir, "404.html");
-    await mkdir(path.dirname(notFoundPath), { recursive: true });
-    const finalNotFoundHtml = await formatHtml(notFoundHtml, notFoundPath);
-    await writeIfChanged(notFoundPath, finalNotFoundHtml);
+    await writeRenderedPage(notFoundContext, outputDir, "404.html");
   }
 
   return { renderedPages };

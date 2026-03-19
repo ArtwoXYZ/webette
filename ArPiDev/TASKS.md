@@ -56,15 +56,17 @@ Active story: NONE
 - [x] T6-S04b Navigation resolver — builder/filters : extraire la logique de visibilité/inclusion et la construction des nœuds vers navigation-filters.ts + navigation-builder.ts ; navigation.ts ne garde que l'orchestration.
 
 ### Confort dev (priorité normale)
-- [ ] T6-S05 Primitif de rendu de page : partager le primitif FS (render+mkdir+formatHtml+writeIfChanged) entre `renderSite/renderEntryTo` et `createRenderPage` — dédupliquer les 3 implémentations locales identiques.
+- [x] T6-S05 Primitif de rendu de page : partager le primitif FS (render+mkdir+formatHtml+writeIfChanged) entre `renderSite/renderEntryTo` et `createRenderPage` — dédupliquer les 3 implémentations locales identiques.
 - [ ] T6-S06 Build orchestration : extraire les étapes de build() en fonctions nommées pour réduire la fonction de 620 lignes.
 - [ ] T6-S07 Sorting : typer SortConfig strictement, dédupliquer findCustomSortingForCollection/Entry.
 - [ ] T6-S08 Plugin loader : consolider les deux chemins de chargement (pluginsDir + pluginPaths), robustifier le parsing metadata du README.
 - [ ] T6-S09 Nommage & utils : audit et harmonisation des verbes (normalizeXyz, resolve vs create) + dédupliquer splitRouteSegments + regrouper les utilitaires orphelins (ex: `core/navigation/utils.ts`) dans `src/utils/` nommés par domaine.
+- [ ] T6-S10 Parallélisation du rendu : rendre les boucles de rendu d'entrées concurrentes (Promise.all) dans `renderSite` pour améliorer les performances I/O sur les sites avec beaucoup d'entrées. Tester si c'est viable également.
 
 ### Structure repo (avant beta publique)
-- [ ] T6-S10 Cadrage monorepo (Pilot) : décider la structure cible (engine / app / website / releases), plan de migration, contraintes Bun workspaces, stratégie releases pour Tangled. [PILOT ONLY]
-- [ ] T6-S11 Migration monorepo : exécuter la restructuration selon le plan T6-S10 (déplacer engine, configurer workspaces Bun, vérifier imports/build/CI).
+- [ ] T6-S11 Audit structure src/ : vérifier que l'arborescence `src/` est logique, lisible et explorable par un nouveau contributeur — renommer/déplacer/regrouper les dossiers si nécessaire, s'assurer que chaque dossier a une responsabilité claire et ressemblant à une structure logique pour un outil comme webette.
+- [ ] T6-S12 Cadrage monorepo (Pilot) : décider la structure cible (engine / app / website / releases), plan de migration, contraintes Bun workspaces, stratégie releases pour Tangled. [PILOT ONLY]
+- [ ] T6-S13 Migration monorepo : exécuter la restructuration selon le plan T6-S12 (déplacer engine, configurer workspaces Bun, vérifier imports/build/CI).
 
 ## T7 — Webette UI (beta)
 
