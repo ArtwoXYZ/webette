@@ -13,24 +13,24 @@ type SortType = "name" | "created" | "updated";
 type SortSpec = { type: SortType; order: SortOrder };
 
 type SortingSection = {
-  type?: unknown;
-  order?: unknown;
-  custom?: unknown;
+  type?: SortType;
+  order?: SortOrder;
+  custom?: CustomSorting[];
 };
 
-type SortingConfig = {
-  type?: unknown;
-  order?: unknown;
+export type SortingConfig = {
+  type?: SortType;
+  order?: SortOrder;
   collections?: SortingSection;
   entries?: SortingSection;
   blocks?: SortingSection;
 };
 
 type CustomSorting = {
-  collection?: unknown;
-  entry?: unknown;
-  type?: unknown;
-  order?: unknown;
+  collection?: string;
+  entry?: string;
+  type?: SortType;
+  order?: SortOrder;
 };
 
 const DEFAULT_SORT: SortSpec = { type: "name", order: "asc" };
@@ -92,43 +92,20 @@ function resolveSortSpec(
   return { type, order };
 }
 
-function findCustomSortingForCollection(
-  raw: unknown,
-  collectionKey: string | undefined
-): CustomSorting | undefined {
-  if (!collectionKey || !Array.isArray(raw)) return undefined;
-  for (const item of raw) {
-    if (!item || typeof item !== "object") continue;
-    const collection = (item as Record<string, unknown>).collection;
-    if (typeof collection === "string" && collection === collectionKey) {
-      return item as CustomSorting;
-    }
-  }
-  return undefined;
-}
-
-function findCustomSortingForEntry(
-  raw: unknown,
+function findCustomSorting(
+  items: CustomSorting[] | undefined,
   collectionKey: string | undefined,
   entryKey: string | undefined
 ): CustomSorting | undefined {
-  if (!collectionKey || !Array.isArray(raw)) return undefined;
+  if (!collectionKey || !items) return undefined;
   let collectionMatch: CustomSorting | undefined;
-  for (const item of raw) {
-    if (!item || typeof item !== "object") continue;
-    const record = item as Record<string, unknown>;
-    const collection = record.collection;
-    if (typeof collection !== "string" || collection !== collectionKey) continue;
-    const entry = record.entry;
-    if (typeof entry === "string") {
-      if (entryKey && entry === entryKey) {
-        return item as CustomSorting;
-      }
+  for (const item of items) {
+    if (item.collection !== collectionKey) continue;
+    if (typeof item.entry === "string") {
+      if (entryKey && item.entry === entryKey) return item;
       continue;
     }
-    if (!collectionMatch) {
-      collectionMatch = item as CustomSorting;
-    }
+    if (!collectionMatch) collectionMatch = item;
   }
   return collectionMatch;
 }
@@ -192,7 +169,7 @@ function resolveEntrySort(
   logger?: Logger
 ): SortSpec {
   if (!sorting) return DEFAULT_SORT;
-  const custom = findCustomSortingForCollection(sorting.entries?.custom, collectionKey);
+  const custom = findCustomSorting(sorting.entries?.custom, collectionKey, undefined);
   const customScope = collectionKey
     ? `sorting.entries.custom.type:${collectionKey}`
     : "sorting.entries.custom.type";
@@ -222,7 +199,7 @@ function resolveBlockSort(
   logger?: Logger
 ): SortSpec {
   if (!sorting) return DEFAULT_SORT;
-  const custom = findCustomSortingForEntry(sorting.blocks?.custom, collectionKey, entryKey);
+  const custom = findCustomSorting(sorting.blocks?.custom, collectionKey, entryKey);
   const customScope = collectionKey
     ? entryKey
       ? `sorting.blocks.custom.type:${collectionKey}:${entryKey}`

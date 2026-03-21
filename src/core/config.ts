@@ -6,6 +6,7 @@ import * as path from "node:path";
 import type { Site } from "./model";
 import { loadDefaultExportFresh } from "../utils/load-module";
 import type { Logger } from "../logging/logger";
+import type { SortingConfig } from "./build/utils/sorting";
 
 interface WebetteConfigFile {
   site?: Record<string, unknown>;
@@ -14,7 +15,7 @@ interface WebetteConfigFile {
   images?: Record<string, unknown>;
   audio?: Record<string, unknown>;
   markdown?: Record<string, unknown>;
-  sorting?: Record<string, unknown>;
+  sorting?: SortingConfig;
   video?: Record<string, unknown>;
   plugins?: string[] | { dir: string };
   pluginConfig?: Record<string, unknown>;
@@ -101,7 +102,7 @@ async function loadConfigFile(rootDir: string, logger: Logger): Promise<WebetteC
       audio: audio as Record<string, unknown> | undefined,
       video: video as Record<string, unknown> | undefined,
       markdown: markdown as Record<string, unknown> | undefined,
-      sorting: sorting as Record<string, unknown> | undefined,
+      sorting: sorting as SortingConfig | undefined,
       plugins,
       pluginConfig,
       tags,

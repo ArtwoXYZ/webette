@@ -2,6 +2,8 @@
  * Core model types used across scan/resolve/render/export.
  */
 
+import type { SortingConfig } from "./build/utils/sorting";
+
 export interface Block {
   id: string;          // identifier scoped to the entry
   rawName: string;     // raw filename or folder name
@@ -106,7 +108,7 @@ export interface Site {
     audio?: Record<string, unknown>; // raw audio config from webette.config.ts
     video?: Record<string, unknown>; // raw video config from webette.config.ts
     markdown?: Record<string, unknown>; // raw markdown config from webette.config.ts
-    sorting?: Record<string, unknown>; // raw sorting config from webette.config.ts
+    sorting?: SortingConfig; // sorting config from webette.config.ts
     rawConfig?: Record<string, unknown>; // full raw webette.config.ts before processing
   };
   indexes?: {
