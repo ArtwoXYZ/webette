@@ -9,7 +9,7 @@ import { unified, type Plugin } from "unified";
 import rehypeFormat from "rehype-format";
 import rehypeParse from "rehype-parse";
 import rehypeStringify from "rehype-stringify";
-import type { Logger } from "../../logging/logger";
+import type { Logger } from "../../../logging/logger";
 
 export async function formatHtml(
   rawHtml: string,

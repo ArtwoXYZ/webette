@@ -4,9 +4,9 @@
  */
 
 import * as path from 'node:path'
-import { stripRouteSlashes } from '../../utils/path'
+import { stripRouteSlashes } from '../../../utils/path'
 import { renderToFile, DEFAULT_PAGE_FILENAME, type TemplateRenderer } from './render-to-file'
-import type { RenderPage } from '../../plugins/types'
+import type { RenderPage } from '../../../plugins/types'
 
 export type { RenderPage }
 

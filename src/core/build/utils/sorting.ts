@@ -2,11 +2,11 @@
  * Apply site-level sorting (including date-based sorting) after history is known.
  */
 
-import type { Site, Collection, Entry, Block } from "../model";
-import { SiteModelTransformer } from "../transformations/site-model-transformer";
-import type { Logger } from "../../logging/logger";
-import { cleanName, orderKey, slugify } from "../../utils/naming";
-import { toPosix } from "../../utils/path";
+import type { Site, Collection, Entry, Block } from "../../model";
+import { SiteModelTransformer } from "../../transformations/site-model-transformer";
+import type { Logger } from "../../../logging/logger";
+import { cleanName, orderKey, slugify } from "../../../utils/naming";
+import { toPosix } from "../../../utils/path";
 
 type SortOrder = "asc" | "desc";
 type SortType = "name" | "created" | "updated";

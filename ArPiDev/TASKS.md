@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: NONE
+Active story: none
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -57,10 +57,10 @@ Active story: NONE
 
 ### Confort dev (priorité normale)
 - [x] T6-S05 Primitif de rendu de page : partager le primitif FS (render+mkdir+formatHtml+writeIfChanged) entre `renderSite/renderEntryTo` et `createRenderPage` — dédupliquer les 3 implémentations locales identiques.
-- [ ] T6-S06 Build orchestration : extraire les étapes de build() en fonctions nommées pour réduire la fonction de 620 lignes.
+- [x] T6-S06 Build orchestration : extraire les étapes de build() en fonctions nommées pour réduire la fonction de 620 lignes.
 - [ ] T6-S07 Sorting : typer SortConfig strictement, dédupliquer findCustomSortingForCollection/Entry.
 - [ ] T6-S08 Plugin loader : consolider les deux chemins de chargement (pluginsDir + pluginPaths), robustifier le parsing metadata du README.
-- [ ] T6-S09 Nommage & utils : audit et harmonisation des verbes (normalizeXyz, resolve vs create) + dédupliquer splitRouteSegments + regrouper les utilitaires orphelins (ex: `core/navigation/utils.ts`) dans `src/utils/` nommés par domaine.
+- [ ] T6-S09 Nommage & utils : audit et harmonisation des verbes (normalizeXyz, resolve vs create) + dédupliquer splitRouteSegments + regrouper les utilitaires orphelins (ex: `core/navigation/utils.ts`) dans `src/utils/` nommés par domaine. Note: `templateBaseName` helper already created in T6-S06 (build/types.ts), quiet-vs-info log pattern and empty-entry warning dedup already handled in T6-S06.
 - [ ] T6-S10 Parallélisation du rendu : rendre les boucles de rendu d'entrées concurrentes (Promise.all) dans `renderSite` pour améliorer les performances I/O sur les sites avec beaucoup d'entrées. Tester si c'est viable également.
 
 ### Structure repo (avant beta publique)

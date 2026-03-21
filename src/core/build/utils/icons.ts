@@ -4,11 +4,11 @@
 
 import { mkdir } from 'node:fs/promises'
 import * as path from 'node:path'
-import type { Site } from '../model'
-import type { Logger } from '../../logging/logger'
-import { writeIfChanged } from '../../utils/fs'
-import { toPosix, stripRouteSlashes } from '../../utils/path'
-import { buildIconsHead } from '../templates/icons-head'
+import type { Site } from '../../model'
+import type { Logger } from '../../../logging/logger'
+import { writeIfChanged } from '../../../utils/fs'
+import { toPosix, stripRouteSlashes } from '../../../utils/path'
+import { buildIconsHead } from '../../templates/icons-head'
 
 type SharpModule = typeof import('sharp')
 let cachedSharp: SharpModule | null | undefined

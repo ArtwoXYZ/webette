@@ -5,14 +5,15 @@
  */
 
 import * as path from "node:path";
-import type { Logger } from "../../logging/logger";
-import type { WebetteEnv } from "../../config/env";
-import type { Collection, Entry, Site, Block } from "../model";
-import { resolveTemplatesRoots } from "../template";
-import { createTemplateFileResolver } from "../templates/resolve-file";
+import type { Logger } from "../../../logging/logger";
+import type { WebetteEnv } from "../../../config/env";
+import type { Collection, Entry, Site, Block } from "../../model";
+import { templateBaseName } from "../types";
+import { resolveTemplatesRoots } from "../../template";
+import { createTemplateFileResolver } from "../../templates/resolve-file";
 import { getPrevNextEntry } from "./prev-next";
 import { renderToFile, type TemplateRenderer } from "./render-to-file";
-import { stripRouteSlashes } from "../../utils/path";
+import { stripRouteSlashes } from "../../../utils/path";
 
 export async function renderSite(options: {
   rootDir: string;
@@ -68,7 +69,7 @@ export async function renderSite(options: {
     fileName?: string,
   ) => renderToFile({ templateRenderer, context, targetDir, fileName, formatHtml, writeIfChanged });
 
-  const layoutNameFor = (value: string): string => path.parse(value).name || value;
+  const layoutNameFor = templateBaseName;
 
   const filterRenderableBlocks = (blocks: Block[]): Block[] =>
     blocks

@@ -2,13 +2,13 @@
  * Resolves collection-level assets (outside entries) using block resolvers.
  */
 
-import type { WebetteEnv } from "../../config/env";
-import type { Logger } from "../../logging/logger";
-import { resolveAudioConfig } from "../block-types/audio/config";
-import { resolveImageConfig } from "../block-types/image/config";
-import { resolveVideoConfig } from "../block-types/video/config";
-import type { Site } from "../model";
-import { getResolver } from "../resolve/registry";
+import type { WebetteEnv } from "../../../config/env";
+import type { Logger } from "../../../logging/logger";
+import { resolveAudioConfig } from "../../block-types/audio/config";
+import { resolveImageConfig } from "../../block-types/image/config";
+import { resolveVideoConfig } from "../../block-types/video/config";
+import type { Site } from "../../model";
+import { getResolver } from "../../resolve/registry";
 
 export async function resolveCollectionAssets(options: {
   rootDir: string;

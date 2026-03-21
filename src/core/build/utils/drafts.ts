@@ -4,7 +4,7 @@
  * Handles draft filtering and draft-related summaries for logs.
  */
 
-import type { Site } from "../model";
+import type { Site } from "../../model";
 
 export function filterDraftEntries(site: Site, includeDrafts: boolean): Site {
   if (includeDrafts) return site;

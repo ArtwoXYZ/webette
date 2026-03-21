@@ -6,12 +6,12 @@
 
 import { readdir } from "node:fs/promises";
 import * as path from "node:path";
-import type { Logger } from "../../logging/logger";
-import type { WebetteEnv } from "../../config/env";
+import type { Logger } from "../../../logging/logger";
+import type { WebetteEnv } from "../../../config/env";
 import { DEFAULT_PAGE_FILENAME } from "./render-to-file";
-import type { Block, Collection, Entry, Site } from "../model";
-import { removeEmptyDirectories, rmWithRetries } from "../../utils/fs";
-import { stripRouteSlashes } from "../../utils/path";
+import type { Block, Collection, Entry, Site } from "../../model";
+import { removeEmptyDirectories, rmWithRetries } from "../../../utils/fs";
+import { stripRouteSlashes } from "../../../utils/path";
 
 export type ExpectedOutputsRegistry = {
   addExpectedOutput: (relativePath: string) => void;

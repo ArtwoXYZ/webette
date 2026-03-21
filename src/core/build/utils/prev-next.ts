@@ -5,7 +5,7 @@
  */
 
 import * as path from "node:path";
-import type { Collection, Entry, Site } from "../model";
+import type { Collection, Entry, Site } from "../../model";
 
 export type EntryNavRef = {
   id: string;

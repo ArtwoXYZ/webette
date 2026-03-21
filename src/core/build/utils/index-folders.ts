@@ -2,8 +2,8 @@
  * Extracts custom index folders from collections into site.indexes.
  */
 
-import type { Collection, Entry, Site } from "../model";
-import type { Logger } from "../../logging/logger";
+import type { Collection, Entry, Site } from "../../model";
+import type { Logger } from "../../../logging/logger";
 
 type IndexCollections = Record<string, Entry>;
 

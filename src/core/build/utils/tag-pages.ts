@@ -11,17 +11,17 @@
  * Collections with no tagged entries are skipped to avoid empty pages.
  */
 
-import type { Logger } from '../../logging/logger'
-import type { Site } from '../model'
-import type { RenderPage } from '../../plugins/types'
+import type { Logger } from '../../../logging/logger'
+import type { Site } from '../../model'
+import type { RenderPage } from '../../../plugins/types'
 import {
   collectAllEntries,
   getAllTags,
   getCollectionTags,
   filterEntriesByTags,
-} from '../tags/filter'
-import { slugify } from '../../utils/naming'
-import { stripRouteSlashes } from '../../utils/path'
+} from '../../tags/filter'
+import { slugify } from '../../../utils/naming'
+import { stripRouteSlashes } from '../../../utils/path'
 
 const TAG_INDEX_LAYOUT = 'tag-index'
 const TAG_PAGE_LAYOUT = 'tag-page'

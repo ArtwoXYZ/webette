@@ -6,9 +6,9 @@
  * etc. if needed) and a warning is emitted.
  */
 
-import type { Site, Collection, Entry } from '../model'
-import type { Logger } from '../../logging/logger'
-import { stripRouteSlashes } from '../../utils/path'
+import type { Site, Collection, Entry } from '../../model'
+import type { Logger } from '../../../logging/logger'
+import { stripRouteSlashes } from '../../../utils/path'
 
 export const SYSTEM_SLUGS = ['tag']
 
