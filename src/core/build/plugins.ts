@@ -4,7 +4,7 @@
  * Loads plugins, stores metadata in site model, creates plugin context, runs onInit.
  */
 
-import { loadPlugins } from '../../plugins/loader'
+import { loadPlugins, resolvePluginSources } from '../../plugins/loader'
 import { runOnInit } from '../../plugins/runner'
 import type { PluginContext } from '../../plugins/types'
 import {
@@ -27,10 +27,8 @@ export async function loadAndInitPlugins(config: BuildConfig): Promise<PluginRes
 
   const plugins = await loadPlugins({
     rootDir,
-    pluginPaths: Array.isArray(site.config?.plugins) ? (site.config?.plugins as string[]) : undefined,
-    pluginsDir: typeof site.config?.plugins === 'object' && site.config.plugins !== null && typeof (site.config.plugins as { dir?: string }).dir === 'string'
-      ? (site.config.plugins as { dir: string }).dir
-      : undefined,
+    ...resolvePluginSources(site.config?.plugins),
+    logger: scoped,
   })
 
   if (plugins.length > 0) {

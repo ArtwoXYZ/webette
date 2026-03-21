@@ -73,5 +73,11 @@
   "config.tool.loadFailed": "Failed to load tool config at {path}: {error}. Using defaults.",
   "config.tool.invalidValue": "Tool config: invalid value for '{field}': '{value}'. Expected: {expected}. Using default: '{default}'.",
   "config.site.loadFailed": "Failed to load site config at {path}: {error}. Using empty config.",
-  "config.site.pluginsInvalidFormat": "Site config: 'plugins' has an unrecognized format (got: {type}). Expected: string[] or {{ dir: string }}. Ignored."
+  "config.site.pluginsInvalidFormat": "Site config: 'plugins' has an unrecognized format (got: {type}). Expected: string[] or {{ dir: string }}. Ignored.",
+  "build.pluginImportFailed": "Failed to import plugin at {path}: {error}",
+  "build.pluginImportInvalidExport": "Plugin at {path} does not export a valid plugin object. Skipped.",
+  "build.pluginReadmeParseError": "Failed to parse plugin README at {path}: {error}",
+  "build.pluginScanDirError": "Failed to scan plugins directory {dir}: {error}",
+  "build.pluginMissingReadme": "Plugin '{folder}' has no README.md and was skipped. A README.md is required for all plugins.",
+  "build.pluginMetadataIncomplete": "Plugin '{folder}' is missing required metadata fields ({missing}) in its README.md. Skipped."
 }

@@ -73,5 +73,11 @@
   "config.tool.loadFailed": "Impossible de charger la config outil depuis {path} : {error}. Valeurs par défaut utilisées.",
   "config.tool.invalidValue": "Config outil : valeur invalide pour '{field}' : '{value}'. Attendu : {expected}. Valeur par défaut : '{default}'.",
   "config.site.loadFailed": "Impossible de charger la config site depuis {path} : {error}. Config vide utilisée.",
-  "config.site.pluginsInvalidFormat": "Config site : le champ 'plugins' a un format non reconnu (reçu : {type}). Attendu : string[] ou {{ dir: string }}. Ignoré."
+  "config.site.pluginsInvalidFormat": "Config site : le champ 'plugins' a un format non reconnu (reçu : {type}). Attendu : string[] ou {{ dir: string }}. Ignoré.",
+  "build.pluginImportFailed": "Impossible d'importer le plugin depuis {path} : {error}",
+  "build.pluginImportInvalidExport": "Le plugin à {path} n'exporte pas un objet plugin valide. Ignoré.",
+  "build.pluginReadmeParseError": "Impossible de lire le README du plugin à {path} : {error}",
+  "build.pluginScanDirError": "Impossible de scanner le dossier de plugins {dir} : {error}",
+  "build.pluginMissingReadme": "Le plugin '{folder}' n'a pas de README.md et a été ignoré. Un README.md est requis pour tous les plugins.",
+  "build.pluginMetadataIncomplete": "Le plugin '{folder}' n'a pas les champs obligatoires ({missing}) dans son README.md. Ignoré."
 }

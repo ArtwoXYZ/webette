@@ -1,5 +1,10 @@
 # test-generate-pages
 
+**Name**: Test Generate Pages
+**Author**: Webette Team
+**License**: MIT
+**Version**: 1.0.0
+
 Example plugin demonstrating the `onGeneratePages` hook introduced in T5-S04-c.
 
 ## What it does
