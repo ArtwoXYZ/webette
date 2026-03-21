@@ -7,7 +7,7 @@ import {
   normalizeKey,
   type CollectionLike,
   type EntryLike,
-} from "../../../navigation/utils";
+} from "../../../../utils/navigation";
 import { toPosix } from "../../../../utils/path";
 import type { NavigationItem } from "./builder";
 import type { NavigationOptions } from "./parser";

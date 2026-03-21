@@ -15,7 +15,7 @@ export type EntryLike = {
   isUnlisted?: boolean;
 };
 
-export { parseBoolean } from "../../utils/parse";
+export { parseBoolean } from "./parse";
 
 export function parseList(value: unknown): string[] {
   if (Array.isArray(value)) {

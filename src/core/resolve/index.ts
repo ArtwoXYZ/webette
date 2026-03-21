@@ -8,21 +8,7 @@ import { resolveImageConfig } from "../block-types/image/config";
 import { resolveAudioConfig } from "../block-types/audio/config";
 import { resolveVideoConfig } from "../block-types/video/config";
 import { getResolver, type ResolveContext } from "./registry";
-
-function splitRouteSegments(route?: string): string[] {
-  if (!route) return [];
-  return route.replace(/^\/+|\/+$/g, "").split("/").filter(Boolean);
-}
-
-function buildBlockRouteHint(block: Block, parentSegments: string[]): {
-  routeHint: string;
-  routeSegments: string[];
-} {
-  const routeSegments = [...parentSegments, block.slug];
-  const routeBase = routeSegments.join("/");
-  const routeHint = block.ext ? `${routeBase}${block.ext}` : `${routeBase}/`;
-  return { routeHint, routeSegments };
-}
+import { splitRouteSegments, buildBlockRouteHint } from "./route-hints";
 
 // Entry point: walk the scanned model and enrich blocks with resolved content.
 export interface ResolveOptions {

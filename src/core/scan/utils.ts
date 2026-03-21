@@ -7,10 +7,6 @@ import { cleanName, orderKey, slugify } from "../../utils/naming";
 import { toPosix } from "../../utils/path";
 import type { ScanDirent, SortOrder } from "./internal-types";
 
-export function normalizePath(value: string): string {
-  return toPosix(value.replace(/\\/g, "/"));
-}
-
 export function normalizeIndexFolderName(raw: unknown): string {
   if (typeof raw !== "string") return "index";
   const trimmed = raw.trim();

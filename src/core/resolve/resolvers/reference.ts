@@ -14,6 +14,7 @@ import {
   matchBlock,
 } from "../../../core/targets";
 import { getResolver } from "../registry";
+import { splitRouteSegments, buildBlockRouteHint } from "../route-hints";
 
 type BlockLocation = {
   collection?: Collection;
@@ -25,21 +26,6 @@ type ResolvedTarget = {
   entry: Entry;
   block: Block;
 };
-
-function splitRouteSegments(route?: string): string[] {
-  if (!route) return [];
-  return route.replace(/^\/+|\/+$/g, "").split("/").filter(Boolean);
-}
-
-function buildBlockRouteHint(block: Block, parentSegments: string[]): {
-  routeHint: string;
-  routeSegments: string[];
-} {
-  const routeSegments = [...parentSegments, block.slug];
-  const routeBase = routeSegments.join("/");
-  const routeHint = block.ext ? `${routeBase}${block.ext}` : `${routeBase}/`;
-  return { routeHint, routeSegments };
-}
 
 function hasBlockPath(blocks: Block[], blockPath: string): boolean {
   for (const current of blocks) {

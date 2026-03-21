@@ -17,7 +17,7 @@ import {
   shouldIncludeEntry as shouldIncludeEntryUtil,
   type CollectionLike,
   type EntryLike,
-} from "../../../navigation/utils";
+} from "../../../../utils/navigation";
 import { parseNavigationBlock } from "./parser";
 import {
   type NavigationItem,

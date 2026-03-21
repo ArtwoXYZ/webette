@@ -2,9 +2,8 @@
  * Navigation node construction — builds NavigationItem nodes from site model data.
  */
 
-import * as path from "node:path";
 import type { Block, Collection, Entry } from "../../../model";
-import { toPosix } from "../../../../utils/path";
+import { normalizeCollectionPathKey, parentCollectionPathKey } from "../../../../utils/path";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -163,18 +162,7 @@ function buildCollectionNode(
   };
 }
 
-// ── Collection path helpers ────────────────────────────────────────────────────
-
-function normalizeCollectionPathKey(value: string | undefined): string {
-  return toPosix(value ?? "").replace(/^\/+|\/+$/g, "");
-}
-
-function parentCollectionPathKey(collectionPath: string): string {
-  const normalized = normalizeCollectionPathKey(collectionPath);
-  if (!normalized) return "";
-  const parent = path.posix.dirname(normalized);
-  return parent === "." ? "" : parent;
-}
+// ── Collection forest ─────────────────────────────────────────────────────────
 
 export function buildCollectionForestNodes(
   collections: Collection[],

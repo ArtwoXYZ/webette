@@ -7,8 +7,8 @@ import { SiteModelTransformer } from "../../transformations/site-model-transform
 import type { Logger } from "../../../logging/logger";
 import { cleanName, orderKey, slugify } from "../../../utils/naming";
 import { toPosix } from "../../../utils/path";
+import type { SortOrder } from "../../scan/internal-types";
 
-type SortOrder = "asc" | "desc";
 type SortType = "name" | "created" | "updated";
 type SortSpec = { type: SortType; order: SortOrder };
 
@@ -34,10 +34,6 @@ type CustomSorting = {
 };
 
 const DEFAULT_SORT: SortSpec = { type: "name", order: "asc" };
-
-function normalizePath(value: string): string {
-  return toPosix(value.replace(/\\/g, "/"));
-}
 
 function normalizeSortOrder(value: unknown): SortOrder | undefined {
   return value === "asc" || value === "desc" ? value : undefined;
@@ -119,7 +115,7 @@ function buildCollectionKeyIndex(site: Site): Map<string, string> {
     if (!value || typeof value !== "object") continue;
     const cfg = value as Record<string, unknown>;
     const normalizedPath =
-      typeof cfg.path === "string" && cfg.path ? normalizePath(cfg.path) : normalizePath(key);
+      typeof cfg.path === "string" && cfg.path ? toPosix(cfg.path) : toPosix(key);
     map.set(normalizedPath, key);
   }
 
@@ -132,7 +128,7 @@ function resolveCollectionKey(
 ): string | undefined {
   return (
     index.get(collection.path) ??
-    index.get(normalizePath(collection.rawName)) ??
+    index.get(toPosix(collection.rawName)) ??
     collection.slug ??
     collection.id
   );

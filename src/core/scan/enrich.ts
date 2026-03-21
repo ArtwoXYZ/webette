@@ -4,9 +4,9 @@
 
 import * as path from "node:path";
 import { cleanName, limitSlugWords, slugify } from "../../utils/naming";
+import { toPosix } from "../../utils/path";
 import type { Block, Collection, Entry, Site } from "../model";
 import type { CollectionConfig, RawBlock, RawCollection, RawEntry } from "./internal-types";
-import { normalizePath } from "./utils";
 
 export function buildConfigIndex(site: Site): Map<string, CollectionConfig> {
   const map = new Map<string, CollectionConfig>();
@@ -16,9 +16,9 @@ export function buildConfigIndex(site: Site): Map<string, CollectionConfig> {
   for (const [key, value] of Object.entries(raw)) {
     if (!value || typeof value !== "object") continue;
     const cfg = value as CollectionConfig;
-    const normalizedKey = normalizePath(key);
+    const normalizedKey = toPosix(key);
     const normalizedPath =
-      typeof cfg.path === "string" && cfg.path ? normalizePath(cfg.path) : undefined;
+      typeof cfg.path === "string" && cfg.path ? toPosix(cfg.path) : undefined;
     map.set(normalizedPath ?? normalizedKey, cfg);
   }
 
@@ -102,7 +102,7 @@ export function enrichCollections(
 
   return rawCollections.map((raw) => {
     const matchConfig =
-      configIndex.get(raw.path) ?? configIndex.get(normalizePath(raw.rawName));
+      configIndex.get(raw.path) ?? configIndex.get(toPosix(raw.rawName));
 
     const configuredName =
       matchConfig?.name && typeof matchConfig.name === "string"

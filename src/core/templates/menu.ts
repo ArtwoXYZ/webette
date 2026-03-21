@@ -3,8 +3,8 @@
  */
 
 import type Handlebars from "handlebars";
-import * as path from "node:path";
 import type { Collection, Entry } from "../model";
+import { normalizeCollectionPathKey, parentCollectionPathKey } from "../../utils/path";
 import {
   buildExcludeSet,
   normalizeKey,
@@ -14,7 +14,7 @@ import {
   shouldIncludeEntry,
   type CollectionLike,
   type EntryLike,
-} from "../navigation/utils";
+} from "../../utils/navigation";
 
 type NavigationItem =
   | {
@@ -163,17 +163,6 @@ const ROOT_MENU_COLLECTION: Collection = {
 
 const buildRootEntryItem = (entry: Entry): NavigationItem =>
   buildEntryItem(ROOT_MENU_COLLECTION, entry);
-
-function normalizeCollectionPathKey(value: string | undefined): string {
-  return (value ?? "").replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
-}
-
-function parentCollectionPathKey(collectionPath: string): string {
-  const normalized = normalizeCollectionPathKey(collectionPath);
-  if (!normalized) return "";
-  const parent = path.posix.dirname(normalized);
-  return parent === "." ? "" : parent;
-}
 
 export function registerMenuHelper(handlebars: typeof Handlebars) {
   if (handlebars.helpers.menu) return;

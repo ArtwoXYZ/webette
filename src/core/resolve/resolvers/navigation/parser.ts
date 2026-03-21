@@ -5,7 +5,7 @@
  */
 
 import type { Logger } from "../../../../logging/logger";
-import { parseBoolean, parseList } from "../../../navigation/utils";
+import { parseBoolean, parseList } from "../../../../utils/navigation";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
