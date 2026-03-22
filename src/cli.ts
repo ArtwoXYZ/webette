@@ -9,7 +9,7 @@ import { serve } from "./core/serve";
 import { createProjectLogger } from "./logging/logger";
 import { getEnv } from "./config/env";
 import { getVersion } from "./version";
-import { WebetteError } from "./core/template";
+import { WebetteError } from "./core/templates/engine";
 
 type CliOptions = {
   verbose: boolean;

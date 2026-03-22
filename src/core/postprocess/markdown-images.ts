@@ -4,7 +4,7 @@
 
 import type { Root, Content, Image as MdastImage, Html } from "mdast";
 import type { Site, Block, Entry, Collection } from "../model";
-import { SiteModelTransformer } from "../transformations/site-model-transformer";
+import { SiteModelTransformer } from "../site-model-transformer";
 import { renderMarkdownToHtml } from "../block-types/markdown/processor";
 import type { Logger } from "../../logging/logger";
 import {

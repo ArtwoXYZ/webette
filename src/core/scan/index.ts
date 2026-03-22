@@ -8,7 +8,7 @@ import { resolveRoutes } from "../routes";
 import type {
   Site,
 } from "../model";
-import { SiteModelTransformer } from "../transformations/site-model-transformer";
+import { SiteModelTransformer } from "../site-model-transformer";
 import type { Logger } from "../../logging/logger";
 
 import { resolveTemplatesConfig } from "../templates/config";

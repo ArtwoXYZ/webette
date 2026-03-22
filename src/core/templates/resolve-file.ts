@@ -7,7 +7,7 @@
 import { stat } from "node:fs/promises";
 import * as path from "node:path";
 import type { Logger } from "../../logging/logger";
-import type { TemplatesRoots } from "../template";
+import type { TemplatesRoots } from "./engine";
 
 export type ResolvedTemplateFile = {
   templatePath: string;

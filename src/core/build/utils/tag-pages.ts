@@ -19,7 +19,7 @@ import {
   getAllTags,
   getCollectionTags,
   filterEntriesByTags,
-} from '../../tags/filter'
+} from '../../tag-filter'
 import { slugify } from '../../../utils/naming'
 import { stripRouteSlashes } from '../../../utils/path'
 

@@ -3,6 +3,7 @@
  */
 
 import type { SortingConfig } from "./build/utils/sorting";
+export type { SortingConfig };
 
 export interface Block {
   id: string;          // identifier scoped to the entry

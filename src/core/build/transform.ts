@@ -9,7 +9,7 @@
 import { stat } from 'node:fs/promises'
 import * as path from 'node:path'
 import { resolveBlocks } from '../resolve'
-import { SiteModelTransformer } from '../transformations/site-model-transformer'
+import { SiteModelTransformer } from '../site-model-transformer'
 import { rewriteInternalLinks } from '../postprocess/markdown-links'
 import { rewriteInternalImages } from '../postprocess/markdown-images'
 import { applyHistory, loadPreviousState } from '../export/history'

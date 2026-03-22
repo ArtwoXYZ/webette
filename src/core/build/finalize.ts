@@ -6,7 +6,7 @@
  * writes server files, protects asset dirs.
  */
 
-import { createTemplateRenderer } from '../template'
+import { createTemplateRenderer } from '../templates/engine'
 import { writeSitemap } from '../sitemap'
 import { runOnGeneratePages } from '../../plugins/runner'
 import { writeModelExport } from '../export/write-model'

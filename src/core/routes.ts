@@ -2,7 +2,7 @@
  * Route generation for collections/entries/blocks (slug-based, config-aware).
  */
 import type { Block, Collection, Entry, Site } from "./model";
-import { SiteModelTransformer } from "./transformations/site-model-transformer";
+import { SiteModelTransformer } from "./site-model-transformer";
 
 
 type CollectionConfig = {

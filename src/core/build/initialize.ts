@@ -7,7 +7,7 @@
 import { stat } from 'node:fs/promises'
 import * as path from 'node:path'
 import { getEnv, resolveLocale } from '../../config/env'
-import { createSite } from '../config'
+import { createSite } from '../../config/site'
 import { resolveTemplatesConfig } from '../templates/config'
 import { writeIfChanged as writeIfChangedFs } from '../../utils/fs'
 import { createExpectedOutputsRegistry } from './utils/prune'

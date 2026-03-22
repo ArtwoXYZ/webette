@@ -12,7 +12,7 @@ import {
   collectAllEntries,
   getAllTags,
   normalizeTags,
-} from '../tags/filter'
+} from '../tag-filter'
 import type { BuildConfig, PluginResult } from './types'
 
 export async function loadAndInitPlugins(config: BuildConfig): Promise<PluginResult> {

@@ -3,10 +3,9 @@
  */
 
 import * as path from "node:path";
-import type { Site } from "./model";
+import type { Site, SortingConfig } from "../core/model";
 import { loadDefaultExportFresh } from "../utils/load-module";
 import type { Logger } from "../logging/logger";
-import type { SortingConfig } from "./build/utils/sorting";
 
 interface WebetteConfigFile {
   site?: Record<string, unknown>;

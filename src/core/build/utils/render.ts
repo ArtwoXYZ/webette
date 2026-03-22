@@ -9,7 +9,7 @@ import type { Logger } from "../../../logging/logger";
 import type { WebetteEnv } from "../../../config/env";
 import type { Collection, Entry, Site, Block } from "../../model";
 import { templateBaseName } from "../types";
-import { resolveTemplatesRoots } from "../../template";
+import { resolveTemplatesRoots } from "../../templates/engine";
 import { createTemplateFileResolver } from "../../templates/resolve-file";
 import { getPrevNextEntry } from "./prev-next";
 import { renderToFile, type TemplateRenderer } from "./render-to-file";

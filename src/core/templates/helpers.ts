@@ -10,7 +10,7 @@ import {
   getCollectionTags as getCollectionTagsUtil,
   getSiteTags as getSiteTagsUtil,
   type TagFilterMode,
-} from '../tags/filter'
+} from '../tag-filter'
 import { slugify } from '../../utils/naming'
 import {
   buildImageHtml,

@@ -6,7 +6,7 @@ import type { Logger } from "../logging/logger";
 import type { Site, Collection, Entry, Block } from "../core/model";
 import Handlebars from "handlebars";
 import type { WebetteEnv } from "../config/env";
-import type { TagFilterOptions } from "../core/tags/filter";
+import type { TagFilterOptions } from "../core/tag-filter";
 
 /**
  * Function signature exposed to plugins via `onGeneratePages`.

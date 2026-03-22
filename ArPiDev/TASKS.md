@@ -64,7 +64,7 @@ Active story: none
 - [x] T6-S10 Parallélisation du rendu : benchmark réalisé — NO-GO. Le bottleneck est rehype prettyPrint (CPU-bound, 77% du temps), non parallélisable en JS single-thread. Promise.all ne montre aucun gain mesurable.
 
 ### Structure repo (avant beta publique)
-- [ ] T6-S11 Audit structure src/ : vérifier que l'arborescence `src/` est logique, lisible et explorable par un nouveau contributeur — renommer/déplacer/regrouper les dossiers si nécessaire, s'assurer que chaque dossier a une responsabilité claire et ressemblant à une structure logique pour un outil comme webette.
+- [x] T6-S11 Audit structure src/ : réorganisation de l'arborescence — template engine consolidé dans templates/, config site regroupé dans config/, dossiers à 1 fichier (tags, transformations) aplatis, fix cross-layer SortingConfig.
 - [ ] T6-S12 Cadrage monorepo (Pilot) : décider la structure cible (engine / app / website / releases), plan de migration, contraintes Bun workspaces, stratégie releases pour Tangled. [PILOT ONLY]
 - [ ] T6-S13 Migration monorepo : exécuter la restructuration selon le plan T6-S12 (déplacer engine, configurer workspaces Bun, vérifier imports/build/CI).
 

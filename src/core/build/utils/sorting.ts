@@ -3,7 +3,7 @@
  */
 
 import type { Site, Collection, Entry, Block } from "../../model";
-import { SiteModelTransformer } from "../../transformations/site-model-transformer";
+import { SiteModelTransformer } from "../../site-model-transformer";
 import type { Logger } from "../../../logging/logger";
 import { cleanName, orderKey, slugify } from "../../../utils/naming";
 import { toPosix } from "../../../utils/path";

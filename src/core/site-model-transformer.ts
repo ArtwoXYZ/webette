@@ -9,7 +9,7 @@
  * - Single source of truth for model transformation patterns
  */
 
-import type { Site, Collection, Entry, Block } from "../model";
+import type { Site, Collection, Entry, Block } from "./model";
 
 export class SiteModelTransformer {
   private site: Site;

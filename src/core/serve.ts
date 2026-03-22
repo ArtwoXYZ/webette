@@ -10,8 +10,8 @@ import { getEnv } from "../config/env";
 import { build } from "./build";
 import type { BuildOptions } from "./build";
 import type { Logger } from "../logging/logger";
-import { resolveTemplatesRoots } from "./template";
-import { createSite } from "./config";
+import { resolveTemplatesRoots } from "./templates/engine";
+import { createSite } from "../config/site";
 import { resolveTemplatesConfig } from "./templates/config";
 
 export interface ServeOptions extends BuildOptions { }

@@ -5,10 +5,10 @@
 import { readFile, readdir, stat } from "node:fs/promises";
 import * as path from "node:path";
 import Handlebars from "handlebars";
-import { registerDefaultHelpers } from "./templates/helpers";
-import type { Logger } from "../logging/logger";
-import { runExtendTemplates } from "../plugins/runner";
-import type { LoadedPlugin, PluginContext } from "../plugins/types";
+import { registerDefaultHelpers } from "./helpers";
+import type { Logger } from "../../logging/logger";
+import { runExtendTemplates } from "../../plugins/runner";
+import type { LoadedPlugin, PluginContext } from "../../plugins/types";
 
 /** Marks an error that has already been logged — the CLI catch-all should not re-log it. */
 export class WebetteError extends Error {
