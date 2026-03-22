@@ -14,6 +14,11 @@ export function parseBoolean(value: unknown): boolean | undefined {
   return undefined;
 }
 
+/** Extract a non-empty trimmed string from an unknown value, or undefined. */
+export function pickString(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
 export function normalizeClassList(value: unknown): string[] {
   const split = (v: string): string[] =>
     v.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean);

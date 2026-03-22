@@ -1,4 +1,6 @@
 import type { Block } from '../model'
+import { pickString } from '../../utils/parse'
+import { escapeHtml as escapeAttr } from '../../utils/html'
 
 type SocialConfig = {
   injectHead: boolean
@@ -12,9 +14,6 @@ type SocialConfig = {
   ogType?: string
   twitterCard?: string
 }
-
-const pickString = (value: unknown): string | undefined =>
-  typeof value === 'string' && value.trim() ? value.trim() : undefined
 
 const toRecord = (value: unknown): Record<string, unknown> | undefined =>
   value && typeof value === 'object' ? (value as Record<string, unknown>) : undefined
@@ -54,14 +53,6 @@ const toAbsoluteOrRootedUrl = (
   if (raw.startsWith('/')) return raw
   return `/${raw.replace(/^\/+/, '')}`
 }
-
-const escapeAttr = (value: string): string =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
 
 const renderTemplate = (template: string, vars: Record<string, string>): string =>
   template

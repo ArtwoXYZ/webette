@@ -46,16 +46,7 @@ function findRootEntryForBlock(
   return undefined;
 }
 
-export function matchRootEntry(site: Site, rawName: string): Entry | undefined {
-  const target = rawName.trim().toLowerCase();
-  if (!target) return undefined;
-  return (site.rootEntries ?? []).find((entry) => {
-    const names = [entry.slug, entry.id, entry.name, entry.rawName]
-      .filter(Boolean)
-      .map((v) => String(v).trim().toLowerCase());
-    return names.includes(target);
-  });
-}
+export { matchRootEntry } from "../../../targets";
 
 export function findCurrentForBlock(
   site: Site,

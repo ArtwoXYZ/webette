@@ -3,7 +3,7 @@
  */
 import type { Block, Collection, Entry, Site } from "./model";
 import { SiteModelTransformer } from "./site-model-transformer";
-
+import { ensureLeadingSlash } from "../utils/path";
 
 type CollectionConfig = {
   path?: string;
@@ -27,10 +27,6 @@ function routeSegments(base: string): string[] {
 
 function joinRoute(...segments: string[]): string {
   return segments.filter(Boolean).join("/");
-}
-
-function ensureLeadingSlash(value: string): string {
-  return value.startsWith("/") ? value : `/${value}`;
 }
 
 function resolveBlockRoutes(block: Block, parentSegments: string[]): Block {

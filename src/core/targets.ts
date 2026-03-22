@@ -182,6 +182,17 @@ export function matchEntry(collection: Collection, name: string): Entry | undefi
   });
 }
 
+export function matchRootEntry(site: Site, name: string): Entry | undefined {
+  const target = name.trim().toLowerCase();
+  if (!target) return undefined;
+  return (site.rootEntries ?? []).find((entry) => {
+    const names = [entry.slug, entry.id, entry.name, entry.rawName]
+      .filter(Boolean)
+      .map((v) => String(v).trim().toLowerCase());
+    return names.includes(target);
+  });
+}
+
 export function matchBlock(entry: Entry, name: string): Block | undefined {
   const targetBase = normalizeName(name);
   const targetWithExt = normalizeName(path.parse(name).name);

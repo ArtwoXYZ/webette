@@ -4,14 +4,7 @@
 
 import * as path from "node:path";
 import type { Block } from "../../model";
-
-const escapedExtCache = new Map<string, string>();
-function escapeExtForRegex(ext: string): string {
-  if (escapedExtCache.has(ext)) return escapedExtCache.get(ext)!;
-  const escaped = ext.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  escapedExtCache.set(ext, escaped);
-  return escaped;
-}
+import { escapeExtForRegex } from "../../../utils/path";
 
 export function stripDot(ext?: string | null): string | undefined {
   if (!ext) return undefined;

@@ -16,30 +16,8 @@ import {
 import type { ImagePipelineConfig, GeneratedVariantName } from "./config";
 import { generatedVariants } from "./config";
 
-type SharpModule = typeof import("sharp");
-let cachedSharp: SharpModule | null | undefined;
-
-const ensureLeadingSlash = (route: string): string =>
-  route.startsWith("/") ? route : `/${route}`;
-
-async function ensureDir(dir: string) {
-  await mkdir(dir, { recursive: true });
-}
-
-async function loadSharp(logger?: Logger): Promise<SharpModule | null> {
-  if (cachedSharp !== undefined) return cachedSharp;
-  try {
-    const mod = await import("sharp");
-    cachedSharp = mod.default ?? (mod as SharpModule);
-    return cachedSharp;
-  } catch (err) {
-    logger?.warn("resolve.image.sharpMissing", {
-      error: String(err),
-    });
-    cachedSharp = null;
-    return cachedSharp;
-  }
-}
+import { ensureLeadingSlash } from "../../../utils/path";
+import { loadSharp } from "./sharp-loader";
 
 export async function generateImageVariants(options: {
   block: Block;
@@ -63,7 +41,7 @@ export async function generateImageVariants(options: {
     routeHint,
     routeSegments,
   });
-  await ensureDir(baseDir);
+  await mkdir(baseDir, { recursive: true });
 
   const originalExt = stripDot(block.ext?.toLowerCase()) ?? formatToExtension(config.format);
   const defaultExt =
@@ -226,7 +204,7 @@ export async function copyOriginalAsset(options: {
       routeHint,
       routeSegments,
     });
-    await ensureDir(baseDir);
+    await mkdir(baseDir, { recursive: true });
     const ext = block.ext ?? "";
     const fileName = `${slug}${ext}`;
     const outputPath = path.join(baseDir, fileName);

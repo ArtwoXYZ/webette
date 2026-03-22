@@ -7,12 +7,14 @@ import type { Site, Block, Entry, Collection } from "../model";
 import { SiteModelTransformer } from "../site-model-transformer";
 import { renderMarkdownToHtml } from "../block-types/markdown/processor";
 import type { Logger } from "../../logging/logger";
+import { escapeHtml } from "../../utils/html";
 import {
   isRootCollectionName,
   parseInternalReference,
   matchBlock,
   matchCollection,
   matchEntry,
+  matchRootEntry,
 } from "../targets";
 import {
   buildImageHtml,
@@ -81,15 +83,6 @@ function pickImageOptions(
   };
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll("\"", "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
 function buildExternalImageHtml(
   url: string,
   options: ReturnType<typeof pickImageOptions>
@@ -140,16 +133,6 @@ export async function rewriteInternalImages(options: {
   logger?: Logger;
 }): Promise<Site> {
   const { site, remarkPlugins, logger } = options;
-  const matchRootEntry = (name: string): Entry | undefined => {
-    const target = name.trim().toLowerCase();
-    if (!target) return undefined;
-    return (site.rootEntries ?? []).find((entry) => {
-      const names = [entry.slug, entry.id, entry.name, entry.rawName]
-        .filter(Boolean)
-        .map((v) => String(v).trim().toLowerCase());
-      return names.includes(target);
-    });
-  };
 
   const rewriteEntryBlocks = async (
     entry: Entry,
@@ -189,12 +172,12 @@ export async function rewriteInternalImages(options: {
                     : matchCollection(site, explicitCollection)
                   : collection;
                 const ent = explicitRoot
-                  ? matchRootEntry(parsed.target.entryName)
+                  ? matchRootEntry(site, parsed.target.entryName)
                   : col
                     ? matchEntry(col, parsed.target.entryName)
                     : explicitCollection
                       ? undefined
-                      : matchRootEntry(parsed.target.entryName);
+                      : matchRootEntry(site, parsed.target.entryName);
                 targetRoute = ent?.route;
               } else if (parsed.target.kind === "block") {
                 const explicitCollection = parsed.target.collectionName;
@@ -208,11 +191,11 @@ export async function rewriteInternalImages(options: {
                   : collection;
                 const ent =
                   explicitRoot && parsed.target.entryName
-                    ? matchRootEntry(parsed.target.entryName)
+                    ? matchRootEntry(site, parsed.target.entryName)
                     : col && parsed.target.entryName
                     ? matchEntry(col, parsed.target.entryName)
                     : !explicitCollection && !col && parsed.target.entryName
-                      ? matchRootEntry(parsed.target.entryName)
+                      ? matchRootEntry(site, parsed.target.entryName)
                     : col === collection
                       ? entry
                       : undefined;

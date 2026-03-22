@@ -8,13 +8,7 @@ import type { Block } from "../../model";
 import type { Logger } from "../../../logging/logger";
 import type { VideoPipelineConfig } from "./config";
 import { resolveVideoOutputPaths } from "./paths";
-
-const ensureLeadingSlash = (route: string): string =>
-  route.startsWith("/") ? route : `/${route}`;
-
-async function ensureDir(dir: string) {
-  await mkdir(dir, { recursive: true });
-}
+import { ensureLeadingSlash } from "../../../utils/path";
 
 // Copy the original video file to the public assets path and return its route + size.
 export async function copyVideoAsset(options: {
@@ -35,7 +29,7 @@ export async function copyVideoAsset(options: {
       routeHint,
       routeSegments,
     });
-    await ensureDir(baseDir);
+    await mkdir(baseDir, { recursive: true });
     const ext = block.ext ?? "";
     const fileName = `${slug}${ext}`;
     const outputPath = path.join(baseDir, fileName);

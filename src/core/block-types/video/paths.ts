@@ -4,10 +4,7 @@
 
 import * as path from "node:path";
 import type { Block } from "../../model";
-
-function escapeExtForRegex(ext: string): string {
-  return ext.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
+import { escapeExtForRegex } from "../../../utils/path";
 
 // Build output base/public paths for video assets using slug-based route hints (mirrors audio/image handling).
 export function resolveVideoOutputPaths(options: {

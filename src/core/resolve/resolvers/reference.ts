@@ -12,6 +12,7 @@ import {
   matchCollection,
   matchEntry,
   matchBlock,
+  matchRootEntry,
 } from "../../../core/targets";
 import { getResolver } from "../registry";
 import { splitRouteSegments, buildBlockRouteHint } from "../route-hints";
@@ -67,17 +68,6 @@ function findCurrentLocation(site: Site, blockPath: string): BlockLocation | und
   }
 
   return undefined;
-}
-
-function matchRootEntry(site: Site, name: string): Entry | undefined {
-  const target = name.trim().toLowerCase();
-  if (!target) return undefined;
-  return (site.rootEntries ?? []).find((entry) => {
-    const names = [entry.slug, entry.id, entry.name, entry.rawName]
-      .filter(Boolean)
-      .map((v) => String(v).trim().toLowerCase());
-    return names.includes(target);
-  });
 }
 
 function resolveCollectionForTarget(

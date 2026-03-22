@@ -13,6 +13,7 @@ import {
   matchCollection,
   matchEntry,
   matchBlock,
+  matchRootEntry,
 } from "../targets";
 import { parseBoolean, normalizeClassList } from "../../utils/parse";
 
@@ -22,16 +23,6 @@ export async function rewriteInternalLinks(options: {
   logger?: Logger;
 }): Promise<Site> {
   const { site, remarkPlugins, logger } = options;
-  const matchRootEntry = (name: string): Entry | undefined => {
-    const target = name.trim().toLowerCase();
-    if (!target) return undefined;
-    return (site.rootEntries ?? []).find((entry) => {
-      const names = [entry.slug, entry.id, entry.name, entry.rawName]
-        .filter(Boolean)
-        .map((v) => String(v).trim().toLowerCase());
-      return names.includes(target);
-    });
-  };
 
   const rewriteEntryBlocks = async (
     entry: Entry,
@@ -173,12 +164,12 @@ export async function rewriteInternalLinks(options: {
                     : matchCollection(site, explicitCollection)
                   : collection;
                 const ent = explicitRoot
-                  ? matchRootEntry(parsed.target.entryName)
+                  ? matchRootEntry(site, parsed.target.entryName)
                   : col
                     ? matchEntry(col, parsed.target.entryName)
                     : explicitCollection
                       ? undefined
-                      : matchRootEntry(parsed.target.entryName);
+                      : matchRootEntry(site, parsed.target.entryName);
                 targetRoute = ent?.route;
                 if (targetRoute && parsed.anchor) {
                   targetRoute = `${targetRoute.replace(/#.*$/, "")}#${parsed.anchor}`;
@@ -195,11 +186,11 @@ export async function rewriteInternalLinks(options: {
                   : collection;
                 const ent =
                   explicitRoot && parsed.target.entryName
-                    ? matchRootEntry(parsed.target.entryName)
+                    ? matchRootEntry(site, parsed.target.entryName)
                     : col && parsed.target.entryName
                     ? matchEntry(col, parsed.target.entryName)
                     : !explicitCollection && !col && parsed.target.entryName
-                      ? matchRootEntry(parsed.target.entryName)
+                      ? matchRootEntry(site, parsed.target.entryName)
                     : col === collection
                       ? entry
                       : undefined;

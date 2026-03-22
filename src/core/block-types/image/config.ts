@@ -6,6 +6,7 @@ import * as path from "node:path";
 import type { Site } from "../../model";
 import type { ImageFit, ImageFormat } from "../../model";
 import type { WebetteEnv } from "../../../config/env";
+import { normalizeAssetOutputDir } from "../../../utils/path";
 
 // Fixed set of generated variants to keep themes and sites aligned
 export type GeneratedVariantName = "small" | "medium" | "large";
@@ -56,21 +57,6 @@ function normalizeVariantSize(raw: unknown): ImageVariantSize | undefined {
   }
 
   return undefined;
-}
-
-function normalizeOutputDir(
-  rootDir: string,
-  outputDirName: string,
-  raw: unknown,
-  fallback: string
-): string {
-  const candidate = typeof raw === "string" && raw.trim() ? raw.trim() : fallback;
-  if (path.isAbsolute(candidate)) {
-    return candidate;
-  }
-
-  const clean = candidate.replace(/^[/\\]+/, "");
-  return path.join(rootDir, outputDirName, clean);
 }
 
 function normalizeFormat(raw: unknown, fallback: ImageFormat): ImageFormat {
@@ -164,7 +150,7 @@ export function resolveImageConfig(
       ? (rawSiteImages as Record<string, unknown>).outputDir
       : undefined) ?? DEFAULT_IMAGES_OUTPUT_DIR;
 
-  const outputDir = normalizeOutputDir(
+  const outputDir = normalizeAssetOutputDir(
     rootDir,
     env.build.outputDirName,
     outputDirSegment,

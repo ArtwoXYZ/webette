@@ -8,10 +8,9 @@ import type { Site } from '../../model'
 import type { Logger } from '../../../logging/logger'
 import { writeIfChanged } from '../../../utils/fs'
 import { toPosix, stripRouteSlashes } from '../../../utils/path'
+import { pickString } from '../../../utils/parse'
 import { buildIconsHead } from '../../templates/icons-head'
-
-type SharpModule = typeof import('sharp')
-let cachedSharp: SharpModule | null | undefined
+import { loadSharp } from '../../block-types/image/sharp-loader'
 
 type IconVariants = {
   default?: string
@@ -56,22 +55,6 @@ const appleSizes = [57, 60, 72, 76, 114, 120, 144, 152, 180]
 const androidSizes = [36, 48, 72, 96, 144, 192]
 const msSizes = [70, 144, 150, 310]
 const faviconSizes = [16, 32, 96]
-
-async function loadSharp(logger?: Logger): Promise<SharpModule | null> {
-  if (cachedSharp !== undefined) return cachedSharp
-  try {
-    const mod = await import('sharp')
-    cachedSharp = mod.default ?? (mod as SharpModule)
-    return cachedSharp
-  } catch {
-    logger?.warn('build.icons.sharpMissing', {})
-    cachedSharp = null
-    return cachedSharp
-  }
-}
-
-const pickString = (value: unknown): string | undefined =>
-  typeof value === 'string' && value.trim() ? value.trim() : undefined
 
 // Normalize a source value into { default/light/dark } and flags.
 function extractVariants(raw: unknown): IconVariants | undefined {

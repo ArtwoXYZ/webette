@@ -93,53 +93,32 @@ export function collectProtectedDirs(options: {
     }
   };
 
+  const visitBlocks = (blocks: Block[]) => {
+    for (const blk of blocks) {
+      collectDirForRoute(blk.route);
+      if (blk.content?.variants) {
+        for (const variant of blk.content.variants) {
+          collectDirForRoute(variant.route);
+        }
+      }
+      if (blk.subBlocks) visitBlocks(blk.subBlocks);
+    }
+  };
+
   for (const collection of site.collections ?? []) {
     for (const entry of collection.entries) {
       if (!includeDrafts && entry.isDraft) continue;
-      const visitBlocks = (blocks: Block[]) => {
-        for (const blk of blocks) {
-          collectDirForRoute(blk.route);
-          if (blk.content?.variants) {
-            for (const variant of blk.content.variants) {
-              collectDirForRoute(variant.route);
-            }
-          }
-          if (blk.subBlocks) visitBlocks(blk.subBlocks);
-        }
-      };
       visitBlocks(entry.blocks);
     }
   }
   for (const entry of site.rootEntries ?? []) {
     if (!includeDrafts && entry.isDraft) continue;
-    const visitBlocks = (blocks: Block[]) => {
-      for (const blk of blocks) {
-        collectDirForRoute(blk.route);
-        if (blk.content?.variants) {
-          for (const variant of blk.content.variants) {
-            collectDirForRoute(variant.route);
-          }
-        }
-        if (blk.subBlocks) visitBlocks(blk.subBlocks);
-      }
-    };
     visitBlocks(entry.blocks);
   }
 
   const visitIndexEntry = (entry: Entry | undefined) => {
     if (!entry) return;
     if (!includeDrafts && entry.isDraft) return;
-    const visitBlocks = (blocks: Block[]) => {
-      for (const blk of blocks) {
-        collectDirForRoute(blk.route);
-        if (blk.content?.variants) {
-          for (const variant of blk.content.variants) {
-            collectDirForRoute(variant.route);
-          }
-        }
-        if (blk.subBlocks) visitBlocks(blk.subBlocks);
-      }
-    };
     visitBlocks(entry.blocks);
   };
 
