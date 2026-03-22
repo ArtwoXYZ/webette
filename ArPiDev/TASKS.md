@@ -61,7 +61,7 @@ Active story: none
 - [x] T6-S07 Sorting : typer SortConfig strictement, dédupliquer findCustomSortingForCollection/Entry.
 - [x] T6-S08 Plugin loader : consolider les deux chemins de chargement (pluginsDir + pluginPaths), robustifier le parsing metadata du README.
 - [x] T6-S09 Nommage & utils : audit et harmonisation des verbes (normalizeXyz, resolve vs create) + dédupliquer splitRouteSegments + regrouper les utilitaires orphelins (ex: `core/navigation/utils.ts`) dans `src/utils/` nommés par domaine. Note: `templateBaseName` helper already created in T6-S06 (build/types.ts), quiet-vs-info log pattern and empty-entry warning dedup already handled in T6-S06.
-- [ ] T6-S10 Parallélisation du rendu : rendre les boucles de rendu d'entrées concurrentes (Promise.all) dans `renderSite` pour améliorer les performances I/O sur les sites avec beaucoup d'entrées. Tester si c'est viable également.
+- [x] T6-S10 Parallélisation du rendu : benchmark réalisé — NO-GO. Le bottleneck est rehype prettyPrint (CPU-bound, 77% du temps), non parallélisable en JS single-thread. Promise.all ne montre aucun gain mesurable.
 
 ### Structure repo (avant beta publique)
 - [ ] T6-S11 Audit structure src/ : vérifier que l'arborescence `src/` est logique, lisible et explorable par un nouveau contributeur — renommer/déplacer/regrouper les dossiers si nécessaire, s'assurer que chaque dossier a une responsabilité claire et ressemblant à une structure logique pour un outil comme webette.
