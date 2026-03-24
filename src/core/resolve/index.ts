@@ -10,7 +10,6 @@ import { resolveVideoConfig } from "../block-types/video/config";
 import { getResolver, type ResolveContext } from "./registry";
 import { splitRouteSegments, buildBlockRouteHint } from "./route-hints";
 
-// Entry point: walk the scanned model and enrich blocks with resolved content.
 export interface ResolveOptions {
   rootDir?: string;
   readContent?: boolean;
@@ -125,7 +124,6 @@ export async function resolveBlocks(
     )
     : undefined;
 
-  // Keep the same shape as the scanned site, only adding resolved content
   return {
     ...site,
     ...(rootEntries ? { rootEntries } : {}),

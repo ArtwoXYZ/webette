@@ -27,7 +27,6 @@ export function detectBlockType(
   if ([".mp4", ".mov", ".webm", ".m4v", ".mkv", ".avi"].includes(lower)) return "video";
   if ([".mp3", ".wav", ".ogg", ".flac", ".m4a", ".aac"].includes(lower)) return "audio";
 
-  // Reference files: detect reference*.webt files for cross-entry block references
   if (lower === ".webt") {
     const baseName = fileName.toLowerCase();
     if (baseName.startsWith("reference") || baseName.includes("reference")) {

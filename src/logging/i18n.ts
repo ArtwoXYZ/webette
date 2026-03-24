@@ -14,7 +14,6 @@ const catalogs: Record<Locale, Messages> = {
   fr: frMessages,
 };
 
-// Fallback to English for any unsupported or missing locale
 export function normalizeLocale(raw?: string | null): Locale {
   if (!raw) return "en";
   const lc = raw.toLowerCase();

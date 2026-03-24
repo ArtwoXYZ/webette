@@ -30,12 +30,10 @@ export function parseList(value: unknown): string[] {
 }
 
 export function normalizeKey(value: string): string {
-  // Normalize keys for predictable include/exclude matching.
   return value.trim().toLowerCase();
 }
 
 export function buildExcludeSet(values?: string[]): Set<string> {
-  // Build a normalized lookup set for fast excludes.
   return new Set((values ?? []).map(normalizeKey).filter(Boolean));
 }
 

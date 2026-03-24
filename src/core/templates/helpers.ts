@@ -51,7 +51,6 @@ function registerMatchHelper() {
   )
 }
 
-// Register a small set of reusable helpers for templates.
 export function registerDefaultHelpers(options?: { defaultLayoutName?: string }) {
   if (helpersRegistered) {
     registerMatchHelper()
@@ -320,7 +319,6 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     return d > 0 ? value.toFixed(d) : Math.round(value)
   })
 
-  // Block helper: find a collection by slug or id and evaluate the block with it.
   Handlebars.registerHelper('withCollection', function (slug: string, options: Handlebars.HelperOptions) {
     const root = resolveRoot(options)
     const collections: Collection[] = root.model?.collections ?? root.collections ?? []
@@ -330,7 +328,6 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     return match ? options.fn(match, { data: options.data }) : ''
   })
 
-  // Block helper: find an entry by slug/id/route across collections.
   Handlebars.registerHelper('withEntry', function (identifier: string, options: Handlebars.HelperOptions) {
     const root = resolveRoot(options)
     const collections: Collection[] = root.model?.collections ?? root.collections ?? []
@@ -394,8 +391,6 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     },
   )
 
-  // Returns all unique tags (sorted) from a single collection's entries.
-  // Usage: {{getCollectionTags collection}}
   Handlebars.registerHelper(
     'getCollectionTags',
     function (collection: unknown) {
@@ -404,8 +399,6 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     },
   )
 
-  // Returns all unique tags (sorted) across the entire site (all collections + root entries).
-  // Usage: {{getSiteTags}} — reads collections and model.rootEntries from context automatically.
   Handlebars.registerHelper(
     'getSiteTags',
     function (this: Record<string, unknown>) {
@@ -417,15 +410,11 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     },
   )
 
-  // Slugifies a tag for use in URLs: lowercase, spaces → dashes, non-alphanumeric removed.
   Handlebars.registerHelper('slugifyTag', (tag: unknown) => {
     if (tag == null) return ''
     return slugify(String(tag))
   })
 
-  // Returns the URL of a tag page.
-  // {{tagRoute tag}}            → /tag/{slug}/ (or scoped if tagScopeByCollection is set in root context)
-  // {{tagRoute tag collection}} → /{collection.slug}/tag/{slug}/ (explicit override)
   Handlebars.registerHelper('tagRoute', (tag: unknown, collectionOrOptions: unknown, maybeOptions: unknown) => {
     if (tag == null) return ''
     const slug = slugify(String(tag))
@@ -442,7 +431,6 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
         ? stripRouteSlashes(col.route)
         : typeof col.slug === 'string' ? col.slug : ''
 
-    // Second arg is explicit collection when it's an object but NOT Handlebars options
     const isExplicitCollection = collectionOrOptions != null && typeof collectionOrOptions === 'object' && !isHbsOptions(collectionOrOptions)
     if (isExplicitCollection) {
       const col = collectionOrOptions as Record<string, unknown>
@@ -451,7 +439,6 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
       return `/tag/${slug}/`
     }
 
-    // No explicit collection — use tagScopeByCollection + collection from root context
     if (root?.tagScopeByCollection && root?.collection != null) {
       const col = root.collection as Record<string, unknown>
       const colRoute = resolveColRoute(col)
@@ -463,7 +450,6 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
 
   registerMenuHelper(Handlebars)
 
-  // Render a layout partial by name, with a default fallback.
   Handlebars.registerHelper('renderLayout', function (name: unknown, options) {
     const layoutName = (typeof name === 'string' && name.trim()) || fallbackLayout
     const partial = Handlebars.partials[layoutName]

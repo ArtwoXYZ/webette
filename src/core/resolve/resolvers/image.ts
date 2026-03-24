@@ -1,5 +1,5 @@
 /**
- * Resolver for image blocks.
+ * Reads image dimensions, copies originals, and generates responsive variants via the image engine.
  */
 
 import { stat } from "node:fs/promises";
@@ -9,7 +9,6 @@ import imageSize from "image-size";
 import { collectImageMeta, mimeByExt } from "../../block-types/image/meta";
 import { copyOriginalAsset, generateImageVariants } from "../../block-types/image/engine";
 
-// Resolve image blocks: record metadata, optionally copy originals, and generate variants.
 export const resolveImage: Resolver = async (block, ctx) => {
   if (ctx.readContent === false) return undefined;
 

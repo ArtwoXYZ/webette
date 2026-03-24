@@ -39,6 +39,11 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Webette public build
 _public
 
+# IDE
+.prettierrc.json
+.vscode
+.claude
+
 # ArPiStar folders
 # ArPiDev/
 ArPiDoc/

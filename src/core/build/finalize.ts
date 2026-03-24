@@ -55,7 +55,6 @@ export async function renderAndFinalize(
   const exportDir = exportModel.dir
   const logLevel = options.quiet ? scoped.debug.bind(scoped) : scoped.info.bind(scoped)
 
-  // Model export
   scoped.debug('build.exportModel.start', { path: exportDir })
   await writeModelExport({ exportDir, site: finalSite, logger: scoped })
 
@@ -64,7 +63,6 @@ export async function renderAndFinalize(
     return
   }
 
-  // Icons
   const iconsResult = await buildIcons({
     rootDir,
     outputDir,
@@ -73,7 +71,6 @@ export async function renderAndFinalize(
     registerExpectedOutput: pluginExpected.addExpectedOutput,
   })
 
-  // Template renderer
   const templateRenderer = await createTemplateRenderer({
     rootDir,
     defaultWrapperName: templates.default.wrapper,
@@ -123,7 +120,6 @@ export async function renderAndFinalize(
     addExpectedOutput: pluginExpected.addExpectedOutput,
   })
 
-  // Render all pages
   const { renderedPages } = await renderSite({
     rootDir,
     outputDir,
@@ -157,7 +153,6 @@ export async function renderAndFinalize(
     await runOnGeneratePages(plugins, finalSite, pluginContextBase, renderSyntheticPage)
   }
 
-  // Finalization
   await writeSitemap({
     outputDir,
     site: finalSite,

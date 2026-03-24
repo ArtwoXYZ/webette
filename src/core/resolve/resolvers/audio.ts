@@ -1,5 +1,5 @@
 /**
- * Resolver for audio blocks.
+ * Extracts audio metadata (duration, codec, tags) and copies the asset to the public output path.
  */
 
 import { stat } from "node:fs/promises";
@@ -17,7 +17,6 @@ const mimeByExt: Record<string, string> = {
   ".aac": "audio/aac",
 };
 
-// Resolve audio blocks: gather lightweight metadata, optional deep tags, and always copy the asset to a public route.
 export const resolveAudio: Resolver = async (block, ctx) => {
   if (ctx.readContent === false) return undefined;
 

@@ -7,8 +7,6 @@
 import type { Logger } from "../../../../logging/logger";
 import { parseBoolean, parseList } from "../../../../utils/navigation";
 
-// ── Types ──────────────────────────────────────────────────────────────────────
-
 export type ParsedItemLine = {
   rawLine: string;
   level: number;

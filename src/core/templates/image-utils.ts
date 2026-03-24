@@ -16,7 +16,6 @@ type SiteLike = Site | { images?: { defaultVariant?: unknown } } | Record<string
 
 type ImageContent = Pick<ResolvedBlockContent, "variants" | "meta">;
 
-// Narrow block type for helpers/resolvers that only handle images.
 export type ImageBlock = Block & {
   type: "image";
   content?: ImageContent;
@@ -49,7 +48,6 @@ export type ImagePick = {
   srcset?: string;
 };
 
-// Normalize user-provided variants (helper params, markdown options).
 export function normalizeVariantName(raw: unknown): ImageVariantName | undefined {
   if (raw === "default" || raw === "small" || raw === "medium" || raw === "large") {
     return raw;
@@ -63,7 +61,6 @@ export function normalizeVariantName(raw: unknown): ImageVariantName | undefined
   return undefined;
 }
 
-// Resolve the site default variant when available, fallback to "default".
 export function resolveDefaultVariant(siteLike: SiteLike | undefined): ImageVariantName {
   const site = (siteLike as Site | undefined)?.site ?? siteLike;
   const images = (site as { images?: { defaultVariant?: unknown } } | undefined)?.images;
@@ -71,7 +68,6 @@ export function resolveDefaultVariant(siteLike: SiteLike | undefined): ImageVari
   return configured ?? "default";
 }
 
-// Pick the most relevant source (variant or fallback) + generate srcset.
 export function pickImageSource(
   block: ImageBlock,
   requested: ImageVariantName | undefined,
@@ -117,7 +113,6 @@ function buildAttributes(attrs: Record<string, unknown>): string {
   return pairs.join(" ");
 }
 
-// Build a full <img> (or <figure>) HTML string from a resolved image block.
 export function buildImageHtml(block: ImageBlock, options: ImageRenderOptions = {}): string {
   if (!block || block.type !== "image") return "";
 

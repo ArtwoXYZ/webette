@@ -17,11 +17,10 @@ type CliOptions = {
     only?: boolean;
   };
   readContent?: boolean;
-  includeDrafts?: boolean; // serve-only flag to show/hide draft entries
+  includeDrafts?: boolean;
 };
 
 function parseArgs(argv: string[]) {
-  // Remove the first 2 entries (bun + script)
   const rawArgs = argv.slice(2);
 
   let verbose = false;
@@ -63,10 +62,8 @@ function parseArgs(argv: string[]) {
     filtered.push(arg);
   }
 
-  // Remove flags from the "useful" args
-
-  const command = filtered[0];      // "build" or "serve"
-  const sitePath = filtered[1];     // path to the site folder
+  const command = filtered[0];
+  const sitePath = filtered[1];
 
   const options: CliOptions = {
     verbose,

@@ -91,7 +91,6 @@ async function collectBlockState(
   entryId: string,
   target: PreviousState
 ) {
-  // Build a flat index of block history keyed by collection/entry/id
   if (!blocks) return;
   const entryFullKey = entryKey(collectionId, { id: entryId });
 

@@ -1,5 +1,5 @@
 /**
- * Resolver for video blocks.
+ * Copies video assets to the public output path and records file-size metadata.
  */
 
 import { stat } from "node:fs/promises";
@@ -16,7 +16,6 @@ const mimeByExt: Record<string, string> = {
   ".avi": "video/x-msvideo",
 };
 
-// Resolve video blocks: copy original to public assets and keep lightweight metadata.
 export const resolveVideo: Resolver = async (block, ctx) => {
   if (ctx.readContent === false) return undefined;
 

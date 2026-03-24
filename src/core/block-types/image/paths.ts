@@ -16,7 +16,6 @@ export function formatToExtension(format: string): string {
   return format;
 }
 
-// Derive a stable stem from the block route/path without extension to group outputs
 export function normalizeRouteStem(block: Block): { stem: string; slug: string } {
   const raw =
     (block.route ?? block.path ?? block.rawName ?? "").toString().replace(/\\/g, "/");

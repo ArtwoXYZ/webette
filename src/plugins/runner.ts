@@ -10,7 +10,6 @@ const logError = (logger: PluginContext["logger"], pluginId: string, hook: strin
   logger.error("plugin.hookError", { pluginId, hook, error: String(error) });
 };
 
-// Lifecycle hooks onInit/onScan/onResolved
 export async function runOnInit(plugins: LoadedPlugin[], ctx: PluginContext) {
   for (const plugin of plugins) {
     if (!plugin.onInit) continue;

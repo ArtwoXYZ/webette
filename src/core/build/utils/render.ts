@@ -165,7 +165,6 @@ export async function renderSite(options: {
     return writeRenderedPage(context, targetDir);
   };
 
-  // Entry pages
   for (const entry of site.rootEntries ?? []) {
     if (!includeDrafts && entry.isDraft) continue;
     if (entry.isIndex) continue;
@@ -194,7 +193,6 @@ export async function renderSite(options: {
     }
   }
 
-  // Indexes
   if (generateIndex) {
     const pickIndexLayout = async (kind: string, candidates: string[]): Promise<string> => {
       const triedPaths: string[] = [];
@@ -212,7 +210,6 @@ export async function renderSite(options: {
 
     const customIndex = templatesCustom?.index;
 
-    // Root index
     const rootIndexLayoutName = await pickIndexLayout("index.root", [
       customIndex?.root ?? "",
       templatesDefault.index,
@@ -242,7 +239,6 @@ export async function renderSite(options: {
     };
     await writeRenderedPage(rootContext, outputDir);
 
-    // Collection indexes
     for (const collection of site.collections ?? []) {
       if (collection.isUnlisted) {
         const routeRelative = collection.route

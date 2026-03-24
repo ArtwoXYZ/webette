@@ -6,7 +6,6 @@ import * as path from "node:path";
 import type { Block } from "../../model";
 import { escapeExtForRegex } from "../../../utils/path";
 
-// Build output base/public paths for audio assets using slug-based route hints (mirrors image handling).
 export function resolveAudioOutputPaths(options: {
   block: Block;
   outputDir: string;

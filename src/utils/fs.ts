@@ -1,7 +1,5 @@
 /**
- * Shared filesystem helpers used across webette.
- *
- * Small, focused utilities for writing/copying files and cleaning directories.
+ * Utilities for diffed writes, retried deletes, and recursive directory operations.
  */
 
 import { copyFile, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";

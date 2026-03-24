@@ -13,7 +13,6 @@ export interface AudioPipelineConfig {
 
 const DEFAULT_AUDIO_OUTPUT_DIR = "assets/audio";
 
-// Merge tool defaults with optional site overrides to build the audio pipeline config.
 export function resolveAudioConfig(
   rootDir: string,
   env: WebetteEnv,

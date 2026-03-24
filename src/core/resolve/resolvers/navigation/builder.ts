@@ -5,8 +5,6 @@
 import type { Block, Collection, Entry } from "../../../model";
 import { normalizeCollectionPathKey, parentCollectionPathKey } from "../../../../utils/path";
 
-// ── Types ──────────────────────────────────────────────────────────────────────
-
 export type NavigationItem =
   | {
     kind: "title";

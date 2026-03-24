@@ -44,7 +44,6 @@ type ParentNode = MdastNode & { children: Content[] };
 
 const markdownClassName = "webt-md";
 
-// Convert parsed options into the shared image render options.
 function appendClassName(value: string | undefined, className: string): string {
   const base = value?.trim();
   if (!base) return className;
@@ -145,7 +144,6 @@ export async function rewriteInternalImages(options: {
         const ast = blk.content.ast as Root;
         let didChange = false;
 
-        // Keep child types stable while walking the tree.
         const transformChild = (node: Content): Content => transformNode(node) as Content;
 
         const transformNode = (node: MdastNode): MdastNode => {
@@ -247,7 +245,6 @@ export async function rewriteInternalImages(options: {
 
         if (!didChange) return blk;
 
-        // Re-render HTML from mutated AST
         const html = await renderMarkdownToHtml(ast, remarkPlugins);
         const meta = { ...(blk.content.meta ?? {}) };
         return {
@@ -305,7 +302,6 @@ export async function rewriteInternalImages(options: {
     )
     : undefined;
 
-  // Build the update object
   const update: Partial<Site> = {
     ...(rootEntries ? { rootEntries } : {}),
     ...(collections ? { collections } : {}),
@@ -320,6 +316,5 @@ export async function rewriteInternalImages(options: {
       : {}),
   };
 
-  // Use SiteModelTransformer to ensure all properties are preserved
   return SiteModelTransformer.fromPartialUpdate(site, update).build();
 }

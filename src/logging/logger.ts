@@ -36,10 +36,10 @@ function colorize(level: LogLevel, text: string): string {
   if (!supportsColor) return text;
   const reset = "\x1b[0m";
   const colors: Record<LogLevel, string> = {
-    debug: "\x1b[90m", // gray
-    info: "\x1b[36m",  // cyan
-    warn: "\x1b[33m",  // yellow
-    error: "\x1b[31m", // red
+    debug: "\x1b[90m",
+    info: "\x1b[36m",
+    warn: "\x1b[33m",
+    error: "\x1b[31m",
   };
   const color = colors[level] ?? "";
   return color ? `${color}${text}${reset}` : text;
@@ -101,7 +101,6 @@ export class Logger {
       locale: this.locale,
     };
 
-    // 1) Console output (in the selected language)
     const prefix = `[${timestamp}] [${this.scope}]`;
     const formatted = `${prefix} ${renderedMessage}`;
     const colored = colorize(level, formatted);

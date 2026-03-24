@@ -52,7 +52,6 @@ function applyPlugins<P extends Processor<any, any, any, any, any>>(
 ): P {
   for (const plugin of plugins) {
     if (!plugin) continue;
-    // Accept both plugin functions and [plugin, options] tuples
     if (Array.isArray(plugin)) {
       const [fn, opts] = plugin;
       processor.use(fn as any, opts);
@@ -64,7 +63,6 @@ function applyPlugins<P extends Processor<any, any, any, any, any>>(
 }
 
 export function createMarkdownProcessor(remarkPlugins: unknown[] = []) {
-  // Parse CommonMark + GFM into mdast, then let remark plugins mutate the tree
   const processor = unified().use(remarkParse).use(remarkGfm);
   applyPlugins(processor as Processor<any, any, any, any, any>, remarkPlugins as RemarkPluginLike[]);
   return processor;
@@ -264,7 +262,6 @@ export async function parseMarkdownToAst(
   // - remove spaces around separators
   // - percent-encode spaces inside values (collection/entry/block names)
   const sanitized = sanitizeInternalTargetsOutsideCode(source);
-  // Parse Markdown source into mdast and run remark plugins
   const processor = createMarkdownProcessor(remarkPlugins);
   const tree = processor.parse(sanitized);
   const processed = await processor.run(tree);
@@ -276,7 +273,6 @@ export async function renderMarkdownToHtml(
   remarkPlugins: unknown[] = [],
   options?: { enableExternalLinks?: boolean }
 ): Promise<string> {
-  // Convert mdast to HTML using the same remark plugins + rehype stringify
   // Allow raw HTML nodes in markdown (used by internal image rendering).
   const processor = createMarkdownProcessor(remarkPlugins).use(remarkRehype, {
     allowDangerousHtml: true,
@@ -308,7 +304,6 @@ export async function renderMarkdownToHtml(
   return processor.stringify(hast) as string;
 }
 
-// Rehype plugin: add stable ids to heading tags when missing.
 function addIdsToHeadings() {
   return (tree: any) => {
     const counts = new Map<string, number>();
@@ -352,7 +347,6 @@ function addIdsToHeadings() {
   };
 }
 
-// Rehype plugin: add a CSS class to every element without overwriting existing classes.
 function addClassToAllElements(options: AddClassOptions = {}) {
   const className =
     typeof options.className === "string" && options.className.trim()

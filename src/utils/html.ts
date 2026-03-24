@@ -1,5 +1,5 @@
 /**
- * Shared HTML escaping helpers.
+ * HTML entity escaping for safe attribute and content interpolation.
  */
 
 /** Escape a string for safe use in HTML attributes and content. */

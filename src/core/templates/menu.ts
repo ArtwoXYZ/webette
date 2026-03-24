@@ -205,7 +205,6 @@ export function registerMenuHelper(handlebars: typeof Handlebars) {
     const shouldIncludeEntryItem = (entry: EntryLike, collection?: CollectionLike) =>
       shouldIncludeEntry(entry, collection, includeUnlisted, includeDrafts, excludeEntries);
 
-    // Apply include/exclude + hide rules to a tree of items.
     const applyVisibility = (items: NavigationItem[]): NavigationItem[] => {
       const processItem = (item: NavigationItem): NavigationItem[] => {
         const children = item.children ? applyVisibility(item.children) : undefined;
@@ -238,7 +237,6 @@ export function registerMenuHelper(handlebars: typeof Handlebars) {
       return items.flatMap(processItem);
     };
 
-    // Respect link=false settings for collections/entries.
     const applyLinkFlags = (items: NavigationItem[]): NavigationItem[] =>
       items.map((item) => {
         const children = item.children ? applyLinkFlags(item.children) : undefined;
@@ -258,7 +256,6 @@ export function registerMenuHelper(handlebars: typeof Handlebars) {
     const currentCollectionKey = normalizeKey(currentCollection?.slug || currentCollection?.id || "");
     const currentEntryId = currentEntry?.id;
 
-    // Add depth + current/active flags.
     const applyState = (items: NavigationItem[], depth = 0): NavigationItem[] =>
       items.map((item) => {
         const children = item.children ? applyState(item.children, depth + 1) : undefined;

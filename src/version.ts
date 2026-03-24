@@ -1,5 +1,5 @@
 /**
- * Webette version helper.
+ * Reads and caches the package version from package.json at runtime.
  */
 
 import { readFileSync } from "node:fs";

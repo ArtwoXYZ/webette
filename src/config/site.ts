@@ -21,9 +21,6 @@ interface WebetteConfigFile {
   tags?: Record<string, unknown>;
 }
 
-// Build the in-memory Site object based on the project folder and config file
-
-// reads webette.config.ts if present (default export)
 async function loadConfigFile(rootDir: string, logger: Logger): Promise<WebetteConfigFile> {
   const configPath = path.join(rootDir, "webette.config.ts");
 
@@ -115,7 +112,6 @@ async function loadConfigFile(rootDir: string, logger: Logger): Promise<WebetteC
   }
 }
 
-// function used by the rest of the codebase
 export async function createSite(rootDir: string, logger: Logger): Promise<Site> {
   const config = await loadConfigFile(rootDir, logger);
 
@@ -132,7 +128,6 @@ export async function createSite(rootDir: string, logger: Logger): Promise<Site>
       ? { ...config.templates }
       : undefined;
 
-  // Apply minimal defaults for expected fields if absent
   if (typeof siteSection.title !== "string") {
     siteSection.title = "My Webette site";
   }

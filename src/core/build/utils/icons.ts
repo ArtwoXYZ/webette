@@ -47,7 +47,6 @@ type IconBuildResult = {
   outputRel?: string
 }
 
-// Default output subdir under `_public/`.
 const DEFAULT_OUTPUT_DIR = 'assets/icon'
 const DEFAULT_THEME_COLOR = '#ffffff'
 
@@ -56,7 +55,6 @@ const androidSizes = [36, 48, 72, 96, 144, 192]
 const msSizes = [70, 144, 150, 310]
 const faviconSizes = [16, 32, 96]
 
-// Normalize a source value into { default/light/dark } and flags.
 function extractVariants(raw: unknown): IconVariants | undefined {
   if (typeof raw === 'string' && raw.trim()) {
     return { default: raw.trim(), hasLight: false, hasDark: false }
@@ -108,7 +106,6 @@ function normalizeIconsConfig(site: Site, logger?: Logger): IconsConfig | null {
     return null
   }
 
-  // Normalize output dir (strip leading/trailing slashes).
   const rawOutput = pickString(icons.outputDir) ?? DEFAULT_OUTPUT_DIR
   const cleaned = stripRouteSlashes(toPosix(rawOutput))
   const outputRel = cleaned || DEFAULT_OUTPUT_DIR
@@ -277,7 +274,6 @@ export async function buildIcons(options: {
       try {
         await generatePng(sharpModule, inputPath, baseSize, path.join(outputAbs, name))
         emitFile(name)
-        // no-op
       } catch (err) {
         logger.warn('build.icons.generateFailed', {
           file: name,
@@ -296,7 +292,6 @@ export async function buildIcons(options: {
   const msGeneratedSizes = await generateSizedIcons(msSource, msSizes, 'ms-icon')
   const faviconGeneratedSizes = await generateSizedIcons(faviconSource, faviconSizes, 'favicon')
 
-  // Light/dark generation is enabled if any favicon/app/global variant exists.
   const hasLight =
     Boolean(config.sources.favicon?.hasLight) ||
     Boolean(config.sources.app?.hasLight) ||

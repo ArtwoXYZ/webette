@@ -358,7 +358,6 @@ export function applySorting(site: Site, logger?: Logger): Site {
     )
     : undefined;
 
-  // Build the update object
   const update: Partial<Site> = {
     ...(rootEntries ? { rootEntries } : {}),
     collections: sortedCollections,
@@ -373,6 +372,5 @@ export function applySorting(site: Site, logger?: Logger): Site {
       : {}),
   };
 
-  // Use SiteModelTransformer to ensure all properties are preserved
   return SiteModelTransformer.fromPartialUpdate(site, update).build();
 }

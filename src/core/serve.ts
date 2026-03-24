@@ -44,7 +44,6 @@ export async function serve(
     });
   const notFoundPath = path.join(outputDir, "404.html");
 
-  // 1. Initial build with liveReload = true, in quiet mode
   scoped.info("serve.initialBuild", { rootDir });
 
   await build(
@@ -98,7 +97,6 @@ export async function serve(
       },
     });
 
-    // Info level: server is ready
     scoped.info("serve.listening", {
       url: `http://localhost:${port}`,
       port,
@@ -244,10 +242,8 @@ export async function serve(
       );
     }
 
-    // "watch ready" message -> debug
     watchLogger.debug("serve.watchReady", { rootDir, templatesRoot });
 
-    // Final "Ctrl+C" hint -> info
     scoped.info("serve.stopHint");
 
     await keepProcessAlive();
@@ -269,7 +265,6 @@ export async function serve(
       (errorMessage.includes("EADDRINUSE") ||
         /^Failed to start server\. Is port \d+ in use\?$/.test(errorMessage));
 
-    // Check if this is a port-in-use error
     if (looksLikePortInUse) {
       scoped.error("serve.portInUse", {
         port: port,
@@ -283,13 +278,11 @@ export async function serve(
       console.error("  3. Wait for the port to be freed");
       console.error(`${"=".repeat(60)}\n`);
     } else {
-      // For other errors, log with details
       scoped.error("serve.startFailed", {
         error: errorMessage,
         stack: normalizedError instanceof Error ? normalizedError.stack : undefined,
       });
     }
-    // Re-throw to let the outer handler deal with it
     throw normalizedError;
   }
 }

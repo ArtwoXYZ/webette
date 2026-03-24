@@ -10,7 +10,6 @@ import type { VideoPipelineConfig } from "./config";
 import { resolveVideoOutputPaths } from "./paths";
 import { ensureLeadingSlash } from "../../../utils/path";
 
-// Copy the original video file to the public assets path and return its route + size.
 export async function copyVideoAsset(options: {
   block: Block;
   filePath: string;

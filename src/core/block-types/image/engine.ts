@@ -54,7 +54,6 @@ export async function generateImageVariants(options: {
 
   const variants: ImageVariant[] = [];
 
-  // Default: copy or reencode without resizing
   try {
     if (config.reencodeDefault && sharpModule) {
       const info = await sharpModule(filePath)
@@ -102,7 +101,6 @@ export async function generateImageVariants(options: {
     return variants;
   }
 
-  // If sharp is missing, alias generated variants to default
   if (!sharpModule) {
     for (const name of generatedVariants) {
       variants.push({

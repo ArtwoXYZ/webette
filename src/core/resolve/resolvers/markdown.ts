@@ -1,5 +1,5 @@
 /**
- * Resolver for markdown blocks.
+ * Parses markdown to AST and renders to HTML via remark/rehype, with configurable heading shift.
  */
 
 import { readFile } from "node:fs/promises";

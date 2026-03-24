@@ -48,7 +48,6 @@ export async function rewriteInternalLinks(options: {
 
           const next: Record<string, unknown> = { ...hProps };
 
-          // class / className
           const existingClasses = normalizeClassList(hProps.className);
           const optionClasses = normalizeString(opts.class || opts.classname);
           const mergedClasses = new Set<string>([
@@ -82,7 +81,6 @@ export async function rewriteInternalLinks(options: {
             targetFromOption || targetFromExisting || (markAsCustomExternal ? "_blank" : "");
           if (target) next.target = target;
 
-          // rel
           const relFromExisting = normalizeClassList(hProps.rel);
           const relFromOption = normalizeClassList(normalizeString(opts.rel));
           const relMerged = new Set<string>([...relFromExisting, ...relFromOption]);
@@ -94,7 +92,6 @@ export async function rewriteInternalLinks(options: {
             next.rel = Array.from(relMerged);
           }
 
-          // download (boolean-like or filename)
           const downloadRaw = normalizeString(opts.download);
           if (downloadRaw) {
             const bool = parseBoolean(downloadRaw);
@@ -106,13 +103,11 @@ export async function rewriteInternalLinks(options: {
             }
           }
 
-          // aria-label (plus common aliases)
           const ariaLabel =
             normalizeString(opts["aria-label"]) ||
             normalizeString((opts as any).arialabel);
           if (ariaLabel) next["aria-label"] = ariaLabel;
 
-          // Allow passthrough for data-* and aria-* attributes.
           for (const [key, value] of Object.entries(opts)) {
             if (!key || !value) continue;
             if (key === "class" || key === "classname") continue;
@@ -133,8 +128,6 @@ export async function rewriteInternalLinks(options: {
           data.hProperties = next;
           (node as MdastLink & { data?: any }).data = data;
 
-          // If target wasn't resolved (no internal route), don't apply options.
-          // Also warn once for obviously invalid user keys? Keep silent for now.
           void rootEntryPath;
         };
 
@@ -223,7 +216,6 @@ export async function rewriteInternalLinks(options: {
 
         visit(ast);
 
-        // Re-render HTML from mutated AST
         const html = await renderMarkdownToHtml(ast, remarkPlugins);
         const meta = { ...(blk.content.meta ?? {}) };
         return {
@@ -270,7 +262,6 @@ export async function rewriteInternalLinks(options: {
     )
     : undefined;
 
-  // Use SiteModelTransformer to ensure all properties are preserved during transformation
   return SiteModelTransformer.fromPartialUpdate(site, {
     ...(rootEntries ? { rootEntries } : {}),
     ...(collections ? { collections } : {}),

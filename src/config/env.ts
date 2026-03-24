@@ -77,7 +77,7 @@ const defaultEnv: WebetteEnv = {
     dirName: ".webette",
   },
   serve: {
-    port: 4174, // Changed from 4173 to avoid EADDRINUSE error
+    port: 4174,
     liveReloadIntervalMs: 1000,
     watcherDebounceMs: 150,
   },

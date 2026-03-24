@@ -10,7 +10,6 @@ import type { AudioPipelineConfig } from "./config";
 import { resolveAudioOutputPaths } from "./paths";
 import { ensureLeadingSlash } from "../../../utils/path";
 
-// Copy the original audio file to the public assets path and return its route + size.
 export async function copyAudioAsset(options: {
   block: Block;
   filePath: string;

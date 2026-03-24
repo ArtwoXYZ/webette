@@ -42,7 +42,6 @@ function resolveBlockRoutes(block: Block, parentSegments: string[]): Block {
 }
 
 function resolveEntryRoutes(entry: Entry, collectionRoute: string): Entry {
-  // Entries live under the collection route; blocks nest beneath entries.
   const baseSegments = routeSegments(collectionRoute);
   const parentSegments = [...baseSegments, entry.slug];
   const route = ensureLeadingSlash(`${joinRoute(...parentSegments)}/`);
@@ -100,7 +99,6 @@ function resolveRootIndexRoutes(entry: Entry): Entry {
 }
 
 function buildConfigIndex(site: Site): Map<string, CollectionConfig> {
-  // Build a lookup keyed by configured path (or collection key) for fast matching.
   const map = new Map<string, CollectionConfig>();
   const raw = site.config?.collections;
   if (!raw || typeof raw !== "object") return map;
@@ -178,7 +176,6 @@ export function resolveRoutes(site: Site): Site {
     )
     : undefined;
 
-  // Use SiteModelTransformer for clean site transformation
   return SiteModelTransformer.fromPartialUpdate(site, {
     route: "/",
     ...(rootEntries ? { rootEntries } : {}),

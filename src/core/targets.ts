@@ -12,7 +12,6 @@ export type ParsedTarget =
   | { kind: "block"; collectionName?: string; entryName?: string; blockName: string }
   | { kind: "url"; url: string };
 
-// Parsed internal reference with optional extra options (e.g. variant).
 export type ParsedInternal = {
   target: ParsedTarget | null;
   options: Record<string, string>;
@@ -35,7 +34,7 @@ function normalizeName(value: unknown): string {
   return cleanName(base).toLowerCase();
 }
 
-// Only keep the explicit keys we support (collection has "coll" alias).
+// "coll" is an alias for "collection", "href" for "url".
 function normalizeTargetKey(raw: string): "collection" | "entry" | "block" | "url" | undefined {
   if (raw === "collection" || raw === "coll") return "collection";
   if (raw === "entry") return "entry";
@@ -44,7 +43,6 @@ function normalizeTargetKey(raw: string): "collection" | "entry" | "block" | "ur
   return undefined;
 }
 
-// Parse a "collection:/entry:/block:" reference and return target + options.
 export function parseInternalReference(rawUrl: string): ParsedInternal | null {
   const trimmed = rawUrl.trim();
   if (!trimmed) return null;

@@ -65,7 +65,6 @@ export async function scanSite(site: Site, logger?: Logger): Promise<Site> {
       rootNodes: structureRootRaw.children,
     });
 
-  // Pass 2+3: apply config then enrich
   const configIndex = buildConfigIndex(site);
   const collections = enrichCollections(rawCollections, configIndex).map((collection) => {
     const entries = collection.entries.map((entry) => ({
@@ -86,7 +85,6 @@ export async function scanSite(site: Site, logger?: Logger): Promise<Site> {
     return { ...enriched, isIndex: true };
   })();
 
-  // Build the scanned site using SiteModelTransformer for clean architecture
   const scannedSite = SiteModelTransformer.fromPartialUpdate(site, {
     structure,
     ...(rootEntries.length ? { rootEntries } : {}),

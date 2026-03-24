@@ -30,7 +30,6 @@ const METADATA_FIELDS: { key: keyof PluginMetadata; pattern: RegExp }[] = [
 
 const REQUIRED_METADATA_FIELDS: (keyof PluginMetadata)[] = ["name", "version", "author", "license"];
 
-// Load a plugin module (ESM .js/.mjs) from disk.
 async function importPlugin(modulePath: string, logger: Logger): Promise<Plugin | null> {
   try {
     const mod = await import(pathToFileURL(modulePath).href);
@@ -44,7 +43,6 @@ async function importPlugin(modulePath: string, logger: Logger): Promise<Plugin 
   }
 }
 
-// Parse plugin metadata from README.md header
 async function parsePluginMetadata(readmePath: string, logger: Logger): Promise<PluginMetadata> {
   try {
     const content = await fs.readFile(readmePath, "utf8");
@@ -70,7 +68,6 @@ async function parsePluginMetadata(readmePath: string, logger: Logger): Promise<
   }
 }
 
-// Scan a directory for plugin subdirectories (each with a .js/.mjs entry point)
 async function scanPluginsDirectory(pluginsDir: string, logger: Logger): Promise<PluginDescriptor[]> {
   const descriptors: PluginDescriptor[] = [];
 
@@ -107,7 +104,6 @@ async function scanPluginsDirectory(pluginsDir: string, logger: Logger): Promise
   }
 }
 
-// Convert explicit plugin paths into descriptors (README required)
 async function resolveDescriptorsFromPaths(
   paths: string[],
   rootDir: string,
@@ -134,7 +130,6 @@ async function resolveDescriptorsFromPaths(
   return descriptors;
 }
 
-// Resolve plugin config into loader parameters
 export function resolvePluginSources(
   plugins: string[] | { dir: string } | undefined
 ): { pluginPaths?: string[]; pluginsDir?: string } {

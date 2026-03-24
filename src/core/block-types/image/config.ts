@@ -84,7 +84,6 @@ export function resolveImageConfig(
   env: WebetteEnv,
   site: Site
 ): ImagePipelineConfig {
-  // Site overrides live under site.config.images; inline defaults apply as fallback.
   const rawSiteImages = site?.config?.images;
 
   const fallbackVariants = {

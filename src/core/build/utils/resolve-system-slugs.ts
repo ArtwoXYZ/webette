@@ -32,7 +32,6 @@ function findUniqueSlug(base: string, taken: Set<string>): string {
 export function resolveSystemSlugCollisions(site: Site, logger: Logger, extraReserved: string[] = []): Site {
   const systemSet = new Set([...SYSTEM_SLUGS, ...extraReserved])
 
-  // Set of all top-level slugs (system + plugin reserved + collections + root entries) used to ensure uniqueness.
   const topLevelSlugs = new Set<string>([
     ...SYSTEM_SLUGS,
     ...extraReserved,

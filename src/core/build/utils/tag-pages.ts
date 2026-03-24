@@ -44,7 +44,6 @@ export async function renderTagPages(options: {
   const allEntries = collectAllEntries(site.collections ?? [], site.rootEntries)
   const allTags = getAllTags(allEntries)
 
-  // Nothing to do if no entry has any tag
   if (allTags.length === 0) return 0
 
   // /tag/ — site-level tag index
@@ -82,7 +81,6 @@ export async function renderTagPages(options: {
   // Collection-scoped tag pages
   for (const collection of site.collections ?? []) {
     const collectionTags = getCollectionTags(collection)
-    // Skip collections with no tagged entries to avoid empty pages
     if (!collectionTags.length) continue
 
     const routeRelative = collection.route

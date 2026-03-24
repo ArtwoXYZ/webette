@@ -51,7 +51,6 @@ export async function resolveAndTransform(
     blocks: {},
   }))
 
-  // Copy template assets
   if (templatesAssets && assetsBaseRelative) {
     const rootValue = siteTemplatesRoot ?? toolEnv.templates.root
     const templatesRoot = path.isAbsolute(rootValue) ? rootValue : path.join(rootDir, rootValue)

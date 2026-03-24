@@ -40,14 +40,13 @@ export interface ResolvedContent {
     alt?: string;
   };
   ast?: unknown; // Structured representation (e.g. mdast) when available
-  html?: string; // Optional HTML rendering for text/markdown blocks
-  variants?: ImageVariant[]; // Generated variants for media (images)
+  html?: string;
+  variants?: ImageVariant[];
   blockRoute?: string; // Optional override for the block route (e.g., generated asset path)
   changedType?: string; // Optional type override returned by resolvers (e.g., reference -> image)
   changedName?: string; // Optional name override returned by resolvers (e.g., reference -> target name)
 }
 
-// Context passed to all resolvers
 export interface ResolveContext {
   rootDir: string;
   site: Site;
@@ -56,7 +55,7 @@ export interface ResolveContext {
   audioConfig?: AudioPipelineConfig;
   videoConfig?: VideoPipelineConfig;
   routeHint?: string;      // slug-based route hint for the current block (public-ish)
-  routeSegments?: string[]; // slug-based segments for the current block
+  routeSegments?: string[];
   readContent?: boolean;
   logger?: Logger;
   remarkPlugins?: unknown[];
