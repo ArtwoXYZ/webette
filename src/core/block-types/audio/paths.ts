@@ -4,7 +4,7 @@
 
 import * as path from "node:path";
 import type { Block } from "../../model";
-import { escapeExtForRegex } from "../../../utils/path";
+import { normalizeExtForRegex } from "../../../utils/path";
 
 export function resolveAudioOutputPaths(options: {
   block: Block;
@@ -23,7 +23,7 @@ export function resolveAudioOutputPaths(options: {
   if (routeHint) {
     const cleaned = routeHint.replace(/^\/+|\/+$/g, "");
     stem = block.ext
-      ? cleaned.replace(new RegExp(`${escapeExtForRegex(block.ext)}$`, "i"), "")
+      ? cleaned.replace(new RegExp(`${normalizeExtForRegex(block.ext)}$`, "i"), "")
       : cleaned.replace(/\/+$/, "");
   } else {
     const raw =
@@ -31,7 +31,7 @@ export function resolveAudioOutputPaths(options: {
     const trimmed = raw.replace(/^\/+/, "");
     stem =
       block.ext && trimmed
-        ? trimmed.replace(new RegExp(`${escapeExtForRegex(block.ext)}$`, "i"), "")
+        ? trimmed.replace(new RegExp(`${normalizeExtForRegex(block.ext)}$`, "i"), "")
         : trimmed.replace(/\/+$/, "");
   }
 

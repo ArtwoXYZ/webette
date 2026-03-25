@@ -3,7 +3,7 @@
  */
 
 import type { Block, Collection, Entry } from "../../../model";
-import { normalizeCollectionPathKey, parentCollectionPathKey } from "../../../../utils/path";
+import { normalizeCollectionPathKey, resolveParentPathKey } from "../../../../utils/path";
 
 export type NavigationItem =
   | {
@@ -174,7 +174,7 @@ export function buildCollectionForestNodes(
   const childrenByParent = new Map<string, Collection[]>();
   for (const collection of collections) {
     const key = normalizeCollectionPathKey(collection.path);
-    const parentKey = parentCollectionPathKey(key);
+    const parentKey = resolveParentPathKey(key);
     const effectiveParentKey = parentKey && byPath.has(parentKey) ? parentKey : "";
     const siblings = childrenByParent.get(effectiveParentKey) ?? [];
     siblings.push(collection);

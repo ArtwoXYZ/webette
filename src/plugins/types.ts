@@ -47,7 +47,7 @@ export type PluginContext = {
   tags: {
     filter: (entries: Entry[], options: TagFilterOptions) => Entry[];
     collect: (collections: Collection[], rootEntries?: Entry[]) => Entry[];
-    getAllTags: (entries: Entry[]) => string[];
+    collectAllTags: (entries: Entry[]) => string[];
     normalizeTags: (input: string | string[]) => string[];
   };
 };

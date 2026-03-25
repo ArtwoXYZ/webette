@@ -5,8 +5,8 @@
 import type { Site, Collection, Entry, Block } from "../../model";
 import { SiteModelTransformer } from "../../site-model-transformer";
 import type { Logger } from "../../../logging/logger";
-import { cleanName, orderKey, slugify } from "../../../utils/naming";
-import { toPosix } from "../../../utils/path";
+import { normalizeName, parseOrderKey, normalizeSlug } from "../../../utils/naming";
+import { normalizePosixPath } from "../../../utils/path";
 import type { SortOrder } from "../../scan/internal-types";
 
 type SortType = "name" | "created" | "updated";
@@ -115,7 +115,7 @@ function buildCollectionKeyIndex(site: Site): Map<string, string> {
     if (!value || typeof value !== "object") continue;
     const cfg = value as Record<string, unknown>;
     const normalizedPath =
-      typeof cfg.path === "string" && cfg.path ? toPosix(cfg.path) : toPosix(key);
+      typeof cfg.path === "string" && cfg.path ? normalizePosixPath(cfg.path) : normalizePosixPath(key);
     map.set(normalizedPath, key);
   }
 
@@ -128,7 +128,7 @@ function resolveCollectionKey(
 ): string | undefined {
   return (
     index.get(collection.path) ??
-    index.get(toPosix(collection.rawName)) ??
+    index.get(normalizePosixPath(collection.rawName)) ??
     collection.slug ??
     collection.id
   );
@@ -136,7 +136,7 @@ function resolveCollectionKey(
 
 function entryKeyFromEntry(entry: Entry): string {
   if (entry.slug && entry.slug.trim()) return entry.slug;
-  return slugify(cleanName(entry.rawName));
+  return normalizeSlug(normalizeName(entry.rawName));
 }
 
 function resolveCollectionSort(
@@ -225,8 +225,8 @@ function compareByName(
   order: SortOrder
 ): number {
   const dir = order === "desc" ? -1 : 1;
-  const orderA = orderKey(a.rawName);
-  const orderB = orderKey(b.rawName);
+  const orderA = parseOrderKey(a.rawName);
+  const orderB = parseOrderKey(b.rawName);
   if (orderA !== orderB) return (orderA - orderB) * dir;
   return a.rawName.localeCompare(b.rawName, undefined, { sensitivity: "base" }) * dir;
 }

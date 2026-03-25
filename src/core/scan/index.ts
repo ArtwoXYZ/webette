@@ -12,7 +12,7 @@ import { SiteModelTransformer } from "../site-model-transformer";
 import type { Logger } from "../../logging/logger";
 
 import { resolveTemplatesConfig } from "../templates/config";
-import { buildStructureRoot, deriveFlatRawViewsFromStructure } from "./derived-views";
+import { buildStructureRoot, buildFlatRawViews } from "./derived-views";
 import { buildConfigIndex, enrichCollections, enrichEntries } from "./enrich";
 import { listRootIndexRaw, listStructureRootRaw } from "./raw-scan";
 import { isIndexFolderName, normalizeIndexFolderName } from "./utils";
@@ -60,7 +60,7 @@ export async function scanSite(site: Site, logger?: Logger): Promise<Site> {
   // The recursive structure is the source of truth; `collections`/`rootEntries`
   // remain derived flat views for consumers that still expect them.
   const { collections: rawCollections, rootEntries: rawRootEntries } =
-    await deriveFlatRawViewsFromStructure({
+    await buildFlatRawViews({
       rootDir: site.rootDir,
       rootNodes: structureRootRaw.children,
     });

@@ -9,14 +9,14 @@ import type { Block, ImageVariant } from "../../model";
 import type { Logger } from "../../../logging/logger";
 import {
   buildVariantFileName,
-  formatToExtension,
+  normalizeFormatExtension,
   resolveOutputPaths,
-  stripDot,
+  normalizeExtNoDot,
 } from "./paths";
 import type { ImagePipelineConfig, GeneratedVariantName } from "./config";
 import { generatedVariants } from "./config";
 
-import { ensureLeadingSlash } from "../../../utils/path";
+import { normalizeLeadingSlash } from "../../../utils/path";
 import { loadSharp } from "./sharp-loader";
 
 export async function generateImageVariants(options: {
@@ -43,14 +43,14 @@ export async function generateImageVariants(options: {
   });
   await mkdir(baseDir, { recursive: true });
 
-  const originalExt = stripDot(block.ext?.toLowerCase()) ?? formatToExtension(config.format);
+  const originalExt = normalizeExtNoDot(block.ext?.toLowerCase()) ?? normalizeFormatExtension(config.format);
   const defaultExt =
     config.reencodeDefault && sharpModule
-      ? formatToExtension(config.format)
+      ? normalizeFormatExtension(config.format)
       : originalExt;
   const defaultFileName = buildVariantFileName(slug, "default", defaultExt);
   const defaultOutputPath = path.join(baseDir, defaultFileName);
-  const defaultRoute = ensureLeadingSlash(path.posix.join(publicStem, defaultFileName));
+  const defaultRoute = normalizeLeadingSlash(path.posix.join(publicStem, defaultFileName));
 
   const variants: ImageVariant[] = [];
 
@@ -122,7 +122,7 @@ export async function generateImageVariants(options: {
     const target = config.variants[name as GeneratedVariantName];
     if (!target) continue;
 
-    const targetExt = formatToExtension(config.format);
+    const targetExt = normalizeFormatExtension(config.format);
     const fileName = buildVariantFileName(slug, name, targetExt);
     const outputPath = path.join(baseDir, fileName);
     const route = path.posix.join(publicStem, fileName);
@@ -156,7 +156,7 @@ export async function generateImageVariants(options: {
 
     variants.push({
         name,
-        route: ensureLeadingSlash(route),
+        route: normalizeLeadingSlash(route),
         width: info.width ?? target.width ?? defaultVariant.width,
         height: info.height ?? target.height ?? defaultVariant.height,
         format: info.format,
@@ -208,7 +208,7 @@ export async function copyOriginalAsset(options: {
     const outputPath = path.join(baseDir, fileName);
     await copyFile(filePath, outputPath);
     const copied = await stat(outputPath);
-    const route = ensureLeadingSlash(path.posix.join(publicStem, fileName));
+    const route = normalizeLeadingSlash(path.posix.join(publicStem, fileName));
     return { route, size: copied.size };
   } catch (err) {
     logger?.warn("resolve.image.copyOriginalFailed", {

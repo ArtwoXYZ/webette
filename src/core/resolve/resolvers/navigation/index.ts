@@ -8,13 +8,13 @@
 import { readFile } from "node:fs/promises";
 import * as path from "node:path";
 import type { Resolver } from "../../registry";
-import { slugify } from "../../../../utils/naming";
+import { normalizeSlug } from "../../../../utils/naming";
 import { matchCollection, matchEntry } from "../../../targets";
 import {
   buildExcludeSet,
   normalizeKey,
-  shouldIncludeCollection as shouldIncludeCollectionUtil,
-  shouldIncludeEntry as shouldIncludeEntryUtil,
+  isIncludedCollection as shouldIncludeCollectionUtil,
+  isIncludedEntry as shouldIncludeEntryUtil,
   type CollectionLike,
   type EntryLike,
 } from "../../../../utils/navigation";
@@ -118,7 +118,7 @@ export const resolveNavigation: Resolver = async (block, ctx) => {
       const [entryValue, entryAnchor] = entryRaw.split("#");
       const entryName = (entryValue ?? "").trim();
       const anchorRaw = entryAnchor?.trim() || undefined;
-      const anchor = anchorRaw ? slugify(anchorRaw) : undefined;
+      const anchor = anchorRaw ? normalizeSlug(anchorRaw) : undefined;
       const entry = matchEntry(collection, entryName);
       if (!entry) {
         ctx.logger?.warn("navigation.entryMissing", {

@@ -4,7 +4,7 @@
 
 import type { Block } from "../model";
 
-export function splitRouteSegments(route?: string): string[] {
+export function parseRouteSegments(route?: string): string[] {
   if (!route) return [];
   return route.replace(/^\/+|\/+$/g, "").split("/").filter(Boolean);
 }

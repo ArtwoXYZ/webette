@@ -5,24 +5,24 @@
 import Handlebars from 'handlebars'
 import type { Collection, Entry } from '../model'
 import {
-  filterEntriesByTags,
+  findEntriesByTags,
   collectAllEntries as collectAllEntriesUtil,
-  getCollectionTags as getCollectionTagsUtil,
-  getSiteTags as getSiteTagsUtil,
+  collectCollectionTags as getCollectionTagsUtil,
+  collectSiteTags as getSiteTagsUtil,
   type TagFilterMode,
 } from '../tag-filter'
-import { slugify } from '../../utils/naming'
+import { normalizeSlug } from '../../utils/naming'
 import {
   buildImageHtml,
   isImageBlock,
   normalizeVariantName,
-  pickImageSource,
+  resolveImageSource,
   resolveDefaultVariant,
 } from './image-utils'
 import { buildSocialHead } from './social-head'
 import { isHbsOptions, resolveRoot } from './types'
 import { registerMenuHelper } from './menu'
-import { stripRouteSlashes } from '../../utils/path'
+import { normalizeRouteSlashes } from '../../utils/path'
 
 let helpersRegistered = false
 
@@ -131,7 +131,7 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     if (!isImageBlock(block)) return ''
     const variant = normalizeVariantName(options?.hash?.variant)
     const defaultVariant = resolveDefaultVariantFromContext(options)
-    const picked = pickImageSource(block, variant, defaultVariant)
+    const picked = resolveImageSource(block, variant, defaultVariant)
     return picked.src ?? ''
   })
 
@@ -173,7 +173,7 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
     const raw = value == null ? '' : String(value)
     const base = resolveAssetsBaseFromContext(options)
     if (!base) return raw
-    const clean = stripRouteSlashes(raw)
+    const clean = normalizeRouteSlashes(raw)
     return clean ? `${base}/${clean}` : base
   })
 
@@ -370,7 +370,7 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
       if (!Array.isArray(entries)) return []
       const tags = options.hash?.tags ?? ''
       const mode: TagFilterMode = options.hash?.mode === 'and' ? 'and' : 'or'
-      return filterEntriesByTags(entries as Entry[], { tags, mode })
+      return findEntriesByTags(entries as Entry[], { tags, mode })
     },
   )
 
@@ -412,12 +412,12 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
 
   Handlebars.registerHelper('slugifyTag', (tag: unknown) => {
     if (tag == null) return ''
-    return slugify(String(tag))
+    return normalizeSlug(String(tag))
   })
 
   Handlebars.registerHelper('tagRoute', (tag: unknown, collectionOrOptions: unknown, maybeOptions: unknown) => {
     if (tag == null) return ''
-    const slug = slugify(String(tag))
+    const slug = normalizeSlug(String(tag))
     if (!slug) return ''
 
     // Handlebars options objects always have both `hash` and `data`; collection objects never do.
@@ -428,7 +428,7 @@ export function registerDefaultHelpers(options?: { defaultLayoutName?: string })
 
     const resolveColRoute = (col: Record<string, unknown>): string =>
       typeof col.route === 'string'
-        ? stripRouteSlashes(col.route)
+        ? normalizeRouteSlashes(col.route)
         : typeof col.slug === 'string' ? col.slug : ''
 
     const isExplicitCollection = collectionOrOptions != null && typeof collectionOrOptions === 'object' && !isHbsOptions(collectionOrOptions)

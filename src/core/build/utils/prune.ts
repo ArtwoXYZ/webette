@@ -11,7 +11,7 @@ import type { WebetteEnv } from "../../../config/env";
 import { DEFAULT_PAGE_FILENAME } from "./render-to-file";
 import type { Block, Collection, Entry, Site } from "../../model";
 import { removeEmptyDirectories, rmWithRetries } from "../../../utils/fs";
-import { stripRouteSlashes } from "../../../utils/path";
+import { normalizeRouteSlashes } from "../../../utils/path";
 
 export type ExpectedOutputsRegistry = {
   addExpectedOutput: (relativePath: string) => void;
@@ -196,7 +196,7 @@ export async function pruneOrphans(options: {
 
   const addEntryPage = (entry: Entry, collection?: Collection) => {
     const routeRelative = entry.route
-      ? stripRouteSlashes(entry.route)
+      ? normalizeRouteSlashes(entry.route)
       : collection
         ? path.join(collection.slug || collection.id, entry.slug || entry.id)
         : (entry.slug || entry.id);
@@ -207,7 +207,7 @@ export async function pruneOrphans(options: {
     addOutput(DEFAULT_PAGE_FILENAME);
     for (const collection of site.collections ?? []) {
       const routeRelative = collection.route
-        ? stripRouteSlashes(collection.route)
+        ? normalizeRouteSlashes(collection.route)
         : collection.slug || collection.id;
       const collectionIndex = routeRelative
         ? path.join(routeRelative, DEFAULT_PAGE_FILENAME)

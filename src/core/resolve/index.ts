@@ -7,8 +7,8 @@ import type { WebetteEnv } from "../../config/env";
 import { resolveImageConfig } from "../block-types/image/config";
 import { resolveAudioConfig } from "../block-types/audio/config";
 import { resolveVideoConfig } from "../block-types/video/config";
-import { getResolver, type ResolveContext } from "./registry";
-import { splitRouteSegments, buildBlockRouteHint } from "./route-hints";
+import { findResolver, type ResolveContext } from "./registry";
+import { parseRouteSegments, buildBlockRouteHint } from "./route-hints";
 
 export interface ResolveOptions {
   rootDir?: string;
@@ -62,7 +62,7 @@ async function resolveBlock(
     ? await Promise.all(block.subBlocks.map((child) => resolveBlock(child, scopedCtx, routeSegments)))
     : undefined;
 
-  const resolver = getResolver(block);
+  const resolver = findResolver(block);
   const resolved = resolver ? await resolver(block, scopedCtx) : undefined;
 
   ctx.afterBlock?.(block, resolved);
@@ -80,7 +80,7 @@ async function resolveBlock(
 }
 
 async function resolveEntry(entry: Entry, ctx: ResolveContext): Promise<Entry> {
-  const parentSegments = splitRouteSegments(entry.route);
+  const parentSegments = parseRouteSegments(entry.route);
   const blocks = await Promise.all(
     entry.blocks.map((blk) => resolveBlock(blk, ctx, parentSegments))
   );

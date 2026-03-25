@@ -27,7 +27,7 @@ const entryRouteFor = (collection: Collection, entry: Entry): string => {
   return normalizeEntryRoute(rel);
 };
 
-export function getPrevNextEntry(options: {
+export function findPrevNextEntry(options: {
   site: Site;
   entry: Entry;
   renderCollection?: Collection;

@@ -8,7 +8,7 @@
 
 import type { Site, Collection, Entry } from '../../model'
 import type { Logger } from '../../../logging/logger'
-import { stripRouteSlashes } from '../../../utils/path'
+import { normalizeRouteSlashes } from '../../../utils/path'
 
 export const SYSTEM_SLUGS = ['tag']
 
@@ -55,7 +55,7 @@ export function resolveSystemSlugCollisions(site: Site, logger: Logger, extraRes
     }
 
     // --- Entries within this collection ---
-    const colRoute = stripRouteSlashes(currentCollection.route ?? (currentCollection.slug || currentCollection.id))
+    const colRoute = normalizeRouteSlashes(currentCollection.route ?? (currentCollection.slug || currentCollection.id))
     // When the collection was renamed, the colRoute differs from the original — all entry routes must be rebased.
     const collectionRenamed = currentCollection !== collection
     const entrySlugs = new Set<string>([

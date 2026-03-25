@@ -7,7 +7,7 @@ import type { Logger } from "../../../logging/logger";
 
 type IndexCollections = Record<string, Entry>;
 
-export function extractIndexFolders(
+export function collectIndexFolders(
   site: Site,
   options: { includeDrafts: boolean; logger?: Logger }
 ): Site {

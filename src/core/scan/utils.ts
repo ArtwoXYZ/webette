@@ -3,31 +3,31 @@
  */
 
 import * as path from "node:path";
-import { cleanName, orderKey, slugify } from "../../utils/naming";
-import { toPosix } from "../../utils/path";
+import { normalizeName, parseOrderKey, normalizeSlug } from "../../utils/naming";
+import { normalizePosixPath } from "../../utils/path";
 import type { ScanDirent, SortOrder } from "./internal-types";
 
 export function normalizeIndexFolderName(raw: unknown): string {
   if (typeof raw !== "string") return "index";
   const trimmed = raw.trim();
   if (!trimmed) return "index";
-  const normalized = slugify(cleanName(trimmed));
+  const normalized = normalizeSlug(normalizeName(trimmed));
   return normalized || "index";
 }
 
 export function isIndexFolderName(rawName: string, normalizedName: string): boolean {
   if (!rawName || !normalizedName) return false;
-  return slugify(cleanName(rawName)) === normalizedName;
+  return normalizeSlug(normalizeName(rawName)) === normalizedName;
 }
 
-export function sortByName<T extends { rawName: string }>(
+export function applySortByName<T extends { rawName: string }>(
   items: T[],
   order: SortOrder = "asc"
 ): void {
   const dir = order === "desc" ? -1 : 1;
   items.sort((a, b) => {
-    const orderA = orderKey(a.rawName);
-    const orderB = orderKey(b.rawName);
+    const orderA = parseOrderKey(a.rawName);
+    const orderB = parseOrderKey(b.rawName);
     if (orderA !== orderB) return (orderA - orderB) * dir;
     return a.rawName.localeCompare(b.rawName, undefined, { sensitivity: "base" }) * dir;
   });
@@ -38,7 +38,7 @@ export function isVisibleContentName(rawName: string): boolean {
 }
 
 export function isNavigationBlockFile(rawName: string, isDirectory: boolean): boolean {
-  return !isDirectory && cleanName(rawName).toLowerCase() === "navigation.webt";
+  return !isDirectory && normalizeName(rawName).toLowerCase() === "navigation.webt";
 }
 
 export function isReferenceBlockFile(

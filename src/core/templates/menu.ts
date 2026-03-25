@@ -4,14 +4,14 @@
 
 import type Handlebars from "handlebars";
 import type { Collection, Entry } from "../model";
-import { normalizeCollectionPathKey, parentCollectionPathKey } from "../../utils/path";
+import { normalizeCollectionPathKey, resolveParentPathKey } from "../../utils/path";
 import {
   buildExcludeSet,
   normalizeKey,
   parseBoolean,
   parseList,
-  shouldIncludeCollection,
-  shouldIncludeEntry,
+  isIncludedCollection,
+  isIncludedEntry,
   type CollectionLike,
   type EntryLike,
 } from "../../utils/navigation";
@@ -200,10 +200,10 @@ export function registerMenuHelper(handlebars: typeof Handlebars) {
     const excludeCollections = buildExcludeSet(parseList(parsedOptions.excludeCollections));
     const excludeEntries = buildExcludeSet(parseList(parsedOptions.excludeEntries));
 
-    const shouldIncludeCollectionItem = (collection: CollectionLike) =>
-      shouldIncludeCollection(collection, includeUnlisted, excludeCollections);
-    const shouldIncludeEntryItem = (entry: EntryLike, collection?: CollectionLike) =>
-      shouldIncludeEntry(entry, collection, includeUnlisted, includeDrafts, excludeEntries);
+    const isIncludedCollectionItem = (collection: CollectionLike) =>
+      isIncludedCollection(collection, includeUnlisted, excludeCollections);
+    const isIncludedEntryItem = (entry: EntryLike, collection?: CollectionLike) =>
+      isIncludedEntry(entry, collection, includeUnlisted, includeDrafts, excludeEntries);
 
     const applyVisibility = (items: NavigationItem[]): NavigationItem[] => {
       const processItem = (item: NavigationItem): NavigationItem[] => {
@@ -211,7 +211,7 @@ export function registerMenuHelper(handlebars: typeof Handlebars) {
         const withChildren = children && children.length ? { ...item, children } : { ...item };
 
         if (withChildren.kind === "collection") {
-          if (!shouldIncludeCollectionItem(withChildren.collection)) return [];
+          if (!isIncludedCollectionItem(withChildren.collection)) return [];
           if (hideCollections) return children ?? [];
           const entriesCount = children?.filter((child) => child.kind === "entry").length ?? 0;
           return [
@@ -226,7 +226,7 @@ export function registerMenuHelper(handlebars: typeof Handlebars) {
         }
 
         if (withChildren.kind === "entry") {
-          if (!shouldIncludeEntryItem(withChildren.entry, withChildren.collection)) return [];
+          if (!isIncludedEntryItem(withChildren.entry, withChildren.collection)) return [];
           if (hideEntries) return [];
           return [withChildren];
         }
@@ -297,7 +297,7 @@ export function registerMenuHelper(handlebars: typeof Handlebars) {
       const childrenByParent = new Map<string, Collection[]>();
       for (const collection of allCollections) {
         const key = normalizeCollectionPathKey(collection.path);
-        const parentKey = parentCollectionPathKey(key);
+        const parentKey = resolveParentPathKey(key);
         const effectiveParentKey = parentKey && byPath.has(parentKey) ? parentKey : "";
         const siblings = childrenByParent.get(effectiveParentKey) ?? [];
         siblings.push(collection);
@@ -322,7 +322,7 @@ export function registerMenuHelper(handlebars: typeof Handlebars) {
 
     if (rootEntries.length) {
       const rootEntryItems = rootEntries
-        .filter((entry) => shouldIncludeEntryItem(entry))
+        .filter((entry) => isIncludedEntryItem(entry))
         .map((entry) => buildRootEntryItem(entry));
       items = [...rootEntryItems, ...items];
     }

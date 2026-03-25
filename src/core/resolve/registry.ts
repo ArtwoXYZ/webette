@@ -81,7 +81,7 @@ const typeResolvers = new Map<string, Resolver>([
   ["reference", resolveReference],
 ]);
 
-export function getResolver(block: Block): Resolver | undefined {
+export function findResolver(block: Block): Resolver | undefined {
   const type = block.type?.toLowerCase();
   if (type && typeResolvers.has(type)) {
     return typeResolvers.get(type);

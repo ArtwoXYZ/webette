@@ -4,14 +4,14 @@
 
 import * as path from "node:path";
 import type { Block } from "../../model";
-import { escapeExtForRegex } from "../../../utils/path";
+import { normalizeExtForRegex } from "../../../utils/path";
 
-export function stripDot(ext?: string | null): string | undefined {
+export function normalizeExtNoDot(ext?: string | null): string | undefined {
   if (!ext) return undefined;
   return ext.startsWith(".") ? ext.slice(1) : ext;
 }
 
-export function formatToExtension(format: string): string {
+export function normalizeFormatExtension(format: string): string {
   if (format === "jpeg") return "jpg";
   return format;
 }
@@ -22,7 +22,7 @@ export function normalizeRouteStem(block: Block): { stem: string; slug: string }
   const trimmed = raw.replace(/^\/+/, "");
   const stem =
     block.ext && trimmed
-      ? trimmed.replace(new RegExp(`${escapeExtForRegex(block.ext)}$`, "i"), "")
+      ? trimmed.replace(new RegExp(`${normalizeExtForRegex(block.ext)}$`, "i"), "")
       : trimmed.replace(/\/+$/, "");
 
   return {
@@ -53,7 +53,7 @@ export function resolveOutputPaths(options: {
   if (routeHint) {
     const cleaned = routeHint.replace(/^\/+|\/+$/g, "");
     stem = block.ext
-      ? cleaned.replace(new RegExp(`${escapeExtForRegex(block.ext)}$`, "i"), "")
+      ? cleaned.replace(new RegExp(`${normalizeExtForRegex(block.ext)}$`, "i"), "")
       : cleaned.replace(/\/+$/, "");
   } else {
     const normalized = normalizeRouteStem(block);

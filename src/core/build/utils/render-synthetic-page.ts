@@ -4,7 +4,7 @@
  */
 
 import * as path from 'node:path'
-import { stripRouteSlashes } from '../../../utils/path'
+import { normalizeRouteSlashes } from '../../../utils/path'
 import { renderToFile, DEFAULT_PAGE_FILENAME, type TemplateRenderer } from './render-to-file'
 import type { RenderPage } from '../../../plugins/types'
 
@@ -19,7 +19,7 @@ export function createRenderPage(opts: {
   addExpectedOutput?: (relativePath: string) => void
 }): RenderPage {
   return async ({ route, layoutName, context }) => {
-    const targetDir = path.join(opts.outputDir, stripRouteSlashes(route))
+    const targetDir = path.join(opts.outputDir, normalizeRouteSlashes(route))
     const mergedContext: Record<string, unknown> = {
       ...opts.renderBaseContext,
       ...(context ?? {}),

@@ -8,7 +8,7 @@ import { resolveAudioConfig } from "../../block-types/audio/config";
 import { resolveImageConfig } from "../../block-types/image/config";
 import { resolveVideoConfig } from "../../block-types/video/config";
 import type { Site } from "../../model";
-import { getResolver } from "../../resolve/registry";
+import { findResolver } from "../../resolve/registry";
 
 export async function resolveCollectionAssets(options: {
   rootDir: string;
@@ -28,7 +28,7 @@ export async function resolveCollectionAssets(options: {
 
           const assets = await Promise.all(
             collection.assets.map(async (asset) => {
-              const resolver = getResolver(asset);
+              const resolver = findResolver(asset);
               if (!resolver) return asset;
 
               const imageConfig = resolveImageConfig(rootDir, toolEnv, site);

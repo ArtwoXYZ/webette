@@ -8,12 +8,12 @@ import * as path from "node:path";
 import type { Logger } from "../../../logging/logger";
 import type { WebetteEnv } from "../../../config/env";
 import type { Collection, Entry, Site, Block } from "../../model";
-import { templateBaseName } from "../types";
+import { parseTemplateName } from "../types";
 import { resolveTemplatesRoots } from "../../templates/engine";
 import { createTemplateFileResolver } from "../../templates/resolve-file";
-import { getPrevNextEntry } from "./prev-next";
+import { findPrevNextEntry } from "./prev-next";
 import { renderToFile, type TemplateRenderer } from "./render-to-file";
-import { stripRouteSlashes } from "../../../utils/path";
+import { normalizeRouteSlashes } from "../../../utils/path";
 
 export async function renderSite(options: {
   rootDir: string;
@@ -69,7 +69,7 @@ export async function renderSite(options: {
     fileName?: string,
   ) => renderToFile({ templateRenderer, context, targetDir, fileName, formatHtml, writeIfChanged });
 
-  const layoutNameFor = templateBaseName;
+  const layoutNameFor = parseTemplateName;
 
   const filterRenderableBlocks = (blocks: Block[]): Block[] =>
     blocks
@@ -146,7 +146,7 @@ export async function renderSite(options: {
   ): Promise<boolean> => {
     const renderableBlocks = filterRenderableBlocks(entry.blocks);
     const layoutName = await pickEntryLayoutName(entry, collection);
-    const { prevEntry, nextEntry } = getPrevNextEntry({
+    const { prevEntry, nextEntry } = findPrevNextEntry({
       site,
       entry,
       renderCollection: collection,
@@ -170,7 +170,7 @@ export async function renderSite(options: {
     if (entry.isIndex) continue;
 
     const entryRouteRelative = entry.route
-      ? stripRouteSlashes(entry.route)
+      ? normalizeRouteSlashes(entry.route)
       : (entry.slug || entry.id);
     const entryOutputDir = path.join(outputDir, entryRouteRelative);
 
@@ -184,7 +184,7 @@ export async function renderSite(options: {
       if (entry.isIndex) continue;
 
       const entryRouteRelative = entry.route
-        ? stripRouteSlashes(entry.route)
+        ? normalizeRouteSlashes(entry.route)
         : path.join(collection.slug || collection.id, entry.slug || entry.id);
       const entryOutputDir = path.join(outputDir, entryRouteRelative);
 
@@ -242,7 +242,7 @@ export async function renderSite(options: {
     for (const collection of site.collections ?? []) {
       if (collection.isUnlisted) {
         const routeRelative = collection.route
-          ? stripRouteSlashes(collection.route)
+          ? normalizeRouteSlashes(collection.route)
           : collection.slug || collection.id;
         const collectionIndexDir = routeRelative ? path.join(outputDir, routeRelative) : outputDir;
 
@@ -274,7 +274,7 @@ export async function renderSite(options: {
         ]
       );
       const routeRelative = collection.route
-        ? stripRouteSlashes(collection.route)
+        ? normalizeRouteSlashes(collection.route)
         : collection.slug || collection.id;
       const collectionIndexDir = routeRelative ? path.join(outputDir, routeRelative) : outputDir;
 

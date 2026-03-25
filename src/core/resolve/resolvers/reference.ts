@@ -14,8 +14,8 @@ import {
   matchBlock,
   matchRootEntry,
 } from "../../../core/targets";
-import { getResolver } from "../registry";
-import { splitRouteSegments, buildBlockRouteHint } from "../route-hints";
+import { findResolver } from "../registry";
+import { parseRouteSegments, buildBlockRouteHint } from "../route-hints";
 
 type BlockLocation = {
   collection?: Collection;
@@ -184,9 +184,9 @@ export async function resolveReference(
     let targetRoute = target.block.route;
 
     if (!targetContent) {
-      const targetResolver = getResolver(target.block);
-      if (!targetResolver) {
-        ctx.logger?.error("reference.targetResolverMissing", {
+      const tarfindResolver = findResolver(target.block);
+      if (!tarfindResolver) {
+        ctx.logger?.error("reference.tarfindResolverMissing", {
           block: block.path,
           targetBlock: target.block.path,
           targetType: target.block.type,
@@ -194,13 +194,13 @@ export async function resolveReference(
         return undefined;
       }
 
-      const parentSegments = splitRouteSegments(target.entry.route);
+      const parentSegments = parseRouteSegments(target.entry.route);
       const { routeHint, routeSegments } = buildBlockRouteHint(
         target.block,
         parentSegments
       );
       const targetCtx: ResolveContext = { ...ctx, routeHint, routeSegments };
-      targetContent = await targetResolver(target.block, targetCtx);
+      targetContent = await tarfindResolver(target.block, targetCtx);
       targetRoute = targetRoute ?? targetContent?.blockRoute;
     }
 

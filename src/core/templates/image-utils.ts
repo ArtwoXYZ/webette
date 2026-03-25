@@ -68,7 +68,7 @@ export function resolveDefaultVariant(siteLike: SiteLike | undefined): ImageVari
   return configured ?? "default";
 }
 
-export function pickImageSource(
+export function resolveImageSource(
   block: ImageBlock,
   requested: ImageVariantName | undefined,
   fallback: ImageVariantName
@@ -118,7 +118,7 @@ export function buildImageHtml(block: ImageBlock, options: ImageRenderOptions = 
 
   const variant = normalizeVariantName(options.variant);
   const defaultVariant = resolveDefaultVariant(options.site);
-  const picked = pickImageSource(block, variant, defaultVariant);
+  const picked = resolveImageSource(block, variant, defaultVariant);
   if (!picked.src) return "";
 
   const alt =

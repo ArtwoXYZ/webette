@@ -7,7 +7,7 @@
 import { scanSite } from '../scan'
 import { runOnScan } from '../../plugins/runner'
 import { countDraftEntries, filterDraftEntries, listDraftEntries } from './utils/drafts'
-import { extractIndexFolders } from './utils/index-folders'
+import { collectIndexFolders } from './utils/index-folders'
 import { countBlocks } from './types'
 import type { BuildConfig, PluginResult, ScanResult } from './types'
 
@@ -42,7 +42,7 @@ export async function scanAndValidate(
     scannedSiteWithPlugins = await runOnScan(plugins, scannedSite, pluginContextBase)
   }
 
-  const siteWithIndexFolders = extractIndexFolders(scannedSiteWithPlugins, {
+  const siteWithIndexFolders = collectIndexFolders(scannedSiteWithPlugins, {
     includeDrafts,
     logger: scoped.child('index'),
   })

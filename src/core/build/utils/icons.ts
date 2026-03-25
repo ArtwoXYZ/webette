@@ -7,10 +7,10 @@ import * as path from 'node:path'
 import type { Site } from '../../model'
 import type { Logger } from '../../../logging/logger'
 import { writeIfChanged } from '../../../utils/fs'
-import { toPosix, stripRouteSlashes } from '../../../utils/path'
-import { pickString } from '../../../utils/parse'
+import { normalizePosixPath, normalizeRouteSlashes } from '../../../utils/path'
+import { parseString } from '../../../utils/parse'
 import { buildIconsHead } from '../../templates/icons-head'
-import { loadSharp } from '../../block-types/image/sharp-loader'
+import { loadSharp, type SharpModule } from '../../block-types/image/sharp-loader'
 
 type IconVariants = {
   default?: string
@@ -61,9 +61,9 @@ function extractVariants(raw: unknown): IconVariants | undefined {
   }
   if (!raw || typeof raw !== 'object') return undefined
   const obj = raw as Record<string, unknown>
-  const def = pickString(obj.default)
-  const light = pickString(obj.light) ?? pickString(obj.lightmode)
-  const dark = pickString(obj.dark) ?? pickString(obj.darkmode)
+  const def = parseString(obj.default)
+  const light = parseString(obj.light) ?? parseString(obj.lightmode)
+  const dark = parseString(obj.dark) ?? parseString(obj.darkmode)
   if (!def && !light && !dark) return undefined
   return {
     default: def,
@@ -106,18 +106,18 @@ function normalizeIconsConfig(site: Site, logger?: Logger): IconsConfig | null {
     return null
   }
 
-  const rawOutput = pickString(icons.outputDir) ?? DEFAULT_OUTPUT_DIR
-  const cleaned = stripRouteSlashes(toPosix(rawOutput))
+  const rawOutput = parseString(icons.outputDir) ?? DEFAULT_OUTPUT_DIR
+  const cleaned = normalizeRouteSlashes(normalizePosixPath(rawOutput))
   const outputRel = cleaned || DEFAULT_OUTPUT_DIR
   const publicBase = `/${outputRel}`
 
   const injectHead = typeof icons.injectHead === 'boolean' ? icons.injectHead : true
 
-  const themeColor = pickString(icons.themeColor) ?? DEFAULT_THEME_COLOR
-  const themeColorLight = pickString(icons.themeColorLight)
-  const themeColorDark = pickString(icons.themeColorDark)
-  const tileColor = pickString(icons.tileColor)
-  const colorScheme = pickString(icons.colorScheme)
+  const themeColor = parseString(icons.themeColor) ?? DEFAULT_THEME_COLOR
+  const themeColorLight = parseString(icons.themeColorLight)
+  const themeColorDark = parseString(icons.themeColorDark)
+  const tileColor = parseString(icons.tileColor)
+  const colorScheme = parseString(icons.colorScheme)
 
   return {
     outputRel,

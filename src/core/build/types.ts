@@ -58,7 +58,7 @@ export function countBlocks(blocks: Block[] = []): number {
   )
 }
 
-export function templateBaseName(filename: string): string {
+export function parseTemplateName(filename: string): string {
   return path.parse(filename).name
 }
 

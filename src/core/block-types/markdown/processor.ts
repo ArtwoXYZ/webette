@@ -8,7 +8,7 @@ import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import { type MarkdownAst } from "./types";
-import { slugify } from "../../../utils/naming";
+import { normalizeSlug } from "../../../utils/naming";
 
 type RemarkPlugin = Plugin<any[], any>;
 type RemarkPluginLike = RemarkPlugin | [RemarkPlugin, ...any[]];
@@ -328,7 +328,7 @@ function addIdsToHeadings() {
           const existingId = props.id;
           if (!existingId) {
             const text = extractText(node).trim();
-            const base = slugify(text || "section");
+            const base = normalizeSlug(text || "section");
             const seen = counts.get(base) ?? 0;
             const next = seen + 1;
             counts.set(base, next);

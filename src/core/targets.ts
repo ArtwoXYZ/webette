@@ -4,7 +4,7 @@
 
 import * as path from "node:path";
 import type { Collection, Entry, Site, Block } from "./model";
-import { cleanName, slugify } from "../utils/naming";
+import { normalizeName, normalizeSlug } from "../utils/naming";
 
 export type ParsedTarget =
   | { kind: "collection"; collectionName: string }
@@ -26,12 +26,12 @@ function decodeValue(value: string): string {
   }
 }
 
-function normalizeName(value: unknown): string {
+function normalizeTargetName(value: unknown): string {
   if (typeof value !== "string") return "";
   const trimmed = value.trim();
   if (!trimmed) return "";
   const base = path.parse(trimmed).name;
-  return cleanName(base).toLowerCase();
+  return normalizeName(base).toLowerCase();
 }
 
 // "coll" is an alias for "collection", "href" for "url".
@@ -84,7 +84,7 @@ export function parseInternalReference(rawUrl: string): ParsedInternal | null {
     if (idx <= 0) return { value };
     const base = value.slice(0, idx).trim();
     const hash = value.slice(idx + 1).trim();
-    const anchor = hash ? slugify(hash) : undefined;
+    const anchor = hash ? normalizeSlug(hash) : undefined;
     return { value: base, anchor };
   };
 
@@ -155,27 +155,27 @@ export function parseInternalReference(rawUrl: string): ParsedInternal | null {
 }
 
 export function matchCollection(site: Site, name: string): Collection | undefined {
-  const target = normalizeName(name);
+  const target = normalizeTargetName(name);
   return site.collections?.find((col) => {
     const names = [col.slug, col.id, col.name, col.rawName]
       .filter(Boolean)
-      .map((n) => normalizeName(String(n)));
+      .map((n) => normalizeTargetName(String(n)));
     return names.includes(target);
   });
 }
 
 // Reserved keyword to explicitly target root entries (entries without collection).
 export function isRootCollectionName(name: string): boolean {
-  return normalizeName(name) === "root";
+  return normalizeTargetName(name) === "root";
 }
 
 export function matchEntry(collection: Collection, name: string): Entry | undefined {
-  const target = normalizeName(name);
+  const target = normalizeTargetName(name);
   return collection.entries.find((entry) => {
     if (entry.isIndex) return false;
     const names = [entry.slug, entry.id, entry.name, entry.rawName]
       .filter(Boolean)
-      .map((n) => normalizeName(String(n)));
+      .map((n) => normalizeTargetName(String(n)));
     return names.includes(target);
   });
 }
@@ -192,8 +192,8 @@ export function matchRootEntry(site: Site, name: string): Entry | undefined {
 }
 
 export function matchBlock(entry: Entry, name: string): Block | undefined {
-  const targetBase = normalizeName(name);
-  const targetWithExt = normalizeName(path.parse(name).name);
+  const targetBase = normalizeTargetName(name);
+  const targetWithExt = normalizeTargetName(path.parse(name).name);
   return entry.blocks.find((blk) => {
     const rawName = typeof (blk as { rawName?: unknown }).rawName === "string" ? blk.rawName : "";
     const names = [
@@ -204,7 +204,7 @@ export function matchBlock(entry: Entry, name: string): Block | undefined {
       path.parse(rawName).name,
     ]
       .filter(Boolean)
-      .map((n) => normalizeName(String(n)));
+      .map((n) => normalizeTargetName(String(n)));
     return names.includes(targetBase) || names.includes(targetWithExt);
   });
 }

@@ -6,7 +6,7 @@
  * This module only operates on already-enriched Entry/Collection objects.
  */
 
-import type { Collection, Entry } from "../model";
+import type { Collection, Entry } from "./model";
 
 export type TagFilterMode = "and" | "or";
 
@@ -20,7 +20,7 @@ export function normalizeTags(input: string | string[]): string[] {
   return [...new Set(raw.map((t) => t.trim()).filter((t) => t.length > 0))];
 }
 
-export function entryMatchesTags(
+export function matchEntryTags(
   entry: Entry,
   tags: string[],
   mode: TagFilterMode
@@ -31,14 +31,14 @@ export function entryMatchesTags(
   return tags.some((t) => entryTags.includes(t));
 }
 
-export function filterEntriesByTags(
+export function findEntriesByTags(
   entries: Entry[],
   options: TagFilterOptions
 ): Entry[] {
   const tags = normalizeTags(options.tags);
   const mode = options.mode ?? "or";
   if (!tags.length) return entries;
-  return entries.filter((e) => entryMatchesTags(e, tags, mode));
+  return entries.filter((e) => matchEntryTags(e, tags, mode));
 }
 
 export function collectAllEntries(
@@ -49,7 +49,7 @@ export function collectAllEntries(
   return rootEntries ? [...rootEntries, ...fromCollections] : fromCollections;
 }
 
-export function getAllTags(entries: Entry[]): string[] {
+export function collectAllTags(entries: Entry[]): string[] {
   const tagSet = new Set<string>();
   for (const entry of entries) {
     for (const tag of entry.tags ?? []) tagSet.add(tag);
@@ -57,10 +57,10 @@ export function getAllTags(entries: Entry[]): string[] {
   return [...tagSet].sort();
 }
 
-export function getCollectionTags(collection: Collection): string[] {
-  return getAllTags(collection.entries ?? []);
+export function collectCollectionTags(collection: Collection): string[] {
+  return collectAllTags(collection.entries ?? []);
 }
 
-export function getSiteTags(collections: Collection[], rootEntries?: Entry[]): string[] {
-  return getAllTags(collectAllEntries(collections, rootEntries));
+export function collectSiteTags(collections: Collection[], rootEntries?: Entry[]): string[] {
+  return collectAllTags(collectAllEntries(collections, rootEntries));
 }

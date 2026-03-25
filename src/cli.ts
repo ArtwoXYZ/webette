@@ -8,7 +8,7 @@ import { build } from "./core/build";
 import { serve } from "./core/serve";
 import { createProjectLogger } from "./logging/logger";
 import { getEnv } from "./config/env";
-import { getVersion } from "./version";
+import { loadVersion } from "./version";
 import { WebetteError } from "./core/templates/engine";
 
 type CliOptions = {
@@ -79,7 +79,7 @@ async function main() {
   const { command, sitePath, options } = parseArgs(Bun.argv);
 
   if (!command) {
-    console.log(`webette ${getVersion()}`);
+    console.log(`webette ${loadVersion()}`);
     console.log("Usage:");
     console.log("  webette build [site-folder]");
     console.log("  webette serve [site-folder]");

@@ -13,7 +13,7 @@ import { writeIfChanged as writeIfChangedFs } from '../../utils/fs'
 import { createExpectedOutputsRegistry } from './utils/prune'
 import type { Logger } from '../../logging/logger'
 import type { BuildOptions, BuildConfig } from './types'
-import { readTagsConfig, normalizeAssetsBase, templateBaseName } from './types'
+import { readTagsConfig, normalizeAssetsBase, parseTemplateName } from './types'
 
 export async function initializeBuild(
   rootDir: string,
@@ -121,9 +121,9 @@ export async function initializeBuild(
       missing: missingFiles.join(', '),
     })
   }
-  const layoutPartialName = templateBaseName(templates.default.layout)
-  const notFoundLayoutName = templateBaseName(templates.default.notFound)
-  const accessForbiddenLayoutName = templateBaseName(templates.default.accessForbidden)
+  const layoutPartialName = parseTemplateName(templates.default.layout)
+  const notFoundLayoutName = parseTemplateName(templates.default.notFound)
+  const accessForbiddenLayoutName = parseTemplateName(templates.default.accessForbidden)
   scoped.debug('build.siteLoaded', { title: site.site.title })
 
   const assetsBase = templatesAssets ? normalizeAssetsBase(templatesAssets.publicBase) : undefined

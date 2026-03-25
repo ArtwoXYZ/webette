@@ -16,12 +16,12 @@ import type { Site } from '../../model'
 import type { RenderPage } from '../../../plugins/types'
 import {
   collectAllEntries,
-  getAllTags,
-  getCollectionTags,
-  filterEntriesByTags,
+  collectAllTags,
+  collectCollectionTags,
+  findEntriesByTags,
 } from '../../tag-filter'
-import { slugify } from '../../../utils/naming'
-import { stripRouteSlashes } from '../../../utils/path'
+import { normalizeSlug } from '../../../utils/naming'
+import { normalizeRouteSlashes } from '../../../utils/path'
 
 const TAG_INDEX_LAYOUT = 'tag-index'
 const TAG_PAGE_LAYOUT = 'tag-page'
@@ -42,7 +42,7 @@ export async function renderTagPages(options: {
   let count = 0
 
   const allEntries = collectAllEntries(site.collections ?? [], site.rootEntries)
-  const allTags = getAllTags(allEntries)
+  const allTags = collectAllTags(allEntries)
 
   if (allTags.length === 0) return 0
 
@@ -62,9 +62,9 @@ export async function renderTagPages(options: {
   // /tag/{slug}/ — site-level tag pages (one per tag)
   if (tagsConfig.siteTag) {
     for (const tag of allTags) {
-      const slug = slugify(tag)
+      const slug = normalizeSlug(tag)
       if (!slug) continue
-      const entries = filterEntriesByTags(allEntries, { tags: tag, mode: 'or' })
+      const entries = findEntriesByTags(allEntries, { tags: tag, mode: 'or' })
       const wrote = await renderPage({
         route: `/tag/${slug}/`,
         layoutName: TAG_PAGE_LAYOUT,
@@ -80,11 +80,11 @@ export async function renderTagPages(options: {
 
   // Collection-scoped tag pages
   for (const collection of site.collections ?? []) {
-    const collectionTags = getCollectionTags(collection)
+    const collectionTags = collectCollectionTags(collection)
     if (!collectionTags.length) continue
 
     const routeRelative = collection.route
-      ? stripRouteSlashes(collection.route)
+      ? normalizeRouteSlashes(collection.route)
       : collection.slug || collection.id
 
     // /{collection}/tag/ — collection tag index
@@ -107,9 +107,9 @@ export async function renderTagPages(options: {
     // /{collection}/tag/{slug}/ — collection tag pages
     if (tagsConfig.collectionTag) {
       for (const tag of collectionTags) {
-        const slug = slugify(tag)
+        const slug = normalizeSlug(tag)
         if (!slug) continue
-        const entries = filterEntriesByTags(collection.entries, { tags: tag, mode: 'or' })
+        const entries = findEntriesByTags(collection.entries, { tags: tag, mode: 'or' })
         const wrote = await renderPage({
           route: `/${routeRelative}/tag/${slug}/`,
           layoutName: TAG_PAGE_LAYOUT,

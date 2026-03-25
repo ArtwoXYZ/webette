@@ -1,5 +1,5 @@
 import type { Block } from '../model'
-import { pickString } from '../../utils/parse'
+import { parseString } from '../../utils/parse'
 import { escapeHtml as escapeAttr } from '../../utils/html'
 
 type SocialConfig = {
@@ -39,7 +39,7 @@ const toAbsoluteOrRootedUrl = (
   value: string | undefined,
   absoluteBase: string | undefined,
 ): string | undefined => {
-  const raw = pickString(value)
+  const raw = parseString(value)
   if (!raw) return undefined
   if (/^[a-z][a-z0-9+.-]*:\/\//i.test(raw)) return raw
   if (absoluteBase) {
@@ -88,10 +88,10 @@ const findFirstTextBlockRaw = (blocks: unknown[]): string | undefined => {
     const block = toRecord(blockValue)
     if (!block) continue
 
-    const type = pickString(block.type)?.toLowerCase()
+    const type = parseString(block.type)?.toLowerCase()
     if (type === 'text' || type === 'markdown') {
       const content = toRecord(block.content)
-      const raw = pickString(content?.raw)
+      const raw = parseString(content?.raw)
       if (raw) return raw
     }
 
@@ -118,15 +118,15 @@ const resolveSocialConfig = (site: Record<string, unknown>): SocialConfig | null
 
   return {
     injectHead,
-    image: pickString(social.image),
-    titleTemplate: pickString(social.titleTemplate),
-    descriptionTemplate: pickString(social.descriptionTemplate),
-    defaultDescription: pickString(social.defaultDescription),
+    image: parseString(social.image),
+    titleTemplate: parseString(social.titleTemplate),
+    descriptionTemplate: parseString(social.descriptionTemplate),
+    defaultDescription: parseString(social.defaultDescription),
     excerptFromFirstTextBlock,
     excerptMaxWords,
-    excerptSuffix: pickString(social.excerptSuffix) ?? '…',
-    ogType: pickString(social.ogType) ?? pickString(social.type),
-    twitterCard: pickString(social.twitterCard) ?? pickString(social.card),
+    excerptSuffix: parseString(social.excerptSuffix) ?? '…',
+    ogType: parseString(social.ogType) ?? parseString(social.type),
+    twitterCard: parseString(social.twitterCard) ?? parseString(social.card),
   }
 }
 
@@ -156,7 +156,7 @@ const resolvePageType = (
 }
 
 const resolveDisplayName = (value: Record<string, unknown> | undefined): string | undefined =>
-  pickString(value?.displayName) ?? pickString(value?.name)
+  parseString(value?.displayName) ?? parseString(value?.name)
 
 const resolveItemDescription = (
   pageSocial: Record<string, unknown> | undefined,
@@ -164,9 +164,9 @@ const resolveItemDescription = (
   collection: Record<string, unknown> | undefined,
 ): string | undefined => {
   return (
-    pickString(pageSocial?.description) ??
-    pickString(entry?.description) ??
-    pickString(collection?.description)
+    parseString(pageSocial?.description) ??
+    parseString(entry?.description) ??
+    parseString(collection?.description)
   )
 }
 
@@ -193,16 +193,16 @@ export function buildSocialHead(options: {
   }
 
   const blocks = Array.isArray(page.blocks) ? (page.blocks as Block[]) : []
-  const route = normalizeRoute(pickString(entry?.route) ?? pickString(collection?.route))
+  const route = normalizeRoute(parseString(entry?.route) ?? parseString(collection?.route))
   const pageType = resolvePageType(route, collection, blocks)
 
-  const absoluteBase = pickString(site.url)
-  const siteTitle = pickString(site.title)
-  const siteDescription = pickString(site.description)
-  const siteAuthor = pickString(site.author)
+  const absoluteBase = parseString(site.url)
+  const siteTitle = parseString(site.title)
+  const siteDescription = parseString(site.description)
+  const siteAuthor = parseString(site.author)
 
   const pageTitleBase =
-    pickString(pageSocial.title) ??
+    parseString(pageSocial.title) ??
     resolveDisplayName(entry) ??
     resolveDisplayName(collection) ??
     siteTitle
@@ -252,10 +252,10 @@ export function buildSocialHead(options: {
   const finalDescription = renderedDescription || descriptionFallback
 
   const defaultOgType = pageType === 'entry' ? 'article' : 'website'
-  const ogType = pickString(pageSocial.type) ?? config.ogType ?? defaultOgType
+  const ogType = parseString(pageSocial.type) ?? config.ogType ?? defaultOgType
   const twitterCard =
-    pickString(pageSocial.twitterCard) ??
-    pickString(pageSocial.card) ??
+    parseString(pageSocial.twitterCard) ??
+    parseString(pageSocial.card) ??
     config.twitterCard ??
     (imageUrl ? 'summary_large_image' : 'summary')
 

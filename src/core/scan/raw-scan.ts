@@ -4,9 +4,9 @@
 
 import { readdir, readFile, stat } from "node:fs/promises";
 import * as path from "node:path";
-import { detectBlockType } from "./detect-block-type";
-import { toPosix } from "../../utils/path";
-import { cleanName, orderKey } from "../../utils/naming";
+import { resolveBlockType } from "./detect-block-type";
+import { normalizePosixPath } from "../../utils/path";
+import { normalizeName, parseOrderKey } from "../../utils/naming";
 import type { Logger } from "../../logging/logger";
 import type {
   RawBlock,
@@ -20,7 +20,7 @@ import {
   isIndexFolderName,
   isReferenceBlockFile,
   isVisibleContentName,
-  sortByName,
+  applySortByName,
 } from "./utils";
 
 export async function readIgnoreFile(dir: string): Promise<Set<string>> {
@@ -110,9 +110,9 @@ export async function listCollectionAssetsRaw(
     if (!entry.isFile()) continue;
     const rawName = entry.name;
     if (!rawName || rawName.startsWith(".") || rawName.startsWith("_")) continue;
-    const relPath = toPosix(path.join(collectionPath, "_assets", rawName));
+    const relPath = normalizePosixPath(path.join(collectionPath, "_assets", rawName));
     const ext = path.extname(rawName) || undefined;
-    const type = detectBlockType(rawName, ext, false, { treatTxtAsMarkdown: false });
+    const type = resolveBlockType(rawName, ext, false, { treatTxtAsMarkdown: false });
     if (type !== "image" && type !== "audio" && type !== "video") continue;
     assets.push({
       rawName,
@@ -123,8 +123,8 @@ export async function listCollectionAssetsRaw(
   }
 
   assets.sort((a, b) => {
-    const orderA = orderKey(a.rawName);
-    const orderB = orderKey(b.rawName);
+    const orderA = parseOrderKey(a.rawName);
+    const orderB = parseOrderKey(b.rawName);
     if (orderA !== orderB) return orderA - orderB;
     return a.rawName.localeCompare(b.rawName, undefined, { sensitivity: "base" });
   });
@@ -147,18 +147,18 @@ export async function listBlocksRaw(
     const rawName = fsEntry.name;
     if (!rawName || rawName.startsWith(".") || rawName.startsWith("_")) continue;
 
-    const relPath = toPosix(path.join(entryRelPath, rawName));
+    const relPath = normalizePosixPath(path.join(entryRelPath, rawName));
     const isDirectory = fsEntry.isDirectory();
     const ext = isDirectory ? undefined : path.extname(rawName) || undefined;
     const isNavigation =
       !isDirectory &&
-      cleanName(rawName).toLowerCase() === "navigation.webt";
+      normalizeName(rawName).toLowerCase() === "navigation.webt";
     const isReference =
       !isDirectory &&
       ext?.toLowerCase() === ".webt" &&
       rawName.toLowerCase().includes("reference");
     if (!isDirectory && ext?.toLowerCase() === ".webt" && !isNavigation && !isReference) continue;
-    const type = isNavigation ? "navigation" : detectBlockType(rawName, ext, isDirectory, options);
+    const type = isNavigation ? "navigation" : resolveBlockType(rawName, ext, isDirectory, options);
 
     const shouldSkipRender = ignoreSet.has(rawName);
     if (shouldSkipRender) {
@@ -179,12 +179,12 @@ export async function listBlocksRaw(
     });
   }
 
-  sortByName(blocks);
+  applySortByName(blocks);
 
   return blocks;
 }
 
-export async function classifyFolderOutsideEntry(options: {
+export async function resolveFolderOutsideEntry(options: {
   rootDir: string;
   relPath: string;
 }): Promise<
@@ -250,7 +250,7 @@ export async function scanStructureFolderRaw(options: {
     logger,
   } = options;
 
-  const classification = await classifyFolderOutsideEntry({ rootDir, relPath });
+  const classification = await resolveFolderOutsideEntry({ rootDir, relPath });
   const absolute = path.join(rootDir, relPath);
 
   if (classification.kind === "ignored") {
@@ -295,11 +295,11 @@ export async function scanStructureFolderRaw(options: {
     if (!isVisibleContentName(childName)) continue;
     childCandidates.push({
       rawName: childName,
-      path: toPosix(path.join(relPath, childName)),
+      path: normalizePosixPath(path.join(relPath, childName)),
     });
   }
 
-  sortByName(childCandidates);
+  applySortByName(childCandidates);
 
   const children: RawStructureNode[] = [];
   for (const child of childCandidates) {
@@ -358,10 +358,10 @@ export async function listStructureRootRaw(options: {
     if (isIndexFolderName(rawName, indexFolderName)) continue;
     // Root-level files are intentionally ignored here; this pass classifies folders only.
 
-    rootCandidates.push({ rawName, path: toPosix(rawName) });
+    rootCandidates.push({ rawName, path: normalizePosixPath(rawName) });
   }
 
-  sortByName(rootCandidates);
+  applySortByName(rootCandidates);
 
   const children: RawStructureNode[] = [];
   for (const candidate of rootCandidates) {
@@ -400,12 +400,12 @@ export async function listRootIndexRaw(
     if (rawName === templateDirName) continue;
     if (!isIndexFolderName(rawName, indexFolderName)) continue;
 
-    const relPath = toPosix(rawName);
+    const relPath = normalizePosixPath(rawName);
     candidates.push({ rawName, path: relPath });
   }
 
   if (!candidates.length) return undefined;
-  sortByName(candidates);
+  applySortByName(candidates);
   const [target] = candidates;
   if (!target) return undefined;
   if (candidates.length > 1) {

@@ -60,7 +60,7 @@ export function matchesExcludedEntry(
   return false;
 }
 
-export function shouldIncludeCollection(
+export function isIncludedCollection(
   collection: CollectionLike,
   includeUnlisted: boolean,
   excludeCollections: Set<string>
@@ -70,7 +70,7 @@ export function shouldIncludeCollection(
   return true;
 }
 
-export function shouldIncludeEntry(
+export function isIncludedEntry(
   entry: EntryLike,
   collection: CollectionLike | undefined,
   includeUnlisted: boolean,

@@ -8,7 +8,7 @@ import {
   type CollectionLike,
   type EntryLike,
 } from "../../../../utils/navigation";
-import { toPosix } from "../../../../utils/path";
+import { normalizePosixPath } from "../../../../utils/path";
 import type { NavigationItem } from "./builder";
 import type { NavigationOptions } from "./parser";
 
@@ -18,10 +18,10 @@ export function findCollectionForBlock(
   site: Site,
   block: Block
 ): { collection: Collection; entry: Entry } | undefined {
-  const blockPath = toPosix(block.path);
+  const blockPath = normalizePosixPath(block.path);
   for (const collection of site.collections ?? []) {
     for (const entry of collection.entries ?? []) {
-      const entryPath = toPosix(entry.path ?? "");
+      const entryPath = normalizePosixPath(entry.path ?? "");
       if (!entryPath) continue;
       if (blockPath.startsWith(`${entryPath}/`)) {
         return { collection, entry };
@@ -35,9 +35,9 @@ function findRootEntryForBlock(
   site: Site,
   block: Block
 ): { entry: Entry } | undefined {
-  const blockPath = toPosix(block.path);
+  const blockPath = normalizePosixPath(block.path);
   for (const entry of site.rootEntries ?? []) {
-    const entryPath = toPosix(entry.path ?? "");
+    const entryPath = normalizePosixPath(entry.path ?? "");
     if (!entryPath) continue;
     if (blockPath.startsWith(`${entryPath}/`)) {
       return { entry };
@@ -57,10 +57,10 @@ export function findCurrentForBlock(
   const rootDirect = findRootEntryForBlock(site, block);
   if (rootDirect) return rootDirect;
 
-  const blockPath = toPosix(block.path);
+  const blockPath = normalizePosixPath(block.path);
   const rootIndex = site.indexes?.root;
   if (rootIndex?.path) {
-    const indexPath = toPosix(rootIndex.path);
+    const indexPath = normalizePosixPath(rootIndex.path);
     if (blockPath === indexPath || blockPath.startsWith(`${indexPath}/`)) {
       return { entry: rootIndex };
     }
@@ -69,7 +69,7 @@ export function findCurrentForBlock(
   const collections = site.collections ?? [];
   for (const [key, entry] of Object.entries(site.indexes?.collections ?? {})) {
     if (!entry?.path) continue;
-    const indexPath = toPosix(entry.path);
+    const indexPath = normalizePosixPath(entry.path);
     if (blockPath === indexPath || blockPath.startsWith(`${indexPath}/`)) {
       const collection = collections.find(
         (col) => (col.slug || col.id) === key || col.id === key

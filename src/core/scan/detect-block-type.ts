@@ -5,7 +5,7 @@ type DetectOptions = {
   treatTxtAsMarkdown?: boolean;
 };
 
-export function detectBlockType(
+export function resolveBlockType(
   fileName: string,
   ext: string | undefined,
   isDirectory: boolean,

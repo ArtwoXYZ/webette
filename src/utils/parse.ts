@@ -15,7 +15,7 @@ export function parseBoolean(value: unknown): boolean | undefined {
 }
 
 /** Extract a non-empty trimmed string from an unknown value, or undefined. */
-export function pickString(value: unknown): string | undefined {
+export function parseString(value: unknown): string | undefined {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 

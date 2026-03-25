@@ -8,9 +8,9 @@ import { loadPlugins, resolvePluginSources } from '../../plugins/loader'
 import { runOnInit } from '../../plugins/runner'
 import type { PluginContext } from '../../plugins/types'
 import {
-  filterEntriesByTags,
+  findEntriesByTags,
   collectAllEntries,
-  getAllTags,
+  collectAllTags,
   normalizeTags,
 } from '../tag-filter'
 import type { BuildConfig, PluginResult } from './types'
@@ -60,9 +60,9 @@ export async function loadAndInitPlugins(config: BuildConfig): Promise<PluginRes
     siteConfig: site.site,
     pluginConfig: site.config?.pluginConfig,
     tags: {
-      filter: filterEntriesByTags,
+      filter: findEntriesByTags,
       collect: collectAllEntries,
-      getAllTags,
+      collectAllTags,
       normalizeTags,
     },
   }

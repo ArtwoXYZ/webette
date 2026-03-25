@@ -15,7 +15,7 @@ import type {
   RawStructureNode,
 } from "./internal-types";
 import { listCollectionAssetsRaw } from "./raw-scan";
-import { sortByName } from "./utils";
+import { applySortByName } from "./utils";
 
 export function enrichStructureNodes(rawNodes: RawStructureNode[]): SiteStructureNode[] {
   return rawNodes.map((node) => {
@@ -38,7 +38,7 @@ function rawEntryFromStructure(node: RawStructureEntryNode): RawEntry {
   return rest;
 }
 
-export async function deriveFlatRawViewsFromStructure(options: {
+export async function buildFlatRawViews(options: {
   rootDir: string;
   rootNodes: RawStructureNode[];
 }): Promise<{ collections: RawCollection[]; rootEntries: RawEntry[] }> {
@@ -79,10 +79,10 @@ export async function deriveFlatRawViewsFromStructure(options: {
     await visitCollection(node);
   }
 
-  sortByName(rootEntries);
-  sortByName(collections);
+  applySortByName(rootEntries);
+  applySortByName(collections);
   for (const collection of collections) {
-    sortByName(collection.entries);
+    applySortByName(collection.entries);
   }
 
   return { collections, rootEntries };

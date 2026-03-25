@@ -3,7 +3,7 @@
  */
 import type { Block, Collection, Entry, Site } from "./model";
 import { SiteModelTransformer } from "./site-model-transformer";
-import { ensureLeadingSlash } from "../utils/path";
+import { normalizeLeadingSlash } from "../utils/path";
 
 type CollectionConfig = {
   path?: string;
@@ -44,7 +44,7 @@ function resolveBlockRoutes(block: Block, parentSegments: string[]): Block {
 function resolveEntryRoutes(entry: Entry, collectionRoute: string): Entry {
   const baseSegments = routeSegments(collectionRoute);
   const parentSegments = [...baseSegments, entry.slug];
-  const route = ensureLeadingSlash(`${joinRoute(...parentSegments)}/`);
+  const route = normalizeLeadingSlash(`${joinRoute(...parentSegments)}/`);
   const blocks = entry.blocks.map((block) =>
     resolveBlockRoutes(block, parentSegments)
   );
@@ -58,7 +58,7 @@ function resolveEntryRoutes(entry: Entry, collectionRoute: string): Entry {
 
 function resolveRootEntryRoutes(entry: Entry): Entry {
   const parentSegments = [entry.slug];
-  const route = ensureLeadingSlash(`${joinRoute(...parentSegments)}/`);
+  const route = normalizeLeadingSlash(`${joinRoute(...parentSegments)}/`);
   const blocks = entry.blocks.map((block) => resolveBlockRoutes(block, parentSegments));
 
   return {
@@ -73,7 +73,7 @@ function resolveCollectionRoutes(
   config: Record<string, unknown> | undefined,
   baseRoute: string
 ): Collection {
-  const route = ensureLeadingSlash(`${joinRoute(baseRoute)}/`);
+  const route = normalizeLeadingSlash(`${joinRoute(baseRoute)}/`);
   const entries = collection.entries.map((entry) =>
     resolveEntryRoutes(entry, baseRoute)
   );
@@ -88,7 +88,7 @@ function resolveCollectionRoutes(
 function resolveRootIndexRoutes(entry: Entry): Entry {
   const baseRoute = entry.slug;
   const parentSegments = routeSegments(baseRoute);
-  const route = ensureLeadingSlash(`${joinRoute(...parentSegments)}/`);
+  const route = normalizeLeadingSlash(`${joinRoute(...parentSegments)}/`);
   const blocks = entry.blocks.map((block) => resolveBlockRoutes(block, parentSegments));
 
   return {

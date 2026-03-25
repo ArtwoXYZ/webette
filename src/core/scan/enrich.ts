@@ -3,8 +3,8 @@
  */
 
 import * as path from "node:path";
-import { cleanName, limitSlugWords, slugify } from "../../utils/naming";
-import { toPosix } from "../../utils/path";
+import { normalizeName, normalizeSlugWords, normalizeSlug } from "../../utils/naming";
+import { normalizePosixPath } from "../../utils/path";
 import type { Block, Collection, Entry, Site } from "../model";
 import type { CollectionConfig, RawBlock, RawCollection, RawEntry } from "./internal-types";
 
@@ -16,9 +16,9 @@ export function buildConfigIndex(site: Site): Map<string, CollectionConfig> {
   for (const [key, value] of Object.entries(raw)) {
     if (!value || typeof value !== "object") continue;
     const cfg = value as CollectionConfig;
-    const normalizedKey = toPosix(key);
+    const normalizedKey = normalizePosixPath(key);
     const normalizedPath =
-      typeof cfg.path === "string" && cfg.path ? toPosix(cfg.path) : undefined;
+      typeof cfg.path === "string" && cfg.path ? normalizePosixPath(cfg.path) : undefined;
     map.set(normalizedPath ?? normalizedKey, cfg);
   }
 
@@ -31,13 +31,13 @@ export function enrichBlocks(rawBlocks: RawBlock[]): Block[] {
   const walk = (blocks: RawBlock[]): Block[] =>
     blocks.map((blk) => {
       const baseName = blk.ext ? path.parse(blk.rawName).name : blk.rawName;
-      const name = cleanName(baseName);
-      const baseSlug = slugify(name);
+      const name = normalizeName(baseName);
+      const baseSlug = normalizeSlug(name);
       const count = blockSlugCounts.get(baseSlug) ?? 0;
       const slug = count === 0 ? baseSlug : `${baseSlug}-${count + 1}`;
       blockSlugCounts.set(baseSlug, count + 1);
 
-      const idBase = `blk__${limitSlugWords(slug).replace(/-/g, "_")}`;
+      const idBase = `blk__${normalizeSlugWords(slug).replace(/-/g, "_")}`;
       const idCount = blockSlugCounts.get(idBase) ?? 0;
       const id = idCount === 0 ? idBase : `${idBase}_${idCount + 1}`;
       blockSlugCounts.set(idBase, idCount + 1);
@@ -64,13 +64,13 @@ export function enrichEntries(rawEntries: RawEntry[]): Entry[] {
   const entrySlugCounts = new Map<string, number>();
 
   return rawEntries.map((raw) => {
-    const name = cleanName(raw.rawName);
-    const baseSlug = slugify(name);
+    const name = normalizeName(raw.rawName);
+    const baseSlug = normalizeSlug(name);
     const count = entrySlugCounts.get(baseSlug) ?? 0;
     const slug = count === 0 ? baseSlug : `${baseSlug}-${count + 1}`;
     entrySlugCounts.set(baseSlug, count + 1);
 
-    const idBase = `ent__${limitSlugWords(slug).replace(/-/g, "_")}`;
+    const idBase = `ent__${normalizeSlugWords(slug).replace(/-/g, "_")}`;
     const idCount = entrySlugCounts.get(idBase) ?? 0;
     const id = idCount === 0 ? idBase : `${idBase}_${idCount + 1}`;
     entrySlugCounts.set(idBase, idCount + 1);
@@ -102,24 +102,24 @@ export function enrichCollections(
 
   return rawCollections.map((raw) => {
     const matchConfig =
-      configIndex.get(raw.path) ?? configIndex.get(toPosix(raw.rawName));
+      configIndex.get(raw.path) ?? configIndex.get(normalizePosixPath(raw.rawName));
 
     const configuredName =
       matchConfig?.name && typeof matchConfig.name === "string"
-        ? cleanName(matchConfig.name)
+        ? normalizeName(matchConfig.name)
         : undefined;
-    const name = configuredName ?? cleanName(raw.rawName);
+    const name = configuredName ?? normalizeName(raw.rawName);
 
     const configuredSlug =
       matchConfig?.slug && typeof matchConfig.slug === "string"
-        ? slugify(matchConfig.slug)
+        ? normalizeSlug(matchConfig.slug)
         : undefined;
-    const baseSlug = configuredSlug ?? slugify(name);
+    const baseSlug = configuredSlug ?? normalizeSlug(name);
     const slugCount = collectionSlugCounts.get(baseSlug) ?? 0;
     const slug = slugCount === 0 ? baseSlug : `${baseSlug}-${slugCount + 1}`;
     collectionSlugCounts.set(baseSlug, slugCount + 1);
 
-    const idBase = `col__${limitSlugWords(slug).replace(/-/g, "_")}`;
+    const idBase = `col__${normalizeSlugWords(slug).replace(/-/g, "_")}`;
     const idCount = collectionIdCounts.get(idBase) ?? 0;
     const id = idCount === 0 ? idBase : `${idBase}_${idCount + 1}`;
     collectionIdCounts.set(idBase, idCount + 1);

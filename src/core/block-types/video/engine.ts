@@ -8,7 +8,7 @@ import type { Block } from "../../model";
 import type { Logger } from "../../../logging/logger";
 import type { VideoPipelineConfig } from "./config";
 import { resolveVideoOutputPaths } from "./paths";
-import { ensureLeadingSlash } from "../../../utils/path";
+import { normalizeLeadingSlash } from "../../../utils/path";
 
 export async function copyVideoAsset(options: {
   block: Block;
@@ -34,7 +34,7 @@ export async function copyVideoAsset(options: {
     const outputPath = path.join(baseDir, fileName);
     await copyFile(filePath, outputPath);
     const copied = await stat(outputPath);
-    const route = ensureLeadingSlash(path.posix.join(publicStem, fileName));
+    const route = normalizeLeadingSlash(path.posix.join(publicStem, fileName));
     return { route, size: copied.size };
   } catch (err) {
     logger?.warn("resolve.video.copyFailed", {

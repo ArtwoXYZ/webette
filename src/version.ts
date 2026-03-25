@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 let cachedVersion: string | undefined;
 
-export function getVersion(): string {
+export function loadVersion(): string {
   if (cachedVersion) return cachedVersion;
   const pkgPath = fileURLToPath(new URL("../package.json", import.meta.url));
 
