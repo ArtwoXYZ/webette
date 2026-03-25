@@ -69,11 +69,13 @@ Active story: —
 - [x] T6-S13 Simplify global pre-beta : passer `/simplify` sur l'ensemble du codebase (src/) pour détecter et corriger duplication résiduelle, qualité, efficacité avant la beta.
 - [x] T6-S14 Harmonisation commentaires & conventions : uniformiser tous les commentaires de fichier dans `src/`, documenter les conventions de nommage/commentaires dans le site de documentation (PAS dans la codebase). Toute documentation produite va dans le site de doc, aucun fichier .md de convention ne doit être ajouté au repo engine.
 - [ ] T6-S15 Migration monorepo : exécuter la restructuration selon le plan T6-S12 (déplacer engine, configurer workspaces Bun, vérifier imports/build/CI).
+- [ ] T6-S16 Audit nommage fonctions : vérifier que toutes les fonctions dans `src/` respectent les verb prefixes documentés dans le site de doc (normalize, resolve, parse, build, create, find, load, scan, apply, register). Renommer les fonctions non conformes.
 
 ## T7 — Webette UI (beta)
 
 > Note : explorer ElectroBun comme base pour l'app desktop avant de démarrer cette tâche.
 
+- [ ] T7-S00 Refonte CLI : redesign complet de l'expérience terminal — mini interface d'accueil, affichage structuré des logs (niveaux, couleurs, formatage), commande help claire, feedback utilisateur soigné.
 - [ ] T7-S01 POC serveur + build + logs (API locale minimale).
 - [ ] T7-S02 Alpha: build/serve/stop + gestion process + status.
 - [ ] T7-S03 UI minimale (boutons + logs + lien local).
