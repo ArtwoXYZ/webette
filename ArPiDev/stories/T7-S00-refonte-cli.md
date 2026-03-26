@@ -1,7 +1,8 @@
 # T7-S00 — Refonte CLI
 
-**Status:** Done, Waiting for Validation
+**Status:** Done, Validated
 **Opened:** 2026-03-26
+**Closed:** 2026-03-26
 
 ---
 
@@ -167,6 +168,44 @@ Added `logger.info("build.started", { rootDir })` at entry and `logger.info("bui
 
 ---
 
+### 2026-03-26 (suite)
+
+**Couleurs welcome screen** (`src/cli.ts`)
+
+Ajout de `supportsCliColor` + helper `clr(ansi, text)` locaux (TTY-guard, pas de nouvelle dépendance). `printHelp` redessinée :
+- "webette" en bold + bright-red (`1;91`) — accent du thème tutorial
+- Version en dim gray (`90`)
+- Règle horizontale dim (`─` × 38)
+- Tagline en dim (`2`)
+- Headers de sections (`Usage:`, `Commandes:`, `Options:`) en bold
+- Noms de commandes en vert (`32`) — inspiré du vert sage du site
+- Flags/options en jaune (`33`) — warm tone
+
+**Logo ASCII** (`src/cli.ts`)
+
+Intégration de la bébette (`ascii-bebette.txt`) comme constante `MASCOT` dans `cli.ts`. Affichée en tête de `printHelp()`, avec "webette" (bold+red) et la version (dim) centrés sous le dessin — même position que dans le fichier source.
+
+Fix incident : `@ts-expect-error` devenu obsolète dans `src/utils/load-module.ts` (les types Bun ont été mis à jour, la directive était devenue inutile) — supprimé.
+
+**Typecheck** : clean (0 erreurs).
+
+---
+
 ## Pilot exchange
 
-*(to be filled at closure)*
+**Scope extension validée :** mascot ASCII + colorisation du welcome screen ajoutés après la première implémentation, à la demande de l'user — hors scope initial mais cohérents avec l'esprit de la story.
+
+**Décisions prises :**
+- `webette` reste le nom de la commande CLI (pas de rename en `webt`).
+- Mode interactif no-args écarté pour l'instant (trop tôt par rapport aux options disponibles).
+
+**Commit proposal :**
+
+```
+feat(cli): mascot ASCII + colorized welcome screen
+
+- Add bébette ASCII mascot (block chars) to printHelp(), colored in muted green (--light-text equivalent: dim+32).
+- Colorize welcome screen: tool name bold+red (accent), commands green, options yellow, tagline/hints dim gray.
+- Remove stale @ts-expect-error in load-module.ts (Bun types now include `write`).
+- Update .claude/launch.json to match monorepo structure and correct serve port (4173).
+```

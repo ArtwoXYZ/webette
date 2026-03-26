@@ -12,6 +12,37 @@ import { t, type Locale } from "./logging/i18n";
 import { loadVersion } from "./version";
 import { WebetteError } from "./core/templates/engine";
 
+const supportsCliColor =
+  typeof process !== "undefined" && Boolean(process.stdout?.isTTY);
+
+function clr(ansi: string, text: string): string {
+  return supportsCliColor ? `\x1b[${ansi}m${text}\x1b[0m` : text;
+}
+
+const MASCOT = `
+                                      ▀▀▀▀▀▀
+                                ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+                            ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+                          ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+                        ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+              ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+            ▀▀          ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+          ▀▀          ▀▀  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+  ▀▀▀▀▀▀▀▀▀▀          ▀▀  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+          ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+        ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+        ▀▀    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+      ▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+      ▀▀▀▀    ▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+      ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+      ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+      ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+        ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+          ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+            ▀▀▀▀  ▀▀▀▀      ▀▀▀▀  ▀▀▀▀  ▀▀▀▀  ▀▀▀▀▀▀
+            ▀▀▀▀  ▀▀▀▀      ▀▀▀▀  ▀▀▀▀  ▀▀▀▀  ▀▀▀▀
+            ▀▀    ▀▀        ▀▀    ▀▀      ▀▀    ▀▀`;
+
 type CliOptions = {
   verbose: boolean;
   exportModel?: {
@@ -77,23 +108,28 @@ function parseArgs(argv: string[]) {
 }
 
 function printHelp(locale: Locale, version: string): void {
-  console.log(`\nwebette ${version}`);
-  console.log(t(locale, "cli.tagline"));
+  const name = clr("1;91", "webette");    // bold + bright red (accent)
+  const ver  = clr("90", `v${version}`); // dim gray
+
+  console.log(clr("2;32", MASCOT));
+  console.log(`                           ${name}  ${ver}`);
   console.log();
-  console.log(t(locale, "cli.help.usage"));
-  console.log(t(locale, "cli.help.folderHint"));
+  console.log(`  ${clr("2", t(locale, "cli.tagline"))}`);
   console.log();
-  console.log(t(locale, "cli.help.commands"));
-  console.log(t(locale, "cli.help.build"));
-  console.log(t(locale, "cli.help.serve"));
-  console.log(t(locale, "cli.help.help"));
+  console.log(clr("1", t(locale, "cli.help.usage")));
+  console.log(clr("90", t(locale, "cli.help.folderHint")));
   console.log();
-  console.log(t(locale, "cli.help.options"));
-  console.log(t(locale, "cli.help.verbose"));
-  console.log(t(locale, "cli.help.exportModelOnly"));
-  console.log(t(locale, "cli.help.skipContent"));
-  console.log(t(locale, "cli.help.includeDrafts"));
-  console.log(t(locale, "cli.help.noIncludeDrafts"));
+  console.log(clr("1", t(locale, "cli.help.commands")));
+  console.log(clr("32", t(locale, "cli.help.build")));
+  console.log(clr("32", t(locale, "cli.help.serve")));
+  console.log(clr("32", t(locale, "cli.help.help")));
+  console.log();
+  console.log(clr("1", t(locale, "cli.help.options")));
+  console.log(clr("33", t(locale, "cli.help.verbose")));
+  console.log(clr("33", t(locale, "cli.help.exportModelOnly")));
+  console.log(clr("33", t(locale, "cli.help.skipContent")));
+  console.log(clr("33", t(locale, "cli.help.includeDrafts")));
+  console.log(clr("33", t(locale, "cli.help.noIncludeDrafts")));
   console.log();
 }
 
