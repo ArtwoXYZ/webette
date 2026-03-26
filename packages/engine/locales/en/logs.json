@@ -79,5 +79,21 @@
   "build.pluginReadmeParseError": "Failed to parse plugin README at {path}: {error}",
   "build.pluginScanDirError": "Failed to scan plugins directory {dir}: {error}",
   "build.pluginMissingReadme": "Plugin '{folder}' has no README.md and was skipped. A README.md is required for all plugins.",
-  "build.pluginMetadataIncomplete": "Plugin '{folder}' is missing required metadata fields ({missing}) in its README.md. Skipped."
+  "build.pluginMetadataIncomplete": "Plugin '{folder}' is missing required metadata fields ({missing}) in its README.md. Skipped.",
+  "cli.tagline": "Filesystem-first static site generator.",
+  "cli.help.usage": "Usage: webette <command> [site-folder] [options]",
+  "cli.help.folderHint": "If no folder is given, the current directory is used.",
+  "cli.help.commands": "Commands:",
+  "cli.help.build": "  build [folder]            Build the site to _public/",
+  "cli.help.serve": "  serve [folder]            Build and serve with live reload",
+  "cli.help.help": "  help                      Show this help",
+  "cli.help.options": "Options:",
+  "cli.help.verbose": "  -v, --verbose             Show debug logs",
+  "cli.help.exportModelOnly": "  --export-model-only       Export model, skip HTML generation",
+  "cli.help.skipContent": "  --skip-content            Skip block content reading",
+  "cli.help.includeDrafts": "  --include-drafts          Include draft entries",
+  "cli.help.noIncludeDrafts": "  --no-include-drafts       Exclude drafts even in serve",
+  "cli.unknownCommand": "Unknown command: {command}",
+  "build.started": "Building {rootDir}…",
+  "build.done": "Built in {duration}."
 }

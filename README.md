@@ -121,8 +121,11 @@ To experiment:
 git clone https://tangled.org/artwo.xyz/webette.git
 cd webette
 bun install
-bun run build website-example
+cd packages/engine && bun link
 ```
+
+`bun link` registers `webette` as a global command on your machine, pointing directly at the local sources.
+After that, `webette` is available anywhere in your terminal — no path prefix needed.
 
 Later, webette will ship as a standalone bun binary.
 
@@ -147,11 +150,11 @@ my-site/
 Then:
 
 ```bash
-bun run build website-example
-bun run serve website-example
+webette build my-site/
+webette serve my-site/
 ```
 
-Output appears in `_public/`.
+Output appears in `my-site/_public/`.
 
  
 

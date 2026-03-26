@@ -79,5 +79,21 @@
   "build.pluginReadmeParseError": "Impossible de lire le README du plugin à {path} : {error}",
   "build.pluginScanDirError": "Impossible de scanner le dossier de plugins {dir} : {error}",
   "build.pluginMissingReadme": "Le plugin '{folder}' n'a pas de README.md et a été ignoré. Un README.md est requis pour tous les plugins.",
-  "build.pluginMetadataIncomplete": "Le plugin '{folder}' n'a pas les champs obligatoires ({missing}) dans son README.md. Ignoré."
+  "build.pluginMetadataIncomplete": "Le plugin '{folder}' n'a pas les champs obligatoires ({missing}) dans son README.md. Ignoré.",
+  "cli.tagline": "Générateur de site statique orienté filesystem.",
+  "cli.help.usage": "Usage : webette <commande> [dossier-site] [options]",
+  "cli.help.folderHint": "Si aucun dossier n'est précisé, le dossier courant est utilisé.",
+  "cli.help.commands": "Commandes :",
+  "cli.help.build": "  build [dossier]           Construit le site dans _public/",
+  "cli.help.serve": "  serve [dossier]           Construit et sert avec rechargement auto",
+  "cli.help.help": "  help                      Affiche cette aide",
+  "cli.help.options": "Options :",
+  "cli.help.verbose": "  -v, --verbose             Afficher les logs de débogage",
+  "cli.help.exportModelOnly": "  --export-model-only       Exporter le modèle sans générer le HTML",
+  "cli.help.skipContent": "  --skip-content            Ne pas lire le contenu des blocs",
+  "cli.help.includeDrafts": "  --include-drafts          Inclure les brouillons",
+  "cli.help.noIncludeDrafts": "  --no-include-drafts       Masquer les brouillons même en serve",
+  "cli.unknownCommand": "Commande inconnue : {command}",
+  "build.started": "Construction de {rootDir}…",
+  "build.done": "Construit en {duration}."
 }

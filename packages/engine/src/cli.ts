@@ -7,7 +7,8 @@
 import { build } from "./core/build";
 import { serve } from "./core/serve";
 import { createProjectLogger } from "./logging/logger";
-import { getEnv } from "./config/env";
+import { getEnv, resolveLocale } from "./config/env";
+import { t, type Locale } from "./logging/i18n";
 import { loadVersion } from "./version";
 import { WebetteError } from "./core/templates/engine";
 
@@ -75,30 +76,41 @@ function parseArgs(argv: string[]) {
   return { command, sitePath, options };
 }
 
+function printHelp(locale: Locale, version: string): void {
+  console.log(`\nwebette ${version}`);
+  console.log(t(locale, "cli.tagline"));
+  console.log();
+  console.log(t(locale, "cli.help.usage"));
+  console.log(t(locale, "cli.help.folderHint"));
+  console.log();
+  console.log(t(locale, "cli.help.commands"));
+  console.log(t(locale, "cli.help.build"));
+  console.log(t(locale, "cli.help.serve"));
+  console.log(t(locale, "cli.help.help"));
+  console.log();
+  console.log(t(locale, "cli.help.options"));
+  console.log(t(locale, "cli.help.verbose"));
+  console.log(t(locale, "cli.help.exportModelOnly"));
+  console.log(t(locale, "cli.help.skipContent"));
+  console.log(t(locale, "cli.help.includeDrafts"));
+  console.log(t(locale, "cli.help.noIncludeDrafts"));
+  console.log();
+}
+
 async function main() {
   const { command, sitePath, options } = parseArgs(Bun.argv);
 
-  if (!command) {
-    console.log(`webette ${loadVersion()}`);
-    console.log("Usage:");
-    console.log("  webette build [site-folder]");
-    console.log("  webette serve [site-folder]");
-    console.log("");
-    console.log("If no folder is provided, the current directory is used.");
-    console.log("");
-    console.log("Options:");
-    console.log("  -v, --verbose             Show debug logs");
-    console.log("  --export-model-only       Export the model and skip HTML generation");
-    console.log("  --skip-content            Do not read/resolve block contents");
-    console.log("  --include-drafts          Serve draft entries (default in serve)");
-    console.log("  --no-include-drafts       Hide draft entries even in serve");
+  // Resolve locale before any output so all user-visible strings are in the right language.
+  const { env: toolEnv, warnings: envWarnings } = await getEnv();
+  const locale = resolveLocale(toolEnv);
+
+  if (!command || command === "help") {
+    printHelp(locale, loadVersion());
     return;
   }
 
   const rootDir = sitePath ?? process.cwd();
 
-  // Load env first so warnings can be flushed through the logger after it's created.
-  const { env: toolEnv, warnings: envWarnings } = await getEnv();
   const logger = await createProjectLogger(
     rootDir,
     `webette.cli.${command}`,
@@ -121,13 +133,8 @@ async function main() {
 
       default:
         logger.error("cli.unknownCommand", { command });
-        console.log("Available commands: build, serve");
-        console.log("Options:");
-        console.log("  -v, --verbose             Show debug logs");
-        console.log("  --export-model-only       Export the model and skip HTML generation");
-        console.log("  --skip-content            Do not read/resolve block contents");
-        console.log("  --include-drafts          Serve draft entries (default in serve)");
-        console.log("  --no-include-drafts       Hide draft entries even in serve");
+        printHelp(locale, loadVersion());
+        process.exitCode = 1;
         break;
     }
   } catch (error) {

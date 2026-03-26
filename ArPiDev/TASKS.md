@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: None
+Active story: T7-S00
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -75,7 +75,7 @@ Active story: None
 
 > Note : explorer ElectroBun comme base pour l'app desktop avant de démarrer cette tâche.
 
-- [ ] T7-S00 Refonte CLI : redesign complet de l'expérience terminal — mini interface d'accueil, affichage structuré des logs (niveaux, couleurs, formatage), commande help claire, feedback utilisateur soigné.
+- [~] T7-S00 Refonte CLI : redesign complet de l'expérience terminal — mini interface d'accueil, affichage structuré des logs (niveaux, couleurs, formatage), commande help claire, feedback utilisateur soigné. **ACTIVE**
 - [ ] T7-S01 POC serveur + build + logs (API locale minimale).
 - [ ] T7-S02 Alpha: build/serve/stop + gestion process + status.
 - [ ] T7-S03 UI minimale (boutons + logs + lien local).

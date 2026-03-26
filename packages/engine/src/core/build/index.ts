@@ -16,6 +16,8 @@ import { renderAndFinalize } from './finalize'
 export type { BuildOptions } from './types'
 
 export async function build(rootDir: string, options: import('./types').BuildOptions, logger: Logger): Promise<void> {
+  const start = performance.now()
+  if (!options.quiet) logger.info('build.started', { rootDir })
   const config = await initializeBuild(rootDir, options, logger)
   const pluginResult = await loadAndInitPlugins(config)
   const [scanResult] = await Promise.all([
@@ -24,4 +26,8 @@ export async function build(rootDir: string, options: import('./types').BuildOpt
   ])
   const transformResult = await resolveAndTransform(config, pluginResult, scanResult)
   await renderAndFinalize(config, pluginResult, transformResult)
+  if (!options.quiet) {
+    const duration = ((performance.now() - start) / 1000).toFixed(1)
+    logger.info('build.done', { duration: `${duration}s` })
+  }
 }

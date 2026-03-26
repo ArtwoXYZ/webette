@@ -51,22 +51,32 @@ function ensureDirExists(dir: string) {
   }
 }
 
+const compactSymbols: Record<LogLevel, string> = {
+  debug: "·",
+  info: "ℹ",
+  warn: "⚠",
+  error: "✗",
+};
+
 export class Logger {
   private scope: string;
   private locale: Locale;
   private logFilePath?: string;
   private minLevel: LogLevel;
+  private compact: boolean;
 
   constructor(options: {
     scope: string;
     locale: Locale;
     logFilePath?: string;
     minLevel?: LogLevel;
+    compact?: boolean;
   }) {
     this.scope = options.scope;
     this.locale = options.locale;
     this.logFilePath = options.logFilePath;
     this.minLevel = options.minLevel ?? "info";
+    this.compact = options.compact ?? false;
   }
 
   child(scope: string): Logger {
@@ -75,6 +85,7 @@ export class Logger {
       locale: this.locale,
       logFilePath: this.logFilePath,
       minLevel: this.minLevel,
+      compact: this.compact,
     });
   }
 
@@ -101,25 +112,33 @@ export class Logger {
       locale: this.locale,
     };
 
-    const prefix = `[${timestamp}] [${this.scope}]`;
-    const formatted = `${prefix} ${renderedMessage}`;
-    const colored = colorize(level, formatted);
+    let formatted: string;
+    if (this.compact) {
+      // Compact mode: short symbol prefix, no timestamp or scope.
+      const symbol = compactSymbols[level];
+      formatted = colorize(level, `${symbol} ${renderedMessage}`);
+    } else {
+      // Verbose mode: full [timestamp] [scope] prefix (unchanged).
+      const prefix = `[${timestamp}] [${this.scope}]`;
+      formatted = colorize(level, `${prefix} ${renderedMessage}`);
+    }
+
     switch (level) {
       case "debug":
-        console.debug(colored);
+        console.debug(formatted);
         break;
       case "info":
-        console.info(colored);
+        console.info(formatted);
         break;
       case "warn":
-        console.warn(colored);
+        console.warn(formatted);
         break;
       case "error":
-        console.error(colored);
+        console.error(formatted);
         break;
     }
 
-    // 2) Persistence in .webette/logs.jsonl (neutral format)
+    // 2) Persistence in .webette/logs.jsonl (neutral format, always full timestamps)
     if (this.logFilePath) {
       const line = JSON.stringify(persisted) + "\n";
       fs.appendFileSync(this.logFilePath, line, "utf8");
@@ -165,5 +184,6 @@ export async function createProjectLogger(
     locale,
     logFilePath,
     minLevel: verbose ? "debug" : resolvedEnv.logging.level,
+    compact: !verbose,
   });
 }
