@@ -1,0 +1,19 @@
+when:
+  - event: ["push"]
+    tag: ["v*"]
+
+engine: nixery
+
+dependencies:
+  nixpkgs/nixpkgs-unstable:
+    - bun
+
+steps:
+  - name: install
+    command: bun install
+
+  - name: typecheck
+    command: bun run --filter '*' typecheck
+
+  - name: test
+    command: bun test

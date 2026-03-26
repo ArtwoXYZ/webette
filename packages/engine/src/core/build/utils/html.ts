@@ -25,11 +25,11 @@ function getProcessor(): Processor {
   const formatPlugin = rehypeFormat as Plugin<[FormatOptions?], Root, Root>;
   const stringifyPlugin = rehypeStringify as Plugin<[StringifyOptions?], Root, string>;
 
-  cachedProcessor = unified()
+  cachedProcessor = (unified()
     .data("settings", { fragment: false })
     .use(parsePlugin, { fragment: false })
     .use(formatPlugin, { indent: 2 })
-    .use(stringifyPlugin);
+    .use(stringifyPlugin)) as unknown as Processor;
 
   return cachedProcessor;
 }

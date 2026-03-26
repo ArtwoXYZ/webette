@@ -52,6 +52,7 @@ export async function loadDefaultExportFresh<T = unknown>(
     splitting: false,
     sourcemap: "none",
     minify: false,
+    // @ts-expect-error -- `write` exists at runtime but may be absent from the installed @types/bun
     write: false,
     throw: false,
   });

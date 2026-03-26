@@ -69,7 +69,7 @@ Active story: None
 - [x] T6-S13 Simplify global pre-beta : passer `/simplify` sur l'ensemble du codebase (src/) pour détecter et corriger duplication résiduelle, qualité, efficacité avant la beta.
 - [x] T6-S14 Harmonisation commentaires & conventions : uniformiser tous les commentaires de fichier dans `src/`, documenter les conventions de nommage/commentaires dans le site de documentation (PAS dans la codebase). Toute documentation produite va dans le site de doc, aucun fichier .md de convention ne doit être ajouté au repo engine.
 - [x] T6-S15 Audit nommage fonctions : vérifier que toutes les fonctions dans `src/` respectent les verb prefixes documentés dans le site de doc (normalize, resolve, parse, build, create, find, load, scan, apply, register). Renommer les fonctions non conformes.
-- [ ] T6-S16 Migration monorepo : exécuter la restructuration selon le plan T6-S12 (déplacer engine, configurer workspaces Bun, vérifier imports/build/CI).
+- [x] T6-S16 Migration monorepo : exécuter la restructuration selon le plan T6-S12 (déplacer engine, configurer workspaces Bun, vérifier imports/build/CI).
 
 ## T7 — Webette UI (beta)
 

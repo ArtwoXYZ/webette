@@ -5,6 +5,7 @@
 import * as path from 'node:path'
 import type { Block, Site } from '../model'
 import type { Logger } from '../../logging/logger'
+import type { Locale } from '../../logging/i18n'
 import type { WebetteEnv } from '../../config/env'
 import type { ExpectedOutputsRegistry } from './utils/prune'
 import type { PluginContext } from '../../plugins/types'
@@ -81,7 +82,7 @@ export interface BuildConfig {
   writeIfChanged: (targetPath: string, content: string) => Promise<boolean>
   pluginExpected: ExpectedOutputsRegistry
   toolEnv: WebetteEnv
-  locale: string
+  locale: Locale
   buildTime: Date
   prettyPrint: boolean
   includeDrafts: boolean
