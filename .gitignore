@@ -36,8 +36,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Webette logs
 .webette
 
-# Webette public build
+# Webette builds
 _public
+packages/app/build/
 
 # IDE
 .prettierrc.json

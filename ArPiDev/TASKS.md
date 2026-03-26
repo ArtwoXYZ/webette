@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: NONE (T7-S00 closed 2026-03-26 — pause)
+Active story: None
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -73,14 +73,15 @@ Active story: NONE (T7-S00 closed 2026-03-26 — pause)
 
 ## T7 — Webette UI (beta)
 
-> Note : explorer ElectroBun comme base pour l'app desktop avant de démarrer cette tâche.
+> Base : ElectroBun (app desktop, webview HTML/CSS/JS, Bun embarqué). L'UI consomme une API HTTP locale exposée par l'engine.
 
 - [x] T7-S00 Refonte CLI : redesign complet de l'expérience terminal — mini interface d'accueil, affichage structuré des logs (niveaux, couleurs, formatage), commande help claire, feedback utilisateur soigné.
-- [ ] T7-S01 POC serveur + build + logs (API locale minimale).
-- [ ] T7-S02 Alpha: build/serve/stop + gestion process + status.
-- [ ] T7-S03 UI minimale (boutons + logs + lien local).
-- [ ] T7-S04 Packaging/exécutable multi‑OS (alpha).
-- [ ] T7-S05 Éditeur de config + persistance (beta).
+- [x] T7-S01 POC ElectroBun : valider la base (window + webview, import engine depuis le process principal, communication webview ↔ main).
+- [ ] T7-S02 API engine locale : endpoints HTTP build/serve/stop/status + polling logs (pas de streaming encore).
+- [ ] T7-S03 Streaming logs temps réel : upgrade SSE ou WebSocket pour les logs live (serve notamment).
+- [ ] T7-S04 UI alpha (webview) : boutons build/serve/stop + affichage état + lien local vers le site servi.
+- [ ] T7-S05 Packaging multi-OS : build exécutable via ElectroBun (macOS/Linux/Windows).
+- [ ] T7-S06 Éditeur de config : édition de webette.config.ts depuis l'UI + persistance.
 
 ## T8 — Starters & hub
 

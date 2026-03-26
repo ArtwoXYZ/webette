@@ -4,9 +4,13 @@
   "workspaces": ["packages/*"],
   "scripts": {
     "typecheck": "bun run --filter '*' typecheck",
-    "serve:tutorial": "bun run packages/engine/src/cli.ts serve packages/app/tutorial"
+    "serve:tutorial": "bun run packages/engine/src/cli.ts serve packages/app/tutorial",
+    "dev:app": "bun run --cwd packages/app dev"
   },
   "devDependencies": {
     "@types/bun": "latest"
+  },
+  "dependencies": {
+    "electrobun": "^1.16.0"
   }
 }
