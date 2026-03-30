@@ -1,0 +1,164 @@
+<html lang="fr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8" />
+    <title>
+        webette app theme
+    </title>
+    <!-- Fonts -->
+    <link rel="stylesheet" href="./fonts/DraftingMono/DraftingMono.css" />
+    <link rel="stylesheet" href="./fonts/FiraSansCondensed/FiraSansCondensed.css" />
+    <link rel="stylesheet" href="./fonts/Bungee/Bungee.css" />
+    <link rel="stylesheet" href="init.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div id="console-bezel">
+        <div id="console-panel">
+            <nav class="console-side" id="console-left">
+                <div class="side-top">
+                    <div id="speaker">
+                        <svg id="speaker-vents" viewBox="-8 -8 116 116" xmlns="http://www.w3.org/2000/svg" width="100%"
+                            height="100%">
+                            <g class="vent-bars" stroke-width="5" stroke-linecap="round" fill="none">
+                                <line x1="0" y1="20" x2="20" y2="0" />
+                                <line x1="0" y1="36" x2="36" y2="0" />
+                                <line x1="0" y1="52" x2="52" y2="0" />
+                                <line x1="0" y1="68" x2="68" y2="0" />
+                                <line x1="0" y1="84" x2="84" y2="0" />
+                                <line x1="0" y1="100" x2="100" y2="0" />
+                                <line x1="16" y1="100" x2="100" y2="16" />
+                                <line x1="32" y1="100" x2="100" y2="32" />
+                                <line x1="48" y1="100" x2="100" y2="48" />
+                                <line x1="64" y1="100" x2="100" y2="64" />
+                                <line x1="80" y1="100" x2="100" y2="80" />
+                            </g>
+                            <g class="vent-highlight" stroke-width="3" stroke-linecap="round" fill="none"
+                                transform="translate(0.6,0.5)">
+                                <line x1="0" y1="20" x2="20" y2="0" />
+                                <line x1="0" y1="36" x2="36" y2="0" />
+                                <line x1="0" y1="52" x2="52" y2="0" />
+                                <line x1="0" y1="68" x2="68" y2="0" />
+                                <line x1="0" y1="84" x2="84" y2="0" />
+                                <line x1="0" y1="100" x2="100" y2="0" />
+                                <line x1="16" y1="100" x2="100" y2="16" />
+                                <line x1="32" y1="100" x2="100" y2="32" />
+                                <line x1="48" y1="100" x2="100" y2="48" />
+                                <line x1="64" y1="100" x2="100" y2="64" />
+                                <line x1="80" y1="100" x2="100" y2="80" />
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="side-bottom">
+                    <div class="side-btn-container">
+                        <button class="btn-big" type="button" id="dev"></button>
+                        <label class="btn-big" for="dev">
+                            Test
+                        </label>
+                    </div>
+                </div>
+            </nav>
+
+            <div id="console-main">
+                <header>
+                    <div id="logo">
+                        <img src="assets/img/bebette.svg" alt="bebette, a stylized cute spider wearing a cap">
+                    </div>
+                    <h1>webette</h1>
+                </header>
+
+                <div id="screen-bazel">
+                    <div id="screen-border">
+                        <main id="screen">
+                            <div id="status-bar">
+                                <div id="loading">
+                                    <span class="lcd-item"></span><span class="lcd-item"></span><span
+                                        class="lcd-item"></span><span class="lcd-item"></span><span
+                                        class="lcd-item"></span><span class="lcd-item"></span><span
+                                        class="lcd-item"></span><span class="lcd-item"></span><span
+                                        class="lcd-item"></span><span class="lcd-item"></span><span
+                                        class="lcd-item"></span><span class="lcd-item"></span>
+                                    <div id="loading-sections">
+                                        <span></span><span></span><span></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="screen-infos">
+                                <div class="screen-infos-section">
+                                    <span class="test lcd-item">Test</span>
+                                    <span class="build lcd-item">Build</span>
+                                    <span class="host lcd-item">Host</span>
+                                </div>
+                                <div class="screen-infos-section">
+                                    <span class="ready lcd-item">Ready</span>
+                                </div>
+                                <div class="screen-infos-section">
+                                    <div class="screen-btn">
+                                        <button type="button" id="open-website" class="lcd-item">Open Website</button>
+                                    </div>
+                                    <div class="screen-btn">
+                                        <button type="button" id="open-folder" class="lcd-item">Open Folder</button>
+                                    </div>
+                                    <div class="screen-btn">
+                                        <button type="button" id="your-folder" class="lcd-item">Your Folder</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="screen-bebettes">
+                                <div id="bebette-magic">
+                                    <img class="lcd-item bebette" src="assets/img/bebette-magic.svg"
+                                        alt="small cartoon spider with a magic wand">
+                                </div>
+                                <div id="bebette-work">
+                                    <img class="lcd-item bebette" src="assets/img/bebette-work.svg"
+                                        alt="small cartoon spider with a magic wand">
+                                </div>
+                                <div id="bebette-read">
+                                    <img class="lcd-item bebette" src="assets/img/bebette-read.svg"
+                                        alt="small cartoon spider with a magic wand">
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+                </div>
+
+                <div id="version">
+                    <span>v1.2026.30</span>
+                </div>
+            </div>
+
+            <div class="console-side" id="console-right">
+                <div class="side-top">
+                    <button class="btn-small" type="button" id="mute"></button>
+                    <label class="btn-small" for="mute">
+                        Mute
+                    </label>
+                    <button class="btn-small" type="button" id="settings"></button>
+                    <label for="settings">
+                        Settings
+                    </label>
+                </div>
+                <div class="side-bottom">
+                    <nav class="side-btn-container">
+                        <button class="btn-big" type="button" id="build"></button>
+                        <label class="btn-big" for="build">
+                            Build
+                        </label>
+                        <button class="btn-big" type="button" id="host"></button>
+                        <label class="btn-big" for="host">
+                            Host
+                        </label>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
