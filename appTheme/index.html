@@ -76,12 +76,17 @@
                         <main id="screen">
                             <div id="status-bar">
                                 <div id="loading">
-                                    <span class="lcd-item"></span><span class="lcd-item"></span><span
-                                        class="lcd-item"></span><span class="lcd-item"></span><span
-                                        class="lcd-item"></span><span class="lcd-item"></span><span
-                                        class="lcd-item"></span><span class="lcd-item"></span><span
-                                        class="lcd-item"></span><span class="lcd-item"></span><span
-                                        class="lcd-item"></span><span class="lcd-item"></span>
+                                    <span class="lcd-item lcd-active"></span><span
+                                        class="lcd-item lcd-active"></span><span
+                                        class="lcd-item lcd-active"></span><span
+                                        class="lcd-item lcd-active"></span><span
+                                        class="lcd-item lcd-active"></span><span
+                                        class="lcd-item lcd-active"></span><span
+                                        class="lcd-item lcd-active"></span><span
+                                        class="lcd-item lcd-active"></span><span
+                                        class="lcd-item lcd-active"></span><span
+                                        class="lcd-item lcd-active"></span><span
+                                        class="lcd-item lcd-active"></span><span class="lcd-item lcd-active"></span>
                                     <div id="loading-sections">
                                         <span></span><span></span><span></span>
                                     </div>
@@ -90,16 +95,17 @@
 
                             <div id="screen-infos">
                                 <div class="screen-infos-section">
-                                    <span class="test lcd-item">Test</span>
+                                    <span class="test lcd-item lcd-active">Test</span>
                                     <span class="build lcd-item">Build</span>
                                     <span class="host lcd-item">Host</span>
                                 </div>
                                 <div class="screen-infos-section">
-                                    <span class="ready lcd-item">Ready</span>
+                                    <span class="ready lcd-item lcd-active">Ready</span>
                                 </div>
                                 <div class="screen-infos-section">
                                     <div class="screen-btn">
-                                        <button type="button" id="open-website" class="lcd-item">Open Website</button>
+                                        <button type="button" id="open-website" class="lcd-item lcd-active">Open
+                                            Website</button>
                                     </div>
                                     <div class="screen-btn">
                                         <button type="button" id="open-folder" class="lcd-item">Open Folder</button>
@@ -111,18 +117,20 @@
                             </div>
 
                             <div id="screen-bebettes">
-                                <div id="bebette-magic">
-                                    <img class="lcd-item bebette" src="assets/img/bebette-magic.svg"
+                                <div class="lcd-item lcd-active" id="bebette-magic">
+                                    <img class="bebette" src="assets/img/bebette-magic.svg"
                                         alt="small cartoon spider with a magic wand">
                                 </div>
-                                <div id="bebette-work">
-                                    <img class="lcd-item bebette" src="assets/img/bebette-work.svg"
+                                <div class="lcd-item" id="bebette-work">
+                                    <img class="bebette" src="assets/img/bebette-work.svg"
                                         alt="small cartoon spider with a magic wand">
                                 </div>
-                                <div id="bebette-read">
-                                    <img class="lcd-item bebette" src="assets/img/bebette-read.svg"
+                                <div class="lcd-item" id="bebette-read">
+                                    <img class="bebette" src="assets/img/bebette-read.svg"
                                         alt="small cartoon spider with a magic wand">
                                 </div>
+
+                                <span id="ground"></span>
                             </div>
                         </main>
                     </div>
