@@ -237,7 +237,8 @@ label {
         0px -0.5px 0px 0px rgba(0, 0, 0, 0.2) inset,
         0px 0.5px 0px 0px rgba(255, 255, 255, 0.8) inset,
         0px 0px 2px 0px rgba(0, 0, 0, 0.5),
-        0px 0px 1px 0px rgba(0, 0, 0, 0.9);
+        0px 0px 1px 0px rgba(0, 0, 0, 0.9),
+        0px -2px 2px 0px rgba(0, 0, 0, 0.9);
 }
 
 .btn-container button:hover::after {
@@ -310,7 +311,8 @@ button.btn-small:hover {
         0px 0.5px 1px 0px rgba(0, 0, 0, 0.9) inset,
         0px 1px 1px 0px rgba(255, 255, 255, 0.3) inset,
         0px 0px 2px 0px rgba(0, 0, 0, 0.5),
-        0px 0px 1px 0px rgba(0, 0, 0, 0.9);
+        0px 0px 1px 0px rgba(0, 0, 0, 0.9),
+        0px -2px 2px 0px rgba(0, 0, 0, 1);
 }
 
 /* Speaker vents Styling */
@@ -345,12 +347,13 @@ button.btn-small:hover {
 }
 
 #logo svg {
-    width: 12cqw;
+    width: auto;
+    max-width: 12cqw;
     fill: var(--color-fg0);
 }
 
 header h1 {
-    font-weight: bold;
+    font-weight: 600;
     color: var(--color-fg0);
 }
 
@@ -423,8 +426,8 @@ header h1 {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     position: relative;
-    padding: 0 var(--unit-spacing-med) var(--unit-spacing-small)
-        var(--unit-spacing-med);
+    padding: 0 var(--unit-spacing-large) var(--unit-spacing-small)
+        var(--unit-spacing-large);
 }
 
 .screen-infos-section:first-child {
@@ -503,7 +506,7 @@ header h1 {
     grid-template-columns: auto auto auto;
     grid-auto-rows: 1fr;
     gap: calc(var(--unit-spacing-large) * 2.5);
-    padding: var(--unit-spacing-small) var(--unit-spacing-med);
+    padding: var(--unit-spacing-small) var(--unit-spacing-large);
     position: relative;
 }
 
