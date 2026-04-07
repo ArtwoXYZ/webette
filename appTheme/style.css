@@ -47,6 +47,8 @@ body {
     container-name: console;
     width: 100vw;
     height: 100vh;
+    min-width: 280px;
+    min-height: 200px;
     position: relative;
     padding: var(--unit-spacing-large);
 }
@@ -66,11 +68,11 @@ body {
 
 #console-panel {
     /* Toutes les unités relatives au container #console-bezel */
-    --unit-base: 2cqmin;
+    --unit-base: max(1px, 2cqmin);
     /* Unités relatives */
-    --unit-spacing-small: calc(var(--unit-base) * 0.5);
-    --unit-spacing-med: calc(var(--unit-base) * 1);
-    --unit-spacing-large: calc(var(--unit-base) * 1.5);
+    --unit-spacing-small: max(1px, calc(var(--unit-base) * 0.5));
+    --unit-spacing-med: max(1px, calc(var(--unit-base) * 1));
+    --unit-spacing-large: max(1px, calc(var(--unit-base) * 1.5));
 
     /* Typographie */
     --font-size-base: calc(12px + var(--unit-base));
@@ -86,13 +88,14 @@ body {
     padding: var(--unit-spacing-large);
     gap: var(--unit-spacing-large);
     align-items: stretch;
+    will-change: transform;
     box-shadow:
-        0px 3px 3px 0px rgba(0, 0, 0, 0.2) inset,
-        0px 3px 0px 0px rgba(0, 0, 0, 0.4) inset,
-        0px 0px 2px 0px rgba(0, 0, 0, 0.6) inset,
-        0px -2px 2px 0px rgba(0, 0, 0, 0.3),
-        0px 4px 4px 0px rgba(255, 255, 255, 0.7),
-        0px 1px 0px 0px rgba(255, 255, 255, 0.9);
+        0px round(up, 0.4cqmin, 1px) round(up, 0.4cqmin, 1px) 0px rgba(0, 0, 0, 0.2) inset,
+        0px round(up, 0.4cqmin, 1px) 0px 0px rgba(0, 0, 0, 0.4) inset,
+        0px 0px round(up, 0.4cqmin, 1px) 0px rgba(0, 0, 0, 0.7) inset,
+        0px -0.3cqmin round(up, 0.3cqmin, 1px) 0px rgba(0, 0, 0, 0.3),
+        0px round(up, 0.5cqmin, 1px) round(up, 0.5cqmin, 1px) 0px rgba(255, 255, 255, 0.7),
+        0px round(up, 0.2cqmin, 1px) 0px 0px rgba(255, 255, 255, 0.9);
 }
 
 .console-side {
@@ -105,18 +108,19 @@ body {
     flex-flow: column;
     overflow: hidden;
     position: relative;
+    will-change: transform;
     box-shadow:
-        0px -0.5px 0.5px 0px rgba(255, 255, 255, 0.8) inset,
-        0px 0px 2px 0px rgba(0, 0, 0, 0.9) inset,
-        0px 0px 2px 0px rgba(0, 0, 0, 0.3),
-        0px 0.5px 0.5px 0px rgba(255, 255, 255, 0.8);
+        0px -0.5cqmin round(up, 0.5cqmin, 1px) 0px rgba(255, 255, 255, 0.8) inset,
+        0px 0px 3cqmin 0px rgba(0, 0, 0, 1) inset,
+        0px 0px 1cqmin 0px rgba(0, 0, 0, 0.3),
+        0px round(up, 0.5cqmin, 1px) round(up, 0.5cqmin, 1px) 0px rgba(255, 255, 255, 0.8);
 
     --unit-spacing-small: calc(var(--unit-base) * 1);
     --unit-spacing-med: calc(var(--unit-base) * 1.5);
     --unit-spacing-large: calc(var(--unit-base) * 2);
 }
 
-.console-side > div {
+.console-side>div {
     flex-grow: 1;
     height: 50%;
 }
@@ -124,21 +128,21 @@ body {
 .side-top {
     background-color: var(--color-bg0);
     border-radius: var(--unit-radius) var(--unit-radius) 0 0;
-    margin: 1px;
+    margin: round(up, 1cqmin, 1px);
+    margin-bottom: 0;
     box-shadow:
-        0px 0px 1px 0px rgba(0, 0, 0, 0.6),
-        0px -3px 1px 0px rgba(0, 0, 0, 0.6);
+        0px 0px 3cqmin 0px rgba(0, 0, 0, 1);
 }
 
 .side-bottom {
     background-color: var(--color-fg0);
     border-radius: 0 0 var(--unit-radius) var(--unit-radius);
-    margin: 1px;
+    margin: round(up, 1cqmin, 1px);
+    margin-top: 0;
     box-shadow:
-        0px 0.5px 0px 0px rgba(255, 255, 255, 0.9) inset,
-        0px -1px 0px 0px rgba(0, 0, 0, 0.3),
-        0px 0px 1px 0px rgba(0, 0, 0, 0.6),
-        0px 3px 1px 0px rgba(0, 0, 0, 0.6);
+        0px round(up, 0.5cqmin, 1px) 0px 0px rgba(255, 255, 255, 0.9) inset,
+        0px -1cqmin 0px 0px rgba(0, 0, 0, 0.3),
+        0px 0px 3cqmin 0px rgba(0, 0, 0, 1);
 }
 
 #console-main {
@@ -161,12 +165,13 @@ header,
     border-radius: var(--unit-radiusx2);
     position: relative;
     z-index: 0;
+    will-change: transform;
     box-shadow:
-        0px -1px 0px 0px rgba(255, 255, 255, 1) inset,
-        0px 1px 0px 0px rgba(255, 255, 255, 1),
-        0px 1px 0px 0px rgba(0, 0, 0, 0.3) inset,
-        0px 0px 3px 0px rgba(0, 0, 0, 0.3) inset,
-        0px 0px 2px 0px rgba(0, 0, 0, 0.5);
+        0px -0.2cqmin round(up, 0.1cqmin, 1px) 0px rgba(255, 255, 255, 1) inset,
+        0px round(up, 0.1cqmin, 1px) 0px 0px rgba(255, 255, 255, 1),
+        0px round(up, 0.1cqmin, 1px) round(up, 0.5cqmin, 1px) 0px rgba(0, 0, 0, 0.5) inset,
+        0px 0px round(up, 0.3cqmin, 1px) 0px rgba(0, 0, 0, 0.3) inset,
+        0px 0px round(up, 0.2cqmin, 1px) 0px rgba(0, 0, 0, 0.5);
 }
 
 #screen-bazel::before {
@@ -192,7 +197,8 @@ header,
     height: calc(100% - (var(--unit-spacing-med) * 2));
     z-index: 1;
     margin: var(--unit-spacing-med);
-    box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 1);
+    will-change: transform;
+    box-shadow: 0px 0px round(up, 0.3cqmin, 1px) 0px rgba(0, 0, 0, 1);
 }
 
 #screen {
@@ -202,7 +208,7 @@ header,
     height: 100%;
     display: grid;
     grid-template-rows: auto 1fr auto;
-    box-shadow: 0px 2.5px 0.5px rgba(0, 0, 0, 0.3) inset;
+    box-shadow: 0px round(up, 0.25cqmin, 1px) round(up, 0.05cqmin, 1px) rgba(0, 0, 0, 0.3) inset;
 }
 
 /* Buttons Styling */
@@ -222,45 +228,48 @@ label {
 }
 
 .btn-container:has(button:hover) {
-    margin-top: calc(var(--unit-spacing-small) + 3px);
+    margin-top: calc(var(--unit-spacing-small) + 2cqmin);
 }
 
 .btn-container button {
     box-shadow:
-        0px -3px 0px 0px rgba(0, 0, 0, 0.2) inset,
-        0px 0.5px 0px 0px rgba(255, 255, 255, 0.8) inset,
-        0px 1px 3px 0px rgba(0, 0, 0, 0.5),
-        0px 0px 1px 0px rgba(0, 0, 0, 0.9);
-    border: solid 1px rgba(0, 0, 0, 0.6);
+        0px -2cqmin 0px 0px rgba(0, 0, 0, 0.2) inset,
+        0px round(up, 0.5cqmin, 1px) 0px 0px rgba(255, 255, 255, 0.8) inset,
+        0px round(up, 0.5cqmin, 1px) 1cqmin 0px rgba(0, 0, 0, 0.5),
+        0px 0px 1cqmin 0px rgba(0, 0, 0, 0.8),
+        0 0 round(up, 0.2cqmin, 1px) round(up, 0.65cqmin, 1px) rgba(0, 0, 0, 0.6);
     position: relative;
+    border: solid 1px rgba(0, 0, 0, 0.4);
 }
 
 .btn-container button::after {
     content: " ";
     position: absolute;
     display: block;
-    inset: calc(-3.5cqi + 2px) -3.5cqi -3.5cqi;
+    inset: round(calc(-3.5cqi + 0.5cqmin), 1px) round(-3.5cqi, 1px) round(-3.5cqi, 1px);
     z-index: -1;
     pointer-events: none;
     background-color: var(--color-bg0);
     box-shadow:
-        0px -0.5px 0.5px 0px rgba(255, 255, 255, 1) inset,
-        0px 0px 2px 0px rgba(0, 0, 0, 0.8),
-        0px 0.5px 0.5px 0px rgba(255, 255, 255, 0.8);
-    border: solid 0.5px rgba(0, 0, 0, 0.2);
+        0px -0.2cqmin 0px 0px rgba(255, 255, 255, 1) inset,
+        0px 0px 1cqmin 0px rgba(0, 0, 0, 0.8),
+        0px round(up, 0.25cqmin, 1px) round(up, 0.1cqmin, 1px) 0px rgba(255, 255, 255, 0.8);
+    border: solid 1px rgba(0, 0, 0, 0.3);
 }
 
 .btn-container button:hover {
     box-shadow:
-        0px -0.5px 0px 0px rgba(0, 0, 0, 0.2) inset,
-        0px 0.5px 0px 0px rgba(255, 255, 255, 0.8) inset,
-        0px 0px 2px 0px rgba(0, 0, 0, 0.5),
-        0px 0px 1px 0px rgba(0, 0, 0, 0.9),
-        0px -2px 2px 0px rgba(0, 0, 0, 0.9);
+        0px 0px round(up, 0.5cqmin, 1px) 0px rgba(0, 0, 0, 0.9),
+        0px -0.2cqmin round(up, 0.5cqmin, 1px) 0px rgba(0, 0, 0, 0.6) inset,
+        0 0 round(up, 5cqmin, 1px) 0px rgba(0, 0, 0, 0.3) inset,
+        0px round(up, 0.5cqmin, 1px) 0px 0px rgba(255, 255, 255, 0.8) inset,
+        0px 0px round(up, 0.8cqmin, 1px) 0px rgba(0, 0, 0, 0.5),
+        0px round(-1.6cqmin, 1px) round(up, 0.5cqmin, 1px) round(up, 0.5cqmin, 1px) rgba(0, 0, 0, 0.8),
+        0 0 round(up, 0.2cqmin, 1px) round(up, 0.65cqmin, 1px) rgba(0, 0, 0, 0.6);
 }
 
 .btn-container button:hover::after {
-    margin-top: -3px;
+    margin-top: -2cqmin;
 }
 
 .side-bottom {
@@ -294,7 +303,7 @@ button.btn-big::after {
 }
 
 button.btn-big:hover {
-    height: calc(var(--height) - 3px);
+    height: calc(var(--height) - 2cqmin);
 }
 
 .side-top {
@@ -312,15 +321,18 @@ button.btn-big:hover {
 button.btn-small {
     --height: 9cqi;
     --width: 16cqi;
+    min-height: 9px;
     height: var(--height);
+    min-width: 16px;
     width: var(--width);
     background-color: var(--grey);
     border-radius: 100px;
     box-shadow:
-        0px -3px 1px 0px rgba(0, 0, 0, 0.9) inset,
-        0px 1px 1px 0px rgba(255, 255, 255, 0.3) inset,
-        0px 1px 3px 0px rgba(0, 0, 0, 0.5),
-        0px 0px 1px 0px rgba(0, 0, 0, 0.9);
+        0px -1.2cqmin round(up, 0.3cqmin, 1px) 0px rgba(0, 0, 0, 0.9) inset,
+        0px round(up, 0.5cqmin, 1px) 0px 0px rgba(255, 255, 255, 0.3) inset,
+        0px round(up, 0.5cqmin, 1px) 1cqmin 0px rgba(0, 0, 0, 0.5),
+        0px 0px 1cqmin 0px rgba(0, 0, 0, 0.8),
+        0 0 round(up, 0.2cqmin, 1px) round(up, 0.65cqmin, 1px) rgba(0, 0, 0, 0.9);
 }
 
 button.btn-small::after {
@@ -328,13 +340,16 @@ button.btn-small::after {
 }
 
 button.btn-small:hover {
-    height: calc(var(--height) - 3px);
+    min-height: calc(9px - 2cqmin);
+    height: calc(var(--height) - 2cqmin);
     box-shadow:
-        0px 0.5px 1px 0px rgba(0, 0, 0, 0.9) inset,
-        0px 1px 1px 0px rgba(255, 255, 255, 0.3) inset,
-        0px 0px 2px 0px rgba(0, 0, 0, 0.5),
-        0px 0px 1px 0px rgba(0, 0, 0, 0.9),
-        0px -2px 2px 0px rgba(0, 0, 0, 1);
+        0px 0px round(up, 0.5cqmin, 1px) 0px rgba(0, 0, 0, 0.9),
+        0px -0.2cqmin round(up, 0.5cqmin, 1px) 0px rgba(0, 0, 0, 0.9) inset,
+        0 0 5cqmin 0px rgba(0, 0, 0, 0.3) inset,
+        0px round(up, 0.5cqmin, 1px) 0px 0px rgba(255, 255, 255, 0.3) inset,
+        0px 0px round(up, 0.8cqmin, 1px) 0px rgba(0, 0, 0, 0.5),
+        0px round(-1.9cqmin, 1px) round(up, 0.5cqmin, 1px) round(up, 0.5cqmin, 1px) rgba(0, 0, 0, 1),
+        0 0 round(up, 0.2cqmin, 1px) round(up, 0.65cqmin, 1px) rgba(0, 0, 0, 0.8);
 }
 
 /* Speaker vents Styling */
@@ -349,8 +364,7 @@ button.btn-small:hover {
 #speaker-vents {
     width: 100%;
     height: 100%;
-    filter: drop-shadow(0px 2px 0px rgba(255, 255, 255, 0.6))
-        drop-shadow(0px -2px 0px rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(0px 2px 0px rgba(255, 255, 255, 0.6)) drop-shadow(0px -2px 0px rgba(0, 0, 0, 0.5));
 }
 
 #speaker-vents .vent-bars {
@@ -383,6 +397,7 @@ button.btn-small:hover {
 
 header h1 {
     font-weight: 600;
+    font-size: var(--font-size-base);
     color: var(--color-fg0);
 }
 
@@ -411,14 +426,14 @@ header h1 {
 
 #loading {
     display: flex;
-    gap: calc(var(--unit-base) * 0.2);
+    gap: round(calc(var(--unit-base) * 0.2), 1px);
     padding: var(--unit-spacing-small);
     position: relative;
     overflow: hidden;
     border-radius: var(--unit-radius) var(--unit-radius) 0 0;
 }
 
-#loading > span {
+#loading>span {
     height: var(--unit-base);
     background-color: var(--black);
     width: auto;
@@ -436,7 +451,7 @@ header h1 {
     z-index: 1;
 }
 
-#loading-sections > span {
+#loading-sections>span {
     flex-grow: 1;
     height: 100%;
     background-color: var(--yellow);
@@ -455,8 +470,7 @@ header h1 {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     position: relative;
-    padding: 0 var(--unit-spacing-large) var(--unit-spacing-small)
-        var(--unit-spacing-large);
+    padding: 0 var(--unit-spacing-large) var(--unit-spacing-small) var(--unit-spacing-large);
     font-size: calc(var(--font-size-base) * 0.8);
 }
 
@@ -466,7 +480,7 @@ header h1 {
     align-items: center;
 }
 
-.screen-infos-section:first-child > span {
+.screen-infos-section:first-child>span {
     font-weight: bold;
 }
 
@@ -478,8 +492,7 @@ header h1 {
     font-family: var(--font-display);
     font-size: var(--font-size-large);
     border: 3px solid var(--black);
-    padding: calc(var(--unit-spacing-small) * 0.5)
-        calc(var(--unit-spacing-large) * 0.8);
+    padding: calc(var(--unit-spacing-small) * 0.5) calc(var(--unit-spacing-large) * 0.8);
     border-radius: 100px;
 }
 
@@ -494,19 +507,18 @@ header h1 {
     margin: calc(var(--unit-base) * 0.5);
 }
 
-.screen-btn > button {
+.screen-btn>button {
     font-weight: bold;
     font-family: var(--font-main);
     font-size: var(--font-size-small);
     color: var(--color-bg1);
     background-color: var(--black);
     border-radius: 100px;
-    padding: calc(var(--unit-spacing-small) * 0.5)
-        calc(var(--unit-spacing-large) * 0.8);
+    padding: calc(var(--unit-spacing-small) * 0.5) calc(var(--unit-spacing-large) * 0.8);
     position: relative;
 }
 
-.screen-btn > button::before {
+.screen-btn>button::before {
     content: " ";
     display: inline-block;
     height: 100%;
@@ -520,7 +532,7 @@ header h1 {
     left: calc(var(--unit-base) * -0.5);
 }
 
-.screen-btn > button::after {
+.screen-btn>button::after {
     content: " ";
     display: inline-block;
     height: 100%;
@@ -543,11 +555,11 @@ header h1 {
     position: relative;
 }
 
-#screen-bebettes > div img {
+#screen-bebettes>div img {
     height: 100%;
 }
 
-#screen-bebettes > div {
+#screen-bebettes>div {
     position: relative;
     z-index: 1;
 }
@@ -638,5 +650,5 @@ header h1 {
 }
 
 /* Petite fenêtre : en dessous du seuil minimum utilisable */
-@media (max-width: 550px), (max-height: 380px) {
-}
+@media (max-width: 550px),
+(max-height: 380px) {}
