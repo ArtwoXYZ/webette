@@ -67,7 +67,15 @@ body {
 #console-panel {
     /* Toutes les unités relatives au container #console-bezel */
     --unit-base: 2cqmin;
-    --font-size-base: var(--unit-base);
+    /* Unités relatives */
+    --unit-spacing-small: calc(var(--unit-base) * 0.5);
+    --unit-spacing-med: calc(var(--unit-base) * 1);
+    --unit-spacing-large: calc(var(--unit-base) * 1.5);
+
+    /* Typographie */
+    --font-size-base: calc(12px + var(--unit-base));
+    --font-size-small: calc(var(--font-size-base) * 0.65);
+    --font-size-large: calc(var(--font-size-base) * 1.2);
 
     width: 100%;
     height: 100%;
@@ -77,6 +85,7 @@ body {
     grid-template-columns: auto 1fr auto;
     padding: var(--unit-spacing-large);
     gap: var(--unit-spacing-large);
+    align-items: stretch;
     box-shadow:
         0px 3px 3px 0px rgba(0, 0, 0, 0.2) inset,
         0px 3px 0px 0px rgba(0, 0, 0, 0.4) inset,
@@ -88,6 +97,8 @@ body {
 
 .console-side {
     width: 18cqw;
+    min-height: 0;
+    container-type: inline-size;
     border-radius: var(--unit-radiusx05);
     text-align: center;
     display: flex;
@@ -99,6 +110,10 @@ body {
         0px 0px 2px 0px rgba(0, 0, 0, 0.9) inset,
         0px 0px 2px 0px rgba(0, 0, 0, 0.3),
         0px 0.5px 0.5px 0px rgba(255, 255, 255, 0.8);
+
+    --unit-spacing-small: calc(var(--unit-base) * 1);
+    --unit-spacing-med: calc(var(--unit-base) * 1.5);
+    --unit-spacing-large: calc(var(--unit-base) * 2);
 }
 
 .console-side > div {
@@ -128,6 +143,7 @@ body {
 
 #console-main {
     text-align: center;
+    min-height: 0;
     display: grid;
     grid-template-rows: auto 1fr auto;
 }
@@ -135,7 +151,9 @@ body {
 header,
 #version {
     height: 18cqh;
+    min-height: 0;
     align-content: center;
+    overflow: hidden;
 }
 
 #screen-bazel {
@@ -190,11 +208,12 @@ header,
 /* Buttons Styling */
 label {
     font-family: var(--font-buttons);
+    font-size: var(--font-size-base);
     text-transform: uppercase;
     color: var(--grey);
     z-index: 2;
-    padding-top: calc(var(--unit-spacing-small) * 1.5);
-    margin-bottom: var(--unit-spacing-small);
+    padding-top: calc(var(--unit-spacing-small) + 3cqi);
+    margin-bottom: var(--unit-spacing-med);
     pointer-events: none;
 }
 
@@ -220,8 +239,7 @@ label {
     content: " ";
     position: absolute;
     display: block;
-    inset: calc(var(--unit-base) * -0.5 + 2px) calc(var(--unit-base) * -0.5)
-        calc(var(--unit-base) * -0.5);
+    inset: calc(-3.5cqi + 2px) -3.5cqi -3.5cqi;
     z-index: -1;
     pointer-events: none;
     background-color: var(--color-bg0);
@@ -254,8 +272,8 @@ label {
 .side-btn-container {
     display: grid;
     justify-items: center;
-    margin: var(--unit-spacing-med);
-    padding: var(--unit-spacing-med);
+    margin: var(--unit-spacing-large);
+    padding: var(--unit-spacing-large);
     border: 3px solid var(--color-bg0);
     border-radius: var(--unit-radius);
     flex-grow: 1;
@@ -263,8 +281,8 @@ label {
 }
 
 button.btn-big {
-    --height: calc(var(--unit-base) * 3);
-    --width: calc(var(--unit-base) * 6);
+    --height: 20cqi;
+    --width: 40cqi;
     height: var(--height);
     width: var(--width);
     background-color: var(--color-bg0);
@@ -287,9 +305,13 @@ button.btn-big:hover {
     z-index: 0;
 }
 
+#console-right .side-top {
+    padding-top: calc(var(--unit-spacing-large) + 3cqi);
+}
+
 button.btn-small {
-    --height: calc(var(--unit-base) * 1.2);
-    --width: calc(var(--unit-base) * 2.3);
+    --height: 9cqi;
+    --width: 16cqi;
     height: var(--height);
     width: var(--width);
     background-color: var(--grey);
@@ -317,9 +339,11 @@ button.btn-small:hover {
 
 /* Speaker vents Styling */
 #speaker {
-    width: 14cqw;
-    height: 14cqw;
+    width: 100%;
+    height: 100%;
     position: relative;
+    padding: var(--unit-spacing-large);
+    padding-top: 0;
 }
 
 #speaker-vents {
@@ -342,13 +366,18 @@ button.btn-small:hover {
 /* Branding */
 #logo {
     text-align: center;
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 0;
     position: relative;
 }
 
 #logo svg {
     width: auto;
+    height: auto;
     max-width: 12cqw;
+    max-height: 12cqh;
     fill: var(--color-fg0);
 }
 
@@ -358,7 +387,7 @@ header h1 {
 }
 
 #version span {
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-small);
     font-weight: bold;
     color: var(--color-fg0);
     border: 2px solid var(--color-fg0);
@@ -428,6 +457,7 @@ header h1 {
     position: relative;
     padding: 0 var(--unit-spacing-large) var(--unit-spacing-small)
         var(--unit-spacing-large);
+    font-size: calc(var(--font-size-base) * 0.8);
 }
 
 .screen-infos-section:first-child {
@@ -448,7 +478,8 @@ header h1 {
     font-family: var(--font-display);
     font-size: var(--font-size-large);
     border: 3px solid var(--black);
-    padding: calc(var(--unit-base) * 0.2) calc(var(--unit-base) * 0.5);
+    padding: calc(var(--unit-spacing-small) * 0.5)
+        calc(var(--unit-spacing-large) * 0.8);
     border-radius: 100px;
 }
 
@@ -456,6 +487,7 @@ header h1 {
     text-align: right;
     display: grid;
     align-items: center;
+    grid-template-rows: 1fr 1fr 1fr;
 }
 
 .screen-btn {
@@ -469,7 +501,8 @@ header h1 {
     color: var(--color-bg1);
     background-color: var(--black);
     border-radius: 100px;
-    padding: calc(var(--unit-base) * 0.2) calc(var(--unit-base) * 0.4);
+    padding: calc(var(--unit-spacing-small) * 0.5)
+        calc(var(--unit-spacing-large) * 0.8);
     position: relative;
 }
 
@@ -571,4 +604,39 @@ header h1 {
     z-index: 0;
     border-radius: 0 0 var(--unit-radius) var(--unit-radius);
     opacity: var(--bg-opacity);
+}
+
+/* =========================================
+   MEDIA QUERIES
+   ========================================= */
+
+/* Pas assez de hauteur */
+@media (min-aspect-ratio: 2/1) {
+    #console-main {
+        grid-template-rows: 1fr auto auto;
+    }
+
+    #screen-bazel {
+        order: -1;
+    }
+
+    header,
+    #version {
+        max-height: 7cqh;
+    }
+
+    #logo {
+        display: none;
+    }
+}
+
+/* Bordures réduites */
+@media (max-width: 800px) {
+    :root {
+        --unit-spacing-large: calc(var(--unit-base) * 0.8);
+    }
+}
+
+/* Petite fenêtre : en dessous du seuil minimum utilisable */
+@media (max-width: 550px), (max-height: 380px) {
 }
