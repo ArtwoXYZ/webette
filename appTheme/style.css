@@ -223,55 +223,6 @@ label {
     pointer-events: none;
 }
 
-.btn-container {
-    margin-top: var(--unit-spacing-small);
-}
-
-.btn-container:has(button:hover) {
-    margin-top: calc(var(--unit-spacing-small) + 2cqmin);
-}
-
-.btn-container button {
-    box-shadow:
-        0px -2cqmin 0px 0px rgba(0, 0, 0, 0.2) inset,
-        0px round(up, 0.5cqmin, 1px) 0px 0px rgba(255, 255, 255, 0.8) inset,
-        0px round(up, 0.5cqmin, 1px) 1cqmin 0px rgba(0, 0, 0, 0.5),
-        0px 0px 1cqmin 0px rgba(0, 0, 0, 0.8),
-        0 0 round(up, 0.2cqmin, 1px) round(up, 0.65cqmin, 1px) rgba(0, 0, 0, 0.6);
-    position: relative;
-    border: solid 1px rgba(0, 0, 0, 0.4);
-}
-
-.btn-container button::after {
-    content: " ";
-    position: absolute;
-    display: block;
-    inset: round(calc(-3.5cqi + 0.5cqmin), 1px) round(-3.5cqi, 1px) round(-3.5cqi, 1px);
-    z-index: -1;
-    pointer-events: none;
-    background-color: var(--color-bg0);
-    box-shadow:
-        0px -0.2cqmin 0px 0px rgba(255, 255, 255, 1) inset,
-        0px 0px 1cqmin 0px rgba(0, 0, 0, 0.8),
-        0px round(up, 0.25cqmin, 1px) round(up, 0.1cqmin, 1px) 0px rgba(255, 255, 255, 0.8);
-    border: solid 1px rgba(0, 0, 0, 0.3);
-}
-
-.btn-container button:hover {
-    box-shadow:
-        0px 0px round(up, 0.5cqmin, 1px) 0px rgba(0, 0, 0, 0.9),
-        0px -0.2cqmin round(up, 0.5cqmin, 1px) 0px rgba(0, 0, 0, 0.6) inset,
-        0 0 round(up, 5cqmin, 1px) 0px rgba(0, 0, 0, 0.3) inset,
-        0px round(up, 0.5cqmin, 1px) 0px 0px rgba(255, 255, 255, 0.8) inset,
-        0px 0px round(up, 0.8cqmin, 1px) 0px rgba(0, 0, 0, 0.5),
-        0px round(-1.6cqmin, 1px) round(up, 0.5cqmin, 1px) round(up, 0.5cqmin, 1px) rgba(0, 0, 0, 0.8),
-        0 0 round(up, 0.2cqmin, 1px) round(up, 0.65cqmin, 1px) rgba(0, 0, 0, 0.6);
-}
-
-.btn-container button:hover::after {
-    margin-top: -2cqmin;
-}
-
 .side-bottom {
     display: flex;
     flex-flow: column;
@@ -289,67 +240,58 @@ label {
     align-content: end;
 }
 
-button.btn-big {
+.btn-container {
     --height: 20cqi;
     --width: 40cqi;
     height: var(--height);
     width: var(--width);
-    background-color: var(--color-bg0);
+    background-color: var(--black);
     border-radius: var(--unit-radiusx05);
-}
-
-button.btn-big::after {
-    border-radius: var(--unit-radius);
-}
-
-button.btn-big:hover {
-    height: calc(var(--height) - 2cqmin);
-}
-
-.side-top {
     display: grid;
+    align-items: end;
     justify-items: center;
-    align-content: baseline;
-    padding-top: var(--unit-spacing-large);
-    z-index: 0;
+    border: 1px solid var(--black);
+    overflow: hidden;
 }
 
-#console-right .side-top {
-    padding-top: calc(var(--unit-spacing-large) + 3cqi);
+.btn-container::before {
+    content: " ";
+    height: calc(var(--height) + 6cqmin);
+    width: calc(var(--width) + 6cqmin);
+    margin-bottom: -3.5cqmin;
+    border-radius: var(--unit-radius);
+    position: absolute;
+    background-color: var(--color-bg0);
+    z-index: -1;
+}
+
+.btn-container button {
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-bg0);
+    border-radius: var(--unit-radiusx025);
+    box-shadow:
+        0 -2cqmin 1cqmin 0 inset rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.btn-container button::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    background-color: transparent;
+    inset: -2cqmin;
+}
+
+.btn-container button:hover {
+    margin-bottom: -2cqmin;
+    box-shadow:
+        0 round(-0.5cqmin, 1px) 1cqmin 0 inset rgba(0, 0, 0, 0.3);
 }
 
 button.btn-small {
     --height: 9cqi;
     --width: 16cqi;
-    min-height: 9px;
-    height: var(--height);
-    min-width: 16px;
-    width: var(--width);
-    background-color: var(--grey);
-    border-radius: 100px;
-    box-shadow:
-        0px -1.2cqmin round(up, 0.3cqmin, 1px) 0px rgba(0, 0, 0, 0.9) inset,
-        0px round(up, 0.5cqmin, 1px) 0px 0px rgba(255, 255, 255, 0.3) inset,
-        0px round(up, 0.5cqmin, 1px) 1cqmin 0px rgba(0, 0, 0, 0.5),
-        0px 0px 1cqmin 0px rgba(0, 0, 0, 0.8),
-        0 0 round(up, 0.2cqmin, 1px) round(up, 0.65cqmin, 1px) rgba(0, 0, 0, 0.9);
-}
-
-button.btn-small::after {
-    border-radius: 100px;
-}
-
-button.btn-small:hover {
-    min-height: calc(9px - 2cqmin);
-    height: calc(var(--height) - 2cqmin);
-    box-shadow:
-        0px 0px round(up, 0.5cqmin, 1px) 0px rgba(0, 0, 0, 0.9),
-        0px -0.2cqmin round(up, 0.5cqmin, 1px) 0px rgba(0, 0, 0, 0.9) inset,
-        0 0 5cqmin 0px rgba(0, 0, 0, 0.3) inset,
-        0px round(up, 0.5cqmin, 1px) 0px 0px rgba(255, 255, 255, 0.3) inset,
-        0px 0px round(up, 0.8cqmin, 1px) 0px rgba(0, 0, 0, 0.5),
-        0px round(-1.9cqmin, 1px) round(up, 0.5cqmin, 1px) round(up, 0.5cqmin, 1px) rgba(0, 0, 0, 1),
-        0 0 round(up, 0.2cqmin, 1px) round(up, 0.65cqmin, 1px) rgba(0, 0, 0, 0.8);
 }
 
 /* Speaker vents Styling */
