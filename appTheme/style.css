@@ -39,9 +39,6 @@
     --font-main: "Drafting Mono", monospace;
     --font-buttons: "Fira Sans Condensed", sans-serif;
     --font-display: "Bungee", monospace;
-    --font-size-base: 1.2rem;
-    --font-size-small: calc(var(--font-size-base) * 0.7);
-    --font-size-large: calc(var(--font-size-base) * 1.5);
 
     /* FX */
     --bg-opacity: 0.6;
@@ -64,8 +61,9 @@ body {
     container-type: size;
     container-name: console;
     width: calc(100vw - (100vw - 100%));
-    height: 100vh;
+    height: calc(100vh - (100vh - 100%));
     min-height: 230px;
+    min-width: 270px;
     position: relative;
     padding: var(--unit-spacing-large);
     background-color: var(--color-console-edges);
@@ -95,7 +93,7 @@ body {
     /* Typographie */
     --font-size-base: calc(12px + var(--unit-base));
     --font-size-small: calc(var(--font-size-base) * 0.65);
-    --font-size-large: calc(var(--font-size-base) * 1.2);
+    --font-size-large: calc(var(--font-size-base) * 0.9);
 
     width: 100%;
     height: 100%;
@@ -514,6 +512,7 @@ header h1 {
 
 .screen-infos-section:first-child>span {
     font-weight: bold;
+    font-size: var(--font-size-small);
 }
 
 .screen-infos-section:nth-child(2) {
@@ -594,6 +593,7 @@ header h1 {
 #screen-bebettes>div {
     position: relative;
     z-index: 1;
+    pointer-events: none;
 }
 
 #bebette-magic::after {
@@ -702,37 +702,235 @@ header h1 {
     :root {
         --unit-spacing-large: calc(var(--unit-base) * 0.8);
     }
+
+    #screen-infos {
+        padding: 0 var(--unit-spacing-small) var(--unit-spacing-small) var(--unit-spacing-small);
+    }
 }
 
 /* Console portrait */
-@media (max-aspect-ratio: 87/80) {
+@media (max-aspect-ratio: 85/80) {
     #console-panel {
-        grid-template: "a" 1fr "b" auto "c" auto;
-    }
-
-    #console-main {
-        order: -1;
-        grid-template:
-            "a a" auto
-            "b b" 1fr;
-    }
-
-    #screen-bezel {
-        order: +1;
+        --portrait-side-bottom-height: clamp(92px, 16cqh, 132px);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: minmax(0, 1.3fr) minmax(0, 1fr);
+        column-gap: var(--unit-spacing-small);
+        row-gap: var(--unit-spacing-med);
     }
 
     .console-side {
-        flex-direction: row;
+        display: flex;
+        flex-direction: column;
+        grid-row: 2;
         width: auto;
-        height: 18cqh;
+        min-height: 0;
+        align-self: stretch;
     }
 
     .console-side>div {
+        flex: 0 0 auto;
         height: auto;
+        min-height: 0;
     }
 
     .side-top {
-        flex-flow: row;
+        flex: 1 1 auto;
+        border-radius: 0 0 var(--unit-radius) var(--unit-radius);
+        margin-top: 0;
+        margin-bottom: round(up, 1cqmin, 1px);
+        padding: var(--unit-spacing-small);
+        min-height: 0;
+        overflow: hidden;
+        flex-grow: 1 !important;
+        flex-shrink: 1 !important;
+    }
+
+    .side-bottom {
+        order: -1;
+        flex: 0 0 var(--portrait-side-bottom-height);
+        border-radius: var(--unit-radius) var(--unit-radius) 0 0;
+        margin-top: round(up, 1cqmin, 1px);
+        margin-bottom: 0;
+        min-height: 0;
+        align-items: stretch;
+    }
+
+    #console-main {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        margin-bottom: 0;
+        grid-template:
+            ". header version ." auto
+            "screen screen screen screen" 1fr
+            / 1fr auto auto 1fr;
+        gap: var(--unit-spacing-small);
+    }
+
+    header,
+    #version {
+        height: auto;
+    }
+
+    header {
+        grid-area: header;
+        max-height: 10cqi;
+    }
+
+    #version {
+        grid-area: version;
+        align-self: center;
+    }
+
+    #screen-bezel {
+        grid-area: screen;
+        min-height: 0;
+    }
+
+    #screen {
+        grid-template-rows: auto auto minmax(0, 1fr);
+    }
+
+    .console-side label {
+        font-size: clamp(calc(var(--font-size-small) * 1), 4cqi, calc(var(--font-size-base) * 0.82));
+        line-height: 1;
+        padding-top: calc(var(--unit-spacing-small) + 2.5cqi);
+        margin-bottom: var(--unit-spacing-small);
+    }
+
+    .console-side label.btn-big {
+        width: 24cqi;
+    }
+
+    .side-btn-container {
+        margin: var(--unit-spacing-small);
+        padding: calc(var(--unit-spacing-large) * 2) 0 var(--unit-spacing-med);
+        gap: var(--unit-spacing-small);
+    }
+
+    #console-right .side-top .side-btn-container {
+        grid-auto-flow: column;
+        grid-template-rows: auto auto;
+        align-content: end;
+        justify-content: end;
+        gap: var(--unit-spacing-small) calc(var(--unit-spacing-large) * 2);
+        padding-right: calc(var(--unit-spacing-large) * 2);
+    }
+
+    .side-bottom .side-btn-container {
+        height: 100%;
+        min-height: 0;
+        grid-template-rows: minmax(0, 1fr) auto;
+        align-content: stretch;
+        align-items: end;
+    }
+
+    #console-left .side-bottom .side-btn-container {
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: baseline;
+        padding-left: calc(var(--unit-spacing-large) * 2);
+    }
+
+    #console-right .side-bottom .side-btn-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        justify-items: end;
+        padding-right: calc(var(--unit-spacing-large) * 2);
+    }
+
+    #console-right .side-bottom .side-btn-container> :nth-child(1),
+    #console-right .side-bottom .side-btn-container> :nth-child(2) {
+        grid-column: 1;
+    }
+
+    #console-right .side-bottom .side-btn-container> :nth-child(3),
+    #console-right .side-bottom .side-btn-container> :nth-child(4) {
+        grid-column: 2;
+    }
+
+    #console-right .side-bottom .side-btn-container> :nth-child(1),
+    #console-right .side-bottom .side-btn-container> :nth-child(3) {
+        grid-row: 1;
+    }
+
+    #console-right .side-bottom .side-btn-container> :nth-child(2),
+    #console-right .side-bottom .side-btn-container> :nth-child(4) {
+        grid-row: 2;
+    }
+
+    .btn-container {
+        margin-top: 0;
+        align-self: end;
+        --height: 13cqi;
+        --width: 24cqi;
+    }
+
+    .btn-container::before {
+        height: calc(var(--height) + 5cqmin);
+        width: calc(var(--width) + 4cqmin);
+        margin-bottom: round(-3.5cqmin, 1px);
+    }
+
+    .btn-container:has(button.btn-small) {
+        --height: 8cqi;
+        --width: 15cqi;
+    }
+
+    #speaker {
+        height: 100%;
+        min-height: 0;
+        display: flex;
+        justify-content: start;
+    }
+
+    #speaker-vents {
+        max-height: 100%;
+        min-height: 0;
+        width: auto;
+        max-width: 100%;
+        align-self: end;
+    }
+
+    #logo svg {
+        max-height: 100%;
+    }
+
+    #screen-infos {
+        min-height: 0;
+    }
+
+    #screen-bebettes {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-auto-rows: 1fr;
+        gap: var(--unit-spacing-large);
+        height: 100%;
+        min-height: 0;
+        align-items: end;
+    }
+
+    #screen-bebettes>div img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center bottom;
+    }
+
+    #screen-bebettes>div {
+        width: 100%;
+        min-width: 0;
+        min-height: 0;
+    }
+}
+
+@media (max-aspect-ratio: 470/757) {
+    body {
+        padding: 2px;
+        align-content: center;
+    }
+
+    #console-bezel {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 470/757;
+        margin: auto;
     }
 }
 
