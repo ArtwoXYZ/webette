@@ -1,0 +1,14 @@
+{
+  // TypeScript 7 (native) no longer ships lib.*.d.ts in node_modules/typescript/lib,
+  // which breaks editor language servers using the workspace TSDK.
+  // Use the language server's bundled TypeScript instead (CLI typecheck still uses TS7).
+  "lsp": {
+    "vtsls": {
+      "settings": {
+        "vtsls": {
+          "autoUseWorkspaceTsdk": false
+        }
+      }
+    }
+  }
+}
