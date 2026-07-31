@@ -3,21 +3,25 @@
   "version": "0.2025.120",
   "type": "module",
   "private": false,
-  "bin": { "webette": "./src/cli.ts" },
-  "exports": { ".": "./src/index.ts" },
+  "bin": {
+    "webette": "./src/cli.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "build": "bun run src/cli.ts build",
     "serve": "bun run src/cli.ts serve",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "handlebars": "^4.7.9",
     "image-size": "^1.1.1",
-    "handlebars": "^4.7.8",
-    "rehype-stringify": "^10.0.0",
     "rehype-format": "^4.0.0",
     "rehype-parse": "^9.0.0",
-    "remark-parse": "^11.0.0",
+    "rehype-stringify": "^10.0.0",
     "remark-gfm": "^4.0.0",
+    "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.0",
     "unified": "^11.0.0"
   },
