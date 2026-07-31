@@ -5,8 +5,11 @@
 import type { Collection, Entry, Site, Block } from "../model";
 import type { WebetteEnv } from "../../config/env";
 import { resolveImageConfig } from "../block-types/image/config";
+import { clearImageAssetCache } from "../block-types/image/engine";
 import { resolveAudioConfig } from "../block-types/audio/config";
+import { clearAudioAssetCache } from "../block-types/audio/engine";
 import { resolveVideoConfig } from "../block-types/video/config";
+import { clearVideoAssetCache } from "../block-types/video/engine";
 import { findResolver, type ResolveContext } from "./registry";
 import { parseRouteSegments, buildBlockRouteHint } from "./route-hints";
 
@@ -102,6 +105,12 @@ export async function resolveBlocks(
   site: Site,
   options: ResolveOptions
 ): Promise<Site> {
+  // Asset caches deduplicate work within one pass; reset so a new pass
+  // (e.g. a serve rebuild into a cleaned output dir) re-emits every file.
+  clearImageAssetCache();
+  clearVideoAssetCache();
+  clearAudioAssetCache();
+
   const ctx = createContext(site, options);
 
   const collections = site.collections

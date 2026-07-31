@@ -17,9 +17,59 @@ import type { ImagePipelineConfig, GeneratedVariantName } from "./config";
 import { generatedVariants } from "./config";
 
 import { normalizeLeadingSlash } from "../../../utils/path";
+import { createSingleFlightCache } from "../../../utils/single-flight";
 import { loadSharp } from "./sharp-loader";
 
+// Concurrent resolutions of the same source (e.g. an entry and a cross-entry
+// reference resolving one image in parallel) must not write the same output
+// files simultaneously: truncated reads (size 0) or failed copies ensue.
+// Single-flight per destination, stamped with source mtime/size + config so
+// concurrent callers share one promise and serve rebuilds stay correct.
+const variantsCache = createSingleFlightCache<ImageVariant[]>();
+const copiesCache = createSingleFlightCache<{ route: string; size: number } | undefined>();
+
+export function clearImageAssetCache(): void {
+  variantsCache.clear();
+  copiesCache.clear();
+}
+
+function buildVariantsStamp(stats: Stats, config: ImagePipelineConfig): string {
+  return [
+    stats.mtimeMs,
+    stats.size,
+    config.format,
+    config.quality,
+    config.fit,
+    config.reencodeDefault,
+    JSON.stringify(config.variants),
+  ].join("|");
+}
+
 export async function generateImageVariants(options: {
+  block: Block;
+  filePath: string;
+  dimensions: { width?: number; height?: number };
+  stats: Stats;
+  config: ImagePipelineConfig;
+  logger?: Logger;
+  routeHint?: string;
+  routeSegments?: string[];
+}): Promise<ImageVariant[]> {
+  const { block, stats, config, routeHint, routeSegments } = options;
+  const { baseDir, slug } = resolveOutputPaths({
+    block,
+    outputDir: config.outputDir,
+    publicBase: config.publicBase,
+    routeHint,
+    routeSegments,
+  });
+  const cacheKey = path.join(baseDir, slug);
+  const stamp = buildVariantsStamp(stats, config);
+
+  return variantsCache.run(cacheKey, stamp, () => generateImageVariantsUncached(options));
+}
+
+async function generateImageVariantsUncached(options: {
   block: Block;
   filePath: string;
   dimensions: { width?: number; height?: number };
@@ -186,6 +236,35 @@ export async function generateImageVariants(options: {
 }
 
 export async function copyOriginalAsset(options: {
+  block: Block;
+  filePath: string;
+  config: ImagePipelineConfig;
+  logger?: Logger;
+  routeHint?: string;
+  routeSegments?: string[];
+}): Promise<{ route: string; size: number } | undefined> {
+  const { block, filePath, config, routeHint, routeSegments } = options;
+  const { baseDir, slug } = resolveOutputPaths({
+    block,
+    outputDir: config.outputDir,
+    publicBase: config.publicBase,
+    routeHint,
+    routeSegments,
+  });
+  const cacheKey = path.join(baseDir, `${slug}${block.ext ?? ""}`);
+
+  let stamp: string;
+  try {
+    const source = await stat(filePath);
+    stamp = `${source.mtimeMs}|${source.size}`;
+  } catch {
+    return copyOriginalAssetUncached(options);
+  }
+
+  return copiesCache.run(cacheKey, stamp, () => copyOriginalAssetUncached(options));
+}
+
+async function copyOriginalAssetUncached(options: {
   block: Block;
   filePath: string;
   config: ImagePipelineConfig;
