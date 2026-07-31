@@ -11,7 +11,7 @@ So **webette** lets you override the layout for a single **entry**.
 Open the site config:
 
 ```
-website-example/webette.config.ts
+webette.config.ts
 ```
 
 Then go to:
@@ -34,7 +34,7 @@ Now:
 
 1) Open 
 ```
-website-example/webette.config.ts
+webette.config.ts
 ```
 2) Find this line:
 
@@ -53,7 +53,7 @@ Bonus:
 Open the layout file and change the badge text:
 
 ```
-website-example/_templates/layout/playground-custom-entry.hbs
+_templates/layout/playground-custom-entry.hbs
 ```
 
 Then save, and wait for live reload again.
@@ -61,7 +61,7 @@ Then save, and wait for live reload again.
 <!--
 Solution:
 
-In website-example/webette.config.ts:
+In webette.config.ts:
 
 templates: {
   ...

@@ -6,13 +6,13 @@ You will edit files, rename folders, and see what changes in the generated site.
 Keep `serve` running while you play:
 
 ```bash
-bun run serve -v website-example
+webette serve . -v
 ```
 
 Some pages may ask you to run a one-shot build:
 
 ```bash
-bun run build -v website-example
+webette build .
 ```
 
 ## What's inside

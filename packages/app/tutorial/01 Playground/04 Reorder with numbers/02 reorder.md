@@ -35,11 +35,11 @@ Items without a numeric prefix come after the numbered ones (and are sorted alph
 In this **entry**, you have a file called:
 
 ```
-website-example/01 Playground/04 Reorder with numbers/03 The GREAT NEBULA in ORION.jpg
+01 Playground/04 Reorder with numbers/03 Imperial Hotel Interior Lobby.png
 ```
 
 Rename it to start earlier, for example:
 
-`03 The GREAT NEBULA in ORION.jpg` → `01 The GREAT NEBULA in ORION.jpg`
+`03 Imperial Hotel Interior Lobby.png` → `01 Imperial Hotel Interior Lobby.png`
 
 Then, in **webette** `serve` mode, just wait for live reload and check the order of the **blocks**.

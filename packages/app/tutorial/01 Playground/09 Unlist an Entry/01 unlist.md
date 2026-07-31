@@ -36,7 +36,7 @@ We’re going to unlist a different **entry**, so you can watch it disappear fro
 Create this file (empty):
 
 ```
-website-example/02 Example/01 You can Unlist me/unlisted.webt
+02 Example/01 You can Unlist me/unlisted.webt
 ```
 
 If you're using **webette** in `serve` mode, just wait a moment: live reload should refresh this page automatically.

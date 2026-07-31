@@ -67,7 +67,7 @@ It is meant to be used by templates to build a **Site Menu**, sidebars, custom T
 If you want to see a real one, open:
 
 ```
-website-example/01 Playground/09 Unlist an Entry/02 navigation.webt
+01 Playground/09 Unlist an Entry/02 navigation.webt
 ```
 
 If you want the full `navigation.webt` reference, see: [navigation.webt (docs)](https://docs.webette.org/blocks/navigation)
@@ -75,7 +75,7 @@ If you want the full `navigation.webt` reference, see: [navigation.webt (docs)](
 ## Try it!
 
 Here is a list of links you can try to create.  
-In `website-example/01 Playground/05 Add a Link/01 link.md`, there are comments at the end of the list to help you, but try without looking first.
+In `01 Playground/05 Add a Link/01 link.md`, there are comments at the end of the list to help you, but try without looking first.
 
 ### Links to try
 
@@ -85,12 +85,20 @@ In `website-example/01 Playground/05 Add a Link/01 link.md`, there are comments 
 - Internal **entry** (other **collection**):
 - Internal **block** (other **entry**):
 
+Solution :
+
+- External (normal Markdown): [Artwo's website](https://artwo.xyz)
+- External (custom `url:`): [Example button](url: https://artwo.xyz, class: button, title: "A button link")
+- Internal **entry** (same **collection**): [Go to Rename an entry](entry: Rename an entry)
+- Internal **entry** (other **collection**): [Go to the Credits page](collection: Credits, entry: Credits for this website and webette)
+- Internal **block** (other **entry**): [Open the hotel lobby image](entry: Reorder with numbers, block: Imperial Hotel Interior Lobby.png)
+
 <!--
 Solution :
 
 - External (normal Markdown): [Artwo's website](https://artwo.xyz)
 - External (custom `url:`): [Example button](url: https://artwo.xyz, class: button, title: "A button link")
 - Internal **entry** (same **collection**): [Go to Rename an entry](entry: Rename an entry)
-- Internal **entry** (other **collection**): [Go to the Credits page](collection: credits, entry: credits)
-- Internal **block** (other **entry**): [Open the nebula image](entry: Reorder with numbers, block: The GREAT NEBULA in ORION.jpg)
+- Internal **entry** (other **collection**): [Go to the Credits page](collection: Credits, entry: Credits for this website and webette)
+- Internal **block** (other **entry**): [Open the hotel lobby image](entry: Reorder with numbers, block: Imperial Hotel Interior Lobby.png)
 -->

@@ -20,7 +20,7 @@ Both pages use the `entry` layout and are protected from prune automatically.
 
 ## How to test slug collision
 
-Create an entry or collection named `demo-plugin` in `website-example` and run a build.
+Create an entry or collection named `demo-plugin` in your site and run a build.
 You will see a `build.tags.slugRenamed` warning in the logs.
 
 ## Regression check

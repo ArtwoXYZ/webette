@@ -8,7 +8,7 @@ No frontmatter required.
 You are reading:
 
 ```
-website-example/01 Playground/02 Edit your text/01 edit.md
+01 Playground/02 Edit your text/01 edit.md
 ```
 
 Open it.
