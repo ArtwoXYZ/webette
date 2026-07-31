@@ -2,7 +2,7 @@
  * Image metadata helpers (dimensions + mime type mapping).
  */
 
-import type { ImageInfo } from "image-size";
+import type { ISizeCalculationResult } from "image-size/types/interface";
 
 export const mimeByExt: Record<string, string> = {
   ".jpg": "image/jpeg",
@@ -16,7 +16,7 @@ export const mimeByExt: Record<string, string> = {
   ".apng": "image/apng",
 };
 
-export function collectImageMeta(info: ImageInfo): {
+export function collectImageMeta(info: ISizeCalculationResult): {
   width?: number;
   height?: number;
 } {

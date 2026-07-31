@@ -5,7 +5,7 @@
 import { stat } from "node:fs/promises";
 import * as path from "node:path";
 import type { Resolver } from "../registry";
-import imageSize from "image-size";
+import { imageSizeFromFile } from "image-size/fromFile";
 import { collectImageMeta, mimeByExt } from "../../block-types/image/meta";
 import { copyOriginalAsset, generateImageVariants } from "../../block-types/image/engine";
 
@@ -19,7 +19,7 @@ export const resolveImage: Resolver = async (block, ctx) => {
 
   let dimensions: { width?: number; height?: number } = {};
   try {
-    const size = imageSize(filePath);
+    const size = await imageSizeFromFile(filePath);
     dimensions = collectImageMeta(size);
   } catch (err) {
     ctx.logger?.warn("resolve.image.dimensionsFailed", {
