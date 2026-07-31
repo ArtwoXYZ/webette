@@ -1,8 +1,8 @@
 # CODEMAP
 
 ## Snapshot
-- Date: 2026-03-26
-- Reviewed by: Pilot (post T6-S16 migration monorepo)
+- Date: 2026-07-31
+- Reviewed by: Pilot (post reprise: deps à jour, fixes race condition assets + favicon.ico)
 - Scope: `packages/engine/src/**`, `packages/engine/locales/**`, `packages/engine/package.json`, `tsconfig.json`, `packages/engine/webette.tool.ts`
 
 ## How to run
@@ -35,6 +35,7 @@ webette/
 │       └── tutorial/    (ex website-example)
 ├── websites/
 │   └── documentation/   (webette doc site, built by engine)
+├── appTheme/            (maquette web autonome du design app — PAS ENCORE intégrée dans packages/app)
 ├── .tangled/workflows/  (CI + Release Spindles)
 ├── docs/                (internal dev docs, migration to websites/doc pending)
 └── package.json         (workspaces: ["packages/*"])
@@ -80,6 +81,10 @@ webette/
 - `webette.config.ts` / `webette.tool.ts` are loaded via Bun build; Node-only environments won't load them.
 - `serve` includes drafts by default; `build` excludes drafts and unlisted affects indexes/sitemap.
 - `bun --cwd` requires an absolute path; use `bun run packages/engine/src/cli.ts` from root instead.
+- TypeScript 7 (native) : ne ship plus `lib.*.d.ts` dans `node_modules/typescript/lib` → les éditeurs doivent utiliser leur TS embarqué (`.zed/settings.json` désactive `autoUseWorkspaceTsdk`) ; `"types": ["bun"]` doit être explicite dans les tsconfig.
+- `sharp` ne sait pas écrire du `.ico` : `generateIco` emballe manuellement un PNG 32×32 dans un conteneur ICO (`core/build/utils/icons.ts`).
+- Le resolve est entièrement parallèle et `resolveReference` re-résout le bloc cible → les écritures d'assets passent par un cache single-flight (`utils/single-flight.ts`) vidé à chaque passe `resolveBlocks`.
+- Pages synthétiques (index, 404, sitemap) : `createdAt`/`updatedAt` régénérés à CHAQUE build (dette connue, non traitée).
 
 ## Fast answers
 - "Where do I change the build pipeline?" -> `packages/engine/src/core/build.ts`

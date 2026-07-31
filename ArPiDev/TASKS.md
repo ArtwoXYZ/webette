@@ -7,6 +7,7 @@ Active story: None
 - [x] T1-S02 Injecter le live reload automatiquement en `serve` (sans action template).
 - [x] T1-S03 Helper menu/index: définir l’API + implémenter dans templates par défaut.
 - [x] T1-S04 Gestion des fichiers supprimés/outputs orphelins en mode `serve` (parité avec build).
+- [ ] T1-S05 Stabiliser les timestamps des pages synthétiques : les index (racine/collections), 404 et sitemap prennent un nouveau createdAt/updatedAt à CHAQUE build (bruit dans lastmod/SEO). Objectif : timestamps stables entre builds quand le contenu n'a pas changé.
 
 ## T2 — Petits gains rapides
 - [x] T2-S01 Option pour décaler les titres Markdown (h1→h2, etc.).
