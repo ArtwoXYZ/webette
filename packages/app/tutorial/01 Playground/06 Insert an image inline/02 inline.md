@@ -45,11 +45,16 @@ Edit this file:
 01 Playground/06 Insert an image inline/02 inline.md
 ```
 
-Then make the image `01 The Planet Jupiter.jpg` appear right here (it won't be at the top anymore). Write the line right below:
+Then make the image `01 1960's Japanese Postcard.jpg` appear right here (it won't be at the top anymore). Write the line right below:
+
+Solution:
+
+- Inline image: ![Postcard](block: 01 1960's Japanese Postcard.jpg)
+- Figure + caption: ![Postcard](block: 01 1960's Japanese Postcard, figure: true, caption: "Hello, I am inline")
 
 <!--
 Solution:
 
-- Inline image: ![Jupiter](block: 01 The Planet Jupiter.jpg)
-- Figure + caption: ![Jupiter](block: 01 The Planet Jupiter, figure: true, caption: "Hello, I am inline")
+- Inline image: ![Postcard](block: 01 1960's Japanese Postcard.jpg)
+- Figure + caption: ![Postcard](block: 01 1960's Japanese Postcard, figure: true, caption: "Hello, I am inline")
 -->
