@@ -27,7 +27,7 @@
   },
   "optionalDependencies": {
     "rehype-external-links": "^3.0.0",
-    "sharp": "^0.33.2",
+    "sharp": "^0.35.3",
     "music-metadata": "^10.4.1"
   },
   "devDependencies": {
