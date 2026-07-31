@@ -2,29 +2,47 @@
   <article>
     <p class="draft-badge">Custom layout: <strong>playground-custom-entry</strong></p>
 
-    <header>
-      <h1>{{displayName entry}}</h1>
+    {{#if entry.isDraft}}
+      <p class="draft-badge">Draft (unpublished)</p>
+    {{/if}}
 
-      {{#if collection}}
-        <p class="meta">
-          From the <strong>{{displayName collection}}</strong> collection.
-        </p>
-      {{/if}}
-    </header>
+    {{#if entry.tags}}
+    <div class="entry-tags">
+      {{#each entry.tags}}
+        {{#if ../tagPagesEnabled}}
+          <a class="tag" href="{{tagRoute this}}">{{this}}</a>
+        {{else}}
+          <span class="tag">{{this}}</span>
+        {{/if}}
+      {{/each}}
+    </div>
+    {{/if}}
+
+    {{{toc}}}
 
     {{#each blocks}}
       {{#if (eq type "markdown")}}
-        {{{safe content.html}}}
+        <section class="markdown prose">
+          {{{safe content.html}}}
+        </section>
       {{else if (eq type "text")}}
-        <pre>{{content.raw}}</pre>
+        <section class="text">
+          <pre>{{content.raw}}</pre>
+        </section>
       {{else if (eq type "image")}}
         {{#unless content.meta.renderedInline}}
-          {{image this figure=true caption=name class="my-class"}}
+          <section class="image">
+            {{image this figure=true caption=name class="my-class"}}
+          </section>
         {{/unless}}
       {{else if (eq type "audio")}}
-        <audio controls src="{{route}}"></audio>
+        <section class="audio">
+          <audio controls src="{{route}}"></audio>
+        </section>
       {{else if (eq type "video")}}
-        <video controls src="{{route}}"></video>
+        <section class="video">
+          <video controls src="{{route}}"></video>
+        </section>
       {{else if (eq type "navigation")}}
         {{#if content.data.items}}
           <section class="navigation">
@@ -37,6 +55,12 @@
         {{/if}}
       {{/if}}
     {{/each}}
+
+    {{#if entry.pluginNote}}
+      <p>
+        Plugin: <em>{{entry.pluginNote}}</em>
+      </p>
+    {{/if}}
 
     {{> prev-next}}
   </article>
