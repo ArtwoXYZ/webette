@@ -8,6 +8,6 @@
     "dev:app": "bun run --cwd packages/app dev"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "^1.3.14"
   }
 }
