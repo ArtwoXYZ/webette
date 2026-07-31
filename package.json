@@ -9,8 +9,5 @@
   },
   "devDependencies": {
     "@types/bun": "latest"
-  },
-  "dependencies": {
-    "electrobun": "^1.16.0"
   }
 }
