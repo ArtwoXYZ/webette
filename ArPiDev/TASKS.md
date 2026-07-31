@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: None
+Active story: T7-S02 — API engine locale (`ArPiDev/stories/T7-S02-api-engine-locale.md`)
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
