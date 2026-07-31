@@ -52,7 +52,6 @@ export async function loadDefaultExportFresh<T = unknown>(
     splitting: false,
     sourcemap: "none",
     minify: false,
-    write: false,
     throw: false,
   });
 

@@ -2,7 +2,7 @@
  * Favicons/icons generation + head tag injection.
  */
 
-import { mkdir } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
 import * as path from 'node:path'
 import type { Site } from '../../model'
 import type { Logger } from '../../../logging/logger'
@@ -195,13 +195,32 @@ async function generateIco(
   inputPath: string,
   targetPath: string,
 ): Promise<void> {
-  await sharpModule(inputPath)
+  // sharp cannot output .ico directly; wrap a 32x32 PNG in an ICO container
+  // (PNG-in-ICO is valid and supported by all modern browsers).
+  const png = await sharpModule(inputPath)
     .resize(32, 32, {
       fit: 'contain',
       background: { r: 0, g: 0, b: 0, alpha: 0 },
     })
-    .toFormat('ico')
-    .toFile(targetPath)
+    .png()
+    .toBuffer()
+
+  const header = Buffer.alloc(6)
+  header.writeUInt16LE(0, 0) // reserved
+  header.writeUInt16LE(1, 2) // type: icon
+  header.writeUInt16LE(1, 4) // image count
+
+  const entry = Buffer.alloc(16)
+  entry.writeUInt8(32, 0) // width
+  entry.writeUInt8(32, 1) // height
+  entry.writeUInt8(0, 2) // palette
+  entry.writeUInt8(0, 3) // reserved
+  entry.writeUInt16LE(1, 4) // color planes
+  entry.writeUInt16LE(32, 6) // bits per pixel
+  entry.writeUInt32LE(png.length, 8) // image data size
+  entry.writeUInt32LE(22, 12) // data offset (6 + 16)
+
+  await writeFile(targetPath, Buffer.concat([header, entry, png]))
 }
 
 export async function buildIcons(options: {
