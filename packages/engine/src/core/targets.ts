@@ -26,6 +26,16 @@ function decodeValue(value: string): string {
   }
 }
 
+// Option values may be wrapped in quotes as delimiters: title: "My title".
+function stripSurroundingQuotes(value: string): string {
+  const trimmed = value.trim();
+  const first = trimmed[0];
+  if (trimmed.length >= 2 && (first === '"' || first === "'") && trimmed.endsWith(first)) {
+    return trimmed.slice(1, -1);
+  }
+  return trimmed;
+}
+
 function normalizeTargetName(value: unknown): string {
   if (typeof value !== "string") return "";
   const trimmed = value.trim();
@@ -105,7 +115,7 @@ export function parseInternalReference(rawUrl: string): ParsedInternal | null {
         data[targetKey] = value;
       }
     } else {
-      options[key] = decodeValue(rawValue);
+      options[key] = stripSurroundingQuotes(decodeValue(rawValue));
     }
   }
 
