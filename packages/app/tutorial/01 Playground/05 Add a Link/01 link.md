@@ -85,14 +85,6 @@ In `01 Playground/05 Add a Link/01 link.md`, there are comments at the end of th
 - Internal **entry** (other **collection**):
 - Internal **block** (other **entry**):
 
-Solution :
-
-- External (normal Markdown): [Artwo's website](https://artwo.xyz)
-- External (custom `url:`): [Example button](url: https://artwo.xyz, class: button, title: "A button link")
-- Internal **entry** (same **collection**): [Go to Rename an entry](entry: Rename an entry)
-- Internal **entry** (other **collection**): [Go to the Credits page](collection: Credits, entry: Credits for this website and webette)
-- Internal **block** (other **entry**): [Open the hotel lobby image](entry: Reorder with numbers, block: Imperial Hotel Interior Lobby.png)
-
 <!--
 Solution :
 

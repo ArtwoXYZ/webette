@@ -35,6 +35,6 @@ Edit this file:
 
 And do this:
 
-- Ignore the second **block** too: `03 automatic-data-processing-mach.mp4`
+- Ignore the second **block** too: `03 Magnetic Field of Uranus.mp4`
 - In **webette** `serve` mode, just wait for live reload: both ignored **blocks** should be gone
 - Then make the first one appear again (the image), while keeping the second one ignored
