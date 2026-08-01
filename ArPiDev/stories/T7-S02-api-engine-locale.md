@@ -1,8 +1,8 @@
 # T7-S02 — API engine locale
 
-**Status:** In progress
+**Status:** Done
 **Opened:** 2026-07-31
-**Closed:** —
+**Closed:** 2026-08-01
 
 ---
 
@@ -118,8 +118,61 @@ Décisions validées ensemble :
 - `POST /build` synchrone (pas de job queue) — un build tutorial ≈ 2 s, un spinner suffit côté UI.
 - Découverte au cadrage : `packages/engine/package.json` déclare `"exports": { ".": "./src/index.ts" }` mais le fichier n'existe pas — sa création intègre le scope.
 
+### 2026-08-01
+
+**Implémentation complète (Dev + user)**
+
+Étapes réalisées dans l'ordre du brief :
+
+1. **`src/index.ts` public** — créé : exporte `build`, `serve`, `createProjectLogger`, `loadVersion` + types `BuildOptions`/`ServeOptions`/`ServeHandle`/`Logger`. Vérifié par import réel depuis `packages/app` (`import { build } from "webette"` → OK, version 0.2025.120).
+2. **Handle de serve** — `serve()` retourne désormais `ServeHandle { port, stop() }`. `stop()` ferme le timer de rebuild, tous les watchers (`FSWatcher[]` désormais référencés) puis `server.stop(true)` ; flag `stopped` pour bloquer les rebuilds fantômes ; idempotent. `keepProcessAlive` déplacé dans le CLI (comportement bloquant inchangé). Nouvelle clé i18n `serve.stopped` (en/fr). Vérifié : deux cycles start→stop consécutifs sans EADDRINUSE, port réellement fermé après stop.
+3. **`webette api`** — nouveau module `core/api.ts` (`startApiServer`), commande CLI `api [--port <n>]` (défaut 4177), bind exclusif 127.0.0.1, logger console-only pour l'API elle-même (chaque site piloté garde son logger projet dans son `.webette/`). Clés i18n `api.listening`/`api.stopped`/`api.request`/`cli.help.api` (en/fr).
+4. **Endpoints** — `GET /status`, `POST /build` (synchrone, résumé `{ at, ok, durationMs, errors }`), `POST /serve`, `POST /stop`, `GET /logs?since=<offset octets>`. Réponses homogènes `{ ok, data }` / `{ ok: false, error }` ; 400 body invalide, 404 route inconnue, 409 conflits (double serve, build pendant serve, stop sans serve, logs sans site actif), 500 inattendu.
+5. **`GET /logs`** — lecture incrémentale par offset d'octets ; ne consomme que les lignes complètes (la ligne partielle reste pour le poll suivant) ; si offset > taille du fichier (recréation/troncature) → repart de 0 avec `reset: true`.
+
+**Evidence (curl sur packages/app/tutorial, API port 4177) :**
+
+- `/status` initial : `{"ok":true,"data":{"version":"0.2025.120","activeSite":null,"serve":null,"lastBuild":null}}`
+- `/build` : `{"ok":true,"data":{"at":"2026-08-01T12:31:03.716Z","ok":true,"durationMs":6716,"errors":[]}}`
+- `/logs?since=0` → 203 entrées, cursor 41225 ; second appel avec ce cursor → 0 entrée (delta seul) ; `since=999999999` → `reset: true`, relecture depuis 0.
+- Cycle serve : `/serve` → site 200 sur 4173 → `/status` reflète `serve.port` → second `/serve` → 409 clair → `/build` pendant serve → 409 clair → `/stop` → re-`/serve` OK → `/stop` → `/stop` sans serve → 409 → port 4173 réellement fermé.
+- Erreurs : rootDir inexistant → 400 ; body non-JSON → 400 ; route inconnue → 404.
+
+**Non-régression :**
+
+- `webette build packages/app/tutorial` : inchangé, exit 0, build 6.1s.
+- `webette serve` : comportement bloquant conservé (keepalive côté CLI).
+- Typecheck monorepo vert (engine + app).
+- Test handle : 2 cycles start/stop programmatiques sans erreur de port.
+
+**Choix d'implémentation notés :**
+
+- Port API par défaut : 4177 (constante `DEFAULT_API_PORT`, pas de nouvelle entrée env pour cette v1).
+- `idleTimeout: 255` sur le serveur API (builds synchrones potentiellement longs).
+- `/build` répond 200 avec `ok: false` + erreurs dans le résumé si le build échoue (l'appel API a réussi, c'est le build qui a échoué) ; les 4xx/5xx restent pour les erreurs de requête/API.
+- `rootDir` résolu en chemin absolu côté API (comparaisons d'état fiables).
+
+**Révision post-review (user) — codes d'erreur stables :**
+
+Les erreurs API ne passent pas par l'i18n : ce sont des messages de protocole machine-à-machine, pas de la sortie console. Décision (avec user) : chaque erreur porte un `code` stable (`ApiErrorCode` exporté : `invalid_json_body`, `invalid_root_dir`, `serve_already_running`, `no_serve_running`, `no_active_site`, `unknown_route`, `internal_error`, etc.) sur lequel le client matche et traduit lui-même ; le champ `error` reste un message anglais de debug/fallback. Format : `{ ok: false, code, error }`. Vérifié au curl sur 3 cas (route inconnue, stop sans serve, body invalide).
+
+---
+
+## Commit proposal
+
+**Title:** `feat(cli): local control API (webette api) and controllable serve handle`
+
+**Description:**
+
+- Add `webette api [--port <n>]` starting a local HTTP control API bound to 127.0.0.1 (default port 4177) with GET /status, POST /build (synchronous summary), POST /serve, POST /stop and GET /logs?since=<byte-offset> (incremental JSONL reading with truncation reset).
+- Refactor `serve()` to return a controllable handle `{ port, stop() }` closing the HTTP server, all file watchers and the rebuild timer; the CLI keeps its blocking behavior.
+- Create the missing public entrypoint `packages/engine/src/index.ts` (build, serve, logger, version and related types) declared in `exports`.
+- Enforce single-active-site guards with uniform responses: `{ ok, data }` on success, `{ ok: false, code, error }` on failure with stable machine-readable codes (409 on double serve, build during serve, stop without serve).
+- Validate with curl on packages/app/tutorial (all endpoints, serve→stop→serve cycle without port errors), unchanged CLI build/serve behavior and green monorepo typecheck.
+
 ---
 
 ## Pilot exchange
 
 *(à compléter pendant l'exécution)*
+

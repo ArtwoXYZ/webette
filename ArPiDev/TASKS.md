@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: T7-S02 — API engine locale (`ArPiDev/stories/T7-S02-api-engine-locale.md`)
+Active story: none
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
@@ -78,7 +78,7 @@ Active story: T7-S02 — API engine locale (`ArPiDev/stories/T7-S02-api-engine-l
 
 - [x] T7-S00 Refonte CLI : redesign complet de l'expérience terminal — mini interface d'accueil, affichage structuré des logs (niveaux, couleurs, formatage), commande help claire, feedback utilisateur soigné.
 - [x] T7-S01 POC ElectroBun : valider la base (window + webview, import engine depuis le process principal, communication webview ↔ main).
-- [ ] T7-S02 API engine locale : endpoints HTTP build/serve/stop/status + polling logs (pas de streaming encore).
+- [x] T7-S02 API engine locale : endpoints HTTP build/serve/stop/status + polling logs (pas de streaming encore).
 - [ ] T7-S03 Streaming logs temps réel : upgrade SSE ou WebSocket pour les logs live (serve notamment).
 - [ ] T7-S04 UI alpha (webview) : boutons build/serve/stop + affichage état + lien local vers le site servi.
 - [ ] T7-S05 Packaging multi-OS : build exécutable via ElectroBun (macOS/Linux/Windows).

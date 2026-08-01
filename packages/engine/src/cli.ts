@@ -6,7 +6,8 @@
 
 import { build } from "./core/build";
 import { serve } from "./core/serve";
-import { createProjectLogger } from "./logging/logger";
+import { startApiServer } from "./core/api";
+import { createProjectLogger, Logger } from "./logging/logger";
 import { getEnv, resolveLocale } from "./config/env";
 import { t, type Locale } from "./logging/i18n";
 import { loadVersion } from "./version";
@@ -50,6 +51,7 @@ type CliOptions = {
   };
   readContent?: boolean;
   includeDrafts?: boolean;
+  port?: number;
 };
 
 function parseArgs(argv: string[]) {
@@ -59,6 +61,7 @@ function parseArgs(argv: string[]) {
   const exportModel: CliOptions["exportModel"] = {};
   let readContent: boolean | undefined = undefined;
   let includeDrafts: boolean | undefined = undefined;
+  let port: number | undefined = undefined;
 
   const filtered: string[] = [];
 
@@ -68,6 +71,15 @@ function parseArgs(argv: string[]) {
 
     if (arg === "--verbose" || arg === "-v") {
       verbose = true;
+      continue;
+    }
+
+    if (arg === "--port") {
+      const value = Number.parseInt(rawArgs[i + 1] ?? "", 10);
+      if (!Number.isNaN(value)) {
+        port = value;
+        i++;
+      }
       continue;
     }
 
@@ -102,6 +114,7 @@ function parseArgs(argv: string[]) {
     exportModel: Object.keys(exportModel).length ? exportModel : undefined,
     readContent,
     includeDrafts,
+    port,
   };
 
   return { command, sitePath, options };
@@ -122,6 +135,7 @@ function printHelp(locale: Locale, version: string): void {
   console.log(clr("1", t(locale, "cli.help.commands")));
   console.log(clr("32", t(locale, "cli.help.build")));
   console.log(clr("32", t(locale, "cli.help.serve")));
+  console.log(clr("32", t(locale, "cli.help.api")));
   console.log(clr("32", t(locale, "cli.help.help")));
   console.log();
   console.log(clr("1", t(locale, "cli.help.options")));
@@ -147,6 +161,33 @@ async function main() {
 
   const rootDir = sitePath ?? process.cwd();
 
+  if (command === "api") {
+    // Console-only logger: the API has no site of its own; each piloted
+    // site gets its own project logger (writing to its .webette/).
+    const apiLogger = new Logger({
+      scope: "webette.cli.api",
+      locale,
+      minLevel: options.verbose ? "debug" : toolEnv.logging.level,
+      compact: !options.verbose,
+    });
+    for (const w of envWarnings) {
+      apiLogger.warn(w.key, w.params);
+    }
+    try {
+      await startApiServer(
+        { port: options.port, verbose: options.verbose },
+        apiLogger
+      );
+      // Bun.serve keeps the process alive; Ctrl+C stops it.
+    } catch (error) {
+      apiLogger.error("error.unexpected", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      process.exitCode = 1;
+    }
+    return;
+  }
+
   const logger = await createProjectLogger(
     rootDir,
     `webette.cli.${command}`,
@@ -165,6 +206,9 @@ async function main() {
 
       case "serve":
         await serve(rootDir, options, logger);
+        // Keep the CLI process alive: the serve handle owns the server
+        // and watchers; Ctrl+C remains the way to stop.
+        await new Promise<void>(() => { });
         break;
 
       default:

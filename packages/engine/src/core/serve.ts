@@ -4,7 +4,7 @@
 
 import * as path from "node:path";
 import { stat } from "node:fs/promises";
-import { watch } from "node:fs";
+import { watch, type FSWatcher } from "node:fs";
 
 import { getEnv } from "../config/env";
 import { build } from "./build";
@@ -16,15 +16,17 @@ import { resolveTemplatesConfig } from "./templates/config";
 
 export interface ServeOptions extends BuildOptions { }
 
-function keepProcessAlive() {
-  return new Promise<void>(() => { });
+export interface ServeHandle {
+  port: number;
+  /** Stops the HTTP server and closes all file watchers. Idempotent. */
+  stop(): Promise<void>;
 }
 
 export async function serve(
   rootDir: string,
   options: ServeOptions,
   logger: Logger
-): Promise<void> {
+): Promise<ServeHandle> {
   const scoped = logger.child("serve");
   const { env: toolEnv } = await getEnv();
   const site = await createSite(rootDir, scoped);
@@ -57,7 +59,7 @@ export async function serve(
 
   // 2. HTTP Server
   try {
-    Bun.serve({
+    const server = Bun.serve({
       port,
       async fetch(req) {
         const url = new URL(req.url);
@@ -142,9 +144,11 @@ export async function serve(
 
     let rebuildRunning = false;
     let rebuildPending = false;
+    let stopped = false;
 
     const runRebuild = async () => {
       // Serialize rebuilds: never run two builds concurrently.
+      if (stopped) return;
       if (rebuildRunning) {
         rebuildPending = true;
         return;
@@ -179,6 +183,7 @@ export async function serve(
     };
 
     const scheduleRebuild = () => {
+      if (stopped) return;
       if (rebuildTimer) clearTimeout(rebuildTimer);
 
       rebuildTimer = setTimeout(() => {
@@ -194,8 +199,9 @@ export async function serve(
     const lastMtime = new Map<string, number>();
 
     // 3. File watchers (site root + fallback templates)
+    const watchers: FSWatcher[] = [];
     for (const watchPath of watchPaths) {
-      watch(
+      const watcher = watch(
         watchPath,
         { recursive: true },
         async (eventType, filename) => {
@@ -240,13 +246,31 @@ export async function serve(
           scheduleRebuild();
         }
       );
+      watchers.push(watcher);
     }
 
     watchLogger.debug("serve.watchReady", { rootDir, templatesRoot });
 
     scoped.info("serve.stopHint");
 
-    await keepProcessAlive();
+    return {
+      port,
+      async stop() {
+        if (stopped) return;
+        stopped = true;
+
+        if (rebuildTimer) {
+          clearTimeout(rebuildTimer);
+          rebuildTimer = null;
+        }
+        for (const watcher of watchers) {
+          watcher.close();
+        }
+        await server.stop(true);
+
+        scoped.info("serve.stopped", { port });
+      },
+    };
   } catch (error) {
     const normalizedError =
       error instanceof Error &&

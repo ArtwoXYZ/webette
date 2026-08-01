@@ -9,18 +9,20 @@
 - Install: `bun install` (from monorepo root)
 - Dev server: `bun run packages/engine/src/cli.ts serve <site-folder>` (from root), or `bun run serve <site-folder>` (from `packages/engine/`)
 - Build: `bun run packages/engine/src/cli.ts build <site-folder>` (from root), or `bun run build <site-folder>` (from `packages/engine/`)
+- Local control API: `bun run packages/engine/src/cli.ts api [--port <n>]` (127.0.0.1, default port 4177; GET /status, POST /build, POST /serve, POST /stop, GET /logs?since=<byte-offset>)
 - Typecheck: `bun run --filter webette typecheck` (from root)
 - Test: none (no test script defined)
 - Convenience scripts (root): `bun run serve:tutorial`, `bun run typecheck`
 
 ## Entry points
-- Backend: `packages/engine/src/cli.ts` (dispatches `build` / `serve`)
+- Backend: `packages/engine/src/cli.ts` (dispatches `build` / `serve` / `api`); public programmatic entrypoint: `packages/engine/src/index.ts`
 - Frontend: N/A (static output in `_public/` of the target site)
 - Jobs/Workers: N/A
 
 ## High-level architecture
 - Filesystem-first pipeline: scan folders → resolve blocks → postprocess markdown → apply history/timestamps → render templates → export model → prune output.
-- `build` orchestrates the pipeline (`packages/engine/src/core/build.ts`) and `serve` wraps it with Bun's HTTP server + filesystem watch (`packages/engine/src/core/serve.ts`).
+- `build` orchestrates the pipeline (`packages/engine/src/core/build.ts`) and `serve` wraps it with Bun's HTTP server + filesystem watch (`packages/engine/src/core/serve.ts`); `serve()` returns a `ServeHandle { port, stop() }`.
+- `api` (`packages/engine/src/core/api.ts`) exposes a local HTTP control API (single active site, stable error codes) so external UIs can drive build/serve without embedding engine logic.
 - Handlebars templates are resolved site-first with tool fallbacks; helpers live in `packages/engine/src/core/templates/helpers.ts`.
 
 ## Monorepo structure
@@ -43,6 +45,7 @@ webette/
 
 ## Module / component map
 - CLI + config: `packages/engine/src/cli.ts`, `packages/engine/src/config/env.ts`, `packages/engine/src/core/config.ts`, `packages/engine/webette.tool.ts`
+- Local API: `packages/engine/src/core/api.ts` (webette api server); public entrypoint: `packages/engine/src/index.ts`
 - Scan + routes: `packages/engine/src/core/scan/**`, `packages/engine/src/core/routes.ts`, `packages/engine/src/core/targets.ts`
 - Resolve + block types: `packages/engine/src/core/resolve/**`, `packages/engine/src/core/block-types/**`
 - Build + render: `packages/engine/src/core/build/**`, `packages/engine/src/core/template.ts`, `packages/engine/src/core/templates/**`
