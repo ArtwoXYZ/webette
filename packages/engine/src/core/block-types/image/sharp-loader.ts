@@ -7,7 +7,8 @@
 
 import type { Logger } from "../../../logging/logger";
 
-type SharpModule = typeof import("sharp");
+// The callable constructor (the module namespace itself is not callable).
+type SharpModule = typeof import("sharp").default;
 let cachedSharp: SharpModule | null | undefined;
 
 export type { SharpModule };
@@ -16,7 +17,7 @@ export async function loadSharp(logger?: Logger): Promise<SharpModule | null> {
   if (cachedSharp !== undefined) return cachedSharp;
   try {
     const mod = await import("sharp");
-    cachedSharp = mod.default ?? (mod as SharpModule);
+    cachedSharp = mod.default;
     return cachedSharp;
   } catch (err) {
     logger?.warn("resolve.image.sharpMissing", { error: String(err) });

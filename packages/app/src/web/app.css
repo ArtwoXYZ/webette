@@ -1,0 +1,159 @@
+/*
+ * App behavior styles: everything driven by JS state lives here so
+ * style.css stays the pristine mockup stylesheet.
+ */
+
+/* ── Standards-mode sizing ─────────────────────────────────────── */
+/* The mockup had no doctype (quirks mode), where body{height:100%}
+   resolves against the viewport. With a proper doctype the chain
+   needs an explicit html height, and the app never scrolls. */
+
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* ── Boot: everything off until the power-on sequence ─────────── */
+
+body.booting .lcd-item {
+    opacity: 0.04;
+}
+
+body.booting .lcd-item::after,
+body.booting .screen-btn>button::before,
+body.booting .screen-btn>button::after {
+    opacity: 0;
+}
+
+/* ── Bebette ::after fx control ────────────────────────────────── */
+
+.fx-off::after {
+    opacity: 0 !important;
+}
+
+/* Blink at ~170 BPM: one on/off cycle = two beats. */
+@keyframes fx-blink {
+
+    0%,
+    49% {
+        opacity: 1;
+    }
+
+    50%,
+    100% {
+        opacity: 0;
+    }
+}
+
+.fx-blink::after {
+    animation: fx-blink 0.7059s steps(1) infinite;
+}
+
+/* ── On-screen buttons: fx sparks light up on hover ───────────── */
+
+.screen-btn>button::before,
+.screen-btn>button::after {
+    opacity: 0;
+    transition: opacity 0.15s ease-out;
+}
+
+.screen-btn>button:not(.btn-disabled):hover::before,
+.screen-btn>button:not(.btn-disabled):hover::after {
+    opacity: 1;
+}
+
+/* ── Disabled buttons: subtle, still clickable (error feedback) ── */
+
+.btn-container button.btn-disabled {
+    filter: saturate(0.35) brightness(0.82);
+}
+
+.btn-container button.btn-disabled:hover {
+    /* No press-down feedback when disabled. */
+    --shadow-btn-depth-dark: 0 -1cqmin 1cqmin 0 rgba(0, 0, 0, 0.4);
+    box-shadow:
+        var(--shadow-btn-depth), var(--shadow-btn-depth-dark),
+        var(--hlight-btn-in);
+    margin-bottom: 0;
+}
+
+.btn-container button.btn-disabled:hover::after {
+    visibility: hidden;
+}
+
+.screen-btn>button.btn-disabled {
+    opacity: 0.04;
+}
+
+/* ── Test button glow while the server runs ───────────────────── */
+
+.btn-container button.btn-glow {
+    --hlight-btn-in: 0 1cqmin 0cqmin 0 inset #FFF5D5;
+    box-shadow:
+        var(--shadow-btn-depth), var(--shadow-btn-depth-dark),
+        var(--hlight-btn-in),
+        0 0 6cqmin 1cqmin color-mix(in srgb, var(--color-btn-01) 70%, #FFF5D5);
+}
+
+/* ── Diegetic LCD popup ────────────────────────────────────────── */
+
+#screen-popup {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--unit-spacing-large);
+    z-index: 10;
+}
+
+#screen-popup[hidden] {
+    display: none;
+}
+
+#screen-popup .popup-frame {
+    max-width: 80%;
+    border: round(calc(var(--unit-base) * 0.35), 1px) solid var(--black);
+    background-color: var(--color-bg-screen);
+    padding: var(--unit-spacing-large);
+    display: flex;
+    flex-direction: column;
+    gap: var(--unit-spacing-large);
+    align-items: center;
+    text-align: center;
+    opacity: 0.92;
+}
+
+#screen-popup .popup-message {
+    font-family: var(--font-main);
+    font-size: var(--font-size-small);
+    font-weight: bold;
+    color: var(--black);
+    text-transform: uppercase;
+}
+
+#screen-popup .popup-actions {
+    display: flex;
+    gap: var(--unit-spacing-large);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+#screen-popup .popup-actions button {
+    font-weight: bold;
+    font-family: var(--font-main);
+    font-size: var(--font-size-small);
+    color: var(--color-bg-screen);
+    background-color: var(--black);
+    border-radius: 100px;
+    padding: calc(var(--unit-spacing-small) * 0.5) calc(var(--unit-spacing-large) * 0.8);
+    opacity: 0.86;
+}
+
+#screen-popup .popup-actions button:hover {
+    opacity: 1;
+}

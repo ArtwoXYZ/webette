@@ -33,11 +33,12 @@ webette/
 │   │   ├── src/
 │   │   ├── locales/
 │   │   └── webette.tool.ts
-│   └── app/             (desktop app — T7, skeleton only)
+│   └── app/             (desktop app ElectroBun — T7, UI alpha en cours)
+│       ├── src/bun/     (main process: API in-process, serveur UI HTTP, RPC)
+│       ├── src/web/     (webview: design console intégré + logique UI)
 │       └── tutorial/    (ex website-example)
 ├── websites/
 │   └── documentation/   (webette doc site, built by engine)
-├── appTheme/            (maquette web autonome du design app — PAS ENCORE intégrée dans packages/app)
 ├── .tangled/workflows/  (CI + Release Spindles)
 ├── docs/                (internal dev docs, migration to websites/doc pending)
 └── package.json         (workspaces: ["packages/*"])
@@ -46,6 +47,7 @@ webette/
 ## Module / component map
 - CLI + config: `packages/engine/src/cli.ts`, `packages/engine/src/config/env.ts`, `packages/engine/src/core/config.ts`, `packages/engine/webette.tool.ts`
 - Local API: `packages/engine/src/core/api.ts` (webette api server); public entrypoint: `packages/engine/src/index.ts`
+- Desktop app: `packages/app/src/bun/` (main process: API in-process, serveur UI HTTP, bridge RPC), `packages/app/src/web/` (design console + machine à états UI, client API, sons 8bit)
 - Scan + routes: `packages/engine/src/core/scan/**`, `packages/engine/src/core/routes.ts`, `packages/engine/src/core/targets.ts`
 - Resolve + block types: `packages/engine/src/core/resolve/**`, `packages/engine/src/core/block-types/**`
 - Build + render: `packages/engine/src/core/build/**`, `packages/engine/src/core/template.ts`, `packages/engine/src/core/templates/**`

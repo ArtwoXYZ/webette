@@ -1,6 +1,6 @@
 # TASKS
 
-Active story: none
+Active story: T7-S04 — UI alpha (webview) (`ArPiDev/stories/T7-S04-ui-alpha-webview.md`)
 
 ## T1 — Stabiliser l’existant (build/serve)
 - [x] T1-S01 Fix EBUSY en `serve` Windows lors du nettoyage de `_public` (suppression fiable).
