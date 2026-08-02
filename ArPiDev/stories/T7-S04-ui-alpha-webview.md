@@ -154,6 +154,13 @@ Décisions validées ensemble :
 - Commencer les **settings** (bouton aujourd'hui décoratif).
 - Petite **musique de fond** (le clignotement 170 BPM est prêt à s'y caler).
 
+**Ajouts au backlog de la story (user, 2026-08-02) :**
+- **i18n** : tous les textes de l'app (popups, messages contextuels, labels dynamiques) doivent passer par un système de traduction — s'appuyer sur / s'aligner avec l'i18n de l'engine (`locales/`).
+- **Fenêtre sans chrome Windows** : essayer de retirer la barre de titre pour n'avoir que le device à l'écran. En conséquence, ajouter un **bouton marche/arrêt** sur la console — l'allumage deviendrait un geste utilisateur, ce qui réglerait au passage le blocage du son au boot.
+- **Folder en mode serve** : quand le site est servi (mode test), le bouton on-screen Folder sert à ouvrir le dossier du site dans l'explorateur.
+- **Historique des dossiers** : le menu du bouton Folder affiche une liste des derniers dossiers ouverts avec l'app (persistance à prévoir).
+- **Opacité des menus on-screen** : tester des popups/menus opaques sur l'écran LCD (lisibilité vs effet diégétique).
+
 ---
 
 ## Pilot exchange
