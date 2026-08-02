@@ -152,7 +152,7 @@ Décisions validées ensemble :
 - Version engine affichée : `vunknown` actuellement — corriger la remontée de version via `/status`.
 - `sharp` indisponible depuis l'app (installs isolées Bun : binaire natif win32-x64 non résolu depuis `packages/app`) → images du tutorial non optimisées ; à régler (dépendance côté app ?).
 - Commencer les **settings** (bouton aujourd'hui décoratif).
-- Petite **musique de fond** (le clignotement 170 BPM est prêt à s'y caler).
+- ~~Petite **musique de fond**~~ → piste lead intégrée et validée le 2026-08-02 (voir plus bas) ; pistes restantes à ajouter.
 
 **Ajouts au backlog de la story (user, 2026-08-02) :**
 - **i18n** : tous les textes de l'app (popups, messages contextuels, labels dynamiques) doivent passer par un système de traduction — s'appuyer sur / s'aligner avec l'i18n de l'engine (`locales/`).
@@ -160,6 +160,21 @@ Décisions validées ensemble :
 - **Folder en mode serve** : quand le site est servi (mode test), le bouton on-screen Folder sert à ouvrir le dossier du site dans l'explorateur.
 - **Historique des dossiers** : le menu du bouton Folder affiche une liste des derniers dossiers ouverts avec l'app (persistance à prévoir).
 - **Opacité des menus on-screen** : tester des popups/menus opaques sur l'écran LCD (lisibilité vs effet diégétique).
+
+### 2026-08-02 — Musique de fond : piste lead intégrée et validée
+
+**Fait :**
+- Question user en amont : polyphonie possible ? conversion MIDI ? → Web Audio est nativement polyphonique ; le user fournit ses MIDI directement, Pilot les convertit en données dans le code.
+- Piste lead fournie par le user (`webette-lead.mid`, 134 BPM) parsée (format 1, 96 ticks/noire, 185 notes) et convertie en triplets compacts `[tick, note MIDI, durée]` dans `src/web/sounds.ts`.
+- Séquenceur "lookahead" : un timer léger (200 ms) planifie les notes 0,6 s à l'avance sur l'horloge audio → timing précis sans boucle active ; boucle infinie calée sur 25 mesures (9600 ticks).
+- Structure multi-pistes prête (`MUSIC_TRACKS` : type d'onde + volume par piste) pour accueillir les prochaines pistes (basse, percussions…).
+- Mute : coupe nette via un gain maître (silence aussi les notes déjà planifiées) ; un-mute reprend la boucle du début.
+- Démarrage : `startMusic(1.2)` juste après le jingle de boot ; si l'autoplay a bloqué l'audio, la musique se rattrape automatiquement au premier clic.
+- **Testé et validé par le user en session réelle.**
+
+**Reste à faire (musique) :**
+- Intégrer les **autres pistes** du morceau (le user fournira les MIDI restants : basse, etc.).
+- Caler le clignotement CSS `fx-blink` (actuellement 170 BPM) sur les 134 BPM de la musique.
 
 ---
 

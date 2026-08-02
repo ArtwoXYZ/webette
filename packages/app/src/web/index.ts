@@ -8,6 +8,7 @@ import {
   playError,
   playSuccess,
   setMuted,
+  startMusic,
 } from "./sounds";
 
 // ── RPC bridge to the bun process ───────────────────────────────
@@ -430,6 +431,9 @@ async function boot(): Promise<void> {
   state.idleBebette = names[Math.floor(Math.random() * names.length)]!;
 
   playBoot();
+  // Background music fades in once the boot jingle is done. If
+  // autoplay blocked the audio, it will catch up on the first click.
+  startMusic(1.2);
   document.body.classList.remove("booting");
   paintProgress(0);
   state.ui = "idle";
