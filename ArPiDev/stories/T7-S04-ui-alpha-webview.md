@@ -176,6 +176,20 @@ Décisions validées ensemble :
 - Intégrer les **autres pistes** du morceau (le user fournira les MIDI restants : basse, etc.).
 - Caler le clignotement CSS `fx-blink` (actuellement 170 BPM) sur les 134 BPM de la musique.
 
+### 2026-08-03 — Alignement cross-platform des contrôles physiques
+
+**Fait et validé par l'user sur macOS :**
+- Séparation du socle extérieur et du masque intérieur des boutons via `.btn-clip` : le socle est désormais positionné explicitement sans perdre les contours, ombres et effets enfoncés fournis par `overflow: hidden`.
+- Centrage horizontal explicite des socles pour supprimer la différence de position statique entre WebView2/Chromium et WKWebView/WebKit.
+- Rayons et alignement vertical spécifiques aux petits boutons Mute/Settings, avec parité visuelle des trois couches (bouton, masque, socle).
+- Ajustement vertical des cinq boutons en portrait sans modifier le rendu paysage validé.
+- Au breakpoint portrait étroit, `#console-panel` est ancré aux quatre côtés du bezel afin d'éviter le dépassement WebKit causé par `height: 100%` dans un parent à hauteur automatique calculée par `aspect-ratio`.
+
+**Validation :**
+- Paysage et portrait validés visuellement par l'user dans l'app macOS.
+- Portrait étroit contrôlé avec un inset identique sur les quatre côtés du bezel.
+- `bun run typecheck` et `git diff --check` verts.
+
 ---
 
 ## Pilot exchange

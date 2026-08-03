@@ -272,14 +272,23 @@ label {
     --width: 40cqi;
     height: var(--height);
     width: var(--width);
+    position: relative;
+    z-index: 0;
+    margin-top: var(--unit-spacing-large);
+}
+
+.btn-clip {
+    width: 100%;
+    height: 100%;
     background-color: var(--black);
+    border: 1px solid var(--black);
     border-radius: var(--unit-radiusx05);
     display: grid;
     align-items: end;
     justify-items: center;
-    border: 1px solid var(--black);
     overflow: hidden;
-    margin-top: var(--unit-spacing-large);
+    position: relative;
+    z-index: 1;
 }
 
 .btn-container:first-child {
@@ -294,7 +303,9 @@ label {
     content: " ";
     height: calc(var(--height) + 7cqmin);
     width: calc(var(--width) + 6cqmin);
-    margin-bottom: round(-4.5cqmin, 1px);
+    left: 50%;
+    bottom: round(-4.5cqmin, 1px);
+    transform: translateX(-50%);
     border-radius: var(--unit-radius);
     position: absolute;
     background: radial-gradient(ellipse closest-side at 50% 85%,
@@ -361,7 +372,12 @@ label {
     border-radius: 100px;
 }
 
+.btn-container:has(button.btn-small) .btn-clip {
+    border-radius: 100px;
+}
+
 .btn-container:has(button.btn-small)::before {
+    bottom: round(-3.5cqmin, 1px);
     border-radius: 100px;
     background: radial-gradient(ellipse closest-side at 50% 70%,
             rgba(0, 0, 0, 0.6),
@@ -866,7 +882,11 @@ header h1 {
     .btn-container::before {
         height: calc(var(--height) + 5cqmin);
         width: calc(var(--width) + 4cqmin);
-        margin-bottom: round(-3.5cqmin, 1px);
+        bottom: round(-2.5cqmin, 1px);
+    }
+
+    .btn-container:has(button.btn-small)::before {
+        bottom: round(-2.5cqmin, 1px);
     }
 
     .btn-container:has(button.btn-small) {
@@ -931,6 +951,13 @@ header h1 {
         height: auto;
         aspect-ratio: 470/757;
         margin: auto;
+    }
+
+    #console-panel {
+        position: absolute;
+        inset: var(--unit-spacing-large);
+        width: auto;
+        height: auto;
     }
 }
 
