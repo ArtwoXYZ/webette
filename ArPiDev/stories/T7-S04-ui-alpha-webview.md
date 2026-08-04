@@ -190,6 +190,13 @@ Décisions validées ensemble :
 - Portrait étroit contrôlé avec un inset identique sur les quatre côtés du bezel.
 - `bun run typecheck` et `git diff --check` verts.
 
+### 2026-08-04 — Version engine dans l'API embarquée
+
+- Cause de `vunknown` confirmée : `loadVersion()` lisait `package.json` relativement à `import.meta.url`, qui désigne le fichier ElectroBun fusionné après bundling et non plus le module source de l'engine.
+- La version reste définie uniquement dans `packages/engine/package.json`, importée statiquement par le module version de l'engine afin que Bun l'intègre au bundle.
+- L'API reste la source de vérité pour l'UI : `GET /status` renvoie désormais `version: "0.2025.120"` depuis l'app macOS bundlée.
+- Vérifications : version présente dans le bundle généré, réponse `/status` correcte, `bun run typecheck` et `git diff --check` verts.
+
 ---
 
 ## Pilot exchange

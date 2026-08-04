@@ -1,27 +1,11 @@
 /**
- * Reads and caches the package version from package.json at runtime.
+ * Exposes the engine package version to the CLI and programmatic API.
  */
 
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import enginePackage from "../package.json" with { type: "json" };
 
-let cachedVersion: string | undefined;
+export const ENGINE_VERSION = enginePackage.version;
 
 export function loadVersion(): string {
-  if (cachedVersion) return cachedVersion;
-  const pkgPath = fileURLToPath(new URL("../package.json", import.meta.url));
-
-  try {
-    const raw = readFileSync(pkgPath, "utf8");
-    const parsed = JSON.parse(raw) as { version?: unknown };
-    if (typeof parsed?.version === "string") {
-      cachedVersion = parsed.version;
-      return cachedVersion;
-    }
-  } catch {
-    // fallback below
-  }
-
-  cachedVersion = "unknown";
-  return cachedVersion;
+  return ENGINE_VERSION;
 }
