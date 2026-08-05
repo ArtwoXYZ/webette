@@ -253,6 +253,12 @@ function openFolderPopup(): void {
   showPopup("Choisissez un site à monter", actions);
 }
 
+function openFolder(path: string | null): void {
+  if (path) {
+    void rpc.requestProxy.openPath({ path });
+  }
+}
+
 async function runBuild(): Promise<void> {
   if (!state.siteDir) return;
   playClick();
@@ -272,7 +278,13 @@ async function runBuild(): Promise<void> {
   const summary: BuildSummary = result.data;
   if (summary.ok) {
     playSuccess();
-    showPopup(`Build terminé en ${(summary.durationMs / 1000).toFixed(1)}s`);
+    showPopup(`Build terminé en ${(summary.durationMs / 1000).toFixed(1)}s`, [
+      {
+        label: "Ouvrir le dossier",
+        onClick: () => openFolder(summary.outputDir),
+      },
+      { label: "OK" },
+    ]);
   } else {
     playError();
     showPopup(`Build en erreur : ${summary.errors.join(" / ")}`);
@@ -387,7 +399,7 @@ els.folder.addEventListener("click", () => {
   }
   playClick();
   if (state.siteDir) {
-    void rpc.requestProxy.openPath({ path: state.siteDir });
+    openFolder(state.siteDir);
     return;
   }
   openFolderPopup();

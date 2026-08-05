@@ -148,7 +148,7 @@ Décisions validées ensemble :
 **Reste à faire (prochaine session) :**
 - **Son au boot toujours bloqué** malgré `--autoplay-policy=no-user-gesture-required` via `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` (posé avant l'import electrobun dans `src/bun/env.ts`) : le jingle ne part qu'après un premier clic. À creuser (l'env var n'atteint peut-être pas la création de l'environnement WebView2).
 - La popup Folder doit **toujours** proposer le tutorial, même si un site a déjà été monté.
-- Bouton "ouvrir le dossier" (explorateur) dans la popup de confirmation de build.
+- ~~Bouton "ouvrir le dossier" (explorateur) dans la popup de confirmation de build.~~ Ajouté le 2026-08-05.
 - Version engine affichée : `vunknown` actuellement — corriger la remontée de version via `/status`.
 - `sharp` indisponible depuis l'app (installs isolées Bun : binaire natif win32-x64 non résolu depuis `packages/app`) → images du tutorial non optimisées ; à régler (dépendance côté app ?).
 - Commencer les **settings** (bouton aujourd'hui décoratif).
@@ -196,6 +196,15 @@ Décisions validées ensemble :
 - La version reste définie uniquement dans `packages/engine/package.json`, importée statiquement par le module version de l'engine afin que Bun l'intègre au bundle.
 - L'API reste la source de vérité pour l'UI : `GET /status` renvoie désormais `version: "0.2025.120"` depuis l'app macOS bundlée.
 - Vérifications : version présente dans le bundle généré, réponse `/status` correcte, `bun run typecheck` et `git diff --check` verts.
+
+### 2026-08-05 — Ouvrir le dossier après un build
+
+- La confirmation d'un build réussi propose désormais « Ouvrir le dossier » en plus de « OK ».
+- Après le premier test utilisateur, la cible a été corrigée : l'action ouvre le dossier de sortie généré, pas la racine du site.
+- Le résumé de `POST /build` expose désormais le chemin `outputDir` calculé depuis `toolEnv.build.outputDirName` ; l'UI ne suppose donc jamais que le dossier s'appelle `_public`.
+- L'action réutilise le pont natif `openPath`, tandis que le bouton Folder de l'écran continue d'ouvrir le dossier du site monté.
+- Vérifications : `bun run typecheck` et `git diff --check` verts ; build API du tutorial réussi, réponse `outputDir: packages/app/tutorial/_public`, dossier et `index.html` présents.
+- Validation utilisateur : la confirmation s'affiche correctement et « Ouvrir le dossier » ouvre bien le dossier défini par `outputDirName` dans l'explorateur macOS.
 
 ---
 

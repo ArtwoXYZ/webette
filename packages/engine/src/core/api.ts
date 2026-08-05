@@ -32,6 +32,7 @@ interface LastBuild {
   ok: boolean;
   durationMs: number;
   errors: string[];
+  outputDir: string;
 }
 
 interface ApiState {
@@ -228,6 +229,7 @@ export async function startApiServer(
       ok: errors.length === 0,
       durationMs: Math.round(performance.now() - startedAt),
       errors,
+      outputDir: path.join(rootDir, toolEnv.build.outputDirName),
     };
     state.lastBuild = summary;
     return ok(summary);

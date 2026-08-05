@@ -22,6 +22,7 @@ export interface BuildSummary {
   ok: boolean;
   durationMs: number;
   errors: string[];
+  outputDir: string;
 }
 
 export interface ServeData {
