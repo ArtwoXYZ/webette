@@ -154,6 +154,19 @@ body.booting .screen-btn>button::after {
     opacity: 0.86;
 }
 
+#screen-popup .popup-actions .recent-folders {
+    flex-basis: 100%;
+    min-width: 0;
+    font-weight: bold;
+    font-family: var(--font-main);
+    font-size: var(--font-size-small);
+    color: var(--black);
+    background-color: var(--color-bg-screen);
+    border: round(calc(var(--unit-base) * 0.25), 1px) solid var(--black);
+    border-radius: 100px;
+    padding: calc(var(--unit-spacing-small) * 0.5) var(--unit-spacing-large);
+}
+
 #screen-popup .popup-actions button:hover {
     opacity: 1;
 }

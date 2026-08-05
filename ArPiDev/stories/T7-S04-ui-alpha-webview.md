@@ -147,7 +147,7 @@ Décisions validées ensemble :
 
 **Reste à faire (prochaine session) :**
 - **Son au boot toujours bloqué** malgré `--autoplay-policy=no-user-gesture-required` via `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` (posé avant l'import electrobun dans `src/bun/env.ts`) : le jingle ne part qu'après un premier clic. À creuser (l'env var n'atteint peut-être pas la création de l'environnement WebView2).
-- La popup Folder doit **toujours** proposer le tutorial, même si un site a déjà été monté.
+- ~~La popup Folder doit **toujours** proposer le tutorial, même si un site a déjà été monté.~~ Réalisé et validé le 2026-08-05.
 - ~~Bouton "ouvrir le dossier" (explorateur) dans la popup de confirmation de build.~~ Ajouté le 2026-08-05.
 - Version engine affichée : `vunknown` actuellement — corriger la remontée de version via `/status`.
 - `sharp` indisponible depuis l'app (installs isolées Bun : binaire natif win32-x64 non résolu depuis `packages/app`) → images du tutorial non optimisées ; à régler (dépendance côté app ?).
@@ -158,7 +158,7 @@ Décisions validées ensemble :
 - **i18n** : tous les textes de l'app (popups, messages contextuels, labels dynamiques) doivent passer par un système de traduction — s'appuyer sur / s'aligner avec l'i18n de l'engine (`locales/`).
 - **Fenêtre sans chrome Windows** : essayer de retirer la barre de titre pour n'avoir que le device à l'écran. En conséquence, ajouter un **bouton marche/arrêt** sur la console — l'allumage deviendrait un geste utilisateur, ce qui réglerait au passage le blocage du son au boot.
 - **Folder en mode serve** : quand le site est servi (mode test), le bouton on-screen Folder sert à ouvrir le dossier du site dans l'explorateur.
-- **Historique des dossiers** : le menu du bouton Folder affiche une liste des derniers dossiers ouverts avec l'app (persistance à prévoir).
+- ~~**Historique des dossiers** : le menu du bouton Folder affiche une liste des derniers dossiers ouverts avec l'app (persistance à prévoir).~~ Réalisé et validé le 2026-08-05.
 - **Opacité des menus on-screen** : tester des popups/menus opaques sur l'écran LCD (lisibilité vs effet diégétique).
 
 ### 2026-08-02 — Musique de fond : piste lead intégrée et validée
@@ -205,6 +205,14 @@ Décisions validées ensemble :
 - L'action réutilise le pont natif `openPath`, tandis que le bouton Folder de l'écran continue d'ouvrir le dossier du site monté.
 - Vérifications : `bun run typecheck` et `git diff --check` verts ; build API du tutorial réussi, réponse `outputDir: packages/app/tutorial/_public`, dossier et `index.html` présents.
 - Validation utilisateur : la confirmation s'affiche correctement et « Ouvrir le dossier » ouvre bien le dossier défini par `outputDirName` dans l'explorateur macOS.
+
+### 2026-08-05 — Menu Folder et dossiers récents
+
+- Hors serve, le bouton on-screen Folder ouvre désormais toujours le menu de sélection, y compris lorsqu'un site est déjà monté ; le tutorial reste donc accessible à tout moment. En serve, le comportement validé reste l'ouverture directe du dossier courant dans l'explorateur.
+- Lorsqu'un site est déjà monté, le message devient « Sélectionner un nouveau dossier ? » afin d'expliciter que l'action remplacera la sélection courante.
+- Le menu contient une liste déroulante des cinq derniers dossiers choisis. Les chemins complets sont conservés en interne, tandis que l'interface affiche leurs noms en casse normale pour rester compacte et lisible.
+- L'historique est dédupliqué, remis en tête lors d'une nouvelle sélection et persisté côté process principal dans `Utils.paths.userData/app-state.json`. Ce stockage natif a été préféré à `localStorage`, car l'UI HTTP démarre sur un port aléatoire et change donc d'origine entre les lancements.
+- Vérifications : `bun run typecheck` et `git diff --check` verts ; comportement, persistance et rendu de la liste validés par l'user dans l'app macOS.
 
 ---
 

@@ -20,9 +20,10 @@ type BunRequests = {
   };
   getBootstrap: {
     params: undefined;
-    response: { tutorialDir: string | null };
+    response: { tutorialDir: string | null; recentFolders: string[] };
   };
   pickFolder: { params: undefined; response: string | null };
+  rememberRecentFolder: { params: { path: string }; response: string[] };
   openExternal: { params: { url: string }; response: boolean };
   openPath: { params: { path: string }; response: boolean };
 };
@@ -88,6 +89,7 @@ interface AppState {
   ui: UiState;
   siteDir: string | null;
   tutorialDir: string | null;
+  recentFolders: string[];
   servePort: number | null;
   idleBebette: keyof typeof els.bebettes;
 }
@@ -96,6 +98,7 @@ const state: AppState = {
   ui: "booting",
   siteDir: null,
   tutorialDir: null,
+  recentFolders: [],
   servePort: null,
   idleBebette: "magic",
 };
@@ -224,11 +227,52 @@ function rejectAction(message: string): void {
   showPopup(message);
 }
 
-async function mountSite(dir: string): Promise<void> {
+async function mountSite(dir: string, remember = false): Promise<void> {
+  if (remember) {
+    state.recentFolders = await rpc.requestProxy.rememberRecentFolder({
+      path: dir,
+    });
+  }
   state.siteDir = dir;
   state.ui = "mounted";
   playSuccess();
   render();
+}
+
+function folderName(folder: string): string {
+  const trimmed = folder.replace(/[\\/]+$/, "");
+  return trimmed.split(/[\\/]/).pop() || folder;
+}
+
+function prependRecentFoldersMenu(): void {
+  if (state.recentFolders.length === 0) return;
+
+  const select = document.createElement("select");
+  select.className = "recent-folders";
+  select.ariaLabel = "Dossiers récents";
+
+  const placeholder = document.createElement("option");
+  placeholder.textContent = "Dossiers récents…";
+  placeholder.value = "";
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  select.append(placeholder);
+
+  for (const folder of state.recentFolders) {
+    const option = document.createElement("option");
+    option.textContent = folderName(folder);
+    option.value = folder;
+    option.title = folder;
+    select.append(option);
+  }
+
+  select.addEventListener("change", () => {
+    if (!select.value) return;
+    playClick();
+    hidePopup();
+    void mountSite(select.value, true);
+  });
+  els.popupActions.prepend(select);
 }
 
 function openFolderPopup(): void {
@@ -245,12 +289,18 @@ function openFolderPopup(): void {
       label: "Choisir un dossier…",
       onClick: async () => {
         const picked = await rpc.requestProxy.pickFolder();
-        if (picked) await mountSite(picked);
+        if (picked) await mountSite(picked, true);
       },
     },
     { label: "Annuler" }
   );
-  showPopup("Choisissez un site à monter", actions);
+  showPopup(
+    state.siteDir
+      ? "Sélectionner un nouveau dossier ?"
+      : "Choisissez un site à monter",
+    actions
+  );
+  prependRecentFoldersMenu();
 }
 
 function openFolder(path: string | null): void {
@@ -398,10 +448,6 @@ els.folder.addEventListener("click", () => {
     return;
   }
   playClick();
-  if (state.siteDir) {
-    openFolder(state.siteDir);
-    return;
-  }
   openFolderPopup();
 });
 
@@ -435,6 +481,7 @@ async function boot(): Promise<void> {
   ]);
 
   state.tutorialDir = bootstrap.tutorialDir;
+  state.recentFolders = bootstrap.recentFolders;
   if (status.ok) {
     els.version.textContent = `v${status.data.version}`;
   }

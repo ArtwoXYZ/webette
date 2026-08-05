@@ -80,6 +80,35 @@ function resolveTutorialDir(): string | null {
   return null;
 }
 
+// ── Recent folders ──────────────────────────────────────────────
+
+const MAX_RECENT_FOLDERS = 5;
+const appStatePath = path.join(Utils.paths.userData, "app-state.json");
+
+function loadRecentFolders(): string[] {
+  try {
+    const value: unknown = JSON.parse(fs.readFileSync(appStatePath, "utf8"));
+    if (!value || typeof value !== "object") return [];
+    const folders = (value as { recentFolders?: unknown }).recentFolders;
+    if (!Array.isArray(folders)) return [];
+    return folders
+      .filter((folder): folder is string => typeof folder === "string")
+      .slice(0, MAX_RECENT_FOLDERS);
+  } catch {
+    return [];
+  }
+}
+
+function rememberRecentFolder(folder: string): string[] {
+  const recentFolders = [
+    folder,
+    ...loadRecentFolders().filter((recent) => recent !== folder),
+  ].slice(0, MAX_RECENT_FOLDERS);
+  fs.mkdirSync(path.dirname(appStatePath), { recursive: true });
+  fs.writeFileSync(appStatePath, JSON.stringify({ recentFolders }, null, 2));
+  return recentFolders;
+}
+
 // ── RPC bridge ──────────────────────────────────────────────────
 // The webview cannot fetch 127.0.0.1 directly (views:// origin,
 // CORS); the bun process proxies API calls instead.
@@ -93,9 +122,10 @@ type AppRPC = ElectrobunRPCSchema & {
       };
       getBootstrap: {
         params: undefined;
-        response: { tutorialDir: string | null };
+        response: { tutorialDir: string | null; recentFolders: string[] };
       };
       pickFolder: { params: undefined; response: string | null };
+      rememberRecentFolder: { params: { path: string }; response: string[] };
       openExternal: { params: { url: string }; response: boolean };
       openPath: { params: { path: string }; response: boolean };
     };
@@ -123,7 +153,10 @@ const rpc = defineElectrobunRPC<AppRPC>("bun", {
         });
         return { status: response.status, body: await response.text() };
       },
-      getBootstrap: () => ({ tutorialDir: resolveTutorialDir() }),
+      getBootstrap: () => ({
+        tutorialDir: resolveTutorialDir(),
+        recentFolders: loadRecentFolders(),
+      }),
       pickFolder: async () => {
         const picked = await Utils.openFileDialog({
           canChooseFiles: false,
@@ -132,6 +165,8 @@ const rpc = defineElectrobunRPC<AppRPC>("bun", {
         });
         return picked[0] ?? null;
       },
+      rememberRecentFolder: (params: unknown) =>
+        rememberRecentFolder((params as { path: string }).path),
       openExternal: (params: unknown) =>
         Utils.openExternal((params as { url: string }).url),
       openPath: (params: unknown) =>
