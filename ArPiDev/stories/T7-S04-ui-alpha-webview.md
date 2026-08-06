@@ -214,6 +214,21 @@ Décisions validées ensemble :
 - L'historique est dédupliqué, remis en tête lors d'une nouvelle sélection et persisté côté process principal dans `Utils.paths.userData/app-state.json`. Ce stockage natif a été préféré à `localStorage`, car l'UI HTTP démarre sur un port aléatoire et change donc d'origine entre les lancements.
 - Vérifications : `bun run typecheck` et `git diff --check` verts ; comportement, persistance et rendu de la liste validés par l'user dans l'app macOS.
 
+### 2026-08-06 — i18n de l’app et premier réglage fonctionnel
+
+**Implémentation :**
+- Ajout d’un catalogue UI strictement typé FR/EN, avec interpolation, et d’un type `Locale` partagé aligné sur les deux locales supportées par l’engine.
+- Tous les libellés, popups, actions contextuelles, textes d’accessibilité et erreurs API visibles passent désormais par `t()` ; les erreurs du protocole sont traduites depuis leur `ApiErrorCode` stable et non depuis le message anglais de debug.
+- Le bouton Settings ouvre maintenant un menu diégétique de langue ; le changement FR/EN est immédiat (`lang` du document compris) et confirmé dans la nouvelle langue.
+- La langue initiale suit celle du système (`fr*` → FR, sinon EN), puis la préférence choisie est persistée dans `app-state.json`.
+- La persistance native a été centralisée afin que l’écriture de la langue conserve les dossiers récents et réciproquement ; les éventuelles clés futures inconnues sont également préservées.
+
+**Why this way :** commencer Settings par la langue donne une utilité réelle au bouton tout en empêchant que les prochains écrans multiplient les textes codés en dur. Le catalogue TypeScript impose la parité exacte des clés FR/EN au typecheck ; la persistance reste côté main process car le port HTTP aléatoire rend `localStorage` impropre, comme pour l’historique Folder.
+
+**Vérifications :** `bun run typecheck`, `git diff --check` et 3 tests unitaires ciblés (changement de catalogue, interpolation, traduction d’un code d’erreur API) verts. Changement de langue à chaud, rendu FR/EN et persistance après relance validés par l'user dans l'app macOS.
+
+**Ajustement après validation user :** le français conserve « Stop » et traduit systématiquement le vocabulaire de build par « Générer / génération » ; la confirmation devient « Site généré en … ». Ajustement retesté et validé par l'user.
+
 ---
 
 ## Pilot exchange

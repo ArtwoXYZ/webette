@@ -8,6 +8,7 @@ import {
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { startApiServer, Logger, type ApiHandle } from "webette";
+import { normalizeLocale, type Locale } from "../shared/locale";
 
 // ── Engine API (in-process) ─────────────────────────────────────
 // The engine API runs inside the main process: no child process to
@@ -80,33 +81,58 @@ function resolveTutorialDir(): string | null {
   return null;
 }
 
-// ── Recent folders ──────────────────────────────────────────────
+// ── Persistent app state ────────────────────────────────────────
 
 const MAX_RECENT_FOLDERS = 5;
 const appStatePath = path.join(Utils.paths.userData, "app-state.json");
 
-function loadRecentFolders(): string[] {
+interface AppState {
+  recentFolders: string[];
+  locale: Locale;
+}
+
+function loadStoredState(): Record<string, unknown> {
   try {
     const value: unknown = JSON.parse(fs.readFileSync(appStatePath, "utf8"));
-    if (!value || typeof value !== "object") return [];
-    const folders = (value as { recentFolders?: unknown }).recentFolders;
-    if (!Array.isArray(folders)) return [];
-    return folders
-      .filter((folder): folder is string => typeof folder === "string")
-      .slice(0, MAX_RECENT_FOLDERS);
+    return value && typeof value === "object"
+      ? (value as Record<string, unknown>)
+      : {};
   } catch {
-    return [];
+    return {};
   }
 }
 
+function loadAppState(): AppState {
+  const stored = loadStoredState();
+  const folders = Array.isArray(stored.recentFolders)
+    ? stored.recentFolders
+        .filter((folder): folder is string => typeof folder === "string")
+        .slice(0, MAX_RECENT_FOLDERS)
+    : [];
+  const locale =
+    stored.locale === "en" || stored.locale === "fr"
+      ? stored.locale
+      : normalizeLocale(Intl.DateTimeFormat().resolvedOptions().locale);
+  return { recentFolders: folders, locale };
+}
+
+function updateAppState(patch: Partial<AppState>): AppState {
+  const next = { ...loadAppState(), ...patch };
+  fs.mkdirSync(path.dirname(appStatePath), { recursive: true });
+  fs.writeFileSync(
+    appStatePath,
+    JSON.stringify({ ...loadStoredState(), ...next }, null, 2)
+  );
+  return next;
+}
+
 function rememberRecentFolder(folder: string): string[] {
+  const current = loadAppState();
   const recentFolders = [
     folder,
-    ...loadRecentFolders().filter((recent) => recent !== folder),
+    ...current.recentFolders.filter((recent) => recent !== folder),
   ].slice(0, MAX_RECENT_FOLDERS);
-  fs.mkdirSync(path.dirname(appStatePath), { recursive: true });
-  fs.writeFileSync(appStatePath, JSON.stringify({ recentFolders }, null, 2));
-  return recentFolders;
+  return updateAppState({ recentFolders }).recentFolders;
 }
 
 // ── RPC bridge ──────────────────────────────────────────────────
@@ -122,10 +148,15 @@ type AppRPC = ElectrobunRPCSchema & {
       };
       getBootstrap: {
         params: undefined;
-        response: { tutorialDir: string | null; recentFolders: string[] };
+        response: {
+          tutorialDir: string | null;
+          recentFolders: string[];
+          locale: Locale;
+        };
       };
       pickFolder: { params: undefined; response: string | null };
       rememberRecentFolder: { params: { path: string }; response: string[] };
+      setLocale: { params: { locale: Locale }; response: Locale };
       openExternal: { params: { url: string }; response: boolean };
       openPath: { params: { path: string }; response: boolean };
     };
@@ -153,10 +184,10 @@ const rpc = defineElectrobunRPC<AppRPC>("bun", {
         });
         return { status: response.status, body: await response.text() };
       },
-      getBootstrap: () => ({
-        tutorialDir: resolveTutorialDir(),
-        recentFolders: loadRecentFolders(),
-      }),
+      getBootstrap: () => {
+        const state = loadAppState();
+        return { tutorialDir: resolveTutorialDir(), ...state };
+      },
       pickFolder: async () => {
         const picked = await Utils.openFileDialog({
           canChooseFiles: false,
@@ -167,6 +198,10 @@ const rpc = defineElectrobunRPC<AppRPC>("bun", {
       },
       rememberRecentFolder: (params: unknown) =>
         rememberRecentFolder((params as { path: string }).path),
+      setLocale: (params: unknown) =>
+        updateAppState({
+          locale: normalizeLocale((params as { locale: string }).locale),
+        }).locale,
       openExternal: (params: unknown) =>
         Utils.openExternal((params as { url: string }).url),
       openPath: (params: unknown) =>

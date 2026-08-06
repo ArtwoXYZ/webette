@@ -1,5 +1,7 @@
 import { Electroview, createRPC } from "electrobun/view";
 import { WebetteApi, type BuildSummary } from "./api";
+import type { ApiErrorCode } from "webette";
+import { getLocale, setLocale, t, type Locale } from "./i18n";
 import {
   ensureAudioReady,
   isMuted,
@@ -20,10 +22,15 @@ type BunRequests = {
   };
   getBootstrap: {
     params: undefined;
-    response: { tutorialDir: string | null; recentFolders: string[] };
+    response: {
+      tutorialDir: string | null;
+      recentFolders: string[];
+      locale: Locale;
+    };
   };
   pickFolder: { params: undefined; response: string | null };
   rememberRecentFolder: { params: { path: string }; response: string[] };
+  setLocale: { params: { locale: Locale }; response: Locale };
   openExternal: { params: { url: string }; response: boolean };
   openPath: { params: { path: string }; response: boolean };
 };
@@ -55,6 +62,14 @@ const els = {
   host: $<HTMLButtonElement>("#host"),
   mute: $<HTMLButtonElement>("#mute"),
   settings: $<HTMLButtonElement>("#settings"),
+  labels: {
+    test: $<HTMLLabelElement>('label[for="dev"]'),
+    build: $<HTMLLabelElement>('label[for="build"]'),
+    host: $<HTMLLabelElement>('label[for="host"]'),
+    mute: $<HTMLLabelElement>('label[for="mute"]'),
+    settings: $<HTMLLabelElement>('label[for="settings"]'),
+  },
+  logo: $<HTMLDivElement>("#logo"),
   website: $<HTMLButtonElement>("#open-website"),
   folder: $<HTMLButtonElement>("#open-folder"),
   statusTest: $<HTMLSpanElement>("#screen-infos .test"),
@@ -73,6 +88,11 @@ const els = {
   popup: $<HTMLDivElement>("#screen-popup"),
   popupMessage: $<HTMLParagraphElement>("#screen-popup .popup-message"),
   popupActions: $<HTMLDivElement>("#screen-popup .popup-actions"),
+  bebetteImages: {
+    magic: $<HTMLImageElement>("#bebette-magic img"),
+    work: $<HTMLImageElement>("#bebette-work img"),
+    read: $<HTMLImageElement>("#bebette-read img"),
+  },
 };
 
 // ── UI state machine ────────────────────────────────────────────
@@ -131,7 +151,7 @@ function render(): void {
   setEnabled(els.test, ui === "mounted" || ui === "serving");
   setEnabled(els.build, ui === "mounted");
   setEnabled(els.host, false); // no host provider in this alpha
-  setEnabled(els.settings, false); // decorative in this alpha
+  setEnabled(els.settings, ui !== "building" && ui !== "starting");
   setEnabled(els.mute, true);
 
   // On-screen buttons.
@@ -147,7 +167,7 @@ function render(): void {
   setLcd(els.folder, mounted || ui === "idle");
 
   // Test button label + glow.
-  els.testLabel.textContent = ui === "serving" ? " Stop " : " Test ";
+  els.testLabel.textContent = ` ${t(ui === "serving" ? "label.stop" : "label.test")} `;
   els.test.classList.toggle("btn-glow", ui === "serving");
 
   // Bebette of the moment (starting alternates via its own timer).
@@ -201,7 +221,7 @@ interface PopupAction {
 function showPopup(message: string, actions?: PopupAction[]): void {
   els.popupMessage.textContent = message;
   els.popupActions.replaceChildren(
-    ...(actions ?? [{ label: "OK" }]).map((action) => {
+    ...(actions ?? [{ label: t("common.ok") }]).map((action) => {
       const button = document.createElement("button");
       button.type = "button";
       button.textContent = action.label;
@@ -244,15 +264,38 @@ function folderName(folder: string): string {
   return trimmed.split(/[\\/]/).pop() || folder;
 }
 
+function applyTranslations(): void {
+  document.documentElement.lang = getLocale();
+  els.statusTest.textContent = t("label.test");
+  els.statusBuild.textContent = t("label.build");
+  els.statusHost.textContent = t("label.host");
+  els.ready.textContent = t("label.ready");
+  els.website.textContent = t("label.website");
+  els.folder.textContent = t("label.folder");
+  els.labels.build.textContent = ` ${t("label.build")} `;
+  els.labels.host.textContent = ` ${t("label.host")} `;
+  els.labels.mute.textContent = ` ${t("label.mute")} `;
+  els.labels.settings.textContent = ` ${t("label.settings")} `;
+  els.logo.ariaLabel = t("a11y.logo");
+  els.bebetteImages.magic.alt = t("a11y.bebette.magic");
+  els.bebetteImages.work.alt = t("a11y.bebette.work");
+  els.bebetteImages.read.alt = t("a11y.bebette.read");
+  render();
+}
+
+function apiError(code: ApiErrorCode): string {
+  return t(`api.${code}`);
+}
+
 function prependRecentFoldersMenu(): void {
   if (state.recentFolders.length === 0) return;
 
   const select = document.createElement("select");
   select.className = "recent-folders";
-  select.ariaLabel = "Dossiers récents";
+  select.ariaLabel = t("folder.recent");
 
   const placeholder = document.createElement("option");
-  placeholder.textContent = "Dossiers récents…";
+  placeholder.textContent = t("folder.recentPlaceholder");
   placeholder.value = "";
   placeholder.disabled = true;
   placeholder.selected = true;
@@ -280,24 +323,24 @@ function openFolderPopup(): void {
   if (state.tutorialDir) {
     const tutorialDir = state.tutorialDir;
     actions.push({
-      label: "Tutorial",
+      label: t("folder.tutorial"),
       onClick: () => mountSite(tutorialDir),
     });
   }
   actions.push(
     {
-      label: "Choisir un dossier…",
+      label: t("folder.choose"),
       onClick: async () => {
         const picked = await rpc.requestProxy.pickFolder();
         if (picked) await mountSite(picked, true);
       },
     },
-    { label: "Annuler" }
+    { label: t("common.cancel") }
   );
   showPopup(
     state.siteDir
-      ? "Sélectionner un nouveau dossier ?"
-      : "Choisissez un site à monter",
+      ? t("folder.replacePrompt")
+      : t("folder.mountPrompt"),
     actions
   );
   prependRecentFoldersMenu();
@@ -322,22 +365,27 @@ async function runBuild(): Promise<void> {
   render();
 
   if (!result.ok) {
-    rejectAction(`Build impossible : ${result.error}`);
+    rejectAction(t("build.requestFailed", { reason: apiError(result.code) }));
     return;
   }
   const summary: BuildSummary = result.data;
   if (summary.ok) {
     playSuccess();
-    showPopup(`Build terminé en ${(summary.durationMs / 1000).toFixed(1)}s`, [
-      {
-        label: "Ouvrir le dossier",
-        onClick: () => openFolder(summary.outputDir),
-      },
-      { label: "OK" },
-    ]);
+    showPopup(
+      t("build.completed", {
+        duration: (summary.durationMs / 1000).toFixed(1),
+      }),
+      [
+        {
+          label: t("folder.open"),
+          onClick: () => openFolder(summary.outputDir),
+        },
+        { label: t("common.ok") },
+      ]
+    );
   } else {
     playError();
-    showPopup(`Build en erreur : ${summary.errors.join(" / ")}`);
+    showPopup(t("build.failed", { count: summary.errors.length }));
   }
 }
 
@@ -373,7 +421,7 @@ async function startServe(): Promise<void> {
     paintProgress(0);
     state.ui = "mounted";
     render();
-    rejectAction(`Serveur impossible à lancer : ${result.error}`);
+    rejectAction(t("serve.startFailed", { reason: apiError(result.code) }));
     return;
   }
 
@@ -391,7 +439,7 @@ async function stopServe(): Promise<void> {
   state.ui = "mounted";
   render();
   if (!result.ok && result.code !== "no_serve_running") {
-    rejectAction(`Arrêt du serveur en échec : ${result.error}`);
+    rejectAction(t("serve.stopFailed", { reason: apiError(result.code) }));
   }
 }
 
@@ -400,26 +448,48 @@ async function stopServe(): Promise<void> {
 els.test.addEventListener("click", () => {
   if (state.ui === "serving") return void stopServe();
   if (state.ui === "mounted") return void startServe();
-  if (state.ui === "building") return rejectAction("Build en cours…");
+  if (state.ui === "building") return rejectAction(t("action.buildRunning"));
   if (state.ui === "starting") return;
-  rejectAction("Choisissez un dossier pour commencer");
+  rejectAction(t("action.chooseFolder"));
 });
 
 els.build.addEventListener("click", () => {
   if (state.ui === "mounted") return void runBuild();
-  if (state.ui === "building") return rejectAction("Build déjà en cours…");
+  if (state.ui === "building")
+    return rejectAction(t("action.buildAlreadyRunning"));
   if (state.ui === "serving")
-    return rejectAction("Arrêtez le serveur avant de lancer un build");
-  rejectAction("Choisissez un dossier pour commencer");
+    return rejectAction(t("action.stopBeforeBuild"));
+  rejectAction(t("action.chooseFolder"));
 });
 
 els.host.addEventListener("click", () => {
-  rejectAction("Paramétrez un hébergeur (bientôt disponible)");
+  rejectAction(t("action.configureHost"));
 });
 
 els.settings.addEventListener("click", () => {
-  rejectAction("Les réglages arrivent dans une prochaine version");
+  if (state.ui === "building" || state.ui === "starting") {
+    return rejectAction(t("action.operationRunning"));
+  }
+  playClick();
+  showPopup(t("settings.language"), [
+    {
+      label: t("settings.french"),
+      onClick: () => changeLocale("fr"),
+    },
+    {
+      label: t("settings.english"),
+      onClick: () => changeLocale("en"),
+    },
+    { label: t("common.cancel") },
+  ]);
 });
+
+async function changeLocale(locale: Locale): Promise<void> {
+  const persisted = await rpc.requestProxy.setLocale({ locale });
+  setLocale(persisted);
+  applyTranslations();
+  showPopup(t("settings.languageChanged"));
+}
 
 els.mute.addEventListener("click", () => {
   setMuted(!isMuted());
@@ -435,12 +505,12 @@ els.website.addEventListener("click", () => {
     });
     return;
   }
-  rejectAction("Aucun site web lié ou serveur lancé");
+  rejectAction(t("action.noWebsite"));
 });
 
 els.folder.addEventListener("click", () => {
   if (state.ui === "building" || state.ui === "starting") {
-    return rejectAction("Opération en cours, patientez…");
+    return rejectAction(t("action.operationRunning"));
   }
   if (state.ui === "serving") {
     playClick();
@@ -482,6 +552,8 @@ async function boot(): Promise<void> {
 
   state.tutorialDir = bootstrap.tutorialDir;
   state.recentFolders = bootstrap.recentFolders;
+  setLocale(bootstrap.locale);
+  applyTranslations();
   if (status.ok) {
     els.version.textContent = `v${status.data.version}`;
   }
