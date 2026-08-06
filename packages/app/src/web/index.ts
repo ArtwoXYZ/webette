@@ -3,6 +3,11 @@ import { WebetteApi, type BuildSummary } from "./api";
 import type { ApiErrorCode } from "webette";
 import { getLocale, setLocale, t, type Locale } from "./i18n";
 import {
+  getResizedFrame,
+  type ResizeEdge,
+  type WindowFrame,
+} from "./window-resize";
+import {
   ensureAudioReady,
   isMuted,
   playBoot,
@@ -40,13 +45,6 @@ type BunRequests = {
   };
   setWindowFrame: { params: WindowFrame; response: boolean };
 };
-
-interface WindowFrame {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
 
 const rpc = createRPC<
   { requests: Record<never, never>; messages: Record<never, never> },
@@ -618,28 +616,27 @@ els.power.addEventListener("click", () => {
 
 // ── Frameless resize regions ───────────────────────────────────
 
-type ResizeEdge = "n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw";
+let queuedWindowFrame: WindowFrame | null = null;
+let updatingWindowFrame = false;
 
-function resizedFrame(
-  start: WindowFrame,
-  edge: ResizeEdge,
-  deltaX: number,
-  deltaY: number
-): WindowFrame {
-  let { x, y, width, height } = start;
+async function flushWindowFrame(): Promise<void> {
+  if (updatingWindowFrame) return;
+  updatingWindowFrame = true;
 
-  if (edge.includes("e")) width += deltaX;
-  if (edge.includes("s")) height += deltaY;
-  if (edge.includes("w")) {
-    width = start.width - deltaX;
-    x = start.x + start.width - width;
+  try {
+    while (queuedWindowFrame) {
+      const frame = queuedWindowFrame;
+      queuedWindowFrame = null;
+      await rpc.requestProxy.setWindowFrame(frame);
+    }
+  } finally {
+    updatingWindowFrame = false;
   }
-  if (edge.includes("n")) {
-    height = start.height - deltaY;
-    y = start.y + start.height - height;
-  }
+}
 
-  return { x, y, width, height };
+function queueWindowFrame(frame: WindowFrame): void {
+  queuedWindowFrame = frame;
+  void flushWindowFrame();
 }
 
 for (const handle of document.querySelectorAll<HTMLElement>(
@@ -660,27 +657,39 @@ for (const handle of document.querySelectorAll<HTMLElement>(
 
     const move = (moveEvent: PointerEvent): void => {
       if (moveEvent.pointerId !== pointerId) return;
-      const frame = resizedFrame(
+      const frame = getResizedFrame(
         startFrame,
         edge,
         moveEvent.screenX - startX,
         moveEvent.screenY - startY
       );
-      void rpc.requestProxy.setWindowFrame(frame);
+      queueWindowFrame(frame);
     };
 
-    const stop = (stopEvent: PointerEvent): void => {
-      if (stopEvent.pointerId !== pointerId) return;
+    let stopped = false;
+    const cleanup = (): void => {
+      if (stopped) return;
+      stopped = true;
       handle.removeEventListener("pointermove", move);
       handle.removeEventListener("pointerup", stop);
       handle.removeEventListener("pointercancel", stop);
+      handle.removeEventListener("lostpointercapture", lostCapture);
       document.body.classList.remove("resizing-window");
       if (handle.hasPointerCapture(pointerId)) handle.releasePointerCapture(pointerId);
+    };
+
+    const stop = (stopEvent: PointerEvent): void => {
+      if (stopEvent.pointerId === pointerId) cleanup();
+    };
+
+    const lostCapture = (captureEvent: PointerEvent): void => {
+      if (captureEvent.pointerId === pointerId) cleanup();
     };
 
     handle.addEventListener("pointermove", move);
     handle.addEventListener("pointerup", stop);
     handle.addEventListener("pointercancel", stop);
+    handle.addEventListener("lostpointercapture", lostCapture);
   });
 }
 

@@ -59,7 +59,7 @@ html.window-frameless #power {
     --power-depth: max(2px, 0.38cqmin);
     display: grid;
     position: absolute;
-    z-index: 40;
+    z-index: 70;
     top: 0;
     right: clamp(14px, 2.2cqh, 22px);
     width: var(--power-size);

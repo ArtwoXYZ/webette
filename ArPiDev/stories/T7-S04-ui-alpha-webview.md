@@ -276,6 +276,22 @@ Décisions validées ensemble :
 
 **Commit local demandé (sans push) :** `feat(ui): add frameless Windows shell and power control`.
 
+### 2026-08-06 — Investigation des contraintes de resize Electrobun
+
+- La version utilisée, Electrobun 1.18.1, est la dernière stable publiée. Son `WindowOptionsType` ne propose aucun `minWidth`, `minHeight`, `maxWidth`, `maxHeight` ou ratio ; `BrowserWindow` expose seulement `setSize`, `setFrame` et les getters associés.
+- La couche interne confirme l'absence d'API cachée exploitable : le preload fournit `startWindowMove` pour les drag regions, mais aucun `startWindowResize`; la FFI Windows n'expose ni taille minimale/maximale, ni contrainte d'aspect. L'événement `resize` est seulement informatif et ne permet pas de corriger la géométrie de manière synchrone avant l'affichage.
+- Un vrai comportement natif complet demanderait donc une évolution/fork d'Electrobun (sur Windows : hit-test non-client et traitement de `WM_GETMINMAXINFO`/`WM_SIZING`), disproportionnée pour cette story et non portable telle quelle.
+- Direction retenue pour l'app : conserver les poignées existantes, calculer la géométrie autorisée avant `setWindowFrame`, préserver le bord opposé comme une fenêtre native et regrouper les mouvements afin de ne garder qu'un frame RPC en vol. Contrairement aux essais retirés, aucune taille invalide n'est d'abord affichée puis annulée.
+
+**Premier essai implémenté :**
+- Bornes globales : largeur 280–1100 px, hauteur 240–750 px. En paysage, la fenêtre ne peut pas devenir plus plate que 1100:470 ; 280:360 sert de repère au format portrait établi.
+- Chaque poignée ne modifie que son ou ses axes. Aux limites, l'axe concerné se fige tandis que l'autre peut continuer ; les poignées ouest/nord recalculent `x`/`y` pour conserver le bord opposé fixe.
+- Les mouvements sont coalescés derrière une file « dernière géométrie gagnante » avec un seul RPC `setWindowFrame` en vol. `pointerup`, `pointercancel` et `lostpointercapture` partagent un nettoyage idempotent pour éviter un état de resize bloqué.
+- Power passe au-dessus des zones de resize dans l'empilement, afin qu'aucune poignée ne puisse intercepter son clic.
+- Le calcul pur vit dans `window-resize.ts` et possède 6 tests ciblés couvrant max, minima, ratios, transition et ancrage. Vérifications : typecheck app, 9 tests cumulés et `git diff --check` verts. Validation du geste dans la fenêtre native Windows requise.
+
+**Ajustement après premier essai :** retenir entièrement le frame entre le breakpoint paysage et le ratio portrait rendait le passage très bloquant dans les deux sens. Cette zone intermédiaire est désormais traversable en continu ; les bornes min/max et la limite panoramique restent actives, mais les deux orientations ne se comportent plus comme deux îlots déconnectés.
+
 ---
 
 ## Pilot exchange

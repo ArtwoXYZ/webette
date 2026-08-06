@@ -671,7 +671,7 @@ header h1 {
    ========================================= */
 
 /* Pas assez de hauteur */
-@media (min-aspect-ratio: 2/1.1) {
+@media (min-aspect-ratio: 210/100) or (max-width: 561px) {
     #console-main {
         grid-template-rows: 1fr auto auto;
     }
