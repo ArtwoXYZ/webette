@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
     <title>Webette</title>
+    <script>
+        if (new URLSearchParams(location.search).get("frameless") === "1") {
+            document.documentElement.classList.add("window-frameless");
+        }
+    </script>
     <!-- Fonts -->
     <link rel="stylesheet" href="./fonts/DraftingMono/DraftingMono.css" />
     <link rel="stylesheet" href="./fonts/FiraSansCondensed/FiraSansCondensed.css" />
@@ -14,8 +19,22 @@
     <link rel="stylesheet" href="app.css" />
 </head>
 
-<body class="booting">
-    <div id="console-bezel">
+<body class="booting powered-off">
+    <div id="console-bezel" class="electrobun-webkit-app-region-drag">
+        <button id="power" class="electrobun-webkit-app-region-no-drag" type="button"
+            aria-label="Turn Webette on">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M12 2v10M6.35 5.35a8 8 0 1 0 11.3 0" />
+            </svg>
+        </button>
+        <div class="window-resize-handle electrobun-webkit-app-region-no-drag" data-edge="n"></div>
+        <div class="window-resize-handle electrobun-webkit-app-region-no-drag" data-edge="ne"></div>
+        <div class="window-resize-handle electrobun-webkit-app-region-no-drag" data-edge="e"></div>
+        <div class="window-resize-handle electrobun-webkit-app-region-no-drag" data-edge="se"></div>
+        <div class="window-resize-handle electrobun-webkit-app-region-no-drag" data-edge="s"></div>
+        <div class="window-resize-handle electrobun-webkit-app-region-no-drag" data-edge="sw"></div>
+        <div class="window-resize-handle electrobun-webkit-app-region-no-drag" data-edge="w"></div>
+        <div class="window-resize-handle electrobun-webkit-app-region-no-drag" data-edge="nw"></div>
         <div id="console-panel">
             <nav class="console-side" id="console-left">
                 <div class="side-top">
@@ -66,7 +85,7 @@
             </nav>
 
             <div id="console-main">
-                <header>
+                <header class="electrobun-webkit-app-region-drag">
                     <div id="logo" aria-label="bebette, a stylized cute spider wearing a cap" role="img">
                         <svg width="1959" height="1444" viewBox="0 0 1959 1444" xmlns="http://www.w3.org/2000/svg"
                             style="
@@ -149,7 +168,7 @@
                             </div>
 
                             <div id="screen-popup" hidden>
-                                <div class="popup-frame">
+                                <div class="popup-frame electrobun-webkit-app-region-no-drag">
                                     <p class="popup-message"></p>
                                     <div class="popup-actions"></div>
                                 </div>
@@ -158,7 +177,7 @@
                     </div>
                 </div>
 
-                <div id="version">
+                <div id="version" class="electrobun-webkit-app-region-drag">
                     <span>v1.2026.30</span>
                 </div>
             </div>

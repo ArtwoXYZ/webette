@@ -146,7 +146,7 @@ Décisions validées ensemble :
 **Fix engine au passage** : `sharp.d.ts` stub obsolète supprimé (il masquait les vrais types de sharp dans le projet engine mais pas depuis l'app → mystère de typecheck croisé) ; `sharp-loader.ts` aligné sur les vrais types (`typeof import("sharp").default`).
 
 **Reste à faire (prochaine session) :**
-- **Son au boot toujours bloqué** malgré `--autoplay-policy=no-user-gesture-required` via `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` (posé avant l'import electrobun dans `src/bun/env.ts`) : le jingle ne part qu'après un premier clic. À creuser (l'env var n'atteint peut-être pas la création de l'environnement WebView2).
+- ~~**Son au boot toujours bloqué** malgré `--autoplay-policy=no-user-gesture-required`.~~ Résolu le 2026-08-06 : sous Windows frameless, l'allumage attend le geste réel sur Power et déverrouille Web Audio avant le premier `await`.
 - ~~La popup Folder doit **toujours** proposer le tutorial, même si un site a déjà été monté.~~ Réalisé et validé le 2026-08-05.
 - ~~Bouton "ouvrir le dossier" (explorateur) dans la popup de confirmation de build.~~ Ajouté le 2026-08-05.
 - Version engine affichée : `vunknown` actuellement — corriger la remontée de version via `/status`.
@@ -156,7 +156,8 @@ Décisions validées ensemble :
 
 **Ajouts au backlog de la story (user, 2026-08-02) :**
 - **i18n** : tous les textes de l'app (popups, messages contextuels, labels dynamiques) doivent passer par un système de traduction — s'appuyer sur / s'aligner avec l'i18n de l'engine (`locales/`).
-- **Fenêtre sans chrome Windows** : essayer de retirer la barre de titre pour n'avoir que le device à l'écran. En conséquence, ajouter un **bouton marche/arrêt** sur la console — l'allumage deviendrait un geste utilisateur, ce qui réglerait au passage le blocage du son au boot.
+- ~~**Fenêtre sans chrome Windows** : retirer la barre de titre et ajouter un **bouton marche/arrêt** sur la console.~~ Réalisé et validé le 2026-08-06 : device flottant, déplacement depuis les surfaces inertes, Power skeuomorphique et cycle allumage/fermeture natif.
+- [ ] **Resize de la fenêtre frameless** : mieux contrôler les dimensions qui cassent le design, sans redimensionnement correctif automatique ni blocage pendant le geste. Les poignées et Power doivent rester accessibles dans tous les cas ; les tentatives de garde-fou applicatif de cette session ont été retirées.
 - **Folder en mode serve** : quand le site est servi (mode test), le bouton on-screen Folder sert à ouvrir le dossier du site dans l'explorateur.
 - ~~**Historique des dossiers** : le menu du bouton Folder affiche une liste des derniers dossiers ouverts avec l'app (persistance à prévoir).~~ Réalisé et validé le 2026-08-05.
 - **Opacité des menus on-screen** : tester des popups/menus opaques sur l'écran LCD (lisibilité vs effet diégétique).
@@ -228,6 +229,52 @@ Décisions validées ensemble :
 **Vérifications :** `bun run typecheck`, `git diff --check` et 3 tests unitaires ciblés (changement de catalogue, interpolation, traduction d’un code d’erreur API) verts. Changement de langue à chaud, rendu FR/EN et persistance après relance validés par l'user dans l'app macOS.
 
 **Ajustement après validation user :** le français conserve « Stop » et traduit systématiquement le vocabulaire de build par « Générer / génération » ; la confirmation devient « Site généré en … ». Ajustement retesté et validé par l'user.
+
+### 2026-08-06 — Fenêtre Windows sans chrome et alimentation physique (en cours)
+
+**Premier incrément :**
+- Sous Windows, la `BrowserWindow` utilise désormais `titleBarStyle: "hidden"` et `transparent: true` ; les autres plateformes conservent leur chrome natif pour ne pas modifier le rendu macOS déjà validé.
+- La console est légèrement détachée des bords sur un fond natif transparent, avec ombre portée et zones de déplacement ElectroBun sur le logo et la version.
+- Ajout d'un bouton d'alimentation rouge skeuomorphique dans l'angle supérieur droit, inspiré de la maquette user. Au lancement frameless, la console reste assombrie et attend ce clic avant sa séquence d'allumage.
+- Le premier clic déverrouille Web Audio avant tout `await`, joue le jingle puis démarre la musique ; le second clic assombrit la console et demande une fermeture native via RPC. Le hook `close` existant conserve l'arrêt propre de l'API et d'un éventuel serve.
+- Les libellés accessibles du bouton sont traduits en français et anglais. Hors Windows frameless, l'allumage automatique historique reste inchangé.
+
+**Why this way :** la suppression du chrome retire aussi les contrôles natifs et la prise de déplacement. Le bouton intégré et les drag regions restaurent ces fonctions dans le langage visuel de la console ; attendre un geste réel résout en même temps la restriction autoplay de WebView2 sans contourner la politique du navigateur.
+
+**Vérifications intermédiaires :** `git diff --check` vert, 3 tests i18n verts, typecheck app vert avec TypeScript 7.0.2 appelé directement (le shim Bun racine `tsc` de ce checkout Windows reste mal lié). Reste à valider visuellement et fonctionnellement dans la fenêtre native Windows.
+
+**Ajustements après premier test Windows :**
+- Le bouton est maintenant aligné sur le bord supérieur et davantage rentré depuis la droite. Son rendu a été rapproché des contrôles existants : couleur pleine et relief par ombres internes, sans gradient, halo ni pulsation.
+- Tout le châssis est devenu draggable par défaut ; boutons, labels, liens, champs, menus et poignées sont explicitement exclus. Les bords extérieurs et toutes les surfaces inertes servent donc de prise principale.
+- ElectroBun 1.18.1 ne fournit pas de resize regions au webview pour une fenêtre borderless. Huit zones personnalisées pilotent désormais le frame natif par RPC (quatre bords et quatre angles), avec une prise plus large en bas à droite et un minimum de 550 × 380.
+- Après ajustements : typecheck app, 3 tests i18n et `git diff --check` verts. Deuxième validation visuelle Windows en attente.
+
+**Défaut découvert au deuxième test Windows :** après l'allumage, seul le clic sur Power traversait la fenêtre ; le reste de l'app conservait un hit-testing normal. Session ElectroBun coupée immédiatement à la demande de l'user. Correction ciblée sans relance : Power conserve désormais ses pointer events pendant `powering-on` (la machine d'état ignore déjà les doubles clics), avec `pointer-events: auto` explicite. Une tentative de plancher alpha global a été retirée car le défaut n'affecte pas la fenêtre entière. Validation native encore requise.
+
+**Ajustements après validation du hit-testing Power :**
+- L'appui Power ne déplace plus physiquement le bouton (`translateY` retiré), ce qui évite de le décoller du bord supérieur. L'état enfoncé est simulé comme sur les autres contrôles par une couleur légèrement plus sombre, la disparition de la profondeur externe et une ombre interne renforcée.
+- Les minima du resize passent de 550 × 380 à 300 × 260. Ces limites restent légèrement supérieures au minimum structurel du bezel (270 × 230), tout en permettant un vrai format portrait compact.
+
+**Ajustement visuel Power après comparaison aux boutons existants :** l'état précédent était trop discret. Le bouton possède maintenant une tranche basse franche au repos, qui s'écrase au survol/appui au profit d'une ombre interne forte. Le symbole Power reprend davantage de poids et descend seul de la hauteur de tranche ; le contour supérieur du bouton ne bouge jamais. Cette interaction suit volontairement le langage `hover = bouton enfoncé` déjà utilisé par les gros contrôles de l'app.
+
+**Deuxième ajustement visuel Power :** profondeur basse réduite à environ 2 px, avec déplacement du symbole recalé sur cette valeur. L'état enfoncé ne conserve plus aucune ombre extérieure basse, assombrit nettement toute la face et utilise uniquement ses ombres internes. Toutes les transitions du bouton et du symbole ont été supprimées afin que le changement d'état soit immédiat.
+
+**Correction de l'ombre résiduelle :** elle ne venait plus du `box-shadow` de Power mais du `filter: drop-shadow()` du bezel, qui compositait aussi la silhouette du bouton enfant. Le bezel utilise maintenant un `box-shadow` propre à sa boîte ; l'état enfoncé de Power n'hérite donc plus d'ombre extérieure.
+
+**Cause finale de l'ombre persistante :** le sélecteur de repos `html.window-frameless #power` était plus spécifique que `#power:hover`, donc la cascade conservait le `box-shadow` de repos. Les sélecteurs hover/active reprennent désormais le même préfixe et remplacent effectivement toute ombre extérieure.
+
+**Géométrie Power stabilisée :** la tranche basse de repos était encore construite avec une ombre externe, ce qui agrandissait visuellement le bouton puis le faisait rétrécir dans l'état enfoncé. Elle est désormais entièrement interne ; le contour et l'encombrement du bouton ne changent plus entre les deux états.
+
+**Limitation du resize retirée :** les deux tentatives de garde-fou (validation après rendu, puis limites distinctes paysage/portrait) produisaient des blocages pendant le geste et pouvaient laisser les poignées ou Power hors d'atteinte. Tous les filtres et minima applicatifs ont été supprimés ; les poignées transmettent de nouveau directement la géométrie demandée au frame natif. Le traitement des dimensions cassant le design est reporté.
+
+**État livré pour le commit — fenêtre flottante et Power :**
+- Windows ouvre maintenant une fenêtre transparente sans barre de titre ; macOS et les autres plateformes conservent leur chrome et leur allumage automatique historiques.
+- Le châssis sert de zone de déplacement sur toutes ses surfaces inertes. Les contrôles, formulaires, popups et huit poignées de resize restent explicitement interactifs.
+- Power est fixé au bord supérieur dans le langage skeuomorphique des autres boutons : tranche basse interne au repos, face plus sombre et symbole légèrement abaissé à l'enfoncement, sans transition ni changement d'encombrement.
+- Le premier clic Power déverrouille Web Audio puis lance la séquence d'allumage ; une fois allumée, une nouvelle pression déclenche l'extinction et ferme proprement la fenêtre via RPC. Les états intermédiaires ignorent les doubles actions et le bouton conserve son hit-testing.
+- Vérifications : comportement visuel et fonctionnel de Power validé par l'user sous Windows ; typecheck app, 3 tests i18n et `git diff --check` verts. Le resize reste volontairement sans limitation en attendant le TODO dédié ci-dessus.
+
+**Commit local demandé (sans push) :** `feat(ui): add frameless Windows shell and power control`.
 
 ---
 

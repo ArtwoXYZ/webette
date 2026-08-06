@@ -960,7 +960,3 @@ header h1 {
         height: auto;
     }
 }
-
-/* Petite fenêtre : en dessous du seuil minimum utilisable */
-@media (max-width: 550px),
-(max-height: 380px) {}

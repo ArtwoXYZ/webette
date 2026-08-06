@@ -33,7 +33,20 @@ type BunRequests = {
   setLocale: { params: { locale: Locale }; response: Locale };
   openExternal: { params: { url: string }; response: boolean };
   openPath: { params: { path: string }; response: boolean };
+  closeWindow: { params: undefined; response: boolean };
+  getWindowFrame: {
+    params: undefined;
+    response: WindowFrame;
+  };
+  setWindowFrame: { params: WindowFrame; response: boolean };
 };
+
+interface WindowFrame {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 const rpc = createRPC<
   { requests: Record<never, never>; messages: Record<never, never> },
@@ -44,6 +57,12 @@ const rpc = createRPC<
 });
 
 new Electroview({ rpc });
+
+document
+  .querySelectorAll<HTMLElement>("button, label, select, input, a")
+  .forEach((element) =>
+    element.classList.add("electrobun-webkit-app-region-no-drag")
+  );
 
 const api = new WebetteApi((params) => rpc.requestProxy.apiFetch(params));
 
@@ -56,6 +75,7 @@ const $ = <T extends HTMLElement>(selector: string): T => {
 };
 
 const els = {
+  power: $<HTMLButtonElement>("#power"),
   test: $<HTMLButtonElement>("#dev"),
   testLabel: $<HTMLLabelElement>('label[for="dev"]'),
   build: $<HTMLButtonElement>("#build"),
@@ -276,6 +296,11 @@ function applyTranslations(): void {
   els.labels.host.textContent = ` ${t("label.host")} `;
   els.labels.mute.textContent = ` ${t("label.mute")} `;
   els.labels.settings.textContent = ` ${t("label.settings")} `;
+  els.power.ariaLabel = t(
+    document.body.classList.contains("powered-off")
+      ? "a11y.powerOn"
+      : "a11y.powerOff"
+  );
   els.logo.ariaLabel = t("a11y.logo");
   els.bebetteImages.magic.alt = t("a11y.bebette.magic");
   els.bebetteImages.work.alt = t("a11y.bebette.work");
@@ -521,6 +546,144 @@ els.folder.addEventListener("click", () => {
   openFolderPopup();
 });
 
+// ── Physical power control ─────────────────────────────────────
+
+type PowerState = "off" | "starting" | "on" | "stopping";
+
+const isFrameless =
+  new URLSearchParams(window.location.search).get("frameless") === "1";
+let powerState: PowerState = "off";
+
+async function prepareApp(): Promise<void> {
+  const [bootstrap, status] = await Promise.all([
+    rpc.requestProxy.getBootstrap(),
+    api.status(),
+    document.fonts.ready,
+  ]);
+
+  state.tutorialDir = bootstrap.tutorialDir;
+  state.recentFolders = bootstrap.recentFolders;
+  setLocale(bootstrap.locale);
+  applyTranslations();
+  if (status.ok) {
+    els.version.textContent = `v${status.data.version}`;
+  }
+
+  const names: BebetteName[] = ["magic", "work", "read"];
+  state.idleBebette = names[Math.floor(Math.random() * names.length)]!;
+}
+
+const appReady = prepareApp();
+
+async function powerOn(): Promise<void> {
+  if (powerState !== "off") return;
+  powerState = "starting";
+  document.body.classList.add("powering-on");
+
+  // Called before the first await so WebView2 sees the user's click
+  // as the gesture that unlocks Web Audio.
+  const audioReady = ensureAudioReady();
+  await Promise.all([
+    appReady,
+    audioReady,
+    isFrameless ? Promise.resolve() : delay(900),
+  ]);
+
+  playBoot();
+  startMusic(1.2);
+  document.body.classList.remove("powered-off", "booting", "powering-on");
+  paintProgress(0);
+  state.ui = "idle";
+  powerState = "on";
+  applyTranslations();
+}
+
+async function powerOff(): Promise<void> {
+  if (powerState !== "on") return;
+  powerState = "stopping";
+  playClick();
+  hidePopup();
+  stopProgress();
+  stopAlternation();
+  document.body.classList.add("booting", "powered-off", "shutting-down");
+  els.power.ariaLabel = t("a11y.powerOn");
+  await delay(450);
+  await rpc.requestProxy.closeWindow();
+}
+
+els.power.addEventListener("click", () => {
+  if (powerState === "off") return void powerOn();
+  if (powerState === "on") return void powerOff();
+});
+
+// ── Frameless resize regions ───────────────────────────────────
+
+type ResizeEdge = "n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw";
+
+function resizedFrame(
+  start: WindowFrame,
+  edge: ResizeEdge,
+  deltaX: number,
+  deltaY: number
+): WindowFrame {
+  let { x, y, width, height } = start;
+
+  if (edge.includes("e")) width += deltaX;
+  if (edge.includes("s")) height += deltaY;
+  if (edge.includes("w")) {
+    width = start.width - deltaX;
+    x = start.x + start.width - width;
+  }
+  if (edge.includes("n")) {
+    height = start.height - deltaY;
+    y = start.y + start.height - height;
+  }
+
+  return { x, y, width, height };
+}
+
+for (const handle of document.querySelectorAll<HTMLElement>(
+  ".window-resize-handle"
+)) {
+  handle.addEventListener("pointerdown", async (event) => {
+    if (!isFrameless || event.button !== 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+
+    const edge = handle.dataset.edge as ResizeEdge;
+    const pointerId = event.pointerId;
+    const startX = event.screenX;
+    const startY = event.screenY;
+    const startFrame = await rpc.requestProxy.getWindowFrame();
+    handle.setPointerCapture(pointerId);
+    document.body.classList.add("resizing-window");
+
+    const move = (moveEvent: PointerEvent): void => {
+      if (moveEvent.pointerId !== pointerId) return;
+      const frame = resizedFrame(
+        startFrame,
+        edge,
+        moveEvent.screenX - startX,
+        moveEvent.screenY - startY
+      );
+      void rpc.requestProxy.setWindowFrame(frame);
+    };
+
+    const stop = (stopEvent: PointerEvent): void => {
+      if (stopEvent.pointerId !== pointerId) return;
+      handle.removeEventListener("pointermove", move);
+      handle.removeEventListener("pointerup", stop);
+      handle.removeEventListener("pointercancel", stop);
+      document.body.classList.remove("resizing-window");
+      if (handle.hasPointerCapture(pointerId)) handle.releasePointerCapture(pointerId);
+    };
+
+    handle.addEventListener("pointermove", move);
+    handle.addEventListener("pointerup", stop);
+    handle.addEventListener("pointercancel", stop);
+  });
+}
+
 // ── Status polling (keeps UI honest if things change under us) ──
 
 setInterval(async () => {
@@ -539,36 +702,6 @@ setInterval(async () => {
   }
 }, 2000);
 
-// ── Boot sequence (~1s: everything off → sound → power on) ─────
-
-async function boot(): Promise<void> {
-  const [bootstrap, status] = await Promise.all([
-    rpc.requestProxy.getBootstrap(),
-    api.status(),
-    document.fonts.ready, // sprites/labels at final metrics before power-on
-    ensureAudioReady(), // audio warm-up during the "off" phase
-    delay(900), // minimum "off" time so the power-on reads as a sequence
-  ]);
-
-  state.tutorialDir = bootstrap.tutorialDir;
-  state.recentFolders = bootstrap.recentFolders;
-  setLocale(bootstrap.locale);
-  applyTranslations();
-  if (status.ok) {
-    els.version.textContent = `v${status.data.version}`;
-  }
-
-  const names: BebetteName[] = ["magic", "work", "read"];
-  state.idleBebette = names[Math.floor(Math.random() * names.length)]!;
-
-  playBoot();
-  // Background music fades in once the boot jingle is done. If
-  // autoplay blocked the audio, it will catch up on the first click.
-  startMusic(1.2);
-  document.body.classList.remove("booting");
-  paintProgress(0);
-  state.ui = "idle";
-  render();
-}
-
-void boot();
+// Keep the established automatic boot on platforms that still use
+// native chrome. The frameless Windows window waits for its power button.
+if (!isFrameless) void powerOn();

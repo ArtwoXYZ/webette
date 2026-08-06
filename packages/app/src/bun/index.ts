@@ -159,6 +159,15 @@ type AppRPC = ElectrobunRPCSchema & {
       setLocale: { params: { locale: Locale }; response: Locale };
       openExternal: { params: { url: string }; response: boolean };
       openPath: { params: { path: string }; response: boolean };
+      closeWindow: { params: undefined; response: boolean };
+      getWindowFrame: {
+        params: undefined;
+        response: { x: number; y: number; width: number; height: number };
+      };
+      setWindowFrame: {
+        params: { x: number; y: number; width: number; height: number };
+        response: boolean;
+      };
     };
     messages: Record<never, never>;
   };
@@ -167,6 +176,15 @@ type AppRPC = ElectrobunRPCSchema & {
     messages: Record<never, never>;
   };
 };
+
+let closeWindow = (): void => {};
+let getWindowFrame = () => ({ x: 0, y: 0, width: 1100, height: 750 });
+let setWindowFrame = (_frame: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}): void => {};
 
 const rpc = defineElectrobunRPC<AppRPC>("bun", {
   handlers: {
@@ -206,24 +224,35 @@ const rpc = defineElectrobunRPC<AppRPC>("bun", {
         Utils.openExternal((params as { url: string }).url),
       openPath: (params: unknown) =>
         Utils.openPath((params as { path: string }).path),
+      closeWindow: () => {
+        setTimeout(closeWindow, 0);
+        return true;
+      },
+      getWindowFrame: () => getWindowFrame(),
+      setWindowFrame: (params: unknown) => {
+        setWindowFrame(
+          params as { x: number; y: number; width: number; height: number }
+        );
+        return true;
+      },
     },
   },
 });
 
+const isFrameless = process.platform === "win32";
 const win = new BrowserWindow({
   title: "Webette",
   frame: { x: 100, y: 100, width: 1100, height: 750 },
-  url: `http://127.0.0.1:${uiServer.port}/main/index.html`,
+  url: `http://127.0.0.1:${uiServer.port}/main/index.html${isFrameless ? "?frameless=1" : ""}`,
+  titleBarStyle: isFrameless ? "hidden" : "default",
+  transparent: isFrameless,
+  passthrough: false,
   rpc,
 });
-
-// The initial webview layout on Windows is computed before the
-// native container settles (title bar offset); nudging the size
-// forces a proper re-layout, like a manual resize does.
-setTimeout(() => {
-  win.setSize(1101, 750);
-  setTimeout(() => win.setSize(1100, 750), 50);
-}, 600);
+closeWindow = () => win.close();
+getWindowFrame = () => win.getFrame();
+setWindowFrame = ({ x, y, width, height }) =>
+  win.setFrame(x, y, width, height);
 
 // Graceful shutdown: stop an active serve + the API before the
 // default exit-on-last-window-closed kicks in.
