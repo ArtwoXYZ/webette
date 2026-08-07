@@ -138,8 +138,9 @@ body {
 }
 
 .console-side>div {
-    flex-grow: 1;
+    flex: 1 1 50%;
     height: 50%;
+    min-height: 0;
 }
 
 .side-top {
@@ -259,6 +260,10 @@ label {
     padding: var(--unit-spacing-large);
     flex-grow: 1;
     align-content: baseline;
+}
+
+.compact-mute-control {
+    display: none;
 }
 
 .side-bottom .side-btn-container {
@@ -671,18 +676,39 @@ header h1 {
    ========================================= */
 
 /* Pas assez de hauteur */
-@media (min-aspect-ratio: 210/100) or (max-width: 561px) {
+@media (min-aspect-ratio: 210/120) or (max-width: 561px) {
     #console-main {
-        grid-template-rows: 1fr auto auto;
+        grid-template:
+            "screen screen" minmax(0, 1fr)
+            "header version" auto
+            / minmax(0, 1fr) minmax(0, 1fr);
     }
 
     #screen-bezel {
-        order: -1;
+        grid-area: screen;
     }
 
     header,
     #version {
-        max-height: 10cqh;
+        height: 10cqh;
+        max-height: none;
+        align-self: end;
+    }
+
+    header {
+        grid-area: header;
+        justify-self: end;
+        padding-right: var(--unit-spacing-small);
+    }
+
+    #version {
+        grid-area: version;
+        justify-self: start;
+        padding-left: var(--unit-spacing-small);
+    }
+
+    #version span {
+        margin: 0;
     }
 
     #logo {
@@ -724,8 +750,55 @@ header h1 {
     }
 }
 
+/* Consoles paysage peu hautes */
+@media (min-aspect-ratio: 85/80) and (max-height: 465px) {
+    .side-top,
+    .side-bottom,
+    .side-btn-container {
+        min-height: 0;
+    }
+
+    .side-top,
+    .side-bottom {
+        overflow: hidden;
+    }
+
+    .side-btn-container {
+        margin: var(--unit-spacing-small);
+        padding: var(--unit-spacing-small);
+    }
+
+    label {
+        padding-top: min(calc(var(--unit-spacing-small) + 4cqi), 2.5cqh);
+        margin-bottom: var(--unit-spacing-small);
+    }
+
+    .btn-container {
+        --height: min(20cqi, 7cqh);
+        --width: min(40cqi, 14cqh);
+        margin-top: min(var(--unit-spacing-large), 1.5cqh);
+    }
+
+    .btn-container:has(button.btn-small) {
+        --height: min(10cqi, 4cqh);
+        --width: min(18cqi, 8cqh);
+    }
+
+    #speaker {
+        min-height: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #speaker-vents {
+        width: auto;
+        max-height: 100%;
+    }
+}
+
 /* Console portrait */
-@media (max-aspect-ratio: 85/80) {
+@media (max-aspect-ratio: 85/75) {
     #console-panel {
         --portrait-side-bottom-height: clamp(92px, 16cqh, 132px);
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -790,11 +863,19 @@ header h1 {
     header {
         grid-area: header;
         max-height: 10cqi;
+        justify-self: stretch;
+        padding-right: 0;
     }
 
     #version {
         grid-area: version;
         align-self: center;
+        justify-self: stretch;
+        padding-left: 0;
+    }
+
+    #version span {
+        margin: auto;
     }
 
     #screen-bezel {
@@ -937,6 +1018,71 @@ header h1 {
         width: 100%;
         min-width: 0;
         min-height: 0;
+    }
+}
+
+/* Console Portrait, pas beaucoup de hauteur */
+@media (max-aspect-ratio: 85/75) and (min-aspect-ratio: 100/125) {
+    #screen-bebettes>div {
+        width: 75%;
+    }
+
+    header {
+        display: none;
+    }
+
+    #version {
+        display: none;
+    }
+
+    #speaker,
+    #console-right .side-top .mute-control {
+        display: none;
+    }
+
+    .compact-mute-control,
+    #console-right .side-top .side-btn-container {
+        grid-auto-flow: row;
+        grid-template-columns: auto auto;
+        grid-template-rows: auto;
+        align-content: center;
+        align-items: center;
+        justify-content: center;
+        gap: var(--unit-spacing-large);
+        padding: var(--unit-spacing-small);
+    }
+
+    .compact-mute-control {
+        display: grid;
+        justify-content: start;
+        padding-left: calc(var(--unit-spacing-large) * 2);
+    }
+
+    #console-right .side-top .side-btn-container {
+        justify-content: end;
+        padding-right: calc(var(--unit-spacing-large) * 2);
+    }
+
+    .compact-mute-control .btn-container,
+    #console-right .side-top .side-btn-container .btn-container {
+        grid-row: 1;
+        margin: 0;
+    }
+
+    .compact-mute-control label,
+    #console-right .side-top .side-btn-container label {
+        grid-row: 1;
+        width: auto;
+        padding: 0;
+        margin: 0;
+    }
+
+    #console-right .side-top .side-btn-container .btn-container {
+        grid-column: 2;
+    }
+
+    #console-right .side-top .side-btn-container label {
+        grid-column: 1;
     }
 }
 

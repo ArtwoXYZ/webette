@@ -79,12 +79,14 @@ const els = {
   build: $<HTMLButtonElement>("#build"),
   host: $<HTMLButtonElement>("#host"),
   mute: $<HTMLButtonElement>("#mute"),
+  muteCompact: $<HTMLButtonElement>("#mute-compact"),
   settings: $<HTMLButtonElement>("#settings"),
   labels: {
     test: $<HTMLLabelElement>('label[for="dev"]'),
     build: $<HTMLLabelElement>('label[for="build"]'),
     host: $<HTMLLabelElement>('label[for="host"]'),
     mute: $<HTMLLabelElement>('label[for="mute"]'),
+    muteCompact: $<HTMLLabelElement>('label[for="mute-compact"]'),
     settings: $<HTMLLabelElement>('label[for="settings"]'),
   },
   logo: $<HTMLDivElement>("#logo"),
@@ -171,6 +173,7 @@ function render(): void {
   setEnabled(els.host, false); // no host provider in this alpha
   setEnabled(els.settings, ui !== "building" && ui !== "starting");
   setEnabled(els.mute, true);
+  setEnabled(els.muteCompact, true);
 
   // On-screen buttons.
   setEnabled(els.website, ui === "serving");
@@ -293,6 +296,7 @@ function applyTranslations(): void {
   els.labels.build.textContent = ` ${t("label.build")} `;
   els.labels.host.textContent = ` ${t("label.host")} `;
   els.labels.mute.textContent = ` ${t("label.mute")} `;
+  els.labels.muteCompact.textContent = ` ${t("label.mute")} `;
   els.labels.settings.textContent = ` ${t("label.settings")} `;
   els.power.ariaLabel = t(
     document.body.classList.contains("powered-off")
@@ -514,11 +518,16 @@ async function changeLocale(locale: Locale): Promise<void> {
   showPopup(t("settings.languageChanged"));
 }
 
-els.mute.addEventListener("click", () => {
+function toggleMute(): void {
   setMuted(!isMuted());
-  els.mute.classList.toggle("btn-glow", isMuted());
+  for (const button of [els.mute, els.muteCompact]) {
+    button.classList.toggle("btn-glow", isMuted());
+  }
   playClick();
-});
+}
+
+els.mute.addEventListener("click", toggleMute);
+els.muteCompact.addEventListener("click", toggleMute);
 
 els.website.addEventListener("click", () => {
   if (state.ui === "serving" && state.servePort !== null) {

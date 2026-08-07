@@ -149,7 +149,7 @@ Décisions validées ensemble :
 - ~~**Son au boot toujours bloqué** malgré `--autoplay-policy=no-user-gesture-required`.~~ Résolu le 2026-08-06 : sous Windows frameless, l'allumage attend le geste réel sur Power et déverrouille Web Audio avant le premier `await`.
 - ~~La popup Folder doit **toujours** proposer le tutorial, même si un site a déjà été monté.~~ Réalisé et validé le 2026-08-05.
 - ~~Bouton "ouvrir le dossier" (explorateur) dans la popup de confirmation de build.~~ Ajouté le 2026-08-05.
-- Version engine affichée : `vunknown` actuellement — corriger la remontée de version via `/status`.
+- ~~Version engine affichée : `vunknown` actuellement — corriger la remontée de version via `/status`.~~
 - `sharp` indisponible depuis l'app (installs isolées Bun : binaire natif win32-x64 non résolu depuis `packages/app`) → images du tutorial non optimisées ; à régler (dépendance côté app ?).
 - Commencer les **settings** (bouton aujourd'hui décoratif).
 - ~~Petite **musique de fond**~~ → piste lead intégrée et validée le 2026-08-02 (voir plus bas) ; pistes restantes à ajouter.
@@ -291,6 +291,25 @@ Décisions validées ensemble :
 - Le calcul pur vit dans `window-resize.ts` et possède 6 tests ciblés couvrant max, minima, ratios, transition et ancrage. Vérifications : typecheck app, 9 tests cumulés et `git diff --check` verts. Validation du geste dans la fenêtre native Windows requise.
 
 **Ajustement après premier essai :** retenir entièrement le frame entre le breakpoint paysage et le ratio portrait rendait le passage très bloquant dans les deux sens. Cette zone intermédiaire est désormais traversable en continu ; les bornes min/max et la limite panoramique restent actives, mais les deux orientations ne se comportent plus comme deux îlots déconnectés.
+
+### 2026-08-08 — Alignement des panneaux latéraux en paysage compact
+
+- Cause reproduite sous le breakpoint critique : les deux colonnes flex calculaient leur réduction depuis la taille intrinsèque de leurs contenus. La colonne droite, plus chargée, conservait une moitié basse plus haute ; son cadre blanc finissait donc par sortir du panneau rouge.
+- Les deux moitiés utilisent maintenant une base flex explicite de 50 % avec `min-height: 0`. Les lignes gauche/droite restent ainsi synchronisées, quelle que soit la quantité de contrôles dans chaque panneau.
+- Sous 465 px de haut en paysage, les espacements et boutons se réduisent aussi selon la hauteur disponible ; les panneaux masquent leurs effets décoratifs aux limites et le haut-parleur conserve ses proportions.
+- Pourquoi ce choix : forcer uniquement `overflow` aurait caché le symptôme tout en laissant le contenu trop grand. La combinaison partage 50/50 + adaptation verticale conserve à la fois l'alignement et l'intégralité des contrôles.
+- Vérifications : mesures responsives en frameless à 465, 440, 427, 410, 390, 360, 330 et 300 px (tops gauche/droite et bottoms gauche/droite alignés, aucun scroll interne) ; contrôle visuel aux formats 980×427 et 1123×723 ; portrait 470×757 inchangé ; typecheck app vert.
+- Ajustement de la grille au breakpoint très large/étroit : l'écran occupe désormais toute la première ligne disponible, tandis que le titre `webette` et la version sont juxtaposés et centrés sur une ligne basse commune, alignée sur le bas des sides. Les propriétés d'alignement sont réinitialisées dans la media query portrait afin de conserver sa composition antérieure. Contrôles responsifs : 980×427, 1123×723 et 470×757 ; typecheck app et `git diff --check` verts.
+- Dans le nouvel état portrait de faible hauteur (`85/75` à `100/125`), le speaker disparaît et un contrôle Mute compact prend sa place dans la colonne gauche ; Settings reste seul dans la colonne droite. Les deux couples bouton/libellé sont disposés horizontalement. Un second bouton Mute, visible uniquement dans cet état, est nécessaire car CSS ne peut pas déplacer un élément entre deux parents ; les deux instances partagent traduction, état enabled/glow et gestionnaire audio. Rendu contrôlé en 680×744, avec non-régression en portrait 470×757 et paysage 900×600 ; typecheck app et `git diff --check` verts.
+- Ajustement après retour user : Mute est ancré vers le bord gauche avec son libellé à droite ; Settings est ancré vers le bord droit avec son libellé à gauche. Les retraits extérieurs sont symétriques et le gap entre bouton et libellé passe de l'espacement moyen au grand espacement (environ +3 px au format 680×744).
+
+**Pause demandée par l'user :** cet incrément responsive est suffisamment avancé pour être conservé, mais les ajustements visuels ne sont pas terminés. La story reste donc `Active` et reprendra depuis ces breakpoints plutôt que d'être passée en validation finale.
+
+**Commit local demandé (sans push) :** `fix(ui): improve responsive console layouts`
+
+- Keep paired side panels aligned and their controls contained at low landscape heights.
+- Reflow the screen branding and physical controls for compact landscape and portrait states.
+- Synchronize the responsive Mute control with localization, enabled state and audio feedback.
 
 ---
 
