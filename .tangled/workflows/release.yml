@@ -10,10 +10,16 @@ dependencies:
 
 steps:
   - name: install
-    command: bun install
+    command: bun install --frozen-lockfile
 
   - name: typecheck
-    command: bun run --filter '*' typecheck
+    command: bun run typecheck
 
   - name: test
     command: bun test
+
+  - name: build the tutorial site
+    command: bun run build:tutorial
+
+  - name: check the release notes
+    command: bun run release:notes "$TANGLED_REF_NAME"
