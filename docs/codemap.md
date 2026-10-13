@@ -1,18 +1,18 @@
-# CODEMAP
+# Codemap
 
-## Snapshot
-- Date: 2026-07-31
-- Reviewed by: Pilot (post reprise: deps à jour, fixes race condition assets + favicon.ico)
-- Scope: `packages/engine/src/**`, `packages/engine/locales/**`, `packages/engine/package.json`, `tsconfig.json`, `packages/engine/webette.tool.ts`
+Where things live in the repository, and the pitfalls worth knowing before
+changing them. Keep this file in sync when the structure moves.
 
 ## How to run
 - Install: `bun install` (from monorepo root)
 - Dev server: `bun run packages/engine/src/cli.ts serve <site-folder>` (from root), or `bun run serve <site-folder>` (from `packages/engine/`)
 - Build: `bun run packages/engine/src/cli.ts build <site-folder>` (from root), or `bun run build <site-folder>` (from `packages/engine/`)
 - Local control API: `bun run packages/engine/src/cli.ts api [--port <n>]` (127.0.0.1, default port 4177; GET /status, POST /build, POST /serve, POST /stop, GET /logs?since=<byte-offset>)
-- Typecheck: `bun run --filter webette typecheck` (from root)
-- Test: none (no test script defined)
-- Convenience scripts (root): `bun run serve:tutorial`, `bun run typecheck`
+- Typecheck: `bun run typecheck` (from root, all packages)
+- Test: `bun test` (from root)
+- Reference build: `bun run build:tutorial` (builds `packages/app/tutorial`)
+- Desktop app: `bun run dev:app` (native window), `bun run preview:app` (UI in a browser)
+- Convenience scripts (root): `bun run serve:tutorial`, `bun run release:notes`
 
 ## Entry points
 - Backend: `packages/engine/src/cli.ts` (dispatches `build` / `serve` / `api`); public programmatic entrypoint: `packages/engine/src/index.ts`
@@ -33,13 +33,14 @@ webette/
 │   │   ├── src/
 │   │   ├── locales/
 │   │   └── webette.tool.ts
-│   └── app/             (desktop app ElectroBun — T7, UI alpha en cours)
-│       ├── src/bun/     (main process: API in-process, serveur UI HTTP, RPC)
-│       ├── src/web/     (webview: design console intégré + logique UI)
-│       └── tutorial/    (ex website-example)
+│   └── app/             (desktop app, Electrobun, UI alpha in progress)
+│       ├── src/bun/     (main process: in-process API, UI HTTP server, RPC)
+│       ├── src/web/     (webview: console design + UI logic)
+│       └── tutorial/    (reference site)
 ├── websites/
 │   └── documentation/   (webette doc site, built by engine)
-├── .tangled/workflows/  (CI + Release Spindles)
+├── scripts/             (repository tooling: release notes)
+├── .tangled/workflows/  (CI and release pipelines)
 ├── docs/                (internal dev docs, migration to websites/doc pending)
 └── package.json         (workspaces: ["packages/*"])
 ```
@@ -47,7 +48,7 @@ webette/
 ## Module / component map
 - CLI + config: `packages/engine/src/cli.ts`, `packages/engine/src/config/env.ts`, `packages/engine/src/core/config.ts`, `packages/engine/webette.tool.ts`
 - Local API: `packages/engine/src/core/api.ts` (webette api server); public entrypoint: `packages/engine/src/index.ts`
-- Desktop app: `packages/app/src/bun/` (main process: API in-process, serveur UI HTTP, bridge RPC), `packages/app/src/web/` (design console + machine à états UI, client API, sons 8bit)
+- Desktop app: `packages/app/src/bun/` (main process: in-process API, UI HTTP server, RPC bridge), `packages/app/src/web/` (console design, UI state machine, API client, 8-bit sounds)
 - Scan + routes: `packages/engine/src/core/scan/**`, `packages/engine/src/core/routes.ts`, `packages/engine/src/core/targets.ts`
 - Resolve + block types: `packages/engine/src/core/resolve/**`, `packages/engine/src/core/block-types/**`
 - Build + render: `packages/engine/src/core/build/**`, `packages/engine/src/core/template.ts`, `packages/engine/src/core/templates/**`
@@ -86,10 +87,11 @@ webette/
 - `webette.config.ts` / `webette.tool.ts` are loaded via Bun build; Node-only environments won't load them.
 - `serve` includes drafts by default; `build` excludes drafts and unlisted affects indexes/sitemap.
 - `bun --cwd` requires an absolute path; use `bun run packages/engine/src/cli.ts` from root instead.
-- TypeScript 7 (native) : ne ship plus `lib.*.d.ts` dans `node_modules/typescript/lib` → les éditeurs doivent utiliser leur TS embarqué (`.zed/settings.json` désactive `autoUseWorkspaceTsdk`) ; `"types": ["bun"]` doit être explicite dans les tsconfig.
-- `sharp` ne sait pas écrire du `.ico` : `generateIco` emballe manuellement un PNG 32×32 dans un conteneur ICO (`core/build/utils/icons.ts`).
-- Le resolve est entièrement parallèle et `resolveReference` re-résout le bloc cible → les écritures d'assets passent par un cache single-flight (`utils/single-flight.ts`) vidé à chaque passe `resolveBlocks`.
-- Pages synthétiques (index, 404, sitemap) : `createdAt`/`updatedAt` régénérés à CHAQUE build (dette connue, non traitée).
+- TypeScript 7 (native) no longer ships `lib.*.d.ts` in `node_modules/typescript/lib`: editors must use their bundled TypeScript (`.zed/settings.json` disables `autoUseWorkspaceTsdk`), and each `tsconfig.json` must declare `"types": ["bun"]`.
+- `sharp` cannot write `.ico`: `generateIco` wraps a 32×32 PNG in an ICO container by hand (`core/build/utils/icons.ts`).
+- Block resolution is fully parallel and `resolveReference` re-resolves the target block, so asset writes go through a single-flight cache (`utils/single-flight.ts`) cleared on every `resolveBlocks` pass.
+- Synthetic pages (indexes, 404, sitemap) get a new `createdAt`/`updatedAt` on every build (known debt, tracked as an issue).
+- `sharp` does not resolve from the desktop app (isolated installs), so tutorial images are not optimized when built from the app.
 
 ## Fast answers
 - "Where do I change the build pipeline?" -> `packages/engine/src/core/build.ts`
@@ -98,9 +100,3 @@ webette/
 - "Where is site config parsed?" -> `packages/engine/src/core/config.ts`
 - "Where is logging configured?" -> `packages/engine/src/logging/logger.ts`, `packages/engine/src/config/env.ts`
 - "Where do plugins hook in?" -> `packages/engine/src/plugins/types.ts`, `packages/engine/src/plugins/runner.ts`
-
-## Open questions
-- FIXED: How should templates be packaged/distributed when webette ships as a standalone binary?
-  - Answer: Starters are distributed as external folders (likely zipped) via website/repos; not bundled in the tool.
-- FIXED: Should `ignore.webt` support glob patterns in addition to explicit filenames?
-  - Answer: No; only explicit filenames are planned.

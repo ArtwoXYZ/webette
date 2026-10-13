@@ -14,5 +14,7 @@ Lightweight notes about Webette's direction and internals.
 - [images.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/images.md) - current image metadata handling and planned optimization/variants.
 - [audio.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/audio.md) - audio metadata handling and asset copying.
 - [plugins.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/plugins.md) - how to write and register a plugin, available hooks, and prune helpers.
-- [commit-scopes](https://tangled.org/artwo.xyz/webette/blob/main/docs/commit-scopes) - commit Scopes for Webette.
-- [versioning.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/versioning.md) - version format and release cadence.
+- [commit-scopes.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/commit-scopes.md) - commit scopes for Webette.
+- [versioning.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/versioning.md) - version format and release steps.
+- [codemap.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/codemap.md) - where things live in the repository and the known pitfalls.
+- [decisions.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/decisions.md) - decisions that still shape the project, with their reasons.

@@ -167,6 +167,7 @@ The [docs](https://tangled.org/artwo.xyz/webette/tree/main/docs) intentionally m
 * what webette intends to support later.
 
 They currently act as both reference and roadmap.
+The work in progress is tracked in the [issues](https://tangled.org/artwo.xyz/webette/issues).
 
  
 
@@ -174,7 +175,7 @@ They currently act as both reference and roadmap.
 
 webette is still early and the foundations are still shifting.
 Issues and discussion are welcome; PRs may be reviewed slowly (or declined) until the API stabilizes.
-If you submit a contribution, please see `CONTRIBUTING.md` for licensing terms.
+If you submit a contribution, please see `CONTRIBUTING.md` for the conventions and licensing terms.
 
  
 
