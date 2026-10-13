@@ -96,7 +96,62 @@ It reflects the way webette grows: organically, creatively, and with clarity.
 
 ---
 
-## **5. Summary**
+## **5. Where the Version Lives**
+
+People read `v0 2025.12.0`. `package.json` and Git tags cannot hold that form,
+so they carry the same numbers packed into three fields:
+
+```
+<generation>.<YYYY>.<MM><increment>
+```
+
+| Shown to people | `package.json` | Git tag |
+| --- | --- | --- |
+| `v0 2025.12.0` | `0.2025.120` | `v0.2025.120` |
+| `v0 2026.10.1` | `0.2026.101` | `v0.2026.101` |
+| `v1 2026.01.3` | `1.2026.13` | `v1.2026.13` |
+
+The last digit is the increment, so a month holds at most ten releases
+(`.0` to `.9`).
+
+`packages/engine/package.json` is the reference. `packages/app/package.json`
+always carries the same version: the engine and the app are released together.
+
+---
+
+## **6. Preparing a Release**
+
+`CHANGELOG.md` is the single source for release notes. During development,
+each pull request adds its user-facing entries under `## Unreleased`,
+following the conventions in [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+1. Choose the version: the current month, with the next free increment.
+2. Set it in `packages/engine/package.json` and `packages/app/package.json`.
+3. In `CHANGELOG.md`, rename `## Unreleased` to the displayed version
+   (`## v0 2026.10.0`) and add a new empty `## Unreleased` above it. Review the
+   entries against the previous release: drop fixes for problems that never
+   shipped, merge duplicates.
+4. Run `bun run typecheck`, `bun test` and `bun run build:tutorial`.
+5. Merge these changes into `dev`, then merge `dev` into `main`.
+6. From `main`, create an annotated tag whose message is the release notes,
+   and push it:
+
+   ```
+   bun run release:notes v0.2026.100 > /tmp/notes.md
+   git tag -a v0.2026.100 -F /tmp/notes.md
+   git push origin v0.2026.100
+   ```
+
+   `release:notes` refuses a tag that does not match `package.json`, entries
+   left under `Unreleased`, or an empty section.
+7. The tag starts the release pipeline (`.tangled/workflows/release.yml`),
+   which runs the checks again on the tagged commit.
+
+Never move a tag or reuse a version that was published.
+
+---
+
+## **7. Summary**
 
 The official version format is:
 
