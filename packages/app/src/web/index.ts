@@ -1,4 +1,4 @@
-import { Electroview, createRPC } from "electrobun/view";
+import { host } from "./host";
 import { WebetteApi, type BuildSummary } from "./api";
 import type { ApiErrorCode } from "webette";
 import { getLocale, setLocale, t, type Locale } from "./i18n";
@@ -18,51 +18,13 @@ import {
   startMusic,
 } from "./sounds";
 
-// ── RPC bridge to the bun process ───────────────────────────────
-
-type BunRequests = {
-  apiFetch: {
-    params: { path: string; method?: string; body?: string };
-    response: { status: number; body: string };
-  };
-  getBootstrap: {
-    params: undefined;
-    response: {
-      tutorialDir: string | null;
-      recentFolders: string[];
-      locale: Locale;
-    };
-  };
-  pickFolder: { params: undefined; response: string | null };
-  rememberRecentFolder: { params: { path: string }; response: string[] };
-  setLocale: { params: { locale: Locale }; response: Locale };
-  openExternal: { params: { url: string }; response: boolean };
-  openPath: { params: { path: string }; response: boolean };
-  closeWindow: { params: undefined; response: boolean };
-  getWindowFrame: {
-    params: undefined;
-    response: WindowFrame;
-  };
-  setWindowFrame: { params: WindowFrame; response: boolean };
-};
-
-const rpc = createRPC<
-  { requests: Record<never, never>; messages: Record<never, never> },
-  { requests: BunRequests; messages: Record<never, never> }
->({
-  // Builds and serve startups can be slow on big sites.
-  maxRequestTime: 10 * 60_000,
-});
-
-new Electroview({ rpc });
-
 document
   .querySelectorAll<HTMLElement>("button, label, select, input, a")
   .forEach((element) =>
     element.classList.add("electrobun-webkit-app-region-no-drag")
   );
 
-const api = new WebetteApi((params) => rpc.requestProxy.apiFetch(params));
+const api = new WebetteApi((params) => host.apiFetch(params));
 
 // ── DOM handles ─────────────────────────────────────────────────
 
@@ -270,7 +232,7 @@ function rejectAction(message: string): void {
 
 async function mountSite(dir: string, remember = false): Promise<void> {
   if (remember) {
-    state.recentFolders = await rpc.requestProxy.rememberRecentFolder({
+    state.recentFolders = await host.rememberRecentFolder({
       path: dir,
     });
   }
@@ -358,7 +320,7 @@ function openFolderPopup(): void {
     {
       label: t("folder.choose"),
       onClick: async () => {
-        const picked = await rpc.requestProxy.pickFolder();
+        const picked = await host.pickFolder();
         if (picked) await mountSite(picked, true);
       },
     },
@@ -375,7 +337,7 @@ function openFolderPopup(): void {
 
 function openFolder(path: string | null): void {
   if (path) {
-    void rpc.requestProxy.openPath({ path });
+    void host.openPath({ path });
   }
 }
 
@@ -512,7 +474,7 @@ els.settings.addEventListener("click", () => {
 });
 
 async function changeLocale(locale: Locale): Promise<void> {
-  const persisted = await rpc.requestProxy.setLocale({ locale });
+  const persisted = await host.setLocale({ locale });
   setLocale(persisted);
   applyTranslations();
   showPopup(t("settings.languageChanged"));
@@ -532,7 +494,7 @@ els.muteCompact.addEventListener("click", toggleMute);
 els.website.addEventListener("click", () => {
   if (state.ui === "serving" && state.servePort !== null) {
     playClick();
-    void rpc.requestProxy.openExternal({
+    void host.openExternal({
       url: `http://localhost:${state.servePort}`,
     });
     return;
@@ -546,7 +508,7 @@ els.folder.addEventListener("click", () => {
   }
   if (state.ui === "serving") {
     playClick();
-    if (state.siteDir) void rpc.requestProxy.openPath({ path: state.siteDir });
+    if (state.siteDir) void host.openPath({ path: state.siteDir });
     return;
   }
   playClick();
@@ -563,7 +525,7 @@ let powerState: PowerState = "off";
 
 async function prepareApp(): Promise<void> {
   const [bootstrap, status] = await Promise.all([
-    rpc.requestProxy.getBootstrap(),
+    host.getBootstrap(),
     api.status(),
     document.fonts.ready,
   ]);
@@ -615,7 +577,7 @@ async function powerOff(): Promise<void> {
   document.body.classList.add("booting", "powered-off", "shutting-down");
   els.power.ariaLabel = t("a11y.powerOn");
   await delay(450);
-  await rpc.requestProxy.closeWindow();
+  await host.closeWindow();
 }
 
 els.power.addEventListener("click", () => {
@@ -636,7 +598,7 @@ async function flushWindowFrame(): Promise<void> {
     while (queuedWindowFrame) {
       const frame = queuedWindowFrame;
       queuedWindowFrame = null;
-      await rpc.requestProxy.setWindowFrame(frame);
+      await host.setWindowFrame(frame);
     }
   } finally {
     updatingWindowFrame = false;
@@ -660,7 +622,7 @@ for (const handle of document.querySelectorAll<HTMLElement>(
     const pointerId = event.pointerId;
     const startX = event.screenX;
     const startY = event.screenY;
-    const startFrame = await rpc.requestProxy.getWindowFrame();
+    const startFrame = await host.getWindowFrame();
     handle.setPointerCapture(pointerId);
     document.body.classList.add("resizing-window");
 

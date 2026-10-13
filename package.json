@@ -7,6 +7,7 @@
     "build:tutorial": "bun run packages/engine/src/cli.ts build packages/app/tutorial",
     "serve:tutorial": "bun run packages/engine/src/cli.ts serve packages/app/tutorial",
     "dev:app": "bun run --cwd packages/app dev",
+    "preview:app": "bun run --cwd packages/app preview",
     "release:notes": "bun run scripts/release-notes.ts"
   },
   "devDependencies": {
