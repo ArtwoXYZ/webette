@@ -5,8 +5,8 @@
 # is its mirror: it lends the build machines Tangled does not have, and its
 # releases hold the downloads. The checks run on Tangled.
 #
-# Started by hand, it builds the three apps and publishes nothing: the way
-# to try the packaging without releasing.
+# Started by hand on a branch, it builds the three apps and publishes
+# nothing: the way to try the packaging without releasing.
 name: release
 
 on:
