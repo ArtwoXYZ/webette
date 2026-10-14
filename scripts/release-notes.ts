@@ -2,13 +2,13 @@
  * Prints the notes of the version being released, or fails loudly.
  *
  *   bun run release:notes            # notes for the current version
- *   bun run release:notes v0.2026.100  # also checks the tag name
+ *   bun run release:notes v2026.10.0  # also checks the tag name
  *
  * The engine's package.json holds the version; the app must match it.
  */
 
 import * as path from "node:path";
-import { displayVersion, extractReleaseNotes, tagForVersion } from "./release";
+import { extractReleaseNotes, tagForVersion } from "./release";
 
 const root = path.resolve(import.meta.dir, "..");
 
@@ -34,7 +34,7 @@ try {
   }
 
   const changelog = await Bun.file(path.join(root, "CHANGELOG.md")).text();
-  console.log(`webette ${displayVersion(version)}\n`);
+  console.log(`webette ${tagForVersion(version)}\n`);
   console.log(extractReleaseNotes(changelog, version));
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));

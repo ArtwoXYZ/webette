@@ -1,6 +1,6 @@
 {
   "name": "webette-app",
-  "version": "0.2025.120",
+  "version": "2026.10.0",
   "type": "module",
   "private": true,
   "scripts": {

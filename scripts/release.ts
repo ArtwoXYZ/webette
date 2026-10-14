@@ -1,50 +1,33 @@
 /**
- * Release helpers: version formats and changelog extraction.
+ * Release helpers: version format and changelog extraction.
  *
- * webette shows versions as `v<generation> <YYYY>.<MM>.<increment>`
- * (see docs/versioning.md). package.json and Git tags cannot hold that
- * form, so they carry the same three numbers as
- * `<generation>.<YYYY>.<MM><increment>`: `v0 2025.12.0` is `0.2025.120`.
+ * A webette version is `<YYYY>.<M>.<increment>` (see docs/versioning.md):
+ * the same three numbers in package.json, in the Git tag (`v2026.10.0`)
+ * and in front of people.
  */
 
 export interface WebetteVersion {
-  generation: number;
   year: number;
   month: number;
   increment: number;
 }
 
-const PACKAGE_VERSION = /^(0|[1-9]\d*)\.(\d{4})\.([1-9]\d{1,2})$/;
+const VERSION = /^(\d{4})\.([1-9]\d?)\.(0|[1-9]\d*)$/;
 
-export function parsePackageVersion(version: string): WebetteVersion {
-  const match = PACKAGE_VERSION.exec(version);
-  if (!match) {
+export function parseVersion(version: string): WebetteVersion {
+  const match = VERSION.exec(version);
+  const month = Number(match?.[2]);
+  if (!match || month > 12) {
     throw new Error(
-      `"${version}" is not a webette package version (<generation>.<YYYY>.<MM><increment>).`
+      `"${version}" is not a webette version (<YYYY>.<M>.<increment>, like 2026.10.0).`
     );
   }
-  const packed = Number(match[3]);
-  const month = Math.floor(packed / 10);
-  if (month < 1 || month > 12) {
-    throw new Error(`"${version}" has no valid month (got ${month}).`);
-  }
-  return {
-    generation: Number(match[1]),
-    year: Number(match[2]),
-    month,
-    increment: packed % 10,
-  };
+  return { year: Number(match[1]), month, increment: Number(match[3]) };
 }
 
-/** `0.2025.120` → `v0 2025.12.0`, the form people read. */
-export function displayVersion(version: string): string {
-  const { generation, year, month, increment } = parsePackageVersion(version);
-  return `v${generation} ${year}.${String(month).padStart(2, "0")}.${increment}`;
-}
-
-/** `0.2025.120` → `v0.2025.120`, the Git tag. */
+/** `2026.10.0` → `v2026.10.0`: the Git tag, and the form people read. */
 export function tagForVersion(version: string): string {
-  parsePackageVersion(version);
+  parseVersion(version);
   return `v${version}`;
 }
 
@@ -83,7 +66,7 @@ function hasEntries(body: string): boolean {
  * or a section without entries.
  */
 export function extractReleaseNotes(changelog: string, version: string): string {
-  const expected = displayVersion(version);
+  const expected = tagForVersion(version);
   const sections = splitSections(changelog);
 
   const unreleased = sections.find((section) => section.title === "Unreleased");

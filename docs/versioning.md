@@ -1,125 +1,80 @@
 # **webette Versioning Guide**
 
-webette uses a **hybrid versioning model** designed to be simple, predictable, and expressive.
-It combines a high-level _generation number_ with a _calendar-based release cycle_.
-
-This format is:
+webette versions are dates. A version says when it came out, nothing more:
 
 ```
-v<generation> <YYYY.MM>.<increment>
+<YYYY>.<M>.<increment>
 ```
 
 Example:
 
 ```
-v1 2025.12.1
+2026.10.0
 ```
 
 ---
 
 ## **1. Components of the Version Number**
 
-### **Generation (`v1`, `v2`, …)**
+### **Year and month (`YYYY.M`)**
 
-A broad milestone.
-This number only changes when webette reaches a significant stage in its evolution —
-major architectural improvements, new foundations, or a major shift in how the tool works.
-
-This is **not** tied to breaking changes.
-It’s simply a way to mark eras of the project.
-
-### **Calendar Release (`YYYY.MM`)**
-
-A datestamp that indicates the release cycle.
+When the release happened.
 
 - `YYYY` → year
-- `MM` → month
-
-This makes versions easy to interpret at a glance and avoids ambiguity around compatibility rules.
+- `M` → month, without a leading zero (`1` to `12`)
 
 ### **Increment (`.0`, `.1`, `.2`, …)**
 
-A sequential counter for releases within the same month.
-It resets at the beginning of each new month.
-
-Examples:
-
-- First release of the month → `.0`
-- Small follow-up or fix → `.1`
-- Additional feature or patch → `.2`
+A counter for the releases of the same month.
+It starts at `0` and has no upper limit.
 
 ---
 
 ## **2. Examples**
 
 ```
-v1 2025.12.0   → First December 2025 release
-v1 2025.12.1   → Follow-up release: fixes or additions
-v1 2026.01.0   → New month, counter resets
-v2 2026.05.0   → New project era / major milestone
+2026.10.0   → First release of October 2026
+2026.10.1   → Follow-up release: fixes or additions
+2026.10.14  → As many as the month needs
+2027.1.0    → New month, counter resets
 ```
 
-This scheme sorts naturally and remains easily readable.
+Versions sort naturally and are read at a glance.
 
 ---
 
-## **3. How to Decide the Generation Number**
+## **3. Why This Model?**
 
-Increase the generation only when:
+- **Readable:** anyone knows _when_ a version came out, developer or not.
+- **Flexible:** no need to classify a change as major, minor or patch.
+- **Honest:** webette grows step by step; a date does not promise more
+  compatibility than the project can guarantee.
+- **Plain:** the version is written the same way everywhere, and every tool
+  accepts it as is.
 
-- a foundational refactor lands,
-- the internal architecture evolves significantly,
-- the philosophy or target audience of webette shifts,
-- or when you feel the project enters a new “chapter.”
-
-Do _not_ increment the generation for:
-
-- normal feature additions,
-- breaking changes,
-- bug fixes,
-- plugin API updates.
-
-Generations represent **eras**, not compatibility.
+A version number does not announce a new chapter of the project. When webette
+reaches one (the beta, a new foundation), the release notes say it in words.
 
 ---
 
-## **4. Why This Model?**
+## **4. Where the Version Lives**
 
-webette’s versioning system is designed to avoid the confusion of traditional SemVer while remaining meaningful:
+The same three numbers everywhere:
 
-- **Readable:** users immediately know _when_ a version came out.
-- **Flexible:** no need to classify changes as major/minor/patch.
-- **Structured:** generations give long-term coherence.
-- **Release-friendly:** perfect for a tool that evolves incrementally and experimentally.
-
-It reflects the way webette grows: organically, creatively, and with clarity.
-
----
-
-## **5. Where the Version Lives**
-
-People read `v0 2025.12.0`. `package.json` and Git tags cannot hold that form,
-so they carry the same numbers packed into three fields:
-
-```
-<generation>.<YYYY>.<MM><increment>
-```
-
-| Shown to people | `package.json` | Git tag |
-| --- | --- | --- |
-| `v0 2025.12.0` | `0.2025.120` | `v0.2025.120` |
-| `v0 2026.10.1` | `0.2026.101` | `v0.2026.101` |
-| `v1 2026.01.3` | `1.2026.13` | `v1.2026.13` |
-
-The last digit is the increment, so a month holds at most ten releases
-(`.0` to `.9`).
+| Place | Form |
+| --- | --- |
+| `package.json` | `2026.10.0` |
+| Git tag, changelog, app and CLI | `v2026.10.0` |
 
 `packages/engine/package.json` is the reference. `packages/app/package.json`
 always carries the same version: the engine and the app are released together.
 
+The version in `package.json` is the one of the latest release, or of the
+release being prepared.
+
 ---
 
-## **6. Preparing a Release**
+## **5. Preparing a Release**
 
 `CHANGELOG.md` is the single source for release notes. During development,
 each pull request adds its user-facing entries under `## Unreleased`,
@@ -127,8 +82,8 @@ following the conventions in [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 1. Choose the version: the current month, with the next free increment.
 2. Set it in `packages/engine/package.json` and `packages/app/package.json`.
-3. In `CHANGELOG.md`, rename `## Unreleased` to the displayed version
-   (`## v0 2026.10.0`) and add a new empty `## Unreleased` above it. Review the
+3. In `CHANGELOG.md`, rename `## Unreleased` to the version
+   (`## v2026.10.0`) and add a new empty `## Unreleased` above it. Review the
    entries against the previous release: drop fixes for problems that never
    shipped, merge duplicates.
 4. Run `bun run typecheck`, `bun test` and `bun run build:tutorial`.
@@ -137,9 +92,9 @@ following the conventions in [CONTRIBUTING.md](../CONTRIBUTING.md).
    and push it:
 
    ```
-   bun run release:notes v0.2026.100 > /tmp/notes.md
-   git tag -a v0.2026.100 -F /tmp/notes.md
-   git push origin v0.2026.100
+   bun run release:notes v2026.10.0 > /tmp/notes.md
+   git tag -a v2026.10.0 -F /tmp/notes.md
+   git push origin v2026.10.0
    ```
 
    `release:notes` refuses a tag that does not match `package.json`, entries
@@ -148,19 +103,3 @@ following the conventions in [CONTRIBUTING.md](../CONTRIBUTING.md).
    which runs the checks again on the tagged commit.
 
 Never move a tag or reuse a version that was published.
-
----
-
-## **7. Summary**
-
-The official version format is:
-
-```
-v<generation> <YYYY.MM>.<increment>
-```
-
-- **Generation** → big milestones
-- **Date** → when the release happened
-- **Increment** → multiple releases in the same month
-
-This model is simple, descriptive, future-proof, and works beautifully with webette’s philosophy.

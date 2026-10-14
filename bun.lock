@@ -10,7 +10,7 @@
     },
     "packages/app": {
       "name": "webette-app",
-      "version": "0.2025.120",
+      "version": "2026.10.0",
       "dependencies": {
         "electrobun": "^1.18.1",
         "webette": "workspace:*",
@@ -24,7 +24,7 @@
     },
     "packages/engine": {
       "name": "webette",
-      "version": "0.2025.120",
+      "version": "2026.10.0",
       "bin": {
         "webette": "./src/cli.ts",
       },
