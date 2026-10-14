@@ -87,6 +87,8 @@ choice would otherwise be re-debated; remove one when it stops being true.
 - **The builds are not signed.** Reason: signing needs paid certificates on
   macOS and Windows, and tooling Electrobun only has for macOS. macOS and
   Windows therefore warn before the first launch of each downloaded version.
+  The macOS app still gets an ad-hoc signature (`packages/app/scripts/post-wrap.ts`):
+  without one, macOS calls the download "damaged" and offers no way to open it.
 - **The packaged app carries the tutorial as an archive** (`tutorial.tar`,
   the files Git tracks) and unpacks it to its user data folder the first
   time, then builds that copy. Reason: building writes next to the site, and
