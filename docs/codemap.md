@@ -14,7 +14,7 @@ changing them. Keep this file in sync when the structure moves.
 - Reference check: `bun run check:tutorial` (rebuilds the tutorial and compares `_public/` with `scripts/tutorial-reference.txt`; `--accept` records an intended change)
 - Desktop app: `bun run dev:app` (native window), `bun run preview:app` (UI in a browser)
 - Convenience scripts (root): `bun run serve:tutorial`, `bun run release:notes`
-- Desktop app build: `bun run package:app` (installer for the current system, in `packages/app/artifacts/`), `bun run check:app` (starts it and builds its tutorial); the three systems are built on the GitHub mirror (see `docs/versioning.md`)
+- Desktop app build: `bun run package:app` (installer for the current system, in `packages/app/artifacts/`), `bun run check:app` (installs it, starts it, builds its tutorial); the three systems are built on the GitHub mirror (see `docs/versioning.md`)
 
 ## Entry points
 - Backend: `packages/engine/src/cli.ts` (dispatches `build` / `serve` / `api`); public programmatic entrypoint: `packages/engine/src/index.ts`
@@ -102,6 +102,8 @@ webette/
 - The desktop app runs with `packages/app` as working directory, so it does not read the repository's root `webette.tool.ts` (engine defaults apply: port 4174, no `.htaccess`).
 - The packaged app builds a copy of the tutorial in its user data folder, unpacked once from `tutorial.tar` and not refreshed by later versions of the app.
 - Electrobun 1.x hashes the bundle with its own Bun (1.3), whose archive writer refuses accented file names: nothing with such names may be copied into the bundle as files (the tutorial goes in as `tutorial.tar`).
+- Electrobun's Linux installer refuses archive entries whose path exceeds 100 characters: keep deep folders out of the bundle (sharp's `linuxmusl` binaries are skipped for that reason, and are useless with the app's glibc Bun anyway).
+- `Bun.Archive` writes `Bun.file()` entries as empty files: read them into memory first (`scripts/package-app.ts`).
 
 ## Fast answers
 - "Where do I change the build pipeline?" -> `packages/engine/src/core/build.ts`

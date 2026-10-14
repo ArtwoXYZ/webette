@@ -109,9 +109,9 @@ following the conventions in [CONTRIBUTING.md](../CONTRIBUTING.md).
    git push github main v2026.10.0
    ```
 
-   Before publishing, each build is started on its system and builds its
-   tutorial site (`bun run check:app`): a release only appears if all three
-   pass.
+   Before publishing, each build is installed on its system, started, and
+   builds its tutorial site (`bun run check:app`): a release only appears if
+   all three pass.
 
 Never move a tag or reuse a version that was published.
 
@@ -137,8 +137,10 @@ Each release carries one installer per system:
 | Windows | `webette-v2026.10.0-windows-x64.zip` | A zip holding the setup program |
 
 - `bun run package:app` builds the installer of the current system into
-  `packages/app/artifacts/`, then `bun run check:app` starts that app and has
-  it build its tutorial site. The workflow runs both on each system.
+  `packages/app/artifacts/`, then `bun run check:app` installs it as a person
+  would, starts it and has it build its tutorial site. The workflow runs both
+  on each system. `check:app` installs into the current user's folders: it is
+  meant for build machines.
 - The Linux app needs WebKitGTK and the AppIndicator library from the system
   (`libwebkit2gtk-4.1-0` and `libayatana-appindicator3-1` on Debian and
   Ubuntu); the release notes should say so.
