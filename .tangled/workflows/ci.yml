@@ -9,6 +9,7 @@ engine: nixery
 dependencies:
   nixpkgs/nixpkgs-unstable:
     - bun
+    - gcc-unwrapped
 
 steps:
   - name: install
@@ -20,5 +21,8 @@ steps:
   - name: test
     command: bun test
 
-  - name: build the tutorial site
-    command: bun run build:tutorial
+  # sharp needs the C++ runtime, which the image keeps out of the library path.
+  - name: check the tutorial output
+    command: |
+      export LD_LIBRARY_PATH="$(dirname "$(ls /nix/store/*/lib/libstdc++.so.6 | head -n 1)")"
+      bun run check:tutorial

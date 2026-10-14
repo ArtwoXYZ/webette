@@ -203,6 +203,7 @@ export async function resolveAndTransform(
     previous: previousState,
     rootDir,
     readContent,
+    now: config.buildTime,
   })
   const sortedSite = applySorting(resolvedSiteWithHistory, scoped.child('sorting'))
 

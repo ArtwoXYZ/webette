@@ -5,6 +5,7 @@
   "scripts": {
     "typecheck": "bun run --filter '*' typecheck",
     "build:tutorial": "bun run packages/engine/src/cli.ts build packages/app/tutorial",
+    "check:tutorial": "bun run scripts/check-tutorial.ts",
     "serve:tutorial": "bun run packages/engine/src/cli.ts serve packages/app/tutorial",
     "dev:app": "bun run --cwd packages/app dev",
     "preview:app": "bun run --cwd packages/app preview",

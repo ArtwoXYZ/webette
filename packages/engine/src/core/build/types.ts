@@ -27,6 +27,9 @@ export interface BuildOptions {
   protectAssets?: boolean
   writeHtaccess?: boolean
   writeNginxSample?: boolean
+  // Clock of the build: the date given to new or changed content.
+  // Defaults to the current time; set it to get a reproducible output.
+  now?: Date
 }
 
 // ── Tags config ─────────────────────────────────────────────────

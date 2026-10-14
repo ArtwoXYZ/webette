@@ -11,6 +11,7 @@ changing them. Keep this file in sync when the structure moves.
 - Typecheck: `bun run typecheck` (from root, all packages)
 - Test: `bun test` (from root)
 - Reference build: `bun run build:tutorial` (builds `packages/app/tutorial`)
+- Reference check: `bun run check:tutorial` (rebuilds the tutorial and compares `_public/` with `scripts/tutorial-reference.txt`; `--accept` records an intended change)
 - Desktop app: `bun run dev:app` (native window), `bun run preview:app` (UI in a browser)
 - Convenience scripts (root): `bun run serve:tutorial`, `bun run release:notes`
 
@@ -39,7 +40,7 @@ webette/
 │       └── tutorial/    (reference site)
 ├── websites/
 │   └── documentation/   (webette doc site, built by engine)
-├── scripts/             (repository tooling: release notes)
+├── scripts/             (repository tooling: release notes, tutorial reference check)
 ├── .tangled/workflows/  (CI and release pipelines)
 ├── docs/                (internal dev docs, migration to websites/doc pending)
 └── package.json         (workspaces: ["packages/*"])
@@ -90,7 +91,8 @@ webette/
 - TypeScript 7 (native) no longer ships `lib.*.d.ts` in `node_modules/typescript/lib`: editors must use their bundled TypeScript (`.zed/settings.json` disables `autoUseWorkspaceTsdk`), and each `tsconfig.json` must declare `"types": ["bun"]`.
 - `sharp` cannot write `.ico`: `generateIco` wraps a 32×32 PNG in an ICO container by hand (`core/build/utils/icons.ts`).
 - Block resolution is fully parallel and `resolveReference` re-resolves the target block, so asset writes go through a single-flight cache (`utils/single-flight.ts`) cleared on every `resolveBlocks` pass.
-- Synthetic pages (indexes, 404, sitemap) get a new `createdAt`/`updatedAt` on every build (known debt, tracked as an issue).
+- Timestamps are only as stable as the model export: an entry that is not written under `_model/` (see `core/export/write-model.ts`) is dated again on every build.
+- `bun run check:tutorial` empties the tutorial's `_public/` before building, and needs `sharp`: the reference is recorded with image variants.
 - `sharp` does not resolve from the desktop app (isolated installs), so tutorial images are not optimized when built from the app.
 
 ## Fast answers

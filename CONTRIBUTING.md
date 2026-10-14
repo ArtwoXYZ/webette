@@ -61,8 +61,12 @@ Before opening a pull request, run from the repository root:
 ```
 bun run typecheck
 bun test
-bun run build:tutorial
+bun run check:tutorial
 ```
+
+`check:tutorial` rebuilds the tutorial site and compares its output with
+`scripts/tutorial-reference.txt`. If your change is meant to alter the output,
+record the new reference with `bun run check:tutorial --accept` and commit it.
 
 ## 6) Changelog
 

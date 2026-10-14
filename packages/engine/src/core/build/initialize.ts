@@ -29,7 +29,7 @@ export async function initializeBuild(
 
   const { env: toolEnv } = await getEnv()
   const locale = resolveLocale(toolEnv)
-  const buildTime = new Date()
+  const buildTime = options.now ?? new Date()
   const prettyPrint =
     typeof options.prettyPrint === 'boolean' ? options.prettyPrint : toolEnv.build.prettyPrint
   const includeDrafts = options.liveReload

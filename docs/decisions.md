@@ -70,3 +70,8 @@ choice would otherwise be re-debated; remove one when it stops being true.
   mention in commits, pull requests or issues.
 - **The tutorial site is the reference build** (`packages/app/tutorial`). Its
   `_public/` output is the non-regression target for engine changes.
+- **The tutorial output is compared with a recorded reference**
+  (`scripts/tutorial-reference.txt`, checked in CI by `bun run check:tutorial`).
+  One line per file with a hash of its content; images are listed without a
+  hash. Reason: a rendering change must show up in the pull request, and image
+  encoders do not give the same bytes on every platform.

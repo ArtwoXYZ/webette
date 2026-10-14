@@ -54,12 +54,16 @@ From the repository root:
 ```
 bun run typecheck
 bun test
-bun run build:tutorial
+bun run check:tutorial
 ```
 
-`build:tutorial` builds the reference site (`packages/app/tutorial`). Its
-`_public/` output is the non-regression target: when a change is not supposed
-to alter rendering, diff `_public/` before and after.
+`check:tutorial` rebuilds the reference site (`packages/app/tutorial`) from
+scratch and compares its `_public/` output with the recorded reference
+(`scripts/tutorial-reference.txt`). `_public/` is the non-regression target:
+when the check reports a change you did not intend, diff `_public/` before and
+after (`bun run build:tutorial` builds it without the comparison). When the
+change is intended, record it with `bun run check:tutorial --accept` and commit
+the reference with your change.
 
 ## Running things
 

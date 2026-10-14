@@ -86,7 +86,7 @@ following the conventions in [CONTRIBUTING.md](../CONTRIBUTING.md).
    (`## v2026.10.0`) and add a new empty `## Unreleased` above it. Review the
    entries against the previous release: drop fixes for problems that never
    shipped, merge duplicates.
-4. Run `bun run typecheck`, `bun test` and `bun run build:tutorial`.
+4. Run `bun run typecheck`, `bun test` and `bun run check:tutorial`.
 5. Merge these changes into `dev`, then merge `dev` into `main`.
 6. From `main`, create an annotated tag whose message is the release notes,
    and push it:
