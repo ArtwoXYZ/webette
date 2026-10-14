@@ -74,6 +74,18 @@ choice would otherwise be re-debated; remove one when it stops being true.
   `--share`, and the control API refuses requests coming from web pages.
   Reason: webette runs on personal machines, often on shared networks, and the
   API can build any folder. Details in `docs/privacy.md`.
+- **The app ships as Electrobun's own installers** (a disk image on macOS, a
+  setup program on Windows, a self-extracting installer on Linux), not as
+  hand-made portable archives. Reason: they exist, they add the shortcuts
+  people expect, and webette has no packaging code to maintain.
+- **Only the Linux build comes from CI.** Electrobun builds for the system it
+  runs on and Tangled pipelines run on Linux, so the macOS and Windows builds
+  are made on their own machines with the same two commands
+  (`package:app`, `release:publish`).
+- **The builds are not signed, and the app does not update itself.** Reason:
+  signing needs paid certificates on macOS and Windows and tooling Electrobun
+  only has for macOS. Without it an in-app update is not trustworthy enough:
+  people download each version from the release page.
 
 ## Workflow
 

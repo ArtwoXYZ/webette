@@ -6,6 +6,13 @@ The format and the release steps are described in
 
 ## Unreleased
 
+### Added
+
+- **Desktop app downloads**: each release now comes with the desktop app for
+  Linux, macOS and Windows, so webette can be used without installing Bun.
+  The builds are not signed yet: macOS and Windows ask for a confirmation the
+  first time a downloaded version is opened.
+
 ### Improved
 
 - **Previews stay on your computer**: `webette serve` and the app's Test button

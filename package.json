@@ -9,7 +9,9 @@
     "serve:tutorial": "bun run packages/engine/src/cli.ts serve packages/app/tutorial",
     "dev:app": "bun run --cwd packages/app dev",
     "preview:app": "bun run --cwd packages/app preview",
-    "release:notes": "bun run scripts/release-notes.ts"
+    "package:app": "bun run scripts/package-app.ts",
+    "release:notes": "bun run scripts/release-notes.ts",
+    "release:publish": "bun run scripts/publish-release.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.3.14"

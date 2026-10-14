@@ -1,6 +1,10 @@
+# A version tag runs the checks, builds the Linux desktop app and attaches
+# it to the tag. A manual run stops after the build: it is the way to try
+# the packaging without releasing anything.
 when:
   - event: ["push"]
     tag: ["v*"]
+  - event: ["manual"]
 
 engine: nixery
 
@@ -8,6 +12,9 @@ dependencies:
   nixpkgs/nixpkgs-unstable:
     - bun
     - gcc-unwrapped
+    - git
+    - gnutar
+    - gzip
 
 steps:
   - name: install
@@ -26,4 +33,30 @@ steps:
       bun run check:tutorial
 
   - name: check the release notes
-    command: bun run release:notes "$TANGLED_REF_NAME"
+    command: |
+      if [ "$TANGLED_REF_TYPE" = "tag" ]; then
+        bun run release:notes "$TANGLED_REF_NAME"
+      else
+        echo "Not a version tag: the release notes are not checked."
+      fi
+
+  # Electrobun's build tools are ordinary Linux programs: they look for the
+  # system loader in /lib64, which the image does not have.
+  - name: package the desktop app
+    command: |
+      mkdir -p /lib64
+      ln -sf "$(ls /nix/store/*/lib/ld-linux-x86-64.so.2 | head -n 1)" /lib64/ld-linux-x86-64.so.2
+      export LD_LIBRARY_PATH="$(dirname "$(ls /nix/store/*/lib/libstdc++.so.6 | head -n 1)")"
+      bun run package:app
+
+  # ATP_APP_PASSWORD is a pipeline secret (repository Settings → Secrets).
+  # The macOS and Windows builds are attached from their own machines.
+  - name: attach the Linux build to the tag
+    environment:
+      ATP_IDENTIFIER: "artwo.xyz"
+    command: |
+      if [ "$TANGLED_REF_TYPE" = "tag" ]; then
+        bun run release:publish "$TANGLED_REF_NAME"
+      else
+        echo "Not a version tag: nothing is published."
+      fi

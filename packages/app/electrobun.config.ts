@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import type { ElectrobunConfig } from "electrobun/bun";
+import packageJson from "./package.json";
 
 // sharp's JavaScript is bundled into the main process, but its native
 // binaries cannot be: at runtime sharp requires `@img/sharp-<platform>`
@@ -45,9 +46,15 @@ export default {
   app: {
     name: "Webette",
     identifier: "org.webette.desktop",
-    version: "0.1.0",
+    // The app and the engine are released together, under one version.
+    version: packageJson.version,
   },
   build: {
+    // One source image per system, in `icons/`. A missing icon does not
+    // stop the build: the app then shows the system's default one.
+    mac: { icons: "icons/icon.iconset" },
+    win: { icon: "icons/icon.png" },
+    linux: { icon: "icons/icon.png" },
     bun: {
       entrypoint: "./src/bun/index.ts",
     },

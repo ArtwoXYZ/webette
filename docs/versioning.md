@@ -100,6 +100,44 @@ following the conventions in [CONTRIBUTING.md](../CONTRIBUTING.md).
    `release:notes` refuses a tag that does not match `package.json`, entries
    left under `Unreleased`, or an empty section.
 7. The tag starts the release pipeline (`.tangled/workflows/release.yml`),
-   which runs the checks again on the tagged commit.
+   which runs the checks again on the tagged commit, builds the Linux desktop
+   app and attaches it to the tag.
+8. On a Mac, then on a Windows machine, fetch the tag and attach that
+   system's build (Electrobun only builds for the system it runs on):
+
+   ```
+   git fetch origin tag v2026.10.0 && git checkout v2026.10.0
+   bun install --frozen-lockfile
+   bun run package:app
+   ATP_IDENTIFIER=artwo.xyz ATP_APP_PASSWORD=<app password> bun run release:publish v2026.10.0
+   ```
+
+   Start each build once and build the tutorial site with it before
+   announcing the release.
 
 Never move a tag or reuse a version that was published.
+
+---
+
+## **6. Desktop App Builds**
+
+Each release carries one installer per system, attached to its tag:
+
+| System | File | What it is |
+| --- | --- | --- |
+| Linux | `webette-v2026.10.0-linux-x64.tar.gz` | An installer to unpack and run |
+| macOS | `webette-v2026.10.0-macos-arm64.dmg` | A disk image |
+| Windows | `webette-v2026.10.0-windows-x64.zip` | A zip holding the setup program |
+
+- `bun run package:app` builds the installer of the current system into
+  `packages/app/artifacts/`.
+- `bun run release:publish <tag>` attaches what is in that folder to the tag,
+  as Tangled release artifacts. It needs `ATP_IDENTIFIER` (the handle that
+  owns the repository) and `ATP_APP_PASSWORD` (an app password of that
+  account). In the pipeline the password is a secret, set in the repository's
+  **Settings → Secrets**.
+- A Tangled artifact cannot exceed 50 MiB; `package:app` fails above it.
+- The builds are not signed. macOS and Windows warn before the first launch
+  of each downloaded version; the release notes should say how to get past it.
+- To try the packaging without releasing, trigger the release pipeline by
+  hand on a branch: it builds the Linux app and publishes nothing.
