@@ -3,6 +3,7 @@
  * scripts) drive the engine over HTTP — build, serve lifecycle, status, logs.
  *
  * Single active site at a time; binds to 127.0.0.1 only.
+ * Endpoints are described in docs/local-api.md.
  */
 
 import * as path from "node:path";
@@ -37,6 +38,9 @@ interface LastBuild {
 
 interface ApiState {
   activeSite: string | null;
+  // Size of the active site's log file when the site became active: log
+  // streams opened earlier start there, so they skip the previous runs.
+  logStart: number;
   serve: { handle: ServeHandle; port: number } | null;
   lastBuild: LastBuild | null;
   buildRunning: boolean;
@@ -112,15 +116,19 @@ async function readSiteBody(
 
 // ── Log reading (incremental, byte-offset cursor) ───────────────
 
-async function readLogsSince(
-  logPath: string,
-  cursor: number
-): Promise<{ entries: unknown[]; cursor: number; reset: boolean }> {
+interface LogChunk {
+  // Each entry comes with the cursor that points right after it.
+  lines: { entry: unknown; cursor: number }[];
+  cursor: number;
+  reset: boolean;
+}
+
+async function readLogsSince(logPath: string, cursor: number): Promise<LogChunk> {
   let size: number;
   try {
     size = (await stat(logPath)).size;
   } catch {
-    return { entries: [], cursor: 0, reset: false };
+    return { lines: [], cursor: 0, reset: false };
   }
 
   let from = Math.max(0, cursor);
@@ -131,30 +139,53 @@ async function readLogsSince(
     reset = true;
   }
   if (from === size) {
-    return { entries: [], cursor: size, reset };
+    return { lines: [], cursor: size, reset };
   }
 
   const buf = Buffer.from(await Bun.file(logPath).slice(from, size).arrayBuffer());
-  // Only consume complete lines; a partial trailing line stays for next poll.
-  const lastNewline = buf.lastIndexOf(0x0a);
-  if (lastNewline === -1) {
-    return { entries: [], cursor: from, reset };
+  const lines: LogChunk["lines"] = [];
+  let lineStart = 0;
+  // Only consume complete lines; a partial trailing line stays for next read.
+  for (;;) {
+    const newline = buf.indexOf(0x0a, lineStart);
+    if (newline === -1) break;
+    const line = buf.subarray(lineStart, newline).toString("utf8");
+    lineStart = newline + 1;
+    if (line.trim() === "") continue;
+    let entry: unknown;
+    try {
+      entry = JSON.parse(line);
+    } catch {
+      entry = { raw: line };
+    }
+    lines.push({ entry, cursor: from + lineStart });
   }
 
-  const entries = buf
-    .subarray(0, lastNewline + 1)
-    .toString("utf8")
-    .split("\n")
-    .filter((line) => line.trim() !== "")
-    .map((line) => {
-      try {
-        return JSON.parse(line) as unknown;
-      } catch {
-        return { raw: line };
-      }
-    });
+  return { lines, cursor: from + lineStart, reset };
+}
 
-  return { entries, cursor: from + lastNewline + 1, reset };
+function logSize(logPath: string): number {
+  try {
+    return statSync(logPath).size;
+  } catch {
+    return 0;
+  }
+}
+
+function parseCursor(raw: string): number | null {
+  const cursor = Number.parseInt(raw, 10);
+  return Number.isNaN(cursor) || cursor < 0 ? null : cursor;
+}
+
+// ── Log stream (server-sent events) ─────────────────────────────
+
+// The log file is the source of truth: the stream tails it, so it carries
+// the same entries and the same cursors as GET /logs.
+const LOG_STREAM_INTERVAL_MS = 250;
+
+function sseEvent(event: string, data: unknown, id?: number): string {
+  const idLine = id === undefined ? "" : `id: ${id}\n`;
+  return `${idLine}event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
 }
 
 // ── API server ──────────────────────────────────────────────────
@@ -170,6 +201,7 @@ export async function startApiServer(
 
   const state: ApiState = {
     activeSite: null,
+    logStart: 0,
     serve: null,
     lastBuild: null,
     buildRunning: false,
@@ -177,6 +209,18 @@ export async function startApiServer(
 
   const siteLogger = (rootDir: string, command: string) =>
     createProjectLogger(rootDir, `webette.api.${command}`, verbose, toolEnv);
+
+  const logPathFor = (rootDir: string) =>
+    path.join(rootDir, toolEnv.logging.dirName, "logs.jsonl");
+
+  function activateSite(rootDir: string) {
+    if (state.activeSite === rootDir) return;
+    state.logStart = logSize(logPathFor(rootDir));
+    state.activeSite = rootDir;
+  }
+
+  // Open log streams, so stop() can end them.
+  const logStreams = new Set<() => void>();
 
   async function handleStatus(): Promise<Response> {
     return ok({
@@ -210,7 +254,7 @@ export async function startApiServer(
     }
 
     state.buildRunning = true;
-    state.activeSite = rootDir;
+    activateSite(rootDir);
     const startedAt = performance.now();
     const at = new Date().toISOString();
     const errors: string[] = [];
@@ -251,10 +295,11 @@ export async function startApiServer(
       return fail("build_running", "A build is running; retry once it completes.", 409);
     }
 
+    // Active before the first build, so its logs can be followed as they come.
+    activateSite(rootDir);
     const logger = await siteLogger(rootDir, "serve");
     try {
       const handle = await serve(rootDir, { verbose, ...serveOptions }, logger);
-      state.activeSite = rootDir;
       state.serve = { handle, port: handle.port };
       return ok({ port: handle.port, rootDir });
     } catch (error) {
@@ -280,18 +325,86 @@ export async function startApiServer(
     if (!state.activeSite) {
       return fail("no_active_site", "No active site yet; POST /build or /serve first.", 409);
     }
-    const sinceRaw = url.searchParams.get("since") ?? "0";
-    const since = Number.parseInt(sinceRaw, 10);
-    if (Number.isNaN(since) || since < 0) {
+    const since = parseCursor(url.searchParams.get("since") ?? "0");
+    if (since === null) {
       return fail("invalid_cursor", '"since" must be a non-negative integer (byte offset).', 400);
     }
 
-    const logPath = path.join(
-      state.activeSite,
-      toolEnv.logging.dirName,
-      "logs.jsonl"
-    );
-    return ok(await readLogsSince(logPath, since));
+    const { lines, cursor, reset } = await readLogsSince(logPathFor(state.activeSite), since);
+    return ok({ entries: lines.map((line) => line.entry), cursor, reset });
+  }
+
+  function handleLogStream(req: Request, url: URL): Response {
+    // EventSource sends back the last id it received when it reconnects.
+    const sinceRaw = url.searchParams.get("since") ?? req.headers.get("last-event-id");
+    const since = sinceRaw === null ? null : parseCursor(sinceRaw);
+    if (sinceRaw !== null && since === null) {
+      return fail("invalid_cursor", '"since" must be a non-negative integer (byte offset).', 400);
+    }
+
+    // Without a cursor, only what is written from now on is sent.
+    let site = state.activeSite;
+    let cursor = since ?? (site ? logSize(logPathFor(site)) : 0);
+    let reading = false;
+    let close = () => {};
+    const encoder = new TextEncoder();
+
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        const send = (text: string) => controller.enqueue(encoder.encode(text));
+
+        const tick = async () => {
+          if (reading) return;
+          reading = true;
+          try {
+            if (state.activeSite !== site) {
+              const first = site === null;
+              site = state.activeSite;
+              cursor = state.logStart;
+              if (!first) send(sseEvent("reset", { site }));
+            }
+            if (!site) return;
+            const chunk = await readLogsSince(logPathFor(site), cursor);
+            if (chunk.reset) send(sseEvent("reset", { site }));
+            for (const line of chunk.lines) {
+              send(sseEvent("log", line.entry, line.cursor));
+            }
+            cursor = chunk.cursor;
+          } catch {
+            // The client left between two reads: close() already ran.
+          } finally {
+            reading = false;
+          }
+        };
+
+        const timer = setInterval(tick, LOG_STREAM_INTERVAL_MS);
+        close = () => {
+          clearInterval(timer);
+          if (!logStreams.delete(close)) return;
+          try {
+            controller.close();
+          } catch {
+            // Already closed by the client.
+          }
+        };
+        logStreams.add(close);
+        req.signal.addEventListener("abort", close);
+
+        // A first comment line makes the response start right away.
+        send(": webette logs\n\n");
+        void tick();
+      },
+      cancel() {
+        close();
+      },
+    });
+
+    return new Response(body, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+      },
+    });
   }
 
   const server = Bun.serve({
@@ -299,7 +412,7 @@ export async function startApiServer(
     port,
     // Synchronous builds can be slow on large sites; avoid idle disconnects.
     idleTimeout: 255,
-    async fetch(req) {
+    async fetch(req, server) {
       const url = new URL(req.url);
       const route = `${req.method} ${url.pathname}`;
 
@@ -320,6 +433,11 @@ export async function startApiServer(
             break;
           case "GET /logs":
             response = await handleLogs(url);
+            break;
+          case "GET /logs/stream":
+            // A stream stays open as long as the client listens.
+            server.timeout(req, 0);
+            response = handleLogStream(req, url);
             break;
           default:
             response = fail("unknown_route", `Unknown route: ${route}`, 404);
@@ -356,6 +474,7 @@ export async function startApiServer(
         await state.serve.handle.stop();
         state.serve = null;
       }
+      for (const close of [...logStreams]) close();
       await server.stop(true);
       scoped.info("api.stopped", { port: boundPort });
     },

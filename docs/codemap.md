@@ -7,7 +7,7 @@ changing them. Keep this file in sync when the structure moves.
 - Install: `bun install` (from monorepo root)
 - Dev server: `bun run packages/engine/src/cli.ts serve <site-folder>` (from root), or `bun run serve <site-folder>` (from `packages/engine/`)
 - Build: `bun run packages/engine/src/cli.ts build <site-folder>` (from root), or `bun run build <site-folder>` (from `packages/engine/`)
-- Local control API: `bun run packages/engine/src/cli.ts api [--port <n>]` (127.0.0.1, default port 4177; GET /status, POST /build, POST /serve, POST /stop, GET /logs?since=<byte-offset>)
+- Local control API: `bun run packages/engine/src/cli.ts api [--port <n>]` (127.0.0.1, default port 4177; GET /status, POST /build, POST /serve, POST /stop, GET /logs?since=<byte-offset>, GET /logs/stream; see `docs/local-api.md`)
 - Typecheck: `bun run typecheck` (from root, all packages)
 - Test: `bun test` (from root)
 - Reference build: `bun run build:tutorial` (builds `packages/app/tutorial`)
@@ -73,7 +73,7 @@ webette/
 - Tool config resolution order: `WEBETTE_TOOL_CONFIG` env → `<cwd>/webette.tool.ts` → `<engine-src>/../../webette.tool.ts`
 
 ## Logging / Observability
-- Logs: `.webette/logs.jsonl` via `packages/engine/src/logging/logger.ts`
+- Logs: `.webette/logs.jsonl` via `packages/engine/src/logging/logger.ts`; read back by the local API (polling and live stream)
 - Metrics/Tracing: none
 
 ## Security / Auth

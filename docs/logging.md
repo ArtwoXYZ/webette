@@ -27,4 +27,5 @@ Webette uses a structured, locale-aware logger:
 ## Notes
 
 - Logs are persisted in neutral format (no rendered text) for future web UI/remote export.
+- The local API reads this file back, by polling or as a live stream (see [local-api.md](local-api.md)).
 - Locale fallback is normalized; env vars (`WEBETTE_LANG`/`LANG`) are only a fallback if the tool config does not set `logging.locale`.

@@ -7,6 +7,7 @@ Lightweight notes about Webette's direction and internals.
 - [build-pipeline-and-hooks.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/build-pipeline-and-hooks.md) - description of the pipeline and current plugin hooks.
 - [tool-config.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/tool-config.md) - how the tool-wide config (webette.tool.ts) is loaded and used.
 - [logging.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/logging.md) - structured logging, locales, and persistence.
+- [local-api.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/local-api.md) - the local HTTP API (`webette api`): endpoints, log polling and live log stream.
 - [site-config.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/site-config.md) - how webette.config.ts is loaded and which fields are consumed.
 - [templates.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/templates.md) - fallback wrapper, template lookup, Automatic Index Page layouts, and the minimal template engine.
 - [indexes.md](https://tangled.org/artwo.xyz/webette/blob/main/docs/indexes.md) - all ways to build Automatic Index Pages (auto, custom layouts, Navigation Plan, Index Overrides).
