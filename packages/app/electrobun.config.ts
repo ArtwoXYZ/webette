@@ -90,4 +90,7 @@ export default {
       ...sharpNativePackages(),
     },
   },
+  scripts: {
+    postWrap: "./scripts/post-wrap.ts",
+  },
 } satisfies ElectrobunConfig;

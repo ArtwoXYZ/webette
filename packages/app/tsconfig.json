@@ -4,5 +4,5 @@
     "lib": ["ESNext", "DOM"],
     "types": ["bun"]
   },
-  "include": ["src/**/*", "electrobun.config.ts"]
+  "include": ["src/**/*", "scripts/**/*", "electrobun.config.ts"]
 }
