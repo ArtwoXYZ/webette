@@ -64,6 +64,17 @@ choice would otherwise be re-debated; remove one when it stops being true.
   HTTP calls to the local API. Reason: the webview origin cannot fetch
   `127.0.0.1` directly.
 
+- **sharp's native binaries are copied next to the app bundle**
+  (`Resources/app/node_modules/@img`), by `electrobun.config.ts`. Reason: the
+  bundled sharp requires them by name at runtime, and isolated installs keep
+  them out of reach of `packages/app`; next to the bundle they are found in dev
+  and in a packaged app alike.
+- **Local servers are private by default.** `serve`, the control API and the
+  app UI server bind to `127.0.0.1`; sharing a preview is an explicit
+  `--share`, and the control API refuses requests coming from web pages.
+  Reason: webette runs on personal machines, often on shared networks, and the
+  API can build any folder. Details in `docs/privacy.md`.
+
 ## Workflow
 
 - **No AI attribution in the history**: no `Co-Authored-By` trailer or similar

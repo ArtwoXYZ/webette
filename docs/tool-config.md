@@ -54,11 +54,11 @@ export default {
 
 - `logging.level`: `debug` | `info` | `warn` | `error`
 - `logging.locale`: `en` | `fr` (preferred over env vars)
-- `logging.dirName`: folder for `.jsonl` logs (under the **site** root, e.g. `.webette`)
-- `serve.port`: HTTP port for the serve command (`bun run serve` today, target `webette serve`)
+- `logging.dirName`: folder for `.jsonl` logs (under the **site** root, e.g. `.webette`); a name inside the site folder, never an absolute path or `..`
+- `serve.port`: HTTP port for the serve command (`bun run serve` today, target `webette serve`). The server is local to the machine; `--share` opens it to the network (see `privacy.md`)
 - `serve.liveReloadIntervalMs`: polling interval for live reload
 - `serve.watcherDebounceMs`: debounce for file watcher rebuilds
-- `build.outputDirName`: output folder name (default `_public`)
+- `build.outputDirName`: output folder name (default `_public`); a name inside the site folder, never an absolute path or `..`
 - `build.overwrite`: `none` | `replace-all` | `replace-files`  
   - `replace-all`: purge the output dir before build.  
   - other modes keep the folder but prune orphaned outputs (pages/assets/model) that no longer exist in the current model, so deleted blocks/entries/collections disappear even sans clean. If plugins write custom files outside the model, they should register or manage those files to avoid deletion.

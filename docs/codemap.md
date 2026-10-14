@@ -5,7 +5,7 @@ changing them. Keep this file in sync when the structure moves.
 
 ## How to run
 - Install: `bun install` (from monorepo root)
-- Dev server: `bun run packages/engine/src/cli.ts serve <site-folder>` (from root), or `bun run serve <site-folder>` (from `packages/engine/`)
+- Dev server: `bun run packages/engine/src/cli.ts serve <site-folder> [--share]` (from root), or `bun run serve <site-folder>` (from `packages/engine/`); local only unless `--share`
 - Build: `bun run packages/engine/src/cli.ts build <site-folder>` (from root), or `bun run build <site-folder>` (from `packages/engine/`)
 - Local control API: `bun run packages/engine/src/cli.ts api [--port <n>]` (127.0.0.1, default port 4177; GET /status, POST /build, POST /serve, POST /stop, GET /logs?since=<byte-offset>, GET /logs/stream; see `docs/local-api.md`)
 - Typecheck: `bun run typecheck` (from root, all packages)
@@ -79,6 +79,7 @@ webette/
 
 ## Security / Auth
 - Authn/authz: none (static generator)
+- Local exposure: `serve`, the control API and the app UI server bind to `127.0.0.1`; `serve --share` is the only way out. The control API refuses browser requests (`isLocalCaller` in `core/api.ts`). Full picture in `docs/privacy.md`.
 - Visibility controls: `draft.webt` / `unlisted.webt` affect build output, not access control
 
 ## Known pitfalls
@@ -93,7 +94,9 @@ webette/
 - Block resolution is fully parallel and `resolveReference` re-resolves the target block, so asset writes go through a single-flight cache (`utils/single-flight.ts`) cleared on every `resolveBlocks` pass.
 - Timestamps are only as stable as the model export: an entry that is not written under `_model/` (see `core/export/write-model.ts`) is dated again on every build.
 - `bun run check:tutorial` empties the tutorial's `_public/` before building, and needs `sharp`: the reference is recorded with image variants.
-- `sharp` does not resolve from the desktop app (isolated installs), so tutorial images are not optimized when built from the app.
+- `sharp`'s JavaScript is bundled into the app's main process but its native binaries are not: `packages/app/electrobun.config.ts` copies the installed `@img/sharp-*` packages to `Resources/app/node_modules/@img`. The app must therefore be built on the platform it targets.
+- `electrobun.config.ts` must not call Bun's resolver (`Bun.resolveSync`): the Electrobun CLI then fails to resolve `webette` when bundling.
+- The desktop app runs with `packages/app` as working directory, so it does not read the repository's root `webette.tool.ts` (engine defaults apply: port 4174, no `.htaccess`).
 
 ## Fast answers
 - "Where do I change the build pipeline?" -> `packages/engine/src/core/build.ts`
