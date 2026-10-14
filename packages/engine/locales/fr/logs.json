@@ -9,6 +9,7 @@
   "serve.initialBuild": "Build initial en cours dans {rootDir}",
   "serve.initialBuildDone": "Build initial terminé (version : {version}).",
   "serve.listening": "🌐 Serveur lancé sur {url}",
+  "serve.shared": "📡 Partagé sur ton réseau local : les autres appareils peuvent ouvrir {urls}",
   "serve.watchEvent": "Changement détecté ({eventType}) : {filename}",
   "serve.rebuildSuccess": "Rebuild terminé (nouvelle version : {version}).",
   "serve.rebuildError": "Erreur lors du rebuild : {error}",
@@ -17,6 +18,7 @@
   "serve.stopped": "Serveur arrêté (port {port} libéré).",
   "api.listening": "🛰 API locale à l'écoute sur {url}",
   "api.stopped": "API locale arrêtée (port {port} libéré).",
+  "api.forbiddenCaller": "L'API locale a refusé une requête qui ne venait pas d'un programme local ({method} {path}, depuis {origin}).",
   "api.request": "Requête API : {method} {path} -> {status}",
   "cli.help.api": "  api [--port <n>]          Démarre l'API locale de pilotage (127.0.0.1)",
   "build.overwriteDenied": "Le dossier de sortie {outputDir} existe et la politique est \"none\". Build annulé.",
@@ -101,6 +103,7 @@
   "cli.help.skipContent": "  --skip-content            Ne pas lire le contenu des blocs",
   "cli.help.includeDrafts": "  --include-drafts          Inclure les brouillons",
   "cli.help.noIncludeDrafts": "  --no-include-drafts       Masquer les brouillons même en serve",
+  "cli.help.share": "  --share                   Laisser les autres appareils du réseau ouvrir le site servi",
   "cli.unknownCommand": "Commande inconnue : {command}",
   "build.started": "Construction de {rootDir}…",
   "build.done": "Construit en {duration}."

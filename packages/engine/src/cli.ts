@@ -51,6 +51,7 @@ type CliOptions = {
   };
   readContent?: boolean;
   includeDrafts?: boolean;
+  share?: boolean;
   port?: number;
 };
 
@@ -61,6 +62,7 @@ function parseArgs(argv: string[]) {
   const exportModel: CliOptions["exportModel"] = {};
   let readContent: boolean | undefined = undefined;
   let includeDrafts: boolean | undefined = undefined;
+  let share: boolean | undefined = undefined;
   let port: number | undefined = undefined;
 
   const filtered: string[] = [];
@@ -103,6 +105,11 @@ function parseArgs(argv: string[]) {
       continue;
     }
 
+    if (arg === "--share") {
+      share = true;
+      continue;
+    }
+
     filtered.push(arg);
   }
 
@@ -114,6 +121,7 @@ function parseArgs(argv: string[]) {
     exportModel: Object.keys(exportModel).length ? exportModel : undefined,
     readContent,
     includeDrafts,
+    share,
     port,
   };
 
@@ -144,6 +152,7 @@ function printHelp(locale: Locale, version: string): void {
   console.log(clr("33", t(locale, "cli.help.skipContent")));
   console.log(clr("33", t(locale, "cli.help.includeDrafts")));
   console.log(clr("33", t(locale, "cli.help.noIncludeDrafts")));
+  console.log(clr("33", t(locale, "cli.help.share")));
   console.log();
 }
 

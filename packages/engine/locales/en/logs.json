@@ -9,6 +9,7 @@
   "serve.initialBuild": "Running initial build in {rootDir}…",
   "serve.initialBuildDone": "Initial build completed (version: {version}).",
   "serve.listening": "🌐 Server listening on {url}",
+  "serve.shared": "📡 Shared on your local network: other devices can open {urls}",
   "serve.watchEvent": "File change detected ({eventType}): {filename}",
   "serve.rebuildSuccess": "Rebuild completed (new version: {version}).",
   "serve.rebuildError": "Error during rebuild: {error}",
@@ -17,6 +18,7 @@
   "serve.stopped": "Server stopped (port {port} released).",
   "api.listening": "🛰 Local API listening on {url}",
   "api.stopped": "Local API stopped (port {port} released).",
+  "api.forbiddenCaller": "Local API refused a request that did not come from a local program ({method} {path}, from {origin}).",
   "api.request": "API request: {method} {path} -> {status}",
   "cli.help.api": "  api [--port <n>]          Start the local control API (127.0.0.1)",
   "build.overwriteDenied": "Output directory {outputDir} exists and overwrite policy is \"none\". Aborting build.",
@@ -101,6 +103,7 @@
   "cli.help.skipContent": "  --skip-content            Skip block content reading",
   "cli.help.includeDrafts": "  --include-drafts          Include draft entries",
   "cli.help.noIncludeDrafts": "  --no-include-drafts       Exclude drafts even in serve",
+  "cli.help.share": "  --share                   Let other devices on your network open the served site",
   "cli.unknownCommand": "Unknown command: {command}",
   "build.started": "Building {rootDir}…",
   "build.done": "Built in {duration}."

@@ -1,6 +1,6 @@
 /**
- * Local API logs: the polling endpoint and the live stream must tell the
- * same story, with the same cursors.
+ * Local API: who may call it, and logs. The polling endpoint and the live
+ * stream must tell the same story, with the same cursors.
  */
 
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
@@ -10,7 +10,7 @@ import * as path from "node:path";
 
 import { getEnv } from "../config/env";
 import { Logger } from "../logging/logger";
-import { startApiServer, type ApiHandle } from "./api";
+import { isLocalCaller, startApiServer, type ApiHandle } from "./api";
 
 interface StreamEvent {
   event: string;
@@ -201,5 +201,30 @@ describe("GET /logs/stream", () => {
     const stream = await openStream();
     await api.stop();
     expect(stream.next(1)).rejects.toThrow();
+  });
+});
+
+function request(headers: Record<string, string>): Request {
+  return new Request("http://127.0.0.1:4177/status", { headers });
+}
+
+describe("local API caller check", () => {
+  test("accepts local programs", () => {
+    expect(isLocalCaller(request({ host: "127.0.0.1:4177" }))).toBe(true);
+    expect(isLocalCaller(request({ host: "localhost:4177" }))).toBe(true);
+    expect(isLocalCaller(request({ host: "[::1]:4177" }))).toBe(true);
+  });
+
+  test("refuses requests sent by web pages", () => {
+    expect(
+      isLocalCaller(
+        request({ host: "127.0.0.1:4177", origin: "https://example.org" })
+      )
+    ).toBe(false);
+  });
+
+  test("refuses a foreign name pointed at this machine", () => {
+    expect(isLocalCaller(request({ host: "example.org:4177" }))).toBe(false);
+    expect(isLocalCaller(request({}))).toBe(false);
   });
 });

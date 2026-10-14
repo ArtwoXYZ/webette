@@ -10,6 +10,8 @@ const en = {
   "label.folder": "Folder",
   "label.mute": "Mute",
   "label.settings": "Settings",
+  "hint.openWebsite": "Opens your site in your web browser",
+  "hint.openFolder": "Opens your site folder in the file explorer",
   "a11y.powerOn": "Turn Webette on",
   "a11y.powerOff": "Turn Webette off",
   "a11y.logo": "Bebette, a stylized cute spider wearing a cap",
@@ -53,6 +55,7 @@ const en = {
   "api.no_active_site": "No site is active",
   "api.serve_start_failed": "The server could not start",
   "api.unknown_route": "The app requested an unknown operation",
+  "api.forbidden_caller": "The engine refused a request that did not come from the app",
   "api.internal_error": "An internal error occurred",
 } as const;
 
@@ -69,6 +72,8 @@ const fr: Catalog = {
   "label.folder": "Dossier",
   "label.mute": "Muet",
   "label.settings": "Réglages",
+  "hint.openWebsite": "Ouvre votre site dans votre navigateur web",
+  "hint.openFolder": "Ouvre le dossier de votre site dans l'explorateur de fichiers",
   "a11y.powerOn": "Allumer Webette",
   "a11y.powerOff": "Éteindre Webette",
   "a11y.logo": "Bebette, une jolie araignée stylisée portant une casquette",
@@ -112,6 +117,7 @@ const fr: Catalog = {
   "api.no_active_site": "Aucun site n’est actif",
   "api.serve_start_failed": "Le serveur n’a pas pu démarrer",
   "api.unknown_route": "L’application a demandé une opération inconnue",
+  "api.forbidden_caller": "Le moteur a refusé une requête qui ne venait pas de l'app",
   "api.internal_error": "Une erreur interne est survenue",
 };
 

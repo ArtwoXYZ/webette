@@ -149,6 +149,10 @@ function render(): void {
   setLcd(els.website, ui === "serving");
   setLcd(els.folder, mounted || ui === "idle");
 
+  // These two leave the app (browser, file explorer): say so on hover.
+  els.website.title = ui === "serving" ? t("hint.openWebsite") : "";
+  els.folder.title = ui === "serving" ? t("hint.openFolder") : "";
+
   // Test button label + glow.
   els.testLabel.textContent = ` ${t(ui === "serving" ? "label.stop" : "label.test")} `;
   els.test.classList.toggle("btn-glow", ui === "serving");

@@ -144,6 +144,30 @@ function warnIfNotNumber(
   }
 }
 
+/**
+ * Output and log folders are names inside the site folder. Anything
+ * that could point elsewhere (absolute path, `..`, the site folder
+ * itself) is refused: `overwrite: "replace-all"` empties the output
+ * folder, and webette must never write or delete outside the site.
+ */
+function isSiteFolderName(value: string): boolean {
+  if (path.isAbsolute(value) || path.win32.isAbsolute(value)) return false;
+  const segments = value.split(/[\\/]/).filter(Boolean);
+  return segments.length > 0 && segments.every((s) => s !== "." && s !== "..");
+}
+
+function siteFolderName(
+  warnings: ConfigWarning[],
+  field: string,
+  value: unknown,
+  defaultVal: string
+): string {
+  if (typeof value !== "string" || value === "") return defaultVal;
+  if (isSiteFolderName(value)) return value;
+  warnInvalid(warnings, field, value, "a folder name inside the site folder", defaultVal);
+  return defaultVal;
+}
+
 function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides, warnings: ConfigWarning[]): WebetteEnv {
   const loggingLevel = overrides.logging?.level;
   const loggingLocale = overrides.logging?.locale;
@@ -159,9 +183,12 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides, warnings
     ...defaults.logging,
     ...(isLogLevel(loggingLevel) ? { level: loggingLevel } : {}),
     ...(isLocale(loggingLocale) ? { locale: loggingLocale } : {}),
-    ...(typeof overrides.logging?.dirName === "string" && overrides.logging.dirName
-      ? { dirName: overrides.logging.dirName }
-      : {}),
+    dirName: siteFolderName(
+      warnings,
+      "logging.dirName",
+      overrides.logging?.dirName,
+      defaults.logging.dirName
+    ),
   };
 
   const port = overrides.serve?.port;
@@ -186,9 +213,12 @@ function mergeEnv(defaults: WebetteEnv, overrides: WebetteEnvOverrides, warnings
 
   const build = {
     ...defaults.build,
-    ...(typeof overrides.build?.outputDirName === "string" && overrides.build.outputDirName
-      ? { outputDirName: overrides.build.outputDirName }
-      : {}),
+    outputDirName: siteFolderName(
+      warnings,
+      "build.outputDirName",
+      overrides.build?.outputDirName,
+      defaults.build.outputDirName
+    ),
     ...(isOverwritePolicy(overwritePolicy) ? { overwrite: overwritePolicy } : {}),
     ...(overrides.build?.exportModel &&
       typeof overrides.build.exportModel === "object"

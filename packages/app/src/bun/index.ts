@@ -53,7 +53,7 @@ const uiServer = Bun.serve({
   async fetch(req) {
     const pathname = decodeURIComponent(new URL(req.url).pathname);
     const target = path.normalize(path.join(viewsDir, pathname));
-    if (!target.startsWith(path.normalize(viewsDir))) {
+    if (!target.startsWith(path.normalize(viewsDir) + path.sep)) {
       return new Response("Forbidden", { status: 403 });
     }
     const file = Bun.file(target);
@@ -133,6 +133,32 @@ function rememberRecentFolder(folder: string): string[] {
     ...current.recentFolders.filter((recent) => recent !== folder),
   ].slice(0, MAX_RECENT_FOLDERS);
   return updateAppState({ recentFolders }).recentFolders;
+}
+
+// ── Actions outside the app ─────────────────────────────────────
+// The UI can ask for two things that leave the window: a web page in
+// the browser and a folder in the file explorer. Nothing else: no other
+// link scheme, and no file, since opening a file would launch whatever
+// program is tied to it.
+
+function openWebPage(url: string): boolean {
+  let protocol: string;
+  try {
+    protocol = new URL(url).protocol;
+  } catch {
+    return false;
+  }
+  if (protocol !== "http:" && protocol !== "https:") return false;
+  return Utils.openExternal(url);
+}
+
+function openFolder(folder: string): boolean {
+  try {
+    if (!fs.statSync(folder).isDirectory()) return false;
+  } catch {
+    return false;
+  }
+  return Utils.openPath(folder);
 }
 
 // ── RPC bridge ──────────────────────────────────────────────────
@@ -221,9 +247,9 @@ const rpc = defineElectrobunRPC<AppRPC>("bun", {
           locale: normalizeLocale((params as { locale: string }).locale),
         }).locale,
       openExternal: (params: unknown) =>
-        Utils.openExternal((params as { url: string }).url),
+        openWebPage((params as { url: string }).url),
       openPath: (params: unknown) =>
-        Utils.openPath((params as { path: string }).path),
+        openFolder((params as { path: string }).path),
       closeWindow: () => {
         setTimeout(closeWindow, 0);
         return true;

@@ -14,7 +14,9 @@
  *
  * Binds to 127.0.0.1 unless told otherwise. Anyone who can reach this
  * server can build and serve folders of this machine through the engine
- * API: only pass `--host` on a network you trust.
+ * API: only pass `--host` on a network you trust. With `--host`, served
+ * sites are shared on the network too, so the remote browser can open
+ * them.
  */
 
 import * as fs from "node:fs";
@@ -35,6 +37,7 @@ function readOption(name: string): string | undefined {
 }
 
 const hostname = readOption("host") ?? "127.0.0.1";
+const shared = hostname !== "127.0.0.1" && hostname !== "localhost";
 const port = Number(readOption("port") ?? DEFAULT_PREVIEW_PORT);
 
 // ── Engine API (in-process, like the desktop app) ───────────────
@@ -58,6 +61,16 @@ let locale: Locale = normalizeLocale(
   Intl.DateTimeFormat().resolvedOptions().locale
 );
 
+// A preview opened from another machine needs the served site to be
+// reachable from there as well: ask the engine to share it.
+function shareServe(body: string): string {
+  const request = JSON.parse(body) as { options?: Record<string, unknown> };
+  return JSON.stringify({
+    ...request,
+    options: { ...request.options, share: true },
+  });
+}
+
 // ── Host requests ───────────────────────────────────────────────
 // Only the requests that need this machine land here; the rest is
 // answered in the browser by `host.preview.ts`.
@@ -72,7 +85,7 @@ const hostRequests: Record<string, (params: unknown) => unknown> = {
     const response = await fetch(`${apiBase}${apiPath}`, {
       method: method ?? "GET",
       headers: body ? { "Content-Type": "application/json" } : undefined,
-      body,
+      body: shared && apiPath === "/serve" && body ? shareServe(body) : body,
     });
     return { status: response.status, body: await response.text() };
   },

@@ -1,7 +1,11 @@
 /**
  * Dev server (`serve`): rebuilds on change and serves `_public/`.
+ *
+ * Private by default: it only answers this machine (127.0.0.1). Sharing
+ * it with the local network is an explicit choice (`share`).
  */
 
+import * as os from "node:os";
 import * as path from "node:path";
 import { stat } from "node:fs/promises";
 import { watch, type FSWatcher } from "node:fs";
@@ -14,7 +18,18 @@ import { resolveTemplatesRoots } from "./templates/engine";
 import { createSite } from "../config/site";
 import { resolveTemplatesConfig } from "./templates/config";
 
-export interface ServeOptions extends BuildOptions { }
+export interface ServeOptions extends BuildOptions {
+  /** Also answer other devices on the local network (default: this machine only). */
+  share?: boolean;
+}
+
+/** Addresses other devices can use to reach this machine. */
+function networkAddresses(): string[] {
+  return Object.values(os.networkInterfaces())
+    .flat()
+    .filter((address) => address?.family === "IPv4" && !address.internal)
+    .map((address) => address!.address);
+}
 
 export interface ServeHandle {
   port: number;
@@ -60,6 +75,7 @@ export async function serve(
   // 2. HTTP Server
   try {
     const server = Bun.serve({
+      hostname: options.share ? "0.0.0.0" : "127.0.0.1",
       port,
       async fetch(req) {
         const url = new URL(req.url);
@@ -104,6 +120,13 @@ export async function serve(
       port,
       rootDir,
     });
+    if (options.share) {
+      scoped.warn("serve.shared", {
+        urls: networkAddresses()
+          .map((address) => `http://${address}:${port}`)
+          .join(", "),
+      });
+    }
 
     const watchLogger = scoped.child("watch");
 

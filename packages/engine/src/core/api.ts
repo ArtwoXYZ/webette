@@ -2,7 +2,8 @@
  * Local control API (`webette api`): lets external interfaces (desktop app,
  * scripts) drive the engine over HTTP — build, serve lifecycle, status, logs.
  *
- * Single active site at a time; binds to 127.0.0.1 only.
+ * Single active site at a time; binds to 127.0.0.1 only, and refuses
+ * requests sent by web pages (see `isLocalCaller`).
  * Endpoints are described in docs/local-api.md.
  */
 
@@ -65,6 +66,7 @@ export type ApiErrorCode =
   | "no_active_site"
   | "serve_start_failed"
   | "unknown_route"
+  | "forbidden_caller"
   | "internal_error";
 
 function ok(data: unknown, status = 200): Response {
@@ -73,6 +75,24 @@ function ok(data: unknown, status = 200): Response {
 
 function fail(code: ApiErrorCode, error: string, status: number): Response {
   return Response.json({ ok: false, code, error }, { status });
+}
+
+// ── Caller check ────────────────────────────────────────────────
+
+/**
+ * Binding to 127.0.0.1 keeps other machines out, but not the web pages
+ * open in a browser on this one: any site could post to this port and
+ * build or serve a folder. Browsers announce themselves with an `Origin`
+ * header on such requests, and reach the API under another `Host` when
+ * a domain is pointed at 127.0.0.1; local programs do neither.
+ */
+export function isLocalCaller(req: Request): boolean {
+  if (req.headers.has("origin")) return false;
+  const host = req.headers.get("host") ?? "";
+  const hostname = host.startsWith("[")
+    ? host.slice(0, host.indexOf("]") + 1)
+    : host.split(":")[0];
+  return hostname === "127.0.0.1" || hostname === "localhost" || hostname === "[::1]";
 }
 
 // ── Request body parsing ────────────────────────────────────────
@@ -415,6 +435,19 @@ export async function startApiServer(
     async fetch(req, server) {
       const url = new URL(req.url);
       const route = `${req.method} ${url.pathname}`;
+
+      if (!isLocalCaller(req)) {
+        scoped.warn("api.forbiddenCaller", {
+          method: req.method,
+          path: url.pathname,
+          origin: req.headers.get("origin") ?? req.headers.get("host") ?? "?",
+        });
+        return fail(
+          "forbidden_caller",
+          "This API only answers programs running on this machine.",
+          403
+        );
+      }
 
       let response: Response;
       try {
