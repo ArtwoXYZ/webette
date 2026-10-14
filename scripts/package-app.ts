@@ -27,6 +27,22 @@ try {
   };
   const { built, published } = distributableFor(version, process.platform, process.arch);
 
+  // The tutorial goes in as one archive (see electrobun.config.ts): the
+  // files Git tracks, without build output or logs.
+  const tutorialDir = path.join(appDir, "tutorial");
+  const tracked = Bun.spawnSync(["git", "ls-files", "-z"], { cwd: tutorialDir });
+  if (tracked.exitCode !== 0) throw new Error("Could not list the tutorial's files with Git.");
+  // Read up front: Bun.Archive writes lazy Bun.file() entries as empty files.
+  const tutorialFiles: Record<string, Blob> = {};
+  for (const file of tracked.stdout.toString().split("\0").filter(Boolean)) {
+    tutorialFiles[file] = new Blob([await Bun.file(path.join(tutorialDir, file)).bytes()]);
+  }
+  fs.mkdirSync(path.join(appDir, "build"), { recursive: true });
+  await Bun.write(
+    path.join(appDir, "build", "tutorial.tar"),
+    await new Bun.Archive(tutorialFiles).bytes()
+  );
+
   const build = Bun.spawnSync([process.execPath, "x", "electrobun", "build", "--env=stable"], {
     cwd: appDir,
     stdio: ["ignore", "inherit", "inherit"],

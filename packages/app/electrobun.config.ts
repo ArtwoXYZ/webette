@@ -36,33 +36,26 @@ function sharpNativePackages(): Record<string, string> {
   const copies: Record<string, string> = {};
   for (const name of fs.readdirSync(scopeDir)) {
     if (!name.startsWith("sharp-")) continue;
+    // The app's Bun is a glibc build: the musl binaries would never load,
+    // and one of their paths is too long for the Linux installer.
+    if (name.includes("linuxmusl")) continue;
     const source = path.relative(import.meta.dir, path.join(scopeDir, name));
     copies[source] = `node_modules/@img/${name}`;
   }
   return copies;
 }
 
-// The tutorial site travels inside a packaged app as one archive, which the
-// app unpacks to its user data folder (see resolveTutorialDir). Copied as a
-// folder, its accented file names make Electrobun 1.x fail when it hashes
-// the bundle. Only the files Git tracks go in: no build output, no logs.
-// `electrobun dev` reads the repository's tutorial and skips this.
+// The tutorial site travels inside a packaged app as one archive, made by
+// `scripts/package-app.ts`; the app unpacks it to its user data folder (see
+// resolveTutorialDir). Copied as a folder, its accented file names make
+// Electrobun 1.x fail when it hashes the bundle. `electrobun dev` reads the
+// repository's tutorial instead.
 function tutorialArchive(): Record<string, string> {
   const packaging = process.argv.some((arg) => arg === "--env=stable" || arg === "--env=canary");
-  if (!packaging) return {};
-
-  const tutorialDir = path.join(import.meta.dir, "tutorial");
-  const archive = path.join(import.meta.dir, "build", "tutorial.tar");
-  fs.mkdirSync(path.dirname(archive), { recursive: true });
-  const files = Bun.spawnSync(["git", "ls-files", "-z"], { cwd: tutorialDir });
-  const tar = Bun.spawnSync(["tar", "-cf", archive, "--null", "-T", "-"], {
-    cwd: tutorialDir,
-    stdin: files.stdout,
-  });
-  if (files.exitCode !== 0 || tar.exitCode !== 0) {
-    throw new Error(`Could not pack the tutorial: ${tar.stderr.toString() || files.stderr.toString()}`);
-  }
-  return { "build/tutorial.tar": "tutorial.tar" };
+  const archive = "build/tutorial.tar";
+  return packaging && fs.existsSync(path.join(import.meta.dir, archive))
+    ? { [archive]: "tutorial.tar" }
+    : {};
 }
 
 export default {
