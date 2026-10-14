@@ -55,6 +55,9 @@ function install(installer: string, workDir: string): string {
     } finally {
       run(["hdiutil", "detach", mount], workDir);
     }
+    // A bundle whose signature does not hold is reported as "damaged" once
+    // downloaded, with no way to open it: refuse it here.
+    run(["codesign", "--verify", "--deep", "--strict", "--verbose=2", path.join(workDir, "Webette.app")], workDir);
     return path.join(workDir, "Webette.app", "Contents", "MacOS", "launcher");
   }
 
