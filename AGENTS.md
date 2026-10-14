@@ -37,6 +37,10 @@ Use the `tg` CLI where you would use `gh`.
 - Work items are Tangled issues: `tg issue list`, `tg issue view <key>`.
 - Branch from `dev`. `main` only moves at release time.
 - Open pull requests against `dev`: `tg pr create --base dev`.
+- After pushing more commits to a branch that has an open pull request, run
+  `tg pr update <key>`: the pull request does not follow the branch by itself.
+- CI runs on every pull request round and on pushes to `dev` and `main`:
+  `tg pipeline list`.
 - Update the issue when its criteria are met; do not leave it stale.
 
 ## Commits
