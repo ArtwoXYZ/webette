@@ -10,6 +10,7 @@
     "dev:app": "bun run --cwd packages/app dev",
     "preview:app": "bun run --cwd packages/app preview",
     "package:app": "bun run scripts/package-app.ts",
+    "check:app": "bun run scripts/check-app.ts",
     "release:notes": "bun run scripts/release-notes.ts"
   },
   "devDependencies": {

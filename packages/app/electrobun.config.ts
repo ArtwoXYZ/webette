@@ -70,6 +70,8 @@ export default {
       "./src/web/app.css": "views/main/app.css",
       "./src/web/fonts": "views/main/fonts",
       "./src/web/assets": "views/main/assets",
+      // Offered by the app as a first site to build (see resolveTutorialDir).
+      "./tutorial": "tutorial",
       ...sharpNativePackages(),
     },
   },

@@ -1,12 +1,14 @@
-# Builds the desktop app for Linux, macOS and Windows and publishes it with
-# the release, when a version tag arrives.
+# Builds the desktop app for Linux, macOS and Windows, checks that each one
+# starts and builds its tutorial site, and publishes them as a release when
+# a version tag arrives.
 #
 # webette lives on Tangled (tangled.org/artwo.xyz/webette). This repository
 # is its mirror: it lends the build machines Tangled does not have, and its
-# releases hold the downloads. The checks run on Tangled.
+# releases hold the downloads. The other checks run on Tangled.
 #
-# Started by hand on a branch, it builds the three apps and publishes
-# nothing: the way to try the packaging without releasing.
+# Started by hand on a branch, it publishes a draft release instead (only
+# visible to the repository owner): the way to try the builds without
+# releasing anything.
 name: release
 
 on:
@@ -26,29 +28,50 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run package:app
-      - uses: actions/upload-artifact@v4
+
+      # The libraries the Linux app asks of the system, and a screen.
+      - if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-0 libayatana-appindicator3-1 xvfb
+      - if: runner.os == 'Linux'
+        run: xvfb-run -a bun run check:app
+      - if: runner.os != 'Linux'
+        run: bun run check:app
+
+      - uses: actions/upload-artifact@v7
         with:
           name: app-${{ matrix.os }}
           path: packages/app/artifacts/*
           if-no-files-found: error
 
   publish:
-    if: github.ref_type == 'tag'
     needs: package
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
-      # Fails on a tag that does not match package.json or the changelog.
-      - run: bun run release:notes "$GITHUB_REF_NAME" > notes.md
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
           merge-multiple: true
-      - run: gh release create "$GITHUB_REF_NAME" artifacts/* --verify-tag --title "webette $GITHUB_REF_NAME" --notes-file notes.md
-        env:
-          GH_TOKEN: ${{ github.token }}
+
+      # release:notes fails on a tag that does not match package.json or
+      # the changelog.
+      - if: github.ref_type == 'tag'
+        run: |
+          bun run release:notes "$GITHUB_REF_NAME" > notes.md
+          gh release create "$GITHUB_REF_NAME" artifacts/* --verify-tag \
+            --title "webette $GITHUB_REF_NAME" --notes-file notes.md
+
+      - if: github.ref_type != 'tag'
+        run: |
+          gh release create "test-$GITHUB_RUN_NUMBER" artifacts/* --draft \
+            --target "$GITHUB_SHA" --title "Test build: $GITHUB_REF_NAME #$GITHUB_RUN_NUMBER" \
+            --notes "Built from $GITHUB_REF_NAME at $GITHUB_SHA. Not a release."
