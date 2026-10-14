@@ -40,7 +40,7 @@ try {
   }
 
   // Electrobun also writes what its updater would download (a second
-  // archive and `update.json`). webette has no in-app update: only the
+  // archive and `update.json`). In-app update is not wired yet: only the
   // installer is kept, so the folder holds exactly what gets published.
   const publishedPath = path.join(artifactDir, published);
   fs.renameSync(builtPath, publishedPath);

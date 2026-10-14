@@ -82,10 +82,13 @@ choice would otherwise be re-debated; remove one when it stops being true.
   runs on and Tangled pipelines run on Linux, so the macOS and Windows builds
   are made on their own machines with the same two commands
   (`package:app`, `release:publish`).
-- **The builds are not signed, and the app does not update itself.** Reason:
-  signing needs paid certificates on macOS and Windows and tooling Electrobun
-  only has for macOS. Without it an in-app update is not trustworthy enough:
-  people download each version from the release page.
+- **The builds are not signed.** Reason: signing needs paid certificates on
+  macOS and Windows, and tooling Electrobun only has for macOS. macOS and
+  Windows therefore warn before the first launch of each downloaded version.
+- **In-app update is not wired yet.** Electrobun has an updater, but it reads
+  its files from one fixed web address, which Tangled release artifacts do not
+  offer: it needs a place to host them. Until then people download each
+  version from the release page, and `package:app` keeps only the installer.
 
 ## Workflow
 
