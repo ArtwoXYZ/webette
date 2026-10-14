@@ -99,17 +99,19 @@ try {
     stdio: ["ignore", "inherit", "inherit"],
   });
 
-  let exited = false;
-  void app.exited.then(() => (exited = true));
+  // On its first launch the macOS app unpacks itself and starts again as a
+  // new process, leaving with code 0: only a failure ends the wait early.
+  let failed = false;
+  void app.exited.then((code) => (failed = code !== 0));
   const deadline = Date.now() + TIMEOUT_MS;
-  while (!fs.existsSync(resultFile) && !exited && Date.now() < deadline) await Bun.sleep(1000);
+  while (!fs.existsSync(resultFile) && !failed && Date.now() < deadline) await Bun.sleep(1000);
   // Leave the app a moment to quit on its own before stopping it.
   await Promise.race([app.exited, Bun.sleep(10_000)]);
   app.kill();
 
   if (!fs.existsSync(resultFile)) {
     throw new Error(
-      exited
+      failed
         ? `The app stopped (exit code ${app.exitCode}) without a result: see its messages above.`
         : `The app wrote no result within ${TIMEOUT_MS / 60_000} minutes.`
     );
