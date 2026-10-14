@@ -1,0 +1,54 @@
+# Builds the desktop app for Linux, macOS and Windows and publishes it with
+# the release, when a version tag arrives.
+#
+# webette lives on Tangled (tangled.org/artwo.xyz/webette). This repository
+# is its mirror: it lends the build machines Tangled does not have, and its
+# releases hold the downloads. The checks run on Tangled.
+#
+# Started by hand, it builds the three apps and publishes nothing: the way
+# to try the packaging without releasing.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: package (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run package:app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ matrix.os }}
+          path: packages/app/artifacts/*
+          if-no-files-found: error
+
+  publish:
+    if: github.ref_type == 'tag'
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+      # Fails on a tag that does not match package.json or the changelog.
+      - run: bun run release:notes "$GITHUB_REF_NAME" > notes.md
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - run: gh release create "$GITHUB_REF_NAME" artifacts/* --verify-tag --title "webette $GITHUB_REF_NAME" --notes-file notes.md
+        env:
+          GH_TOKEN: ${{ github.token }}

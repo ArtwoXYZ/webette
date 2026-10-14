@@ -1,6 +1,5 @@
 /**
- * Desktop app builds: how the files people download are named, and what
- * a Tangled release artifact accepts.
+ * Desktop app builds: how the files people download are named.
  *
  * Electrobun names its outputs after its own channels
  * (`stable-linux-x64-Webette-Setup.tar.gz`). People get one file per
@@ -12,12 +11,6 @@ import { tagForVersion } from "./release";
 
 /** Where `electrobun build` leaves its outputs, and where ours stay. */
 export const ARTIFACT_FOLDER = "packages/app/artifacts";
-
-/**
- * Upper size of a `sh.tangled.repo.artifact` blob (50 MiB, from the
- * Tangled lexicon). A build above it cannot be attached to a tag.
- */
-export const MAX_ARTIFACT_BYTES = 52_428_800;
 
 interface Distributable {
   /** The file Electrobun produces for this system. */
@@ -43,22 +36,6 @@ export function distributableFor(version: string, platform: string, arch: string
   }
   return {
     built: `stable-${system.electrobun}-${arch}-${system.file}`,
-    published: `${artifactPrefix(version)}${system.name}-${arch}.${system.ext}`,
+    published: `webette-${tagForVersion(version)}-${system.name}-${arch}.${system.ext}`,
   };
-}
-
-/** What every published build of `version` starts with. */
-export function artifactPrefix(version: string): string {
-  return `webette-${tagForVersion(version)}-`;
-}
-
-/**
- * A Tangled artifact points at its tag with the raw bytes of the tag
- * object's hash; over the wire those bytes travel as unpadded base64.
- */
-export function tagHashBytes(hash: string): string {
-  if (!/^[0-9a-f]{40}$/.test(hash)) {
-    throw new Error(`"${hash}" is not a Git object hash.`);
-  }
-  return Buffer.from(hash, "hex").toString("base64").replace(/=+$/, "");
 }

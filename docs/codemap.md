@@ -14,7 +14,7 @@ changing them. Keep this file in sync when the structure moves.
 - Reference check: `bun run check:tutorial` (rebuilds the tutorial and compares `_public/` with `scripts/tutorial-reference.txt`; `--accept` records an intended change)
 - Desktop app: `bun run dev:app` (native window), `bun run preview:app` (UI in a browser)
 - Convenience scripts (root): `bun run serve:tutorial`, `bun run release:notes`
-- Desktop app builds: `bun run package:app` (installer for the current system, in `packages/app/artifacts/`), `bun run release:publish <tag>` (attaches them to the tag; see `docs/versioning.md`)
+- Desktop app build: `bun run package:app` (installer for the current system, in `packages/app/artifacts/`); the three systems are built on the GitHub mirror (see `docs/versioning.md`)
 
 ## Entry points
 - Backend: `packages/engine/src/cli.ts` (dispatches `build` / `serve` / `api`); public programmatic entrypoint: `packages/engine/src/index.ts`
@@ -43,6 +43,7 @@ webette/
 │   └── documentation/   (webette doc site, built by engine)
 ├── scripts/             (repository tooling: release notes, tutorial reference check, desktop app packaging)
 ├── .tangled/workflows/  (CI and release pipelines)
+├── .github/workflows/   (desktop app builds, on the GitHub mirror)
 ├── docs/                (internal dev docs, migration to websites/doc pending)
 └── package.json         (workspaces: ["packages/*"])
 ```
@@ -97,8 +98,7 @@ webette/
 - `bun run check:tutorial` empties the tutorial's `_public/` before building, and needs `sharp`: the reference is recorded with image variants.
 - `sharp`'s JavaScript is bundled into the app's main process but its native binaries are not: `packages/app/electrobun.config.ts` copies the installed `@img/sharp-*` packages to `Resources/app/node_modules/@img`. The app must therefore be built on the platform it targets.
 - `electrobun.config.ts` must not call Bun's resolver (`Bun.resolveSync`): the Electrobun CLI then fails to resolve `webette` when bundling.
-- Electrobun's build tools expect the system loader in `/lib64`, which Nixery images lack: `.tangled/workflows/release.yml` links it before `package:app`.
-- A Tangled release artifact is limited to 50 MiB and the Linux installer weighs about 47: anything bundled into the app counts.
+- Electrobun's build tools are ordinary Linux programs that expect the system loader in `/lib64`: `package:app` does not run in a Nixery image (Tangled pipelines) without linking it first.
 - The desktop app runs with `packages/app` as working directory, so it does not read the repository's root `webette.tool.ts` (engine defaults apply: port 4174, no `.htaccess`).
 
 ## Fast answers

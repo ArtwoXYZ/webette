@@ -42,6 +42,9 @@ Use the `tg` CLI where you would use `gh`.
 - CI runs on every pull request round and on pushes to `dev` and `main`:
   `tg pipeline list`.
 - Update the issue when its criteria are met; do not leave it stale.
+- A GitHub mirror (`github.com/ArtwoXYZ/webette`) builds the desktop app at
+  release time and holds the downloads. Nothing else happens there: no issues,
+  no pull requests. See "Desktop App Builds" in `docs/versioning.md`.
 
 ## Commits
 

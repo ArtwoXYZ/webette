@@ -78,17 +78,19 @@ choice would otherwise be re-debated; remove one when it stops being true.
   setup program on Windows, a self-extracting installer on Linux), not as
   hand-made portable archives. Reason: they exist, they add the shortcuts
   people expect, and webette has no packaging code to maintain.
-- **Only the Linux build comes from CI.** Electrobun builds for the system it
-  runs on and Tangled pipelines run on Linux, so the macOS and Windows builds
-  are made on their own machines with the same two commands
-  (`package:app`, `release:publish`).
+- **The desktop builds come from a GitHub mirror, not from Tangled.**
+  Electrobun builds for the system it runs on, and Tangled pipelines run on
+  Linux only; a Tangled release artifact is also capped at 50 MiB, which the
+  app already nearly fills. The project stays on Tangled (code, issues, pull
+  requests, checks); the mirror only runs `.github/workflows/release.yml` on
+  version tags and holds the downloads in its releases.
 - **The builds are not signed.** Reason: signing needs paid certificates on
   macOS and Windows, and tooling Electrobun only has for macOS. macOS and
   Windows therefore warn before the first launch of each downloaded version.
 - **In-app update is not wired yet.** Electrobun has an updater, but it reads
-  its files from one fixed web address, which Tangled release artifacts do not
-  offer: it needs a place to host them. Until then people download each
-  version from the release page, and `package:app` keeps only the installer.
+  its files from one fixed web address under its own file names, and nothing
+  in the app asks for updates yet. Until then people download each version
+  from the release page, and `package:app` keeps only the installer.
 
 ## Workflow
 
