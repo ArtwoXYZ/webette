@@ -552,10 +552,13 @@ async function powerOn(): Promise<void> {
   // Called before the first await so WebView2 sees the user's click
   // as the gesture that unlocks Web Audio.
   const audioReady = ensureAudioReady();
+  // Without a user gesture a browser can keep Web Audio suspended
+  // forever: the console must light up anyway, silent if need be.
+  const bootDelay = delay(900);
   await Promise.all([
     appReady,
-    audioReady,
-    isFrameless ? Promise.resolve() : delay(900),
+    Promise.race([audioReady, bootDelay]),
+    isFrameless ? Promise.resolve() : bootDelay,
   ]);
 
   playBoot();
