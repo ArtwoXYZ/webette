@@ -194,6 +194,17 @@ export async function pruneOrphans(options: {
     }
   }
 
+  for (const entry of site.rootEntries ?? []) {
+    if (!includeDrafts && entry.isDraft) continue;
+    addOutput(path.join(exportRel, "root-entries", `${entry.slug || entry.id}.json`));
+  }
+  if (site.indexes?.root) {
+    addOutput(path.join(exportRel, "indexes", "root.json"));
+  }
+  for (const collectionKey of Object.keys(site.indexes?.collections ?? {})) {
+    addOutput(path.join(exportRel, "indexes", "collections", `${collectionKey}.json`));
+  }
+
   const addEntryPage = (entry: Entry, collection?: Collection) => {
     const routeRelative = entry.route
       ? normalizeRouteSlashes(entry.route)

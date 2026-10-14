@@ -1,7 +1,9 @@
 /**
  * Writes the exported JSON model to `<outputDir>/_model`.
  *
- * Emits `site.json` plus one JSON per entry under `entries/<collection>/`.
+ * Emits `site.json` plus one JSON per entry: `entries/<collection>/` for
+ * collection entries, `root-entries/` for root entries and `indexes/` for
+ * index folders. The next build reads them back to keep timestamps stable.
  */
 
 import { mkdir, rm } from "node:fs/promises";
@@ -135,6 +137,35 @@ export async function writeModelExport(options: {
         const entryFileName = `${entry.slug || entry.id}.json`;
         const entryPath = path.join(collectionDir, entryFileName);
         await writeIfChanged(entryPath, JSON.stringify(orderKeys(entry), null, 2), logger);
+      }
+    }
+
+    if (site.rootEntries?.length) {
+      const rootEntriesDir = path.join(exportDir, "root-entries");
+      await mkdir(rootEntriesDir, { recursive: true });
+      for (const entry of site.rootEntries) {
+        const entryPath = path.join(rootEntriesDir, `${entry.slug || entry.id}.json`);
+        await writeIfChanged(entryPath, JSON.stringify(orderKeys(entry), null, 2), logger);
+      }
+    }
+
+    const collectionIndexes = Object.entries(indexes?.collections ?? {});
+    if (indexes?.root || collectionIndexes.length) {
+      const indexesDir = path.join(exportDir, "indexes");
+      await mkdir(path.join(indexesDir, "collections"), { recursive: true });
+      if (indexes?.root) {
+        await writeIfChanged(
+          path.join(indexesDir, "root.json"),
+          JSON.stringify(orderKeys(indexes.root), null, 2),
+          logger
+        );
+      }
+      for (const [collectionKey, entry] of collectionIndexes) {
+        await writeIfChanged(
+          path.join(indexesDir, "collections", `${collectionKey}.json`),
+          JSON.stringify(orderKeys(entry), null, 2),
+          logger
+        );
       }
     }
 

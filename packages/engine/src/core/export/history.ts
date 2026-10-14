@@ -111,6 +111,39 @@ async function collectBlockState(
   walk(blocks);
 }
 
+// History keys of the entries that live outside collections. Root entries and
+// index folders are exported in their own folders (see write-model.ts).
+const ROOT_ENTRIES_KEY = "__root__";
+const ROOT_INDEX_KEY = "__index__root";
+
+function collectionIndexKey(collectionKeyValue: string): string {
+  return `__index__${collectionKeyValue}`;
+}
+
+async function listJsonFiles(dir: string): Promise<string[]> {
+  try {
+    const files = await readdir(dir, { withFileTypes: true });
+    return files.filter((f) => f.isFile() && f.name.endsWith(".json")).map((f) => f.name);
+  } catch {
+    return [];
+  }
+}
+
+async function loadEntryState(filePath: string, historyKey: string, target: PreviousState) {
+  try {
+    const entry = JSON.parse(await readFile(filePath, "utf8")) as Entry;
+    const entrySlug = entry.slug || entry.id;
+    target.entries[entryKey(historyKey, { slug: entrySlug })] = {
+      fingerprint: entry.fingerprint,
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt,
+    };
+    await collectBlockState(entry.blocks, historyKey, entrySlug, target);
+  } catch {
+    // missing or unreadable file: the entry is treated as new
+  }
+}
+
 export async function loadPreviousState(exportDir: string): Promise<PreviousState> {
   const state: PreviousState = {
     collections: {},
@@ -141,44 +174,35 @@ export async function loadPreviousState(exportDir: string): Promise<PreviousStat
   }
 
   const entriesRoot = path.join(exportDir, "entries");
-  let collections: (string | undefined)[] = [];
+  let collections: string[] = [];
   try {
     const dirs = await readdir(entriesRoot, { withFileTypes: true });
     collections = dirs.filter((d) => d.isDirectory()).map((d) => d.name);
   } catch {
-    return state;
+    // no prior collection entries
   }
 
   for (const colDirName of collections) {
-    if (!colDirName) continue;
-    const colKey = colDirName;
     const colDir = path.join(entriesRoot, colDirName);
-    let entryFiles: string[] = [];
-    try {
-      const files = await readdir(colDir, { withFileTypes: true });
-      entryFiles = files.filter((f) => f.isFile() && f.name.endsWith(".json")).map((f) => f.name);
-    } catch {
-      continue;
+    for (const file of await listJsonFiles(colDir)) {
+      await loadEntryState(path.join(colDir, file), colDirName, state);
     }
+  }
 
-    for (const file of entryFiles) {
-      try {
-        const raw = await readFile(path.join(colDir, file), "utf8");
-        const entry = JSON.parse(raw) as Entry;
-        const entrySlug = path.parse(file).name;
-        const entryFullKey = entryKey(colKey, { slug: entrySlug });
+  const rootEntriesDir = path.join(exportDir, "root-entries");
+  for (const file of await listJsonFiles(rootEntriesDir)) {
+    await loadEntryState(path.join(rootEntriesDir, file), ROOT_ENTRIES_KEY, state);
+  }
 
-        state.entries[entryFullKey] = {
-          fingerprint: (entry as any).fingerprint,
-          createdAt: (entry as any).createdAt,
-          updatedAt: (entry as any).updatedAt,
-        };
-
-        await collectBlockState(entry.blocks, colKey, entrySlug, state);
-      } catch {
-        continue;
-      }
-    }
+  const indexesDir = path.join(exportDir, "indexes");
+  await loadEntryState(path.join(indexesDir, "root.json"), ROOT_INDEX_KEY, state);
+  const collectionIndexesDir = path.join(indexesDir, "collections");
+  for (const file of await listJsonFiles(collectionIndexesDir)) {
+    await loadEntryState(
+      path.join(collectionIndexesDir, file),
+      collectionIndexKey(path.parse(file).name),
+      state
+    );
   }
 
   return state;
@@ -344,7 +368,7 @@ export async function applyHistory(
   const rootEntries = site.rootEntries
     ? await Promise.all(
       site.rootEntries.map((entry) =>
-        computeEntryHistory("__root__", entry, {
+        computeEntryHistory(ROOT_ENTRIES_KEY, entry, {
           previous: options.previous,
           nowIso,
           rootDir: options.rootDir,
@@ -355,7 +379,7 @@ export async function applyHistory(
     : undefined;
 
   const rootIndex = site.indexes?.root
-    ? await computeEntryHistory("__index__root", site.indexes.root, {
+    ? await computeEntryHistory(ROOT_INDEX_KEY, site.indexes.root, {
       previous: options.previous,
       nowIso,
       rootDir: options.rootDir,
@@ -368,7 +392,7 @@ export async function applyHistory(
       await Promise.all(
         Object.entries(site.indexes.collections).map(async ([key, entry]) => [
           key,
-          await computeEntryHistory(`__index__${key}`, entry, {
+          await computeEntryHistory(collectionIndexKey(key), entry, {
             previous: options.previous,
             nowIso,
             rootDir: options.rootDir,
