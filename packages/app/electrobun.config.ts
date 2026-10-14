@@ -42,6 +42,29 @@ function sharpNativePackages(): Record<string, string> {
   return copies;
 }
 
+// The tutorial site travels inside a packaged app as one archive, which the
+// app unpacks to its user data folder (see resolveTutorialDir). Copied as a
+// folder, its accented file names make Electrobun 1.x fail when it hashes
+// the bundle. Only the files Git tracks go in: no build output, no logs.
+// `electrobun dev` reads the repository's tutorial and skips this.
+function tutorialArchive(): Record<string, string> {
+  const packaging = process.argv.some((arg) => arg === "--env=stable" || arg === "--env=canary");
+  if (!packaging) return {};
+
+  const tutorialDir = path.join(import.meta.dir, "tutorial");
+  const archive = path.join(import.meta.dir, "build", "tutorial.tar");
+  fs.mkdirSync(path.dirname(archive), { recursive: true });
+  const files = Bun.spawnSync(["git", "ls-files", "-z"], { cwd: tutorialDir });
+  const tar = Bun.spawnSync(["tar", "-cf", archive, "--null", "-T", "-"], {
+    cwd: tutorialDir,
+    stdin: files.stdout,
+  });
+  if (files.exitCode !== 0 || tar.exitCode !== 0) {
+    throw new Error(`Could not pack the tutorial: ${tar.stderr.toString() || files.stderr.toString()}`);
+  }
+  return { "build/tutorial.tar": "tutorial.tar" };
+}
+
 export default {
   app: {
     name: "Webette",
@@ -70,8 +93,7 @@ export default {
       "./src/web/app.css": "views/main/app.css",
       "./src/web/fonts": "views/main/fonts",
       "./src/web/assets": "views/main/assets",
-      // Offered by the app as a first site to build (see resolveTutorialDir).
-      "./tutorial": "tutorial",
+      ...tutorialArchive(),
       ...sharpNativePackages(),
     },
   },

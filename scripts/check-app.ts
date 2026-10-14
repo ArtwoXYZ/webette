@@ -33,11 +33,15 @@ function findLauncher(): string {
   for (const name of fs.existsSync(buildDir) ? fs.readdirSync(buildDir) : []) {
     if (name.startsWith("stable-")) walk(path.join(buildDir, name));
   }
-  found.sort((a, b) => a.length - b.length);
   if (found.length === 0) {
     throw new Error('No packaged app found: run "bun run package:app" first.');
   }
-  return found[0]!;
+  console.log(`Launchers in the build:\n  ${found.map((file) => path.relative(root, file)).join("\n  ")}`);
+  // Windows only starts programs that carry their extension.
+  const startable = process.platform === "win32" ? found.filter((file) => file.endsWith(".exe")) : found;
+  startable.sort((a, b) => a.length - b.length);
+  if (startable.length === 0) throw new Error("None of these launchers can be started here.");
+  return startable[0]!;
 }
 
 try {

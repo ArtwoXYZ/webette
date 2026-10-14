@@ -11,7 +11,11 @@ The format and the release steps are described in
 - **Desktop app downloads**: each release now comes with the desktop app for
   Linux, macOS and Windows, so webette can be used without installing Bun.
   The builds are not signed yet: macOS and Windows ask for a confirmation the
-  first time a downloaded version is opened.
+  first time a downloaded version is opened. On Linux, the app needs WebKitGTK
+  and the AppIndicator library (`libwebkit2gtk-4.1-0` and
+  `libayatana-appindicator3-1` on Debian and Ubuntu).
+- **The tutorial comes with the app**: the desktop app offers its tutorial
+  site from the first launch, in a copy of its own that you can change freely.
 
 ### Improved
 

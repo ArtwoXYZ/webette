@@ -87,6 +87,17 @@ choice would otherwise be re-debated; remove one when it stops being true.
 - **The builds are not signed.** Reason: signing needs paid certificates on
   macOS and Windows, and tooling Electrobun only has for macOS. macOS and
   Windows therefore warn before the first launch of each downloaded version.
+- **The packaged app carries the tutorial as an archive** (`tutorial.tar`,
+  the files Git tracks) and unpacks it to its user data folder the first
+  time, then builds that copy. Reason: building writes next to the site, and
+  an installed app folder may be read-only; the copy also keeps what the
+  person changes in it. An archive rather than a folder because Electrobun
+  1.x fails to hash a bundle holding accented file names.
+- **Each build is started before it is published**: the app has a self-check
+  mode (`WEBETTE_APP_SELF_CHECK`) that loads the window, builds the tutorial,
+  writes the result to a file and quits. Reason: a package can build fine and
+  still fail to start (a missing native binary, a path that only exists in
+  the repository).
 - **In-app update is not wired yet.** Electrobun has an updater, but it reads
   its files from one fixed web address under its own file names, and nothing
   in the app asks for updates yet. Until then people download each version

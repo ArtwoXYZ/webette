@@ -14,7 +14,7 @@ changing them. Keep this file in sync when the structure moves.
 - Reference check: `bun run check:tutorial` (rebuilds the tutorial and compares `_public/` with `scripts/tutorial-reference.txt`; `--accept` records an intended change)
 - Desktop app: `bun run dev:app` (native window), `bun run preview:app` (UI in a browser)
 - Convenience scripts (root): `bun run serve:tutorial`, `bun run release:notes`
-- Desktop app build: `bun run package:app` (installer for the current system, in `packages/app/artifacts/`); the three systems are built on the GitHub mirror (see `docs/versioning.md`)
+- Desktop app build: `bun run package:app` (installer for the current system, in `packages/app/artifacts/`), `bun run check:app` (starts it and builds its tutorial); the three systems are built on the GitHub mirror (see `docs/versioning.md`)
 
 ## Entry points
 - Backend: `packages/engine/src/cli.ts` (dispatches `build` / `serve` / `api`); public programmatic entrypoint: `packages/engine/src/index.ts`
@@ -100,6 +100,8 @@ webette/
 - `electrobun.config.ts` must not call Bun's resolver (`Bun.resolveSync`): the Electrobun CLI then fails to resolve `webette` when bundling.
 - Electrobun's build tools are ordinary Linux programs that expect the system loader in `/lib64`: `package:app` does not run in a Nixery image (Tangled pipelines) without linking it first.
 - The desktop app runs with `packages/app` as working directory, so it does not read the repository's root `webette.tool.ts` (engine defaults apply: port 4174, no `.htaccess`).
+- The packaged app builds a copy of the tutorial in its user data folder, unpacked once from `tutorial.tar` and not refreshed by later versions of the app.
+- Electrobun 1.x hashes the bundle with its own Bun (1.3), whose archive writer refuses accented file names: nothing with such names may be copied into the bundle as files (the tutorial goes in as `tutorial.tar`).
 
 ## Fast answers
 - "Where do I change the build pipeline?" -> `packages/engine/src/core/build.ts`

@@ -109,8 +109,9 @@ following the conventions in [CONTRIBUTING.md](../CONTRIBUTING.md).
    git push github main v2026.10.0
    ```
 
-   Download each build from the release once, start it and build a site with
-   it before announcing the release.
+   Before publishing, each build is started on its system and builds its
+   tutorial site (`bun run check:app`): a release only appears if all three
+   pass.
 
 Never move a tag or reuse a version that was published.
 
@@ -136,9 +137,15 @@ Each release carries one installer per system:
 | Windows | `webette-v2026.10.0-windows-x64.zip` | A zip holding the setup program |
 
 - `bun run package:app` builds the installer of the current system into
-  `packages/app/artifacts/`. The workflow runs it on each system.
+  `packages/app/artifacts/`, then `bun run check:app` starts that app and has
+  it build its tutorial site. The workflow runs both on each system.
+- The Linux app needs WebKitGTK and the AppIndicator library from the system
+  (`libwebkit2gtk-4.1-0` and `libayatana-appindicator3-1` on Debian and
+  Ubuntu); the release notes should say so.
 - The builds are not signed. macOS and Windows warn before the first launch
   of each downloaded version; the release notes should say how to get past it.
-- To try the packaging without releasing, start the workflow by hand on a
-  branch pushed to the mirror (`gh workflow run release.yml --ref <branch>
-  --repo ArtwoXYZ/webette`): it builds the three apps and publishes nothing.
+- To try the builds without releasing, start the workflow by hand on a branch
+  pushed to the mirror (`gh workflow run release.yml --ref <branch> --repo
+  ArtwoXYZ/webette`): it publishes a draft release named `test-<run>`, only
+  visible to the owner. Delete it once tried
+  (`gh release delete test-<run> --repo ArtwoXYZ/webette`).

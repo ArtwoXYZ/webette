@@ -70,16 +70,17 @@ const uiServer = Bun.serve({
 // ── Tutorial site resolution ────────────────────────────────────
 // `electrobun dev` runs the bundle from build/…/Resources/app/bun,
 // but cwd stays at the project root (packages/app): the repository's
-// tutorial is used as it is. A packaged app carries its own copy, but
-// building writes next to the site and the app folder may be read-only,
-// so that copy is first put in the app's user data folder, once: the
-// tutorial then keeps whatever the person changes in it.
+// tutorial is used as it is. A packaged app carries it as an archive
+// (see electrobun.config.ts). Building writes next to the site and the
+// app folder may be read-only, so the archive is unpacked once to the
+// app's user data folder: the tutorial then keeps whatever the person
+// changes in it.
 
 function isSite(dir: string): boolean {
   return fs.existsSync(path.join(dir, "webette.config.ts"));
 }
 
-function resolveTutorialDir(): string | null {
+async function resolveTutorialDir(): Promise<string | null> {
   const repoCandidates = [
     path.resolve(process.cwd(), "tutorial"),
     path.resolve(import.meta.dir, "../../../../../../tutorial"),
@@ -87,12 +88,12 @@ function resolveTutorialDir(): string | null {
   const fromRepo = repoCandidates.find(isSite);
   if (fromRepo) return fromRepo;
 
-  const bundled = path.resolve(import.meta.dir, "../tutorial");
-  if (!isSite(bundled)) return null;
+  const archive = path.resolve(import.meta.dir, "../tutorial.tar");
+  if (!fs.existsSync(archive)) return null;
   const copy = path.join(Utils.paths.userData, "tutorial");
   if (!isSite(copy)) {
-    fs.cpSync(bundled, copy, { recursive: true });
-    logger.info(`Tutorial copied to ${copy}`);
+    await new Bun.Archive(await Bun.file(archive).bytes()).extract(copy);
+    logger.info(`Tutorial unpacked to ${copy}`);
   }
   return copy;
 }
@@ -244,9 +245,9 @@ const rpc = defineElectrobunRPC<AppRPC>("bun", {
         });
         return { status: response.status, body: await response.text() };
       },
-      getBootstrap: () => {
+      getBootstrap: async () => {
         const state = loadAppState();
-        return { tutorialDir: resolveTutorialDir(), ...state };
+        return { tutorialDir: await resolveTutorialDir(), ...state };
       },
       pickFolder: async () => {
         const picked = await Utils.openFileDialog({
@@ -320,7 +321,7 @@ async function runSelfCheck(resultFile: string): Promise<void> {
     while (!uiRequested && Date.now() < deadline) await Bun.sleep(250);
     result.uiLoaded = uiRequested;
 
-    const tutorialDir = resolveTutorialDir();
+    const tutorialDir = await resolveTutorialDir();
     result.tutorialDir = tutorialDir;
     if (tutorialDir) {
       const response = await fetch(`${apiBase}/build`, {
