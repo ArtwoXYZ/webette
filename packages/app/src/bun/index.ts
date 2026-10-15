@@ -80,7 +80,16 @@ function isSite(dir: string): boolean {
   return fs.existsSync(path.join(dir, "webette.config.ts"));
 }
 
-async function resolveTutorialDir(): Promise<string | null> {
+// Asked by the window and by the self-check, possibly at the same time:
+// unpack once, and let every caller wait for that same unpacking.
+let tutorialLookup: Promise<string | null> | null = null;
+
+function resolveTutorialDir(): Promise<string | null> {
+  tutorialLookup ??= findOrUnpackTutorial();
+  return tutorialLookup;
+}
+
+async function findOrUnpackTutorial(): Promise<string | null> {
   const repoCandidates = [
     path.resolve(process.cwd(), "tutorial"),
     path.resolve(import.meta.dir, "../../../../../../tutorial"),
