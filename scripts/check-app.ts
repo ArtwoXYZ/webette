@@ -6,7 +6,9 @@
  *   bun run check:app
  *
  * The app runs its self-check (`WEBETTE_APP_SELF_CHECK` in
- * `packages/app/src/bun/index.ts`), writes the result to a file and quits.
+ * `packages/app/src/bun/index.ts`) and writes the result to a file; this
+ * takes a screenshot of the screen (`packages/app/build/screenshot.png`),
+ * removes the file, and the app quits.
  * This installs into the current user's folders, so it is meant for build
  * machines; it needs a desktop session (on Linux without a screen, run it
  * under `xvfb-run`).
@@ -20,6 +22,30 @@ import { ARTIFACT_FOLDER, distributableFor } from "./app-artifacts";
 const root = path.resolve(import.meta.dir, "..");
 const IDENTIFIER = "org.webette.desktop";
 const TIMEOUT_MS = 5 * 60_000;
+const SCREENSHOT = path.join(root, "packages", "app", "build", "screenshot.png");
+
+/** Best effort: a missing screenshot never fails the check. */
+function takeScreenshot(): void {
+  const command =
+    process.platform === "darwin"
+      ? ["screencapture", "-x", SCREENSHOT]
+      : process.platform === "win32"
+        ? [
+            "powershell",
+            "-NoProfile",
+            "-Command",
+            "Add-Type -AssemblyName System.Windows.Forms,System.Drawing; " +
+              "$b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds; " +
+              "$bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height; " +
+              "[System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size); " +
+              `$bmp.Save('${SCREENSHOT}')`,
+          ]
+        : ["import", "-window", "root", SCREENSHOT];
+  const shot = Bun.spawnSync(command, { stdio: ["ignore", "inherit", "inherit"] });
+  console.log(
+    shot.exitCode === 0 ? `Screenshot: ${path.relative(root, SCREENSHOT)}` : "No screenshot taken."
+  );
+}
 
 function run(command: string[], cwd: string): void {
   const result = Bun.spawnSync(command, { cwd, stdio: ["ignore", "inherit", "inherit"] });
@@ -108,18 +134,26 @@ try {
   void app.exited.then((code) => (failed = code !== 0));
   const deadline = Date.now() + TIMEOUT_MS;
   while (!fs.existsSync(resultFile) && !failed && Date.now() < deadline) await Bun.sleep(1000);
+
+  let resultText: string | null = null;
+  if (fs.existsSync(resultFile)) {
+    await Bun.sleep(500); // let the write finish
+    resultText = fs.readFileSync(resultFile, "utf8");
+    takeScreenshot();
+    fs.rmSync(resultFile); // tells the app it can quit
+  }
   // Leave the app a moment to quit on its own before stopping it.
   await Promise.race([app.exited, Bun.sleep(10_000)]);
   app.kill();
 
-  if (!fs.existsSync(resultFile)) {
+  if (resultText === null) {
     throw new Error(
       failed
         ? `The app stopped (exit code ${app.exitCode}) without a result: see its messages above.`
         : `The app wrote no result within ${TIMEOUT_MS / 60_000} minutes.`
     );
   }
-  const result = JSON.parse(fs.readFileSync(resultFile, "utf8")) as {
+  const result = JSON.parse(resultText) as {
     uiLoaded?: boolean;
     homePageBuilt?: boolean;
   };

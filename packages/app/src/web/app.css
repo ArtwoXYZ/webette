@@ -17,7 +17,7 @@ body {
     overflow: hidden;
 }
 
-/* ── Frameless Windows shell ──────────────────────────────────── */
+/* ── Frameless shell (Windows, macOS) ─────────────────────────── */
 
 html.window-frameless,
 html.window-frameless body {

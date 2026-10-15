@@ -177,7 +177,7 @@ const server = Bun.serve({
 });
 
 console.log(`webette app preview: http://${server.hostname}:${server.port}/`);
-console.log("Add ?frameless=1 to see the frameless (Windows) layout.");
+console.log("Add ?frameless=1 to see the frameless (Windows and macOS) layout.");
 
 process.on("SIGINT", () => {
   server.stop(true);

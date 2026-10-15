@@ -282,7 +282,10 @@ const rpc = defineElectrobunRPC<AppRPC>("bun", {
   },
 });
 
-const isFrameless = process.platform === "win32";
+// Windows and macOS show the console as an object of its own: no system
+// title bar, a power button to close it, edges to resize it. Linux keeps
+// its window manager's frame, which the console cannot replace reliably.
+const isFrameless = process.platform === "win32" || process.platform === "darwin";
 const win = new BrowserWindow({
   title: "Webette",
   frame: { x: 100, y: 100, width: 1100, height: 750 },
@@ -307,7 +310,8 @@ win.on("close", () => {
 // ── Self-check ──────────────────────────────────────────────────
 // Set by `scripts/check-app.ts` on a freshly packaged app: once the
 // window shows the interface, build the tutorial through the engine
-// API, write what happened to the given file and quit.
+// API, write what happened to the given file, and quit once the check
+// has taken its screenshot and removed that file (or after a minute).
 
 const selfCheckFile = process.env.WEBETTE_APP_SELF_CHECK;
 if (selfCheckFile) {
@@ -341,5 +345,7 @@ async function runSelfCheck(resultFile: string): Promise<void> {
     result.error = error instanceof Error ? error.message : String(error);
   }
   fs.writeFileSync(resultFile, JSON.stringify(result, null, 2));
+  const deadline = Date.now() + 60_000;
+  while (fs.existsSync(resultFile) && Date.now() < deadline) await Bun.sleep(250);
   Utils.quit();
 }

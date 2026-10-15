@@ -690,5 +690,6 @@ setInterval(async () => {
 }, 2000);
 
 // Keep the established automatic boot on platforms that still use
-// native chrome. The frameless Windows window waits for its power button.
+// native chrome. The frameless window (Windows, macOS) waits for its
+// power button.
 if (!isFrameless) void powerOn();

@@ -62,7 +62,7 @@ function playNotes(notes: Note[]): void {
   if (audio.state !== "running") return;
   // Autoplay may have blocked startMusic() during boot: catch up as
   // soon as a sound actually plays (first user gesture).
-  if (musicWanted && musicTimer === null) resumeMusic();
+  if (musicWanted && !musicSource) resumeMusic();
   const now = audio.currentTime;
   for (const note of notes) {
     const osc = audio.createOscillator();
@@ -115,8 +115,8 @@ export function playClick(): void {
 // ── Background music ────────────────────────────────────────────
 // Chiptune loop converted from MIDI (webette-lead.mid, 134 BPM,
 // 96 ticks per quarter). Tracks are [startTick, midiNote, durTicks]
-// triplets; the sequencer schedules ahead of time and loops forever
-// until the app closes or the user mutes.
+// triplets; the loop plays forever until the app closes or the user
+// mutes.
 
 const MUSIC_BPM = 134;
 const TICKS_PER_QUARTER = 96;
@@ -168,16 +168,15 @@ function midiToFreq(note: number): number {
   return 440 * 2 ** ((note - 69) / 12);
 }
 
-// Lookahead scheduler: a light timer wakes up regularly and schedules
-// every note falling inside the next window on the audio clock, so
-// playback stays sample-accurate without a busy loop.
-const SCHEDULE_INTERVAL_MS = 200;
-const SCHEDULE_AHEAD_S = 0.6;
+// The loop is rendered once into an audio buffer, then played on repeat
+// by the audio engine itself. Feeding notes from a timer instead made
+// the music stutter on macOS: the system slows timers down as soon as
+// the window is in the background.
 
 let musicWanted = false;
-let musicTimer: ReturnType<typeof setInterval> | null = null;
-let loopStartTime = 0;
-let trackCursors: number[] = [];
+let musicLoop: Promise<AudioBuffer> | null = null;
+let musicSource: AudioBufferSourceNode | null = null;
+let musicStarting = false;
 let musicGain: GainNode | null = null;
 
 function musicBus(audio: AudioContext): GainNode {
@@ -185,69 +184,62 @@ function musicBus(audio: AudioContext): GainNode {
     musicGain = audio.createGain();
     musicGain.connect(audio.destination);
   }
-  musicGain.gain.value = 1;
   return musicGain;
 }
 
-function scheduleMusicWindow(audio: AudioContext): void {
-  const horizon = audio.currentTime + SCHEDULE_AHEAD_S;
+function renderMusicLoop(sampleRate: number): Promise<AudioBuffer> {
   const loopDuration = LOOP_TICKS * SECONDS_PER_TICK;
-  for (let t = 0; t < MUSIC_TRACKS.length; t++) {
-    const track = MUSIC_TRACKS[t]!;
-    while (true) {
-      const note = track.notes[trackCursors[t]!];
-      if (!note) {
-        // End of the loop for this track: rewind once every track is done.
-        break;
-      }
-      const start = loopStartTime + note[0] * SECONDS_PER_TICK;
-      if (start >= horizon) break;
-      const end = start + note[2] * SECONDS_PER_TICK;
-      const osc = audio.createOscillator();
-      const gain = audio.createGain();
+  const offline = new OfflineAudioContext(1, Math.ceil(loopDuration * sampleRate), sampleRate);
+  for (const track of MUSIC_TRACKS) {
+    for (const [startTick, midi, durationTicks] of track.notes) {
+      const start = startTick * SECONDS_PER_TICK;
+      const end = start + durationTicks * SECONDS_PER_TICK;
+      const osc = offline.createOscillator();
+      const gain = offline.createGain();
       osc.type = track.type;
-      osc.frequency.value = midiToFreq(note[1]);
+      osc.frequency.value = midiToFreq(midi);
       gain.gain.setValueAtTime(track.volume, start);
       gain.gain.setValueAtTime(track.volume, Math.max(start, end - 0.02));
       gain.gain.linearRampToValueAtTime(0.0001, end);
       osc.connect(gain);
-      gain.connect(musicBus(audio));
+      gain.connect(offline.destination);
       osc.start(start);
       osc.stop(end + 0.01);
-      trackCursors[t]! += 1;
     }
   }
-  const loopEnd = loopStartTime + loopDuration;
-  if (
-    loopEnd < horizon &&
-    MUSIC_TRACKS.every((track, t) => trackCursors[t]! >= track.notes.length)
-  ) {
-    loopStartTime = loopEnd;
-    trackCursors = MUSIC_TRACKS.map(() => 0);
-  }
+  return offline.startRendering();
 }
 
 function suspendMusic(): void {
-  if (musicTimer !== null) {
-    clearInterval(musicTimer);
-    musicTimer = null;
-  }
-  // Silence the notes already scheduled in the lookahead window.
-  if (musicGain) musicGain.gain.value = 0;
+  musicSource?.stop();
+  musicSource = null;
 }
 
 function resumeMusic(delaySeconds = 0.1): void {
-  if (musicTimer !== null) return;
+  if (musicSource || musicStarting) return;
   const audio = audioContext();
   if (!audio || audio.state !== "running") return;
   // Restart the loop from the top: resuming mid-bar sounds broken.
-  loopStartTime = audio.currentTime + delaySeconds;
-  trackCursors = MUSIC_TRACKS.map(() => 0);
-  scheduleMusicWindow(audio);
-  musicTimer = setInterval(() => {
-    if (muted) return;
-    scheduleMusicWindow(audio);
-  }, SCHEDULE_INTERVAL_MS);
+  const startAt = audio.currentTime + delaySeconds;
+  musicStarting = true;
+  musicLoop ??= renderMusicLoop(audio.sampleRate);
+  void musicLoop
+    .then((buffer) => {
+      if (!musicWanted || muted || musicSource) return;
+      const source = audio.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+      source.connect(musicBus(audio));
+      source.start(Math.max(startAt, audio.currentTime));
+      musicSource = source;
+    })
+    .catch(() => {
+      // Music is a bonus: without it the app works the same.
+      musicLoop = null;
+    })
+    .finally(() => {
+      musicStarting = false;
+    });
 }
 
 /** Start the background music loop (after the boot jingle). */
