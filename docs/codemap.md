@@ -104,6 +104,7 @@ webette/
 - Electrobun 1.x hashes the bundle with its own Bun (1.3), whose archive writer refuses accented file names: nothing with such names may be copied into the bundle as files (the tutorial goes in as `tutorial.tar`).
 - Electrobun's Linux installer refuses archive entries whose path exceeds 100 characters: keep deep folders out of the bundle (sharp's `linuxmusl` binaries are skipped for that reason, and are useless with the app's glibc Bun anyway).
 - Electrobun leaves the macOS wrapper app with a broken signature when it does not sign it; `packages/app/scripts/post-wrap.ts` signs it ad hoc, and `check:app` verifies the signature of the app taken from the disk image.
+- On a virtual screen without GPU (Xvfb in CI), WebKitGTK keeps showing its first frame unless rendering is forced to software (`WEBKIT_DISABLE_DMABUF_RENDERER=1`, `LIBGL_ALWAYS_SOFTWARE=1`): a dark console in a CI screenshot is not an app bug.
 - `Bun.Archive` writes `Bun.file()` entries as empty files: read them into memory first (`scripts/package-app.ts`).
 
 ## Fast answers

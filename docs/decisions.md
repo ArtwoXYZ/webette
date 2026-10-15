@@ -89,6 +89,13 @@ choice would otherwise be re-debated; remove one when it stops being true.
   Windows therefore warn before the first launch of each downloaded version.
   The macOS app still gets an ad-hoc signature (`packages/app/scripts/post-wrap.ts`):
   without one, macOS calls the download "damaged" and offers no way to open it.
+- **The console has no system title bar on Windows and macOS**: a power
+  button closes it and its edges resize it, so it reads as an object rather
+  than a window. Linux keeps its window manager's frame, which the console
+  cannot replace reliably across desktops.
+- **The background music is rendered once and played on repeat** by the
+  audio engine. Reason: a timer feeding notes ahead stuttered on macOS, which
+  slows timers down in background windows.
 - **The packaged app carries the tutorial as an archive** (`tutorial.tar`,
   the files Git tracks) and unpacks it to its user data folder the first
   time, then builds that copy. Reason: building writes next to the site, and
