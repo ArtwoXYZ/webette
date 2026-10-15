@@ -39,8 +39,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-0 libayatana-appindicator3-1 xvfb imagemagick
+      # The virtual screen has no GPU: without software rendering, WebKitGTK
+      # never repaints after its first frame.
       - if: runner.os == 'Linux'
         run: xvfb-run -a bun run check:app
+        env:
+          WEBKIT_DISABLE_DMABUF_RENDERER: "1"
+          LIBGL_ALWAYS_SOFTWARE: "1"
       - if: runner.os != 'Linux'
         run: bun run check:app
 
