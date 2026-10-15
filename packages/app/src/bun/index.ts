@@ -238,6 +238,10 @@ let setWindowFrame = (_frame: {
   height: number;
 }): void => {};
 
+// What the window asked for, reported by the self-check: tells a window
+// that never started its interface from one that just did not repaint.
+const windowRequests: string[] = [];
+
 const rpc = defineElectrobunRPC<AppRPC>("bun", {
   handlers: {
     requests: {
@@ -247,6 +251,7 @@ const rpc = defineElectrobunRPC<AppRPC>("bun", {
           method?: string;
           body?: string;
         };
+        windowRequests.push(`api ${method ?? "GET"} ${apiPath}`);
         const response = await fetch(`${apiBase}${apiPath}`, {
           method: method ?? "GET",
           headers: body ? { "Content-Type": "application/json" } : undefined,
@@ -255,6 +260,7 @@ const rpc = defineElectrobunRPC<AppRPC>("bun", {
         return { status: response.status, body: await response.text() };
       },
       getBootstrap: async () => {
+        windowRequests.push("getBootstrap");
         const state = loadAppState();
         return { tutorialDir: await resolveTutorialDir(), ...state };
       },
@@ -353,6 +359,7 @@ async function runSelfCheck(resultFile: string): Promise<void> {
   } catch (error) {
     result.error = error instanceof Error ? error.message : String(error);
   }
+  result.windowRequests = windowRequests;
   fs.writeFileSync(resultFile, JSON.stringify(result, null, 2));
   const deadline = Date.now() + 60_000;
   while (fs.existsSync(resultFile) && Date.now() < deadline) await Bun.sleep(250);
